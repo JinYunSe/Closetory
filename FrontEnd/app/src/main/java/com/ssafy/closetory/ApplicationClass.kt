@@ -9,7 +9,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-class ApplicationClass : Application() {
+class
+ApplicationClass : Application() {
 
     val SERVER_URL = "http://192.168.32.88:9988/"
 

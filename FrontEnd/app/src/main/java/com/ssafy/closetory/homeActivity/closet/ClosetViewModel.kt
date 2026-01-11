@@ -1,13 +1,13 @@
-package com.ssafy.common_project.homeActivity.dashboard
+package com.ssafy.closetory.homeActivity.closet
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class DashboardViewModel : ViewModel() {
+class ClosetViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is dashboard Fragment"
+        value = "This is closet Fragment"
     }
     val text: LiveData<String> = _text
 }

@@ -1,4 +1,4 @@
-package com.ssafy.common_project.util
+package com.ssafy.closetory.util
 
 import android.content.Context
 import android.content.Intent

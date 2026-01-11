@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">FrontEnd</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_closet">Closet</string>
+    <string name="title_styling">Styling</string>
+    <string name="title_my_page">MyPage</string>
+    <string name="desc_add">Add</string>
+    <string name="title_add_close">AddClose</string>
 </resources>

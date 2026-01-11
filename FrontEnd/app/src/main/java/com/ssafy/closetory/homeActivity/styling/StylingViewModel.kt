@@ -1,13 +1,13 @@
-package com.ssafy.common_project.homeActivity.home
+package com.ssafy.closetory.homeActivity.styling
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class HomeViewModel : ViewModel() {
+class StylingViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is home Fragment"
+        value = "This is styling Fragment"
     }
     val text: LiveData<String> = _text
 }
