@@ -51,3 +51,12 @@ out/
 .externalNativeBuild
 .cxx
 local.properties
+
+
+### AI Server ###
+ai/.venv/
+ai/venv/
+
+ai/.env
+ai/__pycache__/
+ai/.pytest_cache/
