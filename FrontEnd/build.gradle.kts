@@ -5,4 +5,7 @@ plugins {
 
     // Room KSP
     id("com.google.devtools.ksp") version "2.0.21-1.0.27" apply false
+
+    // Ktlint
+    id("org.jlleitschuh.gradle.ktlint") version "14.0.1" apply false
 }

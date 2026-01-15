@@ -1,18 +1,18 @@
 package com.ssafy.ssafyfinalproject.baseCode.base
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.viewbinding.ViewBinding
-import android.content.res.Configuration
 
 // 액티비티의 기본을 작성, 뷰 바인딩 활용
-abstract class BaseActivity<B : ViewBinding>(private val inflate: (LayoutInflater) -> B): AppCompatActivity() {
+abstract class BaseActivity<B : ViewBinding>(private val inflate: (LayoutInflater) -> B) : AppCompatActivity() {
     protected lateinit var binding: B
         private set
 

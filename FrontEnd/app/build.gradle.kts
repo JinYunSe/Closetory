@@ -1,7 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
+    // ROOM
     id("com.google.devtools.ksp")
+
+    // Ktlint
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
 android {
@@ -39,6 +44,10 @@ android {
 
     buildFeatures {
         viewBinding = true
+    }
+
+    ktlint {
+        android.set(true)
     }
 }
 
