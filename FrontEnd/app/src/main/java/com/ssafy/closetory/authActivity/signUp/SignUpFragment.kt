@@ -1,13 +1,10 @@
-package com.ssafy.closetory.authActivity.login
+package com.ssafy.closetory.authActivity.signUp
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
-import androidx.fragment.app.Fragment
 import com.ssafy.closetory.R
+import com.ssafy.closetory.authActivity.login.LoginFragment
 import com.ssafy.closetory.databinding.FragmentSignUpBinding
 import com.ssafy.ssafyfinalproject.baseCode.base.BaseFragment
 
