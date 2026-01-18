@@ -18,7 +18,6 @@ title2 관련 내용
 
 ## 🔗 관련 이슈 (Related Issue)
 <!-- 본 PR과 관련된 Jira 이슈 번호를 모두 적어주세요. -->
-- Closes S13P21D201-
 - Closes S14P11D102-
 
  
