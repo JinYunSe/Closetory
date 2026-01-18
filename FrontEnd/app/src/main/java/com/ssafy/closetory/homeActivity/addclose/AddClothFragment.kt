@@ -3,7 +3,7 @@ package com.ssafy.closetory.homeActivity.addClose
 import android.os.Bundle
 import android.view.View
 import com.ssafy.closetory.R
-import com.ssafy.closetory.databinding.FragmentAddCloseBinding
+import com.ssafy.closetory.databinding.FragmentAddClothBinding
 import com.ssafy.closetory.homeActivity.HomeActivity
 import com.ssafy.closetory.util.ClothOptions
 import com.ssafy.closetory.util.ClothTypeOptions
@@ -11,8 +11,8 @@ import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
 import com.ssafy.ssafyfinalproject.baseCode.base.BaseFragment
 
-class AddCloseFragment :
-    BaseFragment<FragmentAddCloseBinding>(FragmentAddCloseBinding::bind, R.layout.fragment_add_close) {
+class AddClothFragment :
+    BaseFragment<FragmentAddClothBinding>(FragmentAddClothBinding::bind, R.layout.fragment_add_cloth) {
 
     private lateinit var homeActivity: HomeActivity
 
