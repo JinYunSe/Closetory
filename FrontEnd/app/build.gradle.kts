@@ -88,9 +88,10 @@ dependencies {
     // Material (Chip 포함)
     implementation("com.google.android.material:material:1.12.0")
 
-    // RecyclerView
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-
     // FlexboxLayoutManager (줄바꿈 태그 배치)
     implementation("com.google.android.flexbox:flexbox:3.0.0")
+
+    //Glide
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
 }
