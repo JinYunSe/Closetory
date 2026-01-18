@@ -1,0 +1,37 @@
+package com.ssafy.closetory.homeActivity.addClose
+
+import android.os.Bundle
+import android.view.View
+import com.ssafy.closetory.R
+import com.ssafy.closetory.databinding.FragmentAddCloseBinding
+import com.ssafy.closetory.homeActivity.HomeActivity
+import com.ssafy.closetory.util.ClothOptions
+import com.ssafy.closetory.util.ClothTypeOptions
+import com.ssafy.closetory.util.SeasonOptions
+import com.ssafy.closetory.util.TagOptions
+import com.ssafy.ssafyfinalproject.baseCode.base.BaseFragment
+
+class AddCloseFragment :
+    BaseFragment<FragmentAddCloseBinding>(FragmentAddCloseBinding::bind, R.layout.fragment_add_close) {
+
+    private lateinit var homeActivity: HomeActivity
+
+    private lateinit var colorAdapter: ClothOptions.ColorAdapter
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        homeActivity = requireContext() as HomeActivity
+
+        // 다른 XML 레이어 파일 가져오기
+        val tagsSection = view.findViewById<View>(R.id.section_tags)
+        val seasonSection = view.findViewById<View>(R.id.section_season)
+        val clothTypeSection = view.findViewById<View>(R.id.section_cloth_type)
+        val colorSection = view.findViewById<View>(R.id.section_color)
+
+        TagOptions.render(tagsSection, homeActivity)
+        SeasonOptions.render(seasonSection, homeActivity)
+        ClothTypeOptions.render(clothTypeSection, homeActivity)
+        colorAdapter = ClothOptions.setup(colorSection)
+    }
+}
