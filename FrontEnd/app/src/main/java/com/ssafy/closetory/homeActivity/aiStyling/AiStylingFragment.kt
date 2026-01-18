@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.View
 import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.FragmentStylingBinding
-import com.ssafy.ssafyfinalproject.baseCode.base.BaseFragment
+import com.ssafy.closetory.baseCode.base.BaseFragment
 
 class AiStylingFragment :
     BaseFragment<FragmentStylingBinding>(FragmentStylingBinding::bind, R.layout.fragment_ai_styling) {

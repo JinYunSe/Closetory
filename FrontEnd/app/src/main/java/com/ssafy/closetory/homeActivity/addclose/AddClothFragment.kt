@@ -9,7 +9,7 @@ import com.ssafy.closetory.util.ClothOptions
 import com.ssafy.closetory.util.ClothTypeOptions
 import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
-import com.ssafy.ssafyfinalproject.baseCode.base.BaseFragment
+import com.ssafy.closetory.baseCode.base.BaseFragment
 
 class AddClothFragment :
     BaseFragment<FragmentAddClothBinding>(FragmentAddClothBinding::bind, R.layout.fragment_add_cloth) {

@@ -6,7 +6,7 @@ import android.view.View
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.login.LoginFragment
 import com.ssafy.closetory.databinding.FragmentSignUpBinding
-import com.ssafy.ssafyfinalproject.baseCode.base.BaseFragment
+import com.ssafy.closetory.baseCode.base.BaseFragment
 
 private const val TAG = "SignUpFragment_싸피"
 class SignUpFragment : BaseFragment<FragmentSignUpBinding>(FragmentSignUpBinding::bind, R.layout.fragment_sign_up) {

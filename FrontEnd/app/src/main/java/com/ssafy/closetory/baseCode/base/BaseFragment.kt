@@ -1,4 +1,4 @@
-package com.ssafy.ssafyfinalproject.baseCode.base
+package com.ssafy.closetory.baseCode.base
 
 import android.os.Bundle
 import android.view.LayoutInflater

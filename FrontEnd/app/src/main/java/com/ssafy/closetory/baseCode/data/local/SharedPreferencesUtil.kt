@@ -1,8 +1,9 @@
-package com.ssafy.ssafyfinalproject.baseCode.data.local
+package com.ssafy.closetory.baseCode.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.ssafy.ssafyfinalproject.ApplicationClass
+import com.ssafy.closetory.ApplicationClass
+
 class SharedPreferencesUtil(context: Context) {
     private var preferences: SharedPreferences =
         context.getSharedPreferences(ApplicationClass.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)

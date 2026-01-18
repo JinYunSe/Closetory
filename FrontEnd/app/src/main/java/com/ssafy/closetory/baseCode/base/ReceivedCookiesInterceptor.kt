@@ -1,7 +1,7 @@
-package com.ssafy.ssafyfinalproject.baseCode.base
+package com.ssafy.closetory.baseCode.base
 
 import android.util.Log
-import com.ssafy.ssafyfinalproject.ApplicationClass.Companion.sharedPreferences
+import com.ssafy.closetory.ApplicationClass.Companion.sharedPreferences
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException

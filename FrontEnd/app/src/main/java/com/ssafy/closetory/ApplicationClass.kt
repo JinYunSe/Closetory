@@ -1,9 +1,9 @@
-package com.ssafy.ssafyfinalproject
+package com.ssafy.closetory
 
 import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.ssafy.ssafyfinalproject.baseCode.data.local.SharedPreferencesUtil
+import com.ssafy.closetory.baseCode.data.local.SharedPreferencesUtil
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -12,9 +12,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 class
 ApplicationClass : Application() {
 
-    val SERVER_URL = "http://192.168.32.88:9988/"
-
     companion object {
+
+        val SERVER_URL = "http://192.168.32.88:9988/"
+
         lateinit var sharedPreferences: SharedPreferencesUtil
 
         // JWT Token Header 키 값
