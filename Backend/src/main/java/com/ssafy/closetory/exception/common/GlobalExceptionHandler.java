@@ -1,6 +1,8 @@
 package com.ssafy.closetory.exception.common;
 
 import com.ssafy.closetory.dto.common.ApiResponse;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +16,20 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException e) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(ApiResponse.fail(400, e.getMessage()));
+  }
+
+  // 서비스에서 직접 던진 중복 예외
+  @ExceptionHandler(DuplicateKeyException.class)
+  public ResponseEntity<ApiResponse<Void>> handleDuplicateKey(DuplicateKeyException e) {
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.fail(409, e.getMessage()));
+  }
+
+  //  DB UNIQUE 제약 위반
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(
+      DataIntegrityViolationException e) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(ApiResponse.fail(409, "이미 사용중인 아이디 또는 닉네임입니다."));
   }
 
   @ExceptionHandler(Exception.class)
