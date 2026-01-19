@@ -1,9 +1,13 @@
 package com.ssafy.closetory.entity;
 
 import com.ssafy.closetory.enums.Gender;
+import com.ssafy.closetory.enums.Provider;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
@@ -19,7 +23,7 @@ public class User {
 
   private String password;
 
-  @Column(unique = true)
+  @Column(unique = true, nullable = false)
   private String nickname;
 
   @Enumerated(EnumType.STRING)
@@ -29,7 +33,8 @@ public class User {
   private Integer weight;
 
   @Column(nullable = false)
-  private String provider;
+  @Enumerated(EnumType.STRING)
+  private Provider provider;
 
   @Column(name = "profile_image")
   private String profileImage;
@@ -42,4 +47,9 @@ public class User {
 
   @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
   private LocalDateTime createdAt;
+
+  @PrePersist
+  public void prePersist() {
+    this.createdAt = LocalDateTime.now();
+  }
 }
