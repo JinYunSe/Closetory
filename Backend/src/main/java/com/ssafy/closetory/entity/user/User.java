@@ -1,4 +1,4 @@
-package com.ssafy.closetory.entity;
+package com.ssafy.closetory.entity.user;
 
 import com.ssafy.closetory.enums.Gender;
 import com.ssafy.closetory.enums.Provider;

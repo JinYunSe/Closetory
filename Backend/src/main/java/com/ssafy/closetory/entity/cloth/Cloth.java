@@ -1,5 +1,6 @@
-package com.ssafy.closetory.entity;
+package com.ssafy.closetory.entity.cloth;
 
+import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.enums.ClothColor;
 import com.ssafy.closetory.enums.ClothType;
 import jakarta.persistence.*;
