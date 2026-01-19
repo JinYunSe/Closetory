@@ -6,8 +6,7 @@ import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
 import com.ssafy.ssafyfinalproject.baseCode.base.BaseFragment
 
-class MyPageFragment :
-    BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding::bind, R.layout.fragment_my_page) {
+class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding::bind, R.layout.fragment_my_page) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
     }
