@@ -18,22 +18,6 @@ public class GlobalExceptionHandler {
         .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
   }
 
-
-  // 서비스에서 직접 던진 중복 예외
-  @ExceptionHandler(DuplicateKeyException.class)
-  public ResponseEntity<ApiResponse<Void>> handleDuplicateKey(DuplicateKeyException e) {
-    return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.fail(409, e.getMessage()));
-  }
-
-  //  DB UNIQUE 제약 위반
-  @ExceptionHandler(DataIntegrityViolationException.class)
-  public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(
-      DataIntegrityViolationException e) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(ApiResponse.fail(409, "이미 사용중인 아이디 또는 닉네임입니다."));
-  }
-
-
   // 401 Unauthorized - 인증 실패
   @ExceptionHandler(UnauthorizedException.class)
   public ResponseEntity<ApiResponse<Void>> handleUnauthorized(UnauthorizedException e) {
@@ -63,7 +47,6 @@ public class GlobalExceptionHandler {
   }
 
   // 500 Internal Server Error - 서버 오류
-
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

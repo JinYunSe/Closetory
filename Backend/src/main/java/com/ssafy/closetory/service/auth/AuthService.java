@@ -1,7 +1,7 @@
 package com.ssafy.closetory.service.auth;
 
 import com.ssafy.closetory.dto.user.SignupRequest;
-import com.ssafy.closetory.entity.User;
+import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.enums.Provider;
 import com.ssafy.closetory.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
