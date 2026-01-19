@@ -6,6 +6,7 @@ import com.ssafy.closetory.dto.cloth.GetClosetResponse;
 import com.ssafy.closetory.entity.cloth.Cloth;
 import com.ssafy.closetory.enums.ClothColor;
 import com.ssafy.closetory.enums.Season;
+import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.repository.ClothRepository;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class ClothServiceImpl implements ClothService {
       try {
         color = ClothColor.valueOf(request.color().trim().toUpperCase(Locale.ROOT));
       } catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException("color 값이 올바르지 않습니다. 예: BLACK, WHITE, RED");
+        throw new BadRequestException("color 값이 올바르지 않습니다. 예: BLACK, WHITE, RED");
       }
     }
 
@@ -43,7 +44,7 @@ public class ClothServiceImpl implements ClothService {
                     try {
                       return Season.valueOf(s.trim().toUpperCase(Locale.ROOT));
                     } catch (IllegalArgumentException e) {
-                      throw new IllegalArgumentException(
+                      throw new BadRequestException(
                           "season 값이 올바르지 않습니다. 예: SPRING, SUMMER, FALL, WINTER");
                     }
                   })
