@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.addclose
+package com.ssafy.closetory.homeActivity.addClose
 
 import android.os.Bundle
 import android.view.View
