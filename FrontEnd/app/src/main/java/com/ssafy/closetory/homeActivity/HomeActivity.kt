@@ -3,17 +3,12 @@ package com.ssafy.closetory.homeActivity
 import android.os.Bundle
 import androidx.navigation.findNavController
 import com.ssafy.closetory.R
-import com.ssafy.closetory.databinding.ActivityMainBinding
+import com.ssafy.closetory.databinding.ActivityHomeBinding
 import com.ssafy.ssafyfinalproject.baseCode.base.BaseActivity
 
-class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::inflate) {
+class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::inflate) {
 
-    private data class NavItem(
-        val destinationId: Int,
-        val containerId: Int,
-        val iconId: Int,
-        val textId: Int
-    )
+    private data class NavItem(val destinationId: Int, val containerId: Int, val iconId: Int, val textId: Int)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

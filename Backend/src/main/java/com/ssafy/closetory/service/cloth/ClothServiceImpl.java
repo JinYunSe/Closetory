@@ -5,6 +5,7 @@ import com.ssafy.closetory.dto.cloth.GetClosetRequest;
 import com.ssafy.closetory.dto.cloth.GetClosetResponse;
 import com.ssafy.closetory.entity.Cloth;
 import com.ssafy.closetory.enums.ClothColor;
+import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.repository.ClothRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ public class ClothServiceImpl implements ClothService {
       try {
         filterColor = ClothColor.valueOf(color);
       } catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException("color 값이 올바르지 않습니다. 예: BLACK, WHITE, RED");
+        throw new BadRequestException("color 값이 올바르지 않습니다. 예: BLACK, WHITE, RED");
       }
 
       clothes = clothes.stream().filter(c -> c.getColor() == filterColor).toList();

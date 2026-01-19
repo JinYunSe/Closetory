@@ -19,19 +19,19 @@
 
     <fragment
         android:id="@+id/navigation_styling"
-        android:name="com.ssafy.closetory.homeActivity.styling.StylingFragment"
+        android:name="com.ssafy.closetory.homeActivity.aiStyling.AiStylingFragment"
         android:label="@string/title_styling"
-        tools:layout="@layout/fragment_styling" />
+        tools:layout="@layout/fragment_ai_styling" />
 
     <fragment
         android:id="@+id/navigation_my_page"
-        android:name="com.ssafy.closetory.homeActivity.mypage.MyPageFragment"
+        android:name="com.ssafy.closetory.homeActivity.myPage.MyPageFragment"
         android:label="@string/title_my_page"
         tools:layout="@layout/fragment_my_page" />
 
     <fragment
         android:id="@+id/navigation_add_close"
-        android:name="com.ssafy.closetory.homeActivity.addclose.AddCloseFragment"
+        android:name="com.ssafy.closetory.homeActivity.addClose.AddCloseFragment"
         android:label="@string/title_add_close"
         tools:layout="@layout/fragment_add_close" />
 </navigation>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Custom font 적용 -->
+    <style name="CustomTextViewFontStyle"
+        parent="@android:style/Widget.DeviceDefault.TextView">
+
+        <item name="android:fontFamily">@font/font_gumiromance</item>
+
+    </style>
+</resources>
