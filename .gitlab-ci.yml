@@ -1,0 +1,81 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+
+cache:
+  key: gradle-cache
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+# CI: 빌드/테스트
+build_backend:
+  stage: build
+  image: gradle:8.7.0-jdk17
+  script:
+    - cd Backend
+    - chmod +x ./gradlew
+    - ./gradlew clean test bootJar
+  artifacts:
+    when: always
+    paths:
+      - Backend/build/libs/*.jar
+    expire_in: 7 days
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "back/dev"'
+
+# CD: EC2에 SSH 접속해서 dev 기준으로 pull + 빌드 + 재시작
+deploy_backend_to_ec2:
+  stage: deploy
+  image: alpine:3.20
+  before_script:
+    - apk add --no-cache openssh-client bash
+    - mkdir -p ~/.ssh
+    # SSH 개인키 등록
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    # known_hosts 등록
+    - ssh-keyscan -p "${SSH_PORT:-22}" "$SSH_HOST" >> ~/.ssh/known_hosts
+  script:
+    - |
+      ssh -p "${SSH_PORT:-22}" "${SSH_USER}@${SSH_HOST}" "bash -lc '
+        set -e
+        cd ~/S14P11D102
+
+        # 최신 dev 반영
+        git fetch --all
+        git checkout back/dev
+        git pull origin back/dev
+
+        # 백엔드 빌드
+        cd Backend
+        chmod +x ./gradlew
+        ./gradlew clean bootJar
+
+        # 기존 8080 종료
+        sudo fuser -k 8080/tcp || true
+
+        # 실행(환경변수는 GitLab Variables에서 주입)
+        nohup env \
+          DB_URL=\"${DB_URL}\" \
+          DB_USERNAME=\"${DB_USERNAME}\" \
+          DB_PASSWORD=\"${DB_PASSWORD}\" \
+          java -jar build/libs/*.jar \
+          --server.port=8080 \
+          --server.address=0.0.0.0 \
+          > app.log 2>&1 < /dev/null &
+
+        echo \$! > app.pid
+        disown
+
+        # 헬스체크
+        sleep 3
+        curl -I http://localhost:8080/api/v1/swagger-ui/index.html | head -n 1 || true
+      '"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "back/dev"'
+  environment:
+    name: dev
