@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:text="색상"
         android:textColor="@color/black"
-        android:textSize="32sp" />
+        android:textSize="24sp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvColors"

@@ -74,7 +74,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lv_top_cloth"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="8dp"
@@ -86,6 +86,7 @@
             tools:itemCount="6"
             tools:listitem="@layout/item_cloth"
             android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
 
         <TextView
@@ -103,7 +104,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lv_bottom_cloth"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="52dp"
             android:layout_marginEnd="8dp"
@@ -115,6 +116,7 @@
             tools:itemCount="6"
             tools:listitem="@layout/item_cloth"
             android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
 
         <TextView
@@ -132,7 +134,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lv_one_piece"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
@@ -143,6 +145,7 @@
             tools:listitem="@layout/item_cloth"
             tools:itemCount="6"
             android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
 
         <TextView
@@ -160,7 +163,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lv_outer"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
@@ -171,6 +174,7 @@
             tools:listitem="@layout/item_cloth"
             tools:itemCount="6"
             android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
 
         <TextView
@@ -188,7 +192,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lv_shoes"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
@@ -199,6 +203,7 @@
             tools:listitem="@layout/item_cloth"
             tools:itemCount="6"
             android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
 
         <TextView
@@ -216,7 +221,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lv_hat"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
@@ -227,6 +232,7 @@
             tools:listitem="@layout/item_cloth"
             tools:itemCount="6"
             android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
 
         <TextView
@@ -244,7 +250,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lv_accessory"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
@@ -256,6 +262,7 @@
             tools:listitem="@layout/item_cloth"
             tools:itemCount="6"
             android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

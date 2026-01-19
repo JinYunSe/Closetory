@@ -41,7 +41,7 @@ object TagOptions {
             "태그",
             items,
             false, // 단일 선택이 아님을 지정 => 다중 선택 가능
-            true // 꼭 넣어야 하는 필수 선택 요소임을 표기
+            false // 꼭 넣어야 하는 요소인지 표기하기
         )
     }
 
@@ -64,6 +64,9 @@ object TagOptions {
         group.removeAllViews()
         group.isSingleSelection = single
         group.isSelectionRequired = required
+
+        // 선택된 태그 코드들을 저장할 목록
+        val selectedTags = linkedSetOf<String>()
 
         // 각각의 요소들 UI에 그리는 과정
         items.forEach { item ->
@@ -91,6 +94,21 @@ object TagOptions {
                     )
                 )
             }
+
+            chip.setOnCheckedChangeListener { button, isChecked ->
+                // 선택 <-> 해제 왔다갔다 처리
+
+                val code = button.tag as String
+
+                if (isChecked) {
+                    // 선택됨
+                    selectedTags.add(code)
+                } else {
+                    // 해제됨
+                    selectedTags.remove(code)
+                }
+            }
+
             group.addView(chip)
         }
     }

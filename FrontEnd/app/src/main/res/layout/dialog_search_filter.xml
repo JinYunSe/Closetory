@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <include
+        android:id="@+id/section_tags"
+        layout="@layout/section_chip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/section_cloth_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/section_chip"/>
+
+    <include
+        android:id="@+id/section_season"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/section_chip"/>
+
+    <include
+        android:id="@+id/section_color"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/section_color"/>
+
+    <Button
+        android:id="@+id/btn_search_filter"
+        android:layout_margin="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="검색"
+        />
+</LinearLayout>

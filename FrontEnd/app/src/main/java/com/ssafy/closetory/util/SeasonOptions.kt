@@ -27,7 +27,7 @@ object SeasonOptions {
             "계절",
             items,
             false, // 여러개 선택 가능함을 의미
-            true // 필수 요소임을 지정
+            false // 필수 요소가 아님(선택하지 않아도 됨)
         )
     }
 
@@ -71,7 +71,7 @@ object SeasonOptions {
         }
     }
 
-    private fun getSelectedCodes(sectionRoot: View): List<String> {
+    fun getSelectedCodes(sectionRoot: View): List<String> {
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
         val result = mutableListOf<String>()
 

@@ -49,7 +49,7 @@ object ClothOptions {
     class ColorAdapter(private val items: List<ColorItem>) : RecyclerView.Adapter<ColorAdapter.ViewHold>() {
 
         // 현재 선택한 대상 index 저장할 변수
-        private var selectedPos = 0
+        private var selectedPos = RecyclerView.NO_POSITION
 
         // 리사이클러 뷰 요소가 반영될 XML의 요소들 가져오기
         inner class ViewHold(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -87,23 +87,30 @@ object ClothOptions {
 
             // 요소를 선택할 경우
             holder.itemView.setOnClickListener {
-                // 이전 요소와 같은 요소 클릭하면 클릭 이벤트 무시
-                if (selectedPos == position) return@setOnClickListener
+                // 이전 요소와 같은 요소 클릭하면 선택 해제로 변경
+                val clickedPos = holder.bindingAdapterPosition
+                if (clickedPos == RecyclerView.NO_POSITION) return@setOnClickListener
 
                 // 이전 선택 대상
                 val prev = selectedPos
 
-                // 지금 선택 대상
-                selectedPos = position
+                // 같은 아이템을 다시 누르면 선택 해제
+                selectedPos = if (prev == clickedPos) RecyclerView.NO_POSITION else clickedPos
 
                 // 이전 선택 대상 UI 화면 바꾸기(테두리 빼기)
                 notifyItemChanged(prev)
 
-                // 지금 선택 대상 UI 화면 바꾸기(테두리 넣기)
-                notifyItemChanged(selectedPos)
+                // 지금 선택 대상이 같은 대상이 아니면 UI 화면 바꾸기(테두리 넣기)
+                // 같은 대상이었으면 태두리 빼기
+                if (prev != RecyclerView.NO_POSITION) notifyItemChanged(prev)
+                if (selectedPos != RecyclerView.NO_POSITION) notifyItemChanged(selectedPos)
             }
         }
 
-        fun getSelectedCodeEnglish(): String = items[selectedPos].codeEnglish
+        // 선택 없으면 null
+        fun getSelectedCodeEnglishOrNull(): String? {
+            if (selectedPos == RecyclerView.NO_POSITION) return null
+            return items[selectedPos].codeEnglish
+        }
     }
 }
