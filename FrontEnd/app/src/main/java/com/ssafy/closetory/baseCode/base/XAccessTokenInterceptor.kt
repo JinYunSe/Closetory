@@ -2,10 +2,10 @@ package com.ssafy.closetory.baseCode.base
 
 import com.ssafy.closetory.ApplicationClass.Companion.X_ACCESS_TOKEN
 import com.ssafy.closetory.ApplicationClass.Companion.sharedPreferences
+import java.io.IOException
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import java.io.IOException
 
 class XAccessTokenInterceptor : Interceptor {
 

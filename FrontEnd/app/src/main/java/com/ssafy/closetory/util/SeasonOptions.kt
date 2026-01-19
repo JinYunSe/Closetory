@@ -71,7 +71,7 @@ object SeasonOptions {
         }
     }
 
-    fun getSelectedCodes(sectionRoot: View): List<String> {
+    public fun getSelectedSeason(sectionRoot: View): List<String> {
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
         val result = mutableListOf<String>()
 

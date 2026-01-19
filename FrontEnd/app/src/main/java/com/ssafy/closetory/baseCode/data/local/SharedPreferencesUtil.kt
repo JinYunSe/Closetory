@@ -14,12 +14,7 @@ class SharedPreferencesUtil(context: Context) {
         editor.apply()
     }
 
-    fun getUserCookie(): MutableSet<String>? {
-        return preferences.getStringSet(ApplicationClass.COOKIES_KEY_NAME, HashSet())
-    }
+    fun getUserCookie(): MutableSet<String>? = preferences.getStringSet(ApplicationClass.COOKIES_KEY_NAME, HashSet())
 
-    fun getString(key:String): String? {
-        return preferences.getString(key, null)
-    }
-
+    fun getString(key: String): String? = preferences.getString(key, null)
 }

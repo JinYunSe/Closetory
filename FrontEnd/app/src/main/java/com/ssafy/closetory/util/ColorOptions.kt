@@ -12,7 +12,7 @@ import com.ssafy.closetory.R
 //                      서버로 보낼 영문        UI에 보여줄 색상
 data class ColorItem(val codeEnglish: String, val argb: Int)
 
-object ClothOptions {
+object ColorOptions {
 
     val items = listOf(
         ColorItem("RED", 0xFFE53935.toInt()),
@@ -108,7 +108,7 @@ object ClothOptions {
         }
 
         // 선택 없으면 null
-        fun getSelectedCodeEnglishOrNull(): String? {
+        public fun getSelectedColor(): String? {
             if (selectedPos == RecyclerView.NO_POSITION) return null
             return items[selectedPos].codeEnglish
         }
