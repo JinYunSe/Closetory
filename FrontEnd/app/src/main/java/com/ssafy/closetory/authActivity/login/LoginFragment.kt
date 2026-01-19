@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.fragment.app.Fragment
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.signUp.SignUpFragment
 import com.ssafy.closetory.databinding.FragmentLoginBinding
@@ -18,7 +17,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnSignUp.setOnClickListener {
+        binding.tvNoIdToSignup.setOnClickListener {
             Log.d(TAG, "SignUp 이동 버튼 : 동작 유무 확인")
             parentFragmentManager.beginTransaction()
                 .replace(R.id.auth_container, SignUpFragment())
