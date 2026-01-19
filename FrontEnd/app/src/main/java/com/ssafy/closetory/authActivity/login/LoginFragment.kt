@@ -9,6 +9,7 @@ import com.ssafy.closetory.authActivity.signUp.SignUpFragment
 import com.ssafy.closetory.databinding.FragmentLoginBinding
 import com.ssafy.closetory.homeActivity.HomeActivity
 import com.ssafy.ssafyfinalproject.baseCode.base.BaseFragment
+import retrofit2.Retrofit
 
 private const val TAG = "LoginFragment_싸피"
 
