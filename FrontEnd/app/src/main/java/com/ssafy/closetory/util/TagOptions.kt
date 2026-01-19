@@ -14,7 +14,7 @@ import com.ssafy.closetory.R
 object TagOptions {
 
     // 태그 목록
-    val items = listOf(
+    public val items = listOf(
         OptionItem("캐주얼", "CASUAL"),
         OptionItem("귀여움", "CUTE"),
         OptionItem("시크", "CHIC"),
@@ -114,7 +114,7 @@ object TagOptions {
     }
 
     // 체크된 대상이 true인 대상만 골라서 반환
-    private fun getSelectedCodes(sectionRoot: View): List<String> {
+    public fun getSelectedTag(sectionRoot: View): List<String> {
         // 태그 그룹 가져오기
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
         val result = mutableListOf<String>()

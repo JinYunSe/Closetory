@@ -71,7 +71,7 @@ object ClothTypeOptions {
     }
 
     // 선택 안 하면 null
-    fun getSelectedCodeOrNull(sectionRoot: View): String? {
+    public fun getClothType(sectionRoot: View): String? {
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
         val checkedId = group.checkedChipId
         if (checkedId == View.NO_ID) return null
