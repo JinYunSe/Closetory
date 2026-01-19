@@ -1,5 +1,6 @@
 package com.ssafy.closetory.homeActivity.closet
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,7 @@ import com.ssafy.closetory.dto.ClosetDataDto
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
+private const val TAG = "ClosetViewModel_싸피"
 class ClosetViewModel : ViewModel() {
 
     private val repository = ClosetRepository()
@@ -37,6 +39,8 @@ class ClosetViewModel : ViewModel() {
                     onlyLike,
                     onlyMine
                 )
+
+                Log.d(TAG, "getClothesList: $res")
 
                 if (res.isSuccessful) {
                     val body = res.body()
