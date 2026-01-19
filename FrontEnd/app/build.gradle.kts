@@ -7,6 +7,8 @@ plugins {
 
     // Ktlint
     id("org.jlleitschuh.gradle.ktlint")
+
+    id("kotlin-kapt")
 }
 
 android {
@@ -91,7 +93,6 @@ dependencies {
     // FlexboxLayoutManager (줄바꿈 태그 배치)
     implementation("com.google.android.flexbox:flexbox:3.0.0")
 
-    //Glide
+    // Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
-
 }
