@@ -120,7 +120,6 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         binding.lvTopCloth.adapter = ClothAdapter()
         binding.lvBottomCloth.adapter = ClothAdapter()
         binding.lvOuter.adapter = ClothAdapter()
-        binding.lvOnePiece.adapter = ClothAdapter()
         binding.lvShoes.adapter = ClothAdapter()
         binding.lvHat.adapter = ClothAdapter()
         binding.lvAccessory.adapter = ClothAdapter()

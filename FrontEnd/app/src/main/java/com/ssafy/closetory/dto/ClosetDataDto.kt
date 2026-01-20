@@ -7,6 +7,5 @@ data class ClosetDataDto(
     val shoes: List<ClothItemDto>,
     val hats: List<ClothItemDto>,
     val accessories: List<ClothItemDto>,
-    val bags: List<ClothItemDto>,
-    val onePiece: List<ClothItemDto>
+    val bags: List<ClothItemDto>
 )

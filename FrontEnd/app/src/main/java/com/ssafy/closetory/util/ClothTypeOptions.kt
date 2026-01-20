@@ -15,7 +15,6 @@ object ClothTypeOptions {
         OptionItem("하의", "BOTTOM"),
         OptionItem("악세사리", "ACCESSORY"),
         OptionItem("가방", "BAG"),
-        OptionItem("원피스", "ONEPIECE"),
         OptionItem("아우터", "OUTER")
     )
 
