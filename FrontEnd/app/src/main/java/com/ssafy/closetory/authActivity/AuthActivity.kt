@@ -6,8 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.ssafy.closetory.R
+import com.ssafy.closetory.baseCode.base.BaseActivity
 import com.ssafy.closetory.databinding.ActivityAuthBinding
-import com.ssafy.ssafyfinalproject.baseCode.base.BaseActivity
 
 class AuthActivity : BaseActivity<ActivityAuthBinding>(ActivityAuthBinding::inflate) {
     override fun onCreate(savedInstanceState: Bundle?) {
