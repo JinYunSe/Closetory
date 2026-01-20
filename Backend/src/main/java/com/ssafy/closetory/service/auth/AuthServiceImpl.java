@@ -51,15 +51,15 @@ public class AuthServiceImpl implements AuthService {
 
     // 5. 사용자 엔티티 생성
     User user =
-      User.builder()
-        .userId(request.userId())
-        .password(encodedPassword)
-        .nickname(request.nickname())
-        .gender(request.gender())
-        .height(request.height())
-        .weight(request.weight())
-        .provider(Provider.LOCAL)
-        .build();
+        User.builder()
+            .userId(request.userId())
+            .password(encodedPassword)
+            .nickname(request.nickname())
+            .gender(request.gender())
+            .height(request.height())
+            .weight(request.weight())
+            .provider(Provider.LOCAL)
+            .build();
 
     // 6. 저장
     userRepository.save(user);
@@ -74,9 +74,9 @@ public class AuthServiceImpl implements AuthService {
 
     // 1. 사용자 조회
     User user =
-      userRepository
-        .findByUserId(request.userId())
-        .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
+        userRepository
+            .findByUserId(request.userId())
+            .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
 
     // 2. 비밀번호 검증
     if (!passwordEncoder.matches(request.password(), user.getPassword())) {

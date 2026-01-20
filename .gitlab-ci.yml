@@ -1,0 +1,51 @@
+stages: [build, deploy]
+
+variables:
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+
+cache:
+  key: gradle-cache
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+    - Backend/.gradle/wrapper
+    - Backend/.gradle/caches
+
+# CI: 빌드/테스트
+build_backend:
+  stage: build
+  script:
+    - cd Backend
+    - chmod +x ./gradlew
+    - ./gradlew clean bootJar -x test
+  artifacts:
+    paths:
+      - Backend/build/libs/*SNAPSHOT.jar
+    expire_in: 7 days
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "back/dev"'
+
+# CD
+deploy_backend_to_ec2:
+  stage: deploy
+  needs: ["build_backend"]
+  script:
+    - JAR_PATH=$(ls Backend/build/libs/*SNAPSHOT.jar | head -n 1)
+    - install -m 644 "$JAR_PATH" /opt/closetory/app.jar
+    - sudo /usr/bin/systemctl restart closetory
+    - |
+      for i in {1..30}; do
+        if curl -fsS -I http://localhost:8080/api/v1/swagger-ui/index.html >/dev/null; then
+          echo "OK"
+          exit 0
+        fi
+        echo "waiting... ($i)"
+        sleep 2
+      done
+      echo "Healthcheck failed"
+      sudo /usr/bin/systemctl status closetory --no-pager || true
+      exit 1
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "back/dev"'
+  environment:
+    name: dev

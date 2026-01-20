@@ -1,11 +1,10 @@
 package com.ssafy.closetory.service.token;
 
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -22,8 +21,7 @@ public class RefreshTokenService {
 
   // Redis 저장
   public void save(Long userId, String refreshToken) {
-    redisTemplate.opsForValue()
-      .set(key(userId), refreshToken, REFRESH_TOKEN_TTL, TimeUnit.DAYS);
+    redisTemplate.opsForValue().set(key(userId), refreshToken, REFRESH_TOKEN_TTL, TimeUnit.DAYS);
   }
 
   // Redis 조회
