@@ -8,7 +8,7 @@ import retrofit2.http.Query
 
 interface ClosetService {
 
-    @GET("/clothes")
+    @GET("clothes")
     suspend fun getClothesList(
         @Query("tags") tags: List<String>?,
         @Query("color") color: String?,

@@ -71,14 +71,6 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
                 var selectedSeasons = SeasonOptions.getSelectedSeason(seasonSection)
                 val selectedColor = colorAdapter.getSelectedColor()
 
-                // 필터 선택 안 할  경우 모두 선택으로 지정
-                if (selectedTags.isEmpty()) {
-                    selectedTags = TagOptions.items.map { it.codeEnglish }
-                }
-                if (selectedSeasons.isEmpty()) {
-                    selectedSeasons = SeasonOptions.items.map { it.codeEnglish }
-                }
-
                 // 필터를 변수에 담아 두기
                 currentTags = selectedTags
                 currentSeasons = selectedSeasons
