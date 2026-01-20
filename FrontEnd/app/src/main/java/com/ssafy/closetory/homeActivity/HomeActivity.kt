@@ -5,6 +5,7 @@ import androidx.navigation.findNavController
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseActivity
 import com.ssafy.closetory.databinding.ActivityHomeBinding
+import com.ssafy.closetory.util.PermissionChecker
 
 class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::inflate) {
 
