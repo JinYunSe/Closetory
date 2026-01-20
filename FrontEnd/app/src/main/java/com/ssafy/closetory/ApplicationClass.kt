@@ -1,20 +1,22 @@
-package com.ssafy.ssafyfinalproject
+package com.ssafy.closetory
 
 import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.ssafy.ssafyfinalproject.baseCode.data.local.SharedPreferencesUtil
+import com.ssafy.closetory.baseCode.data.local.SharedPreferencesUtil
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class
 ApplicationClass : Application() {
 
-    val SERVER_URL = "http://192.168.32.88:9988/"
-
     companion object {
+
+        val SERVER_URL = "http://i14d102.p.ssafy.io:8080/api/v1/"
+
         lateinit var sharedPreferences: SharedPreferencesUtil
 
         // JWT Token Header 키 값
@@ -35,7 +37,7 @@ ApplicationClass : Application() {
             .readTimeout(5000, TimeUnit.MILLISECONDS)
             .connectTimeout(5000, TimeUnit.MILLISECONDS)
             // 로그캣에 okhttp.OkHttpClient로 검색하면 http 통신 내용을 보여줍니다.
-            // .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .build()
 
         // 앱이 처음 생성되는 순간, retrofit 인스턴스를 생성

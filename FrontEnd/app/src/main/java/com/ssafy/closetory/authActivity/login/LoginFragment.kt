@@ -7,9 +7,9 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.signUp.SignUpFragment
+import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentLoginBinding
 import com.ssafy.closetory.homeActivity.HomeActivity
-import com.ssafy.ssafyfinalproject.baseCode.base.BaseFragment
 
 private const val TAG = "LoginFragment_싸피"
 
