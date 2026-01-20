@@ -20,8 +20,8 @@ class ClosetViewModel : ViewModel() {
     private val _closetData = MutableLiveData<ClosetDataDto?>()
     val closetData: LiveData<ClosetDataDto?> = _closetData
 
-    private val _message = MutableLiveData<String>()
-    val message: LiveData<String> = _message
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
 
     fun getClothesList(
         tags: List<String>?,
@@ -42,20 +42,16 @@ class ClosetViewModel : ViewModel() {
 
                 Log.d(TAG, "getClothesList: $res")
 
-                if (res.isSuccessful) {
+                if (res.isSuccessful) { // 통신 결과 200번 때 결과
                     val body = res.body()
-
                     val data = body?.data
-                    if (data != null) {
-                        _closetData.value = data
-                    } else {
-                        _message.value = body?.responseMessage
-                    }
-                } else {
-                    _message.value = res.message()
+                    _closetData.value = data
+                } else { // 통신 결과 400, 500번 때 결과
+                    val body = res.body()
+                    _errorMessage.value = body?.errorMessage!!
                 }
             } catch (e: Exception) {
-                _message.value = e.message ?: "네트워크 오류"
+                _errorMessage.value = e.message ?: "네트워크 오류"
             }
         }
     }
