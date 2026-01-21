@@ -4,7 +4,7 @@ import com.ssafy.closetory.config.security.JwtTokenProvider;
 import com.ssafy.closetory.dto.auth.LoginRequest;
 import com.ssafy.closetory.dto.auth.LoginResponse;
 import com.ssafy.closetory.dto.auth.SignupRequest;
-import com.ssafy.closetory.entity.User;
+import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.enums.Provider;
 import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.ConflictException;
@@ -65,11 +65,9 @@ public class AuthServiceImpl implements AuthService {
     userRepository.save(user);
   }
 
-  // =====================
+
   // 로그인
-  // =====================
   @Override
-  @Transactional(readOnly = true)
   public LoginResponse login(LoginRequest request) {
 
     // 1. 사용자 조회
