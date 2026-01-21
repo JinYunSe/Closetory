@@ -1,8 +1,6 @@
 package com.ssafy.closetory.exception.common;
 
 import com.ssafy.closetory.dto.common.ApiResponse;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
