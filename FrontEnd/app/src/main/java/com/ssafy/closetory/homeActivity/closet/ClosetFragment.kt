@@ -32,6 +32,14 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     private var checkedFavorites: Boolean = false
     private var checkedOnlyMyCloth: Boolean = false
 
+    // 어댑터를 멤버
+    private val topAdapter = ClothAdapter()
+    private val bottomAdapter = ClothAdapter()
+    private val outerAdapter = ClothAdapter()
+    private val shoesAdapter = ClothAdapter()
+    private val hatAdapter = ClothAdapter()
+    private val accAdapter = ClothAdapter()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -117,23 +125,32 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     // 리스트 초기화
     fun initListViews() {
         // 리사이클러 뷰에 Adapter 붙이기
-        binding.lvTopCloth.adapter = ClothAdapter()
-        binding.lvBottomCloth.adapter = ClothAdapter()
-        binding.lvOuter.adapter = ClothAdapter()
-        binding.lvShoes.adapter = ClothAdapter()
-        binding.lvHat.adapter = ClothAdapter()
-        binding.lvAccessory.adapter = ClothAdapter()
+        binding.lvTopCloth.adapter = topAdapter
+        binding.lvBottomCloth.adapter = bottomAdapter
+        binding.lvOuter.adapter = outerAdapter
+        binding.lvShoes.adapter = shoesAdapter
+        binding.lvHat.adapter = hatAdapter
+        binding.lvAccessory.adapter = accAdapter
     }
 
     fun registerObserve() {
         viewModel.closetData.observe(viewLifecycleOwner) { data ->
-            if (data != null) {
-                Log.d(TAG, "registerObserve Data : $data")
-            }
+            if (data == null) return@observe
+
+            Log.d(TAG, "registerObserve Data : $data")
+
+            // 어뎁터에 요소들 집어 넣기
+            topAdapter.submitList(data.topClothes)
+            bottomAdapter.submitList(data.bottomClothes)
+            outerAdapter.submitList(data.outerClothes)
+            shoesAdapter.submitList(data.shoes)
+            hatAdapter.submitList(data.hats)
+            accAdapter.submitList(data.accessories)
         }
 
-        viewModel.message.observe(viewLifecycleOwner) { msg ->
-            if (!msg.isNullOrEmpty()) Log.d(TAG, "registerObserve Message : $msg")
+        viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
+            if (message == null) return@observe
+            showToast(message)
         }
     }
 }
