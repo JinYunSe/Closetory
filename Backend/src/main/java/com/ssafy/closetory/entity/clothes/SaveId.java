@@ -1,4 +1,4 @@
-package com.ssafy.closetory.entity.cloth;
+package com.ssafy.closetory.entity.clothes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -11,11 +11,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class ClothSaveId implements Serializable {
+public class SaveId implements Serializable {
 
-  @Column(name = "cloth_id")
-  private Long clothId;
+  @Column(name = "clothes_id")
+  private Integer clothesId;
 
   @Column(name = "user_id")
-  private Long userId;
+  private Integer userId;
 }

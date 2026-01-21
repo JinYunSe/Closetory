@@ -27,7 +27,6 @@ public class AuthServiceImpl implements AuthService {
   private final RefreshTokenService refreshTokenService;
 
   // 회원가입
-
   @Override
   public void signup(SignupRequest request) {
 
@@ -64,7 +63,6 @@ public class AuthServiceImpl implements AuthService {
     // 6. 저장
     userRepository.save(user);
   }
-
 
   // 로그인
   @Override
