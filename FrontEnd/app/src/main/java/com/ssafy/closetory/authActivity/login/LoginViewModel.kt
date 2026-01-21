@@ -21,16 +21,18 @@ class LoginViewModel : ViewModel() {
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> = _message
 
-    fun login(id: String, password: String) {
+    fun login(username: String, password: String) {
         Log.d("LOGIN_FLOW", "ViewModel login() 진입")
 
         viewModelScope.launch {
             Log.d("LOGIN_FLOW", "coroutine 시작")
 
             try {
-                val res = repository.login(
-                    LoginRequest(id, password)
-                )
+                val request = LoginRequest(username, password)
+                // request 로그 확인
+                Log.d("LOGIN_REQUEST", request.toString())
+
+                val res = repository.login(request)
                 val errorJson = res.errorBody()?.string()
 //              디버깅 목록
                 Log.d("DEBUG", "################")

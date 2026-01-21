@@ -31,12 +31,12 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
 
         // 로그인 버튼 클릭 → ViewModel 호출
         binding.btnLogin.setOnClickListener {
-            val userId = binding.etLoginId.text.toString()
+            val username = binding.etLoginId.text.toString()
             val password = binding.etLoginPassword.text.toString()
 
-            Log.d("LOGIN_FLOW", "로그인 버튼 클릭: $userId / $password")
+            Log.d("LOGIN_FLOW", "로그인 버튼 클릭: $username / $password")
 
-            loginViewModel.login(userId, password)
+            loginViewModel.login(username, password)
         }
 
         loginViewModel.message.observe(viewLifecycleOwner) { msg ->

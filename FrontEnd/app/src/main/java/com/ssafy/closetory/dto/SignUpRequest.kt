@@ -7,7 +7,7 @@ package com.ssafy.closetory.dto
 //    "nickname" : "김싸피123",
 // }
 data class SignUpRequest(
-    val loginId: String,
+    val username: String,
     val password: String,
     val nickname: String,
     val gender: String, // "Male" or "Female"

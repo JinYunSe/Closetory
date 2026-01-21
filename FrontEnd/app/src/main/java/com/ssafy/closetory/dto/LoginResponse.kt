@@ -5,8 +5,8 @@ package com.ssafy.closetory.dto
 //    "httpStatusCode": 200,
 //    "responseMessage": "login success",
 //    "data": {
-//    "accessToken": "...",
-//    "refreshToken": "..."
+//      "accessToken": "...",
+//      "refreshToken": "..."
 //    }
 // }
 

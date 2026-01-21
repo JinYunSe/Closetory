@@ -5,4 +5,4 @@ package com.ssafy.closetory.dto
 //  "userId": "ssafy",
 //  "password": "1234"
 // }
-data class LoginRequest(val userId: String, val password: String)
+data class LoginRequest(val username: String, val password: String)

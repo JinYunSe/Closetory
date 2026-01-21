@@ -59,7 +59,6 @@
         android:layout_marginTop="16dp"
         android:background="#E0E0E0"
         android:hint="닉네임"
-        android:inputType="textPersonName"
         android:padding="16dp" />
 
     <LinearLayout
