@@ -1,62 +1,60 @@
+// SignUpFragment.kt
+
 package com.ssafy.closetory.authActivity.signUp
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.fragment.app.viewModels
 import com.ssafy.closetory.R
-import com.ssafy.closetory.authActivity.login.LoginFragment
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentSignUpBinding
 
 private const val TAG = "SignUpFragment_싸피"
-class SignUpFragment : BaseFragment<FragmentSignUpBinding>(FragmentSignUpBinding::bind, R.layout.fragment_sign_up) {
 
-    private var selectedGender: String? = null // 남,여 선택 버튼 토글화 하기 위함.
+class SignUpFragment :
+    BaseFragment<FragmentSignUpBinding>(
+        FragmentSignUpBinding::bind,
+        R.layout.fragment_sign_up
+    ) {
+
+    private val signUpViewModel: SignUpViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupGenderButtons()
+        // 회원가입 버튼
+        binding.btnSignupOkay.setOnClickListener {
+            val id = binding.etSignupId.text.toString()
+            val pw = binding.etSignupPassword.text.toString()
+            val pwConfirm =
+                binding.etSignupPasswordConfirmation.text.toString()
+            val nickname = binding.etSignupNickname.text.toString()
 
+            Log.d(TAG, "회원가입 버튼 클릭")
+            signUpViewModel.signUp(
+                id,
+                pw,
+                pwConfirm,
+                nickname
+            )
+        }
+
+        // 메시지 토스트
+        signUpViewModel.message.observe(viewLifecycleOwner) { msg ->
+            showToast(msg)
+        }
+
+        // 회원가입 성공 → 로그인 화면으로 복귀
+        signUpViewModel.signUpSuccess.observe(viewLifecycleOwner) { success ->
+            if (success) {
+                parentFragmentManager.popBackStack()
+            }
+        }
+
+        // 로그인 화면 이동
         binding.tvYesIdToLogin.setOnClickListener {
-            Log.d(TAG, "Login 버튼 : 동작 유무 확인")
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.auth_container, LoginFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-    }
-
-    private fun setupGenderButtons() {
-        binding.btnFemale.setOnClickListener {
-            selectGender("FEMALE")
-        }
-
-        binding.btnMale.setOnClickListener {
-            selectGender("MALE")
-        }
-    }
-
-    private fun selectGender(gender: String) {
-        selectedGender = gender
-
-        val gray = requireContext().getColor(R.color.gray_500)
-        val sky = requireContext().getColor(R.color.main_color)
-
-        binding.btnFemale.backgroundTintList =
-            ColorStateList.valueOf(gray)
-        binding.btnMale.backgroundTintList =
-            ColorStateList.valueOf(gray)
-
-        when (gender) {
-            "FEMALE" ->
-                binding.btnFemale.backgroundTintList =
-                    ColorStateList.valueOf(sky)
-
-            "MALE" ->
-                binding.btnMale.backgroundTintList =
-                    ColorStateList.valueOf(sky)
+            parentFragmentManager.popBackStack()
         }
     }
 }
