@@ -5,12 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.ClosetDataDto
 import kotlinx.coroutines.launch
-import retrofit2.Response
 
 private const val TAG = "ClosetViewModel_싸피"
 class ClosetViewModel : ViewModel() {
