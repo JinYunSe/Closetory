@@ -1,8 +1,9 @@
-package com.ssafy.ssafyfinalproject.baseCode.data.local
+package com.ssafy.closetory.baseCode.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.ssafy.ssafyfinalproject.ApplicationClass
+import com.ssafy.closetory.ApplicationClass
+
 class SharedPreferencesUtil(context: Context) {
     private var preferences: SharedPreferences =
         context.getSharedPreferences(ApplicationClass.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -13,12 +14,7 @@ class SharedPreferencesUtil(context: Context) {
         editor.apply()
     }
 
-    fun getUserCookie(): MutableSet<String>? {
-        return preferences.getStringSet(ApplicationClass.COOKIES_KEY_NAME, HashSet())
-    }
+    fun getUserCookie(): MutableSet<String>? = preferences.getStringSet(ApplicationClass.COOKIES_KEY_NAME, HashSet())
 
-    fun getString(key:String): String? {
-        return preferences.getString(key, null)
-    }
-
+    fun getString(key: String): String? = preferences.getString(key, null)
 }

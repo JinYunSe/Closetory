@@ -1,4 +1,4 @@
-package com.ssafy.ssafyfinalproject.baseCode.base
+package com.ssafy.closetory.baseCode.base
 
 import android.content.res.Configuration
 import android.os.Bundle
