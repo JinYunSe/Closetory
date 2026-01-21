@@ -1,0 +1,30 @@
+package com.ssafy.closetory.entity.clothes;
+
+import com.ssafy.closetory.entity.user.User;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import lombok.*;
+
+@Entity
+@Table(name = "saves")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Save {
+
+  @EmbeddedId private SaveId id;
+
+  @MapsId("clothesId")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "clothes_id", nullable = false)
+  private Clothes clothes;
+
+  @MapsId("userId")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
+
+  @Column(name = "created_at", nullable = false)
+  private LocalDateTime createdAt;
+}
