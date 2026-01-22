@@ -27,7 +27,7 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
     }
 
     private fun showLogoutDialog() {
-        AlertDialog.Builder(requireContext())
+        val dialog = AlertDialog.Builder(requireContext())
             .setTitle("로그아웃")
             .setMessage("정말 로그아웃 하시겠습니까?")
             .setPositiveButton("확인") { _, _ ->
@@ -35,6 +35,13 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
             }
             .setNegativeButton("취소", null)
             .show()
+
+        // 버튼 색상 변경
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            .setTextColor(requireContext().getColor(R.color.main_color))
+
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            .setTextColor(requireContext().getColor(R.color.gray_500))
     }
 
     private fun requestLogout() {
