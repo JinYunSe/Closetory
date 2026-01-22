@@ -20,21 +20,21 @@ public class RefreshTokenService {
   }
 
   // Redis 저장
-  public void save(Long userId, String refreshToken) {
+  public void save(Integer userId, String refreshToken) {
     redisTemplate.opsForValue().set(key(userId), refreshToken, REFRESH_TOKEN_TTL, TimeUnit.DAYS);
   }
 
   // Redis 조회
-  public String get(Long userId) {
+  public String get(Integer userId) {
     return redisTemplate.opsForValue().get(key(userId));
   }
 
   // Redis 삭제 (로그아웃)
-  public void delete(Long userId) {
+  public void delete(Integer userId) {
     redisTemplate.delete(key(userId));
   }
 
-  private String key(Long userId) {
+  private String key(Integer userId) {
     return "RT:" + userId;
   }
 }

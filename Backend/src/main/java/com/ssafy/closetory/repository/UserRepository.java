@@ -1,14 +1,15 @@
 package com.ssafy.closetory.repository;
 
 import com.ssafy.closetory.entity.user.User;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+import java.util.Optional;
 
-  boolean existsByUserId(String id);
+public interface UserRepository extends JpaRepository<User,Integer> {
+
+  boolean existsByUsername(String username);
 
   boolean existsByNickname(String nickname);
 
-  Optional<User> findByUserId(String userId);
+  Optional<User> findByUsername(String username);
 }
