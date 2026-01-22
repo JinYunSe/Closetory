@@ -9,6 +9,7 @@ package com.ssafy.closetory.dto
 data class SignUpRequest(
     val username: String,
     val password: String,
+    val passwordConfirm: String,
     val nickname: String,
     val gender: String, // "Male" or "Female"
     val height: Int, // cm

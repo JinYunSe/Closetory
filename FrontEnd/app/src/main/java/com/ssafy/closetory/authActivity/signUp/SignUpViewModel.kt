@@ -77,6 +77,7 @@ class SignUpViewModel : ViewModel() {
                 val request = SignUpRequest(
                     username = username,
                     password = password,
+                    passwordConfirm = passwordConfirm,
                     nickname = nickname,
                     gender = gender,
                     height = height,
@@ -114,7 +115,7 @@ class SignUpViewModel : ViewModel() {
                         errorMessage ?: "알 수 없는 오류로 회원가입 할 수 없습니다."
                 }
             } catch (e: Exception) {
-                Log.e("SIGNUP_FLOW", "signUp() 예외 발생", e)
+                Log.e("SIGNUP_FLOW", "signUp() 예외 발생 ${e.message}")
                 _message.value = "알 수 없는 오류로 회원가입 할 수 없습니다."
             }
         }

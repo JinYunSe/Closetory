@@ -81,7 +81,7 @@ class LoginViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 // ✨ [추가] 실제 원인을 로그로 확인
-                Log.e("LOGIN_FLOW", "login() 예외 발생", e)
+                Log.e("LOGIN_FLOW", "login() 예외 발생 ${e.message}")
 
                 // ✨ [변경] 사용자에게는 포괄 메시지
                 _message.value = "알 수 없는 오류로 로그인 할 수 없습니다."
