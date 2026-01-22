@@ -92,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public void logout(String authorization) {
+  public void logout(Integer authorization) {
 
     if (authorization == null || !authorization.startsWith("Bearer ")) {
       throw new UnauthorizedException("Authorization 헤더가 없습니다.");
