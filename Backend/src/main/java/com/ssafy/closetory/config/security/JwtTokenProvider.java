@@ -23,7 +23,7 @@ public class JwtTokenProvider {
   }
 
   //  Access Token 생성
-  public String createAccessToken(Long userId) {
+  public String createAccessToken(Integer userId) {
     Date now = new Date();
     Date expiry = new Date(now.getTime() + accessTokenValidityTime);
 
