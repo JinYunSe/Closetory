@@ -3,9 +3,11 @@ package com.ssafy.closetory.service.clothes;
 import com.ssafy.closetory.dto.clothes.ClosetClothesItem;
 import com.ssafy.closetory.dto.clothes.GetClosetRequest;
 import com.ssafy.closetory.dto.clothes.GetClosetResponse;
+import com.ssafy.closetory.dto.clothes.GetClothesDetailResponse;
 import com.ssafy.closetory.entity.clothes.Clothes;
 import com.ssafy.closetory.enums.ClothesColor;
 import com.ssafy.closetory.exception.common.BadRequestException;
+import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.ClothesRepository;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +57,15 @@ public class ClothesServiceImpl implements ClothesService {
     }
 
     return new GetClosetResponse(top, bottom, accessories, bags, outer);
+  }
+
+  @Override
+  public GetClothesDetailResponse getClothesDetail(Integer userId, Integer clothesId) {
+    Clothes clothes =
+        clothesRepository
+            .getClothesById(clothesId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 옷입니다."));
+    return GetClothesDetailResponse.from(clothes, userId);
   }
 
   private ClothesColor parseColorOrNull(String colorStr) {

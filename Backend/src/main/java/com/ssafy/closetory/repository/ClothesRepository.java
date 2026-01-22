@@ -3,6 +3,7 @@ package com.ssafy.closetory.repository;
 import com.ssafy.closetory.entity.clothes.Clothes;
 import com.ssafy.closetory.enums.ClothesColor;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
@@ -63,4 +64,6 @@ public interface ClothesRepository extends JpaRepository<Clothes, Integer> {
       @Param("seasonIdsEmpty") boolean seasonIdsEmpty,
       @Param("tagIds") List<Integer> tagIds,
       @Param("tagIdsEmpty") boolean tagIdsEmpty);
+
+  Optional<Clothes> getClothesById(Integer id);
 }
