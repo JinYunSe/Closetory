@@ -7,9 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.tabs.TabLayout
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentClosetBinding
+import com.ssafy.closetory.dto.ClosetDataDto
+import com.ssafy.closetory.dto.ClothItemDto
 import com.ssafy.closetory.homeActivity.HomeActivity
 import com.ssafy.closetory.homeActivity.adpter.ClothAdapter
 import com.ssafy.closetory.util.ColorOptions
@@ -32,22 +36,22 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     private var checkedFavorites: Boolean = false
     private var checkedOnlyMyCloth: Boolean = false
 
-    // 어댑터를 멤버
-    private val topAdapter = ClothAdapter()
-    private val bottomAdapter = ClothAdapter()
-    private val outerAdapter = ClothAdapter()
-    private val shoesAdapter = ClothAdapter()
-    private val accAdapter = ClothAdapter()
+    // 어댑터
+    private val clothAdapter = ClothAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         homeActivity = requireContext() as HomeActivity
 
-        initListViews()
+        initRecyclerViews()
         initSwitch()
         initSearchDialog()
         registerObserve()
+        selectedTab()
+
+        // 옷 검색
+        runSearch()
     }
 
     // 검색 다이얼로그
@@ -71,8 +75,6 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
                 .create()
 
             dialog.show()
-
-            val tab_closet = binding.tabCloset.s
 
             btnApply.setOnClickListener {
                 var selectedTags = TagOptions.getSelectedTag(tagsSection)
@@ -123,27 +125,56 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     }
 
     // 리스트 초기화
-    fun initListViews() {
+    fun initRecyclerViews() {
         // 리사이클러 뷰에 Adapter 붙이기
+        binding.glCloset.apply {
+            adapter = clothAdapter
+            layoutManager = GridLayoutManager(homeActivity, 3)
+            setHasFixedSize(true)
+        }
     }
 
     fun registerObserve() {
-        viewModel.closetData.observe(viewLifecycleOwner) { data ->
+        viewModel.closetData.observe(viewLifecycleOwner) { data: ClosetDataDto? ->
             if (data == null) return@observe
 
             Log.d(TAG, "registerObserve Data : $data")
 
-            // 어뎁터에 요소들 집어 넣기
-            topAdapter.submitList(data.topClothes)
-            bottomAdapter.submitList(data.bottomClothes)
-            outerAdapter.submitList(data.outerClothes)
-            shoesAdapter.submitList(data.shoes)
-            accAdapter.submitList(data.accessories)
+            // 현재 선택된 탭 기준 요소들 집어 넣기
+            applyTabItems(data)
         }
 
         viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
             if (message == null) return@observe
             showToast(message)
         }
+    }
+
+    fun selectedTab() {
+        binding.tabCloset.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                applyTabItems(viewModel.closetData.value)
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
+    }
+
+    fun applyTabItems(data: ClosetDataDto?) {
+        if (data == null) return
+
+        val position = binding.tabCloset.selectedTabPosition
+
+        val list = when (position) {
+            0 -> data.topClothes
+            1 -> data.bottomClothes
+            2 -> data.outerClothes
+            3 -> data.shoes
+            4 -> data.bags
+            5 -> data.accessories
+            else -> emptyList()
+        }
+        clothAdapter.submitList(list)
     }
 }

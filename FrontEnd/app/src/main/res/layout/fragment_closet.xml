@@ -115,17 +115,17 @@
 
     </com.google.android.material.tabs.TabLayout>
 
-    <GridView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/gl_closet"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="8dp"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tab_closet"
         tools:listitem="@layout/item_cloth"
-        android:numColumns="3"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>
 
