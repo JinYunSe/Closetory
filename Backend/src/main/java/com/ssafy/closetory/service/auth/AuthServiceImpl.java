@@ -92,14 +92,10 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public void logout(Integer authorization) {
-
-    if (authorization == null || !authorization.startsWith("Bearer ")) {
-      throw new UnauthorizedException("Authorization 헤더가 없습니다.");
+  public void logout(Integer userId) {
+    if (userId == null) {
+      throw new UnauthorizedException("인증되지 않은 사용자입니다.");
     }
-
-    String accessToken = authorization.substring(7);
-    Integer userId = jwtProvider.getUserId(accessToken);
 
     // Redis에 저장된 refresh token 삭제
     refreshTokenService.delete(userId);

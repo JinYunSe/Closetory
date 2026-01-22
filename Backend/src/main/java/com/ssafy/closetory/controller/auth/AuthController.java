@@ -47,8 +47,6 @@ public class AuthController {
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal Integer userId) {
     authService.logout(userId);
-    return ResponseEntity.status(HttpStatus.OK)
-      .body(ApiResponse.ok(200, "로그아웃 성공", null));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "로그아웃 성공", null));
   }
-
 }

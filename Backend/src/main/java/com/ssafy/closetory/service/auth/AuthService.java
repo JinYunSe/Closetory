@@ -13,5 +13,5 @@ public interface AuthService {
   LoginResponse login(LoginRequest request);
 
   // 로그아웃
-  void logout(Integer authorization);
+  void logout(Integer userId);
 }
