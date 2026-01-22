@@ -1,44 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+
+<!-- 로그인 페이지 xml -->
+
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id = "@+id/loginContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".authActivity.login.LoginFragment">
-
-    <Button
-        android:id="@+id/btn_login"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.517"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_sign_up"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="login"
-        tools:layout_editor_absoluteX="161dp"
-        tools:layout_editor_absoluteY="328dp" />
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:layout_margin="20dp"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/tvLoginTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login Fragment"
-        app:layout_constraintBottom_toTopOf="@+id/btn_sign_up"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="로그인"
+        android:textSize="36sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/etLoginId"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:hint="아이디"
+        android:background="#E0E0E0"
+        android:padding="16dp"
+        android:layout_marginTop="40dp" />
+
+    <EditText
+        android:id="@+id/etLoginPassword"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:hint="비밀번호"
+        android:inputType="textPassword"
+        android:background="#E0E0E0"
+        android:padding="16dp"
+        android:layout_marginTop="16dp" />
 
     <Button
-        android:id="@+id/btn_sign_up"
-        app:layout_constraintBottom_toTopOf="@+id/btn_login"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="로그인"
+        android:backgroundTint="@color/main_color"
+        android:layout_marginTop="32dp" />
+
+    <Button
+        android:id="@+id/btnGoogleLogin"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="구글 로그인"
+        android:backgroundTint="@color/main_color"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/btnKakaoLogin"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="카카오 로그인"
+        android:backgroundTint="@color/main_color"
+        android:layout_marginTop="8dp"/>
+
+    <LinearLayout
+        android:id = "@+id/footerContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="signUp"
-        tools:layout_editor_absoluteX="161dp"
-        tools:layout_editor_absoluteY="518dp" />
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="16dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:id = "@+id/footerSignupContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/tvNoId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="계정이 없으신가요?"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp" />
+            <TextView
+                android:id="@+id/tvNoIdToSignup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="회원가입"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/footerFindContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvFindId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp"
+                android:text="아이디 찾기"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvFindPw"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp"
+                android:text="비밀번호 찾기"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
