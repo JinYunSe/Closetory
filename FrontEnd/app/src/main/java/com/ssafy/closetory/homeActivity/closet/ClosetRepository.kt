@@ -11,9 +11,9 @@ class ClosetRepository {
         ApplicationClass.retrofit.create(ClosetService::class.java)
 
     suspend fun getClothesList(
-        tags: List<String>?,
+        tags: List<Int>?,
         color: String?,
-        seasons: List<String>?,
+        seasons: List<Int>?,
         onlyLike: Boolean?,
         onlyMine: Boolean?
     ): Response<ApiResponse<ClosetDataDto>> = service.getClothesList(

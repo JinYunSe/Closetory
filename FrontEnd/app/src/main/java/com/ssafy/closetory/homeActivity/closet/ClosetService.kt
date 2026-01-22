@@ -10,9 +10,9 @@ interface ClosetService {
 
     @GET("clothes")
     suspend fun getClothesList(
-        @Query("tags") tags: List<String>?,
+        @Query("tags") tags: List<Int>?,
         @Query("color") color: String?,
-        @Query("seasons") seasons: List<String>?,
+        @Query("seasons") seasons: List<Int>?,
         @Query("onlyLike") onlyLike: Boolean?,
         @Query("onlyMine") onlyMine: Boolean?
     ): Response<ApiResponse<ClosetDataDto>>

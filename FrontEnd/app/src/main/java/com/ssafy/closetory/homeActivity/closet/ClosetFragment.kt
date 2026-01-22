@@ -26,8 +26,8 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     private lateinit var colorAdapter: ColorOptions.ColorAdapter
 
     // 현재 선택된 필터 변수에 담기
-    private var currentTags: List<String> = TagOptions.items.map { it.codeEnglish }
-    private var currentSeasons: List<String> = SeasonOptions.items.map { it.codeEnglish }
+    private var currentTags: List<Int> = TagOptions.items.map { it.code }
+    private var currentSeasons: List<Int> = SeasonOptions.items.map { it.code }
     private var currentColor: String? = null
     private var checkedFavorites: Boolean = false
     private var checkedOnlyMyCloth: Boolean = false
@@ -46,7 +46,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         homeActivity = requireContext() as HomeActivity
 
         initListViews()
-        initSwitch()
+        checkSwitch()
         initSearchDialog()
 
         registerObserve()
@@ -91,7 +91,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     }
 
     // 스위치 초기화
-    fun initSwitch() {
+    fun checkSwitch() {
         checkedFavorites = binding.swFavorites.isChecked
         checkedOnlyMyCloth = binding.swOnlyMyCloth.isChecked
 
