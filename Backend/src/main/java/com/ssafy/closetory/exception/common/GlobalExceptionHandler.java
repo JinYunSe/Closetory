@@ -1,6 +1,7 @@
 package com.ssafy.closetory.exception.common;
 
 import com.ssafy.closetory.dto.common.ApiResponse;
+import com.ssafy.closetory.exception.s3.S3UploadException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,6 +43,13 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiResponse<Void>> handleConflict(ConflictException e) {
     return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(ApiResponse.fail(HttpStatus.CONFLICT.value(), e.getMessage()));
+  }
+
+  // 500 - S3 업로드 에러
+  @ExceptionHandler(S3UploadException.class)
+  public ResponseEntity<ApiResponse<Void>> handleS3Upload(S3UploadException e) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(ApiResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
   }
 
   // 500 Internal Server Error - 서버 오류

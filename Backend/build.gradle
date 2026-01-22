@@ -36,6 +36,9 @@ dependencies {
   implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
   implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
   implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+  implementation platform("software.amazon.awssdk:bom:2.25.70")
+  implementation "software.amazon.awssdk:s3"
+  implementation "software.amazon.awssdk:url-connection-client"
   compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
