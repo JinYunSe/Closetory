@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
     // 1. 사용자 조회
     User user =
         userRepository
-            .findByUsername(request.userId())
+            .findByUsername(request.username())
             .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
 
     // 2. 비밀번호 검증
