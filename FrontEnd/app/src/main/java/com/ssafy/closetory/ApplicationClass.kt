@@ -4,6 +4,7 @@ import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.ssafy.closetory.baseCode.data.local.SharedPreferencesUtil
+import com.ssafy.closetory.util.AuthManager
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -19,6 +20,8 @@ ApplicationClass : Application() {
 
         lateinit var sharedPreferences: SharedPreferencesUtil
 
+        lateinit var authManager: AuthManager // 전역 접근용
+
         // JWT Token Header 키 값
         const val X_ACCESS_TOKEN = "X-ACCESS-TOKEN"
         const val SHARED_PREFERENCES_NAME = "SSAFY_TEMPLATE_APP"
@@ -32,6 +35,8 @@ ApplicationClass : Application() {
         super.onCreate()
 
         sharedPreferences = SharedPreferencesUtil(this)
+
+        authManager = AuthManager(this)
 
         val client: OkHttpClient = OkHttpClient.Builder()
             .readTimeout(5000, TimeUnit.MILLISECONDS)
