@@ -1,8 +1,12 @@
 package com.ssafy.closetory.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.closetory.dto.common.ApiResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -18,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final ObjectMapper objectMapper;
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -60,7 +65,20 @@ public class SecurityConfig {
         // JWT 인증 필터
         .addFilterBefore(
             new JwtAuthenticationFilter(jwtTokenProvider),
-            UsernamePasswordAuthenticationFilter.class);
+            UsernamePasswordAuthenticationFilter.class)
+        .exceptionHandling(
+            eh ->
+                eh.authenticationEntryPoint(
+                    (req, res, ex) -> {
+                      res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                      res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                      res.setCharacterEncoding("UTF-8");
+
+                      String body =
+                          objectMapper.writeValueAsString(
+                              ApiResponse.fail(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다."));
+                      res.getWriter().write(body);
+                    }));
 
     return http.build();
   }

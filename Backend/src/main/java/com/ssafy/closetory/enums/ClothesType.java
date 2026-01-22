@@ -1,6 +1,6 @@
 package com.ssafy.closetory.enums;
 
-public enum ClothType {
+public enum ClothesType {
   TOP,
   BOTTOM,
   ACCESSORIES,
