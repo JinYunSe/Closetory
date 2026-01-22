@@ -12,29 +12,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="end"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/gl_closet"
+        app:layout_constraintBottom_toTopOf="@+id/tab_closet"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:gravity="end"
-        >
-
-        <TextView
-            android:id="@+id/tv_favorites"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="즐겨찾기"
-            android:textSize="14sp" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/sw_favorites"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp" />
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/tv_only_my_cloth"
@@ -52,12 +36,13 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/ibtn_search_filter"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
+            android:background="@color/white"
             android:src="@drawable/baseline_tune_24" />
     </LinearLayout>
 
@@ -66,17 +51,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
-        app:tabMode="fixed"
-        app:tabGravity="fill"
-        app:tabIndicatorFullWidth="false"
-        app:tabIndicatorHeight="3dp"
-        app:tabSelectedTextColor="@android:color/black"
-        app:tabTextColor="#8A8A8A"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/gl_closet"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:tabSelectedTextColor="@android:color/black"
         app:tabTextAppearance="@style/ClosetTabText"
-        >
+        app:tabTextColor="#8A8A8A">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -88,29 +69,27 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="하의"/>
+            android:text="하의" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="아우터"
-            />
+            android:text="아우터" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="신발"/>
+            android:text="신발" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="가방"/>
+            android:text="가방" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="악세사리"/>
-
+            android:text="악세사리" />
 
 
     </com.google.android.material.tabs.TabLayout>

@@ -32,6 +32,6 @@
     <fragment
         android:id="@+id/navigation_add_close"
         android:name="com.ssafy.closetory.homeActivity.addClose.AddClothFragment"
-        android:label="@string/title_add_close"
+        android:label="@string/title_add_cloth"
         tools:layout="@layout/fragment_add_cloth" />
 </navigation>
