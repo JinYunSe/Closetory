@@ -7,4 +7,11 @@
         <item name="android:fontFamily">@font/font_gumiromance</item>
 
     </style>
+
+    <style name="ClosetTabText" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:maxLines">2</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">none</item>
+        <item name="android:textSize">10sp</item>
+    </style>
 </resources>

@@ -37,7 +37,6 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     private val bottomAdapter = ClothAdapter()
     private val outerAdapter = ClothAdapter()
     private val shoesAdapter = ClothAdapter()
-    private val hatAdapter = ClothAdapter()
     private val accAdapter = ClothAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,13 +47,12 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         initListViews()
         initSwitch()
         initSearchDialog()
-
         registerObserve()
     }
 
     // 검색 다이얼로그
     fun initSearchDialog() {
-        binding.btnSearchDialog.setOnClickListener {
+        binding.ibtnSearchFilter.setOnClickListener {
             val dialogView = LayoutInflater.from(homeActivity)
                 .inflate(R.layout.dialog_search_filter, null, false)
 
@@ -73,6 +71,8 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
                 .create()
 
             dialog.show()
+
+            val tab_closet = binding.tabCloset.s
 
             btnApply.setOnClickListener {
                 var selectedTags = TagOptions.getSelectedTag(tagsSection)
@@ -125,12 +125,6 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     // 리스트 초기화
     fun initListViews() {
         // 리사이클러 뷰에 Adapter 붙이기
-        binding.lvTopCloth.adapter = topAdapter
-        binding.lvBottomCloth.adapter = bottomAdapter
-        binding.lvOuter.adapter = outerAdapter
-        binding.lvShoes.adapter = shoesAdapter
-        binding.lvHat.adapter = hatAdapter
-        binding.lvAccessory.adapter = accAdapter
     }
 
     fun registerObserve() {
@@ -144,7 +138,6 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
             bottomAdapter.submitList(data.bottomClothes)
             outerAdapter.submitList(data.outerClothes)
             shoesAdapter.submitList(data.shoes)
-            hatAdapter.submitList(data.hats)
             accAdapter.submitList(data.accessories)
         }
 
