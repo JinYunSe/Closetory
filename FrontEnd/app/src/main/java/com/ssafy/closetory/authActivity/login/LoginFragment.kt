@@ -37,6 +37,11 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
             val username = binding.etLoginId.text.toString()
             val password = binding.etLoginPassword.text.toString()
 
+            if (username.isBlank() || password.isBlank()) {
+                showToast("아이디 비밀번호를 입력해주세요")
+                return@setOnClickListener
+            }
+
             Log.d("LOGIN_FLOW", "로그인 버튼 클릭: $username / $password")
 
             loginViewModel.login(username, password)
@@ -48,21 +53,19 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
         }
 
         loginViewModel.loginData.observe(viewLifecycleOwner) { data ->
-            if (data != null) {
-                val authManager = ApplicationClass.authManager
-                authManager.saveAccessToken(data.accessToken)
-                authManager.saveRefreshToken(data.refreshToken)
 
-                binding.btnLogin.setOnClickListener {
-                    Log.d(TAG, "HomeActivity 이동 버튼 동작 유무 확인")
+            if (data == null) return@observe
 
-                    val intent = Intent(requireContext(), HomeActivity::class.java).apply {
-                        // 기존 작업 태스크를 모두 비우고 새로운 태스크로 HomeActivity를 실행
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    }
-                    startActivity(intent)
-                }
+            val authManager = ApplicationClass.authManager
+            authManager.saveTokens(data.accessToken, data.refreshToken)
+
+            Log.d(TAG, "HomeActivity 이동 버튼 동작 유무 확인")
+
+            val intent = Intent(requireContext(), HomeActivity::class.java).apply {
+                // 기존 작업 태스크를 모두 비우고 새로운 태스크로 HomeActivity를 실행
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
+            startActivity(intent)
         }
     }
 }
