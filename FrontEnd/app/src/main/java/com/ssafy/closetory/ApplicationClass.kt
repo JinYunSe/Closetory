@@ -4,6 +4,7 @@ import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.ssafy.closetory.baseCode.data.local.SharedPreferencesUtil
+import com.ssafy.closetory.util.AuthInterceptor
 import com.ssafy.closetory.util.AuthManager
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
@@ -23,7 +24,7 @@ ApplicationClass : Application() {
         lateinit var authManager: AuthManager
 
         // JWT Token Header 키 값
-        const val X_ACCESS_TOKEN = "X-ACCESS-TOKEN"
+        const val X_ACCESS_TOKEN = "Authorization"
         const val SHARED_PREFERENCES_NAME = "SSAFY_TEMPLATE_APP"
         const val COOKIES_KEY_NAME = "cookies"
 
@@ -41,6 +42,8 @@ ApplicationClass : Application() {
         val client: OkHttpClient = OkHttpClient.Builder()
             .readTimeout(5000, TimeUnit.MILLISECONDS)
             .connectTimeout(5000, TimeUnit.MILLISECONDS)
+            // 자동으로 해더에 token 붙여 넣기
+            .addInterceptor(AuthInterceptor())
             // 로그캣에 okhttp.OkHttpClient로 검색하면 http 통신 내용을 보여줍니다.
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
             .build()
