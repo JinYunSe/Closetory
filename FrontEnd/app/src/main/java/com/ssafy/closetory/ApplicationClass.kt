@@ -20,7 +20,7 @@ ApplicationClass : Application() {
 
         lateinit var sharedPreferences: SharedPreferencesUtil
 
-        lateinit var authManager: AuthManager // 전역 접근용
+        lateinit var authManager: AuthManager
 
         // JWT Token Header 키 값
         const val X_ACCESS_TOKEN = "X-ACCESS-TOKEN"
