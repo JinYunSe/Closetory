@@ -30,13 +30,13 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     private lateinit var colorAdapter: ColorOptions.ColorAdapter
 
     // 현재 선택된 필터 변수에 담기
-    private var currentTags: List<String> = TagOptions.items.map { it.codeEnglish }
-    private var currentSeasons: List<String> = SeasonOptions.items.map { it.codeEnglish }
+    private var currentTags: List<Int> = TagOptions.items.map { it.code }
+    private var currentSeasons: List<Int> = SeasonOptions.items.map { it.code }
     private var currentColor: String? = null
     private var checkedFavorites: Boolean = false
     private var checkedOnlyMyCloth: Boolean = false
 
-    // 어댑터
+    // 옷 어댑터
     private val clothAdapter = ClothAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,8 +45,8 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         homeActivity = requireContext() as HomeActivity
 
         initRecyclerViews()
-        initSwitch()
-        initSearchDialog()
+        checkSwitch()
+        searchDialog()
         registerObserve()
         selectedTab()
 
@@ -55,7 +55,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     }
 
     // 검색 다이얼로그
-    fun initSearchDialog() {
+    fun searchDialog() {
         binding.ibtnSearchFilter.setOnClickListener {
             val dialogView = LayoutInflater.from(homeActivity)
                 .inflate(R.layout.dialog_search_filter, null, false)
@@ -92,8 +92,8 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         }
     }
 
-    // 스위치 초기화
-    fun initSwitch() {
+    // 스위치 체크 여부 확인
+    fun checkSwitch() {
         checkedFavorites = binding.swFavorites.isChecked
         checkedOnlyMyCloth = binding.swOnlyMyCloth.isChecked
 
@@ -135,6 +135,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     }
 
     fun registerObserve() {
+        // 서버 통신 결과 리스트 반영하기
         viewModel.closetData.observe(viewLifecycleOwner) { data: ClosetDataDto? ->
             if (data == null) return@observe
 
@@ -144,26 +145,39 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
             applyTabItems(data)
         }
 
+        // 에러 발생의 경우 토스트 메시지 띄우기
         viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
             if (message == null) return@observe
             showToast(message)
         }
     }
 
+    // 탭 선택에 맞게 화면에 보여줄 리스트 갱신
     fun selectedTab() {
+        // 리스너 구현체를 만들어 TabLayout에 외부에서 넣기
         binding.tabCloset.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+
+            // 새로운 탭이 호출 될 경우
             override fun onTabSelected(tab: TabLayout.Tab) {
                 applyTabItems(viewModel.closetData.value)
             }
 
-            override fun onTabUnselected(tab: TabLayout.Tab) {}
-            override fun onTabReselected(tab: TabLayout.Tab) {}
+            // 아래는 어쩔 수 없이 override 해야 하는 메서드
+            // 기존에 선택된 대상이 해제된 순간
+            override fun onTabUnselected(p0: TabLayout.Tab?) {
+            }
+
+            // 똑같은 대상을 눌렀을 때
+            override fun onTabReselected(p0: TabLayout.Tab?) {
+            }
         })
     }
 
+    // 댑 대상 적용하기
     fun applyTabItems(data: ClosetDataDto?) {
         if (data == null) return
 
+        // 누른 대상 index 가져오기
         val position = binding.tabCloset.selectedTabPosition
 
         val list = when (position) {
@@ -175,6 +189,8 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
             5 -> data.accessories
             else -> emptyList()
         }
+
+        // 리스트 갱신을 알리기
         clothAdapter.submitList(list)
     }
 }

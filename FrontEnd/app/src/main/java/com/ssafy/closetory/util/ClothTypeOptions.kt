@@ -11,11 +11,11 @@ import com.ssafy.closetory.R
 object ClothTypeOptions {
 
     val items = listOf(
-        OptionItem("상의", "TOP"),
-        OptionItem("하의", "BOTTOM"),
-        OptionItem("악세사리", "ACCESSORY"),
-        OptionItem("가방", "BAG"),
-        OptionItem("아우터", "OUTER")
+        OptionItem("상의", 0),
+        OptionItem("하의", 1),
+        OptionItem("악세사리", 2),
+        OptionItem("가방", 3),
+        OptionItem("아우터", 4)
     )
 
     fun render(sectionRoot: View, context: Context) {
@@ -36,7 +36,7 @@ object ClothTypeOptions {
                 id = View.generateViewId()
 
                 text = item.labelKorean
-                tag = item.codeEnglish
+                tag = item.code
                 isCheckable = true
 
                 // 칩간에 자동 간격 조절 끄기

@@ -5,12 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.ClosetDataDto
 import kotlinx.coroutines.launch
-import retrofit2.Response
 
 private const val TAG = "ClosetViewModel_싸피"
 class ClosetViewModel : ViewModel() {
@@ -23,13 +19,7 @@ class ClosetViewModel : ViewModel() {
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    fun getClothesList(
-        tags: List<String>?,
-        color: String?,
-        seasons: List<String>?,
-        onlyLike: Boolean?,
-        onlyMine: Boolean?
-    ) {
+    fun getClothesList(tags: List<Int>?, color: String?, seasons: List<Int>?, onlyLike: Boolean?, onlyMine: Boolean?) {
         viewModelScope.launch {
             try {
                 val res = repository.getClothesList(
@@ -40,11 +30,12 @@ class ClosetViewModel : ViewModel() {
                     onlyMine
                 )
 
-                Log.d(TAG, "getClothesList: $res")
-
                 if (res.isSuccessful) { // 통신 결과 200번 때 결과
                     val body = res.body()
                     val data = body?.data
+
+                    Log.d(TAG, "getClothesList: $data")
+
                     _closetData.value = data
                 } else { // 통신 결과 400, 500번 때 결과
                     val body = res.body()
