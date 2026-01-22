@@ -14,42 +14,60 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "users")
+@Table(
+    name = "users",
+    uniqueConstraints = {
+      @UniqueConstraint(name = "uk_users_nickname", columnNames = "nickname"),
+      @UniqueConstraint(name = "uk_users_username", columnNames = "username")
+    })
 public class User {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Integer id;
 
+  @Column(length = 255)
   private String password;
 
-  @Column(unique = true, nullable = false)
+  @Column(length = 30)
   private String nickname;
 
   @Enumerated(EnumType.STRING)
   private Gender gender;
 
-  private Integer height;
-  private Integer weight;
-
-  @Column(nullable = false)
   @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
   private Provider provider;
 
-  @Column(name = "profile_image")
-  private String profileImage;
+  private Short height;
+  private Short weight;
 
-  @Column(name = "full_body_photo")
-  private String fullBodyPhoto;
+  @Column(name = "provider_id", length = 128)
+  private String providerId;
 
-  @Column(name = "user_id", unique = true)
-  private String userId;
+  @Column(length = 30)
+  private String username; // 유저 아이디 (UK)
 
-  @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
+  @Column(name = "profile_photo_url", length = 255)
+  private String profilePhotoUrl;
+
+  @Column(name = "body_photo_url", length = 255)
+  private String bodyPhotoUrl;
+
+  @Column(name = "alarm_enabled", nullable = false)
+  private Boolean alarmEnabled;
+
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
+
   @PrePersist
-  public void prePersist() {
+  protected void onCreate() {
     this.createdAt = LocalDateTime.now();
+    if (this.alarmEnabled == null) {
+      this.alarmEnabled = false;
+    }
   }
 }

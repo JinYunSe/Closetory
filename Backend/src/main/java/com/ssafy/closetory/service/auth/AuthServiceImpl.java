@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     // 2. 아이디 중복
-    if (userRepository.existsByUserId(request.userId())) {
+    if (userRepository.existsByUsername(request.username())) {
       throw new ConflictException("이미 사용중인 아이디입니다.");
     }
 
@@ -51,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
     // 5. 사용자 엔티티 생성
     User user =
         User.builder()
-            .userId(request.userId())
+            .username(request.username())
             .password(encodedPassword)
             .nickname(request.nickname())
             .gender(request.gender())
@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
     // 1. 사용자 조회
     User user =
         userRepository
-            .findByUserId(request.userId())
+            .findByUsername(request.userId())
             .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
 
     // 2. 비밀번호 검증
