@@ -10,10 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,5 +35,13 @@ public class AuthController {
     LoginResponse response = authService.login(request);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(200, "로그인 성공", response));
+  }
+
+  @PostMapping("/logout")
+  @Operation(summary = "로그아웃ㅎ")
+  public ResponseEntity<ApiResponse<Void>> logout(
+      @RequestHeader(value = "Authorization", required = false) String authorization) {
+    authService.logout(authorization);
+    return ResponseEntity.ok(ApiResponse.ok(200, "로그아웃 성공", null));
   }
 }

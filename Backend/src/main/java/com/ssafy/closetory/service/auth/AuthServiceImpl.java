@@ -9,6 +9,7 @@ import com.ssafy.closetory.enums.Provider;
 import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.ConflictException;
 import com.ssafy.closetory.exception.common.NotFoundException;
+import com.ssafy.closetory.exception.common.UnauthorizedException;
 import com.ssafy.closetory.repository.UserRepository;
 import com.ssafy.closetory.service.token.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
@@ -88,5 +89,19 @@ public class AuthServiceImpl implements AuthService {
 
     // 5. 응답
     return new LoginResponse(accessToken, refreshToken);
+  }
+
+  @Override
+  public void logout(String authorization) {
+
+    if (authorization == null || !authorization.startsWith("Bearer ")) {
+      throw new UnauthorizedException("Authorization 헤더가 없습니다.");
+    }
+
+    String accessToken = authorization.substring(7);
+    Integer userId = jwtProvider.getUserId(accessToken);
+
+    // Redis에 저장된 refresh token 삭제
+    refreshTokenService.delete(userId);
   }
 }

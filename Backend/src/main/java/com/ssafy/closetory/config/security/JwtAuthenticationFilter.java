@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // 토큰 유효성 검사
     if (jwtTokenProvider.validateToken(token)) {
-      Long userId = jwtTokenProvider.getUserId(token);
+      Integer userId = jwtTokenProvider.getUserId(token);
 
       UsernamePasswordAuthenticationToken authentication =
           new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());

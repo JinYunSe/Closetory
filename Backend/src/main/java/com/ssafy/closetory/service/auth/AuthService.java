@@ -11,4 +11,7 @@ public interface AuthService {
 
   //   로그인
   LoginResponse login(LoginRequest request);
+
+  // 로그아웃
+  void logout(String authorization);
 }
