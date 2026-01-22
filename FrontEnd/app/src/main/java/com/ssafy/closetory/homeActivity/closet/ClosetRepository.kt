@@ -2,7 +2,7 @@ package com.ssafy.closetory.homeActivity.closet
 
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
-import com.ssafy.closetory.dto.ClosetDataDto
+import com.ssafy.closetory.dto.ClosetResponse
 import retrofit2.Response
 
 class ClosetRepository {
@@ -14,13 +14,11 @@ class ClosetRepository {
         tags: List<Int>?,
         color: String?,
         seasons: List<Int>?,
-        onlyLike: Boolean?,
         onlyMine: Boolean?
-    ): Response<ApiResponse<ClosetDataDto>> = service.getClothesList(
+    ): Response<ApiResponse<ClosetResponse>> = service.getClothesList(
         tags,
         color,
         seasons,
-        onlyLike,
         onlyMine
     )
 }

@@ -1,6 +1,5 @@
 package com.ssafy.closetory.homeActivity.closet
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,8 +11,7 @@ import com.google.android.material.tabs.TabLayout
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentClosetBinding
-import com.ssafy.closetory.dto.ClosetDataDto
-import com.ssafy.closetory.dto.ClothItemDto
+import com.ssafy.closetory.dto.ClosetResponse
 import com.ssafy.closetory.homeActivity.HomeActivity
 import com.ssafy.closetory.homeActivity.adpter.ClothAdapter
 import com.ssafy.closetory.util.ColorOptions
@@ -33,7 +31,6 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     private var currentTags: List<Int> = TagOptions.items.map { it.code }
     private var currentSeasons: List<Int> = SeasonOptions.items.map { it.code }
     private var currentColor: String? = null
-    private var checkedFavorites: Boolean = false
     private var checkedOnlyMyCloth: Boolean = false
 
     // 옷 어댑터
@@ -94,13 +91,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
 
     // 스위치 체크 여부 확인
     fun checkSwitch() {
-        checkedFavorites = binding.swFavorites.isChecked
         checkedOnlyMyCloth = binding.swOnlyMyCloth.isChecked
-
-        binding.swFavorites.setOnCheckedChangeListener { _, isChecked ->
-            checkedFavorites = isChecked
-            runSearch()
-        }
 
         binding.swOnlyMyCloth.setOnCheckedChangeListener { _, isChecked ->
             checkedOnlyMyCloth = isChecked
@@ -112,14 +103,13 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     fun runSearch() {
         Log.d(
             TAG,
-            "runSearch tags=$currentTags seasons=$currentSeasons color=$currentColor fav=$checkedFavorites onlyMy=$checkedOnlyMyCloth"
+            "runSearch tags=$currentTags seasons=$currentSeasons color=$currentColor onlyMy=$checkedOnlyMyCloth"
         )
 
         viewModel.getClothesList(
             currentTags,
             currentColor,
             currentSeasons,
-            checkedFavorites,
             checkedOnlyMyCloth
         )
     }
@@ -136,7 +126,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
 
     fun registerObserve() {
         // 서버 통신 결과 리스트 반영하기
-        viewModel.closetData.observe(viewLifecycleOwner) { data: ClosetDataDto? ->
+        viewModel.closetData.observe(viewLifecycleOwner) { data: ClosetResponse? ->
             if (data == null) return@observe
 
             Log.d(TAG, "registerObserve Data : $data")
@@ -174,19 +164,20 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     }
 
     // 댑 대상 적용하기
-    fun applyTabItems(data: ClosetDataDto?) {
+    fun applyTabItems(data: ClosetResponse?) {
         if (data == null) return
 
         // 누른 대상 index 가져오기
         val position = binding.tabCloset.selectedTabPosition
 
+        // ?: emptyList()은 요청한 옷 목록에 요소가 없을 경우 빈 list로 보여주기 위해 사용
         val list = when (position) {
-            0 -> data.topClothes
-            1 -> data.bottomClothes
-            2 -> data.outerClothes
-            3 -> data.shoes
-            4 -> data.bags
-            5 -> data.accessories
+            0 -> data.topClothes ?: emptyList()
+            1 -> data.bottomClothes ?: emptyList()
+            2 -> data.outerClothes ?: emptyList()
+            3 -> data.shoes ?: emptyList()
+            4 -> data.bags ?: emptyList()
+            5 -> data.accessories ?: emptyList()
             else -> emptyList()
         }
 

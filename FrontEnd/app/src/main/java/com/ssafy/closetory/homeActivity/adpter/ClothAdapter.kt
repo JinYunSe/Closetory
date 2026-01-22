@@ -1,5 +1,6 @@
 package com.ssafy.closetory.homeActivity.adpter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -11,12 +12,13 @@ import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.ItemClothBinding
 import com.ssafy.closetory.dto.ClothItemDto
 
+private const val TAG = "ClothAdapter_싸피"
 class ClothAdapter : ListAdapter<ClothItemDto, ClothAdapter.ViewHodler>(diffCallback) {
 
     companion object {
         private val diffCallback = object : DiffUtil.ItemCallback<ClothItemDto>() {
             override fun areItemsTheSame(oldItem: ClothItemDto, newItem: ClothItemDto): Boolean =
-                oldItem.clothId == newItem.clothId
+                oldItem.clothesId == newItem.clothesId
 
             override fun areContentsTheSame(oldItem: ClothItemDto, newItem: ClothItemDto): Boolean = oldItem == newItem
         }
@@ -25,10 +27,14 @@ class ClothAdapter : ListAdapter<ClothItemDto, ClothAdapter.ViewHodler>(diffCall
     inner class ViewHodler(private val binding: ItemClothBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: ClothItemDto) = with(binding) {
-            val imageUrl = "${ApplicationClass.SERVER_URL}${item.clothImage}"
+            Log.d(TAG, "SERVER URL : ${ApplicationClass.SERVER_URL}")
+            Log.d(TAG, "clothesId : ${item.clothesId}")
+            Log.d(TAG, "photoUrl : ${item.photoUrl}")
+
+            val imageUrl = "${ApplicationClass.SERVER_URL}${item.photoUrl}"
 
             Glide.with(binding.imgBtn.context)
-                .load(imageUrl)
+                .load(item.photoUrl)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.error)
                 .into(binding.imgBtn)
