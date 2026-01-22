@@ -1,4 +1,4 @@
-package com.ssafy.closetory.dto.cloth;
+package com.ssafy.closetory.dto.clothes;
 
 import com.ssafy.closetory.entity.clothes.Clothes;
 

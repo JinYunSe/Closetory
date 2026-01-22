@@ -1,8 +1,8 @@
 package com.ssafy.closetory.entity.clothes;
 
 import com.ssafy.closetory.entity.user.User;
-import com.ssafy.closetory.enums.ClothColor;
-import com.ssafy.closetory.enums.ClothType;
+import com.ssafy.closetory.enums.ClothesColor;
+import com.ssafy.closetory.enums.ClothesType;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -27,11 +27,11 @@ public class Clothes {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "clothes_type", nullable = false)
-  private ClothType clothesType;
+  private ClothesType clothesType;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "color", nullable = false)
-  private ClothColor color;
+  private ClothesColor color;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)

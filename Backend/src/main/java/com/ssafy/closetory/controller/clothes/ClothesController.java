@@ -1,9 +1,9 @@
-package com.ssafy.closetory.controller.cloth;
+package com.ssafy.closetory.controller.clothes;
 
-import com.ssafy.closetory.dto.cloth.GetClosetRequest;
-import com.ssafy.closetory.dto.cloth.GetClosetResponse;
+import com.ssafy.closetory.dto.clothes.GetClosetRequest;
+import com.ssafy.closetory.dto.clothes.GetClosetResponse;
 import com.ssafy.closetory.dto.common.ApiResponse;
-import com.ssafy.closetory.service.cloth.ClothesService;
+import com.ssafy.closetory.service.clothes.ClothesService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
