@@ -59,6 +59,12 @@ class SignUpViewModel : ViewModel() {
         if (height == null || weight == null) {
             _message.value = "키와 몸무게는 숫자로 입력해주세요."
             return
+        } else if (height < 0 || height > 400) {
+            _message.value = "키는 가능 범위로 입력하여주세요. (0~400)"
+            return
+        } else if (weight < 0 || weight > 800) {
+            _message.value = "몸무게는 가능 범위로 입력하여주세요. (0~800)"
+            return
         }
         // 4. 성별 선택 여부
         if (gender == null) {

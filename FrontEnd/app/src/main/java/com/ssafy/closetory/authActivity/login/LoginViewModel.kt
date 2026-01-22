@@ -24,6 +24,15 @@ class LoginViewModel : ViewModel() {
     fun login(username: String, password: String) {
         Log.d("LOGIN_FLOW", "ViewModel login() 진입")
 
+        // 로그인 필수 값 검증
+        if (
+            username.isBlank() ||
+            password.isBlank()
+        ) {
+            _message.value = "필수 항목을 입력해주세요."
+            return
+        }
+
         viewModelScope.launch {
             Log.d("LOGIN_FLOW", "coroutine 시작")
 
