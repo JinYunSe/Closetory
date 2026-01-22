@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import com.ssafy.closetory.ApplicationClass
-import com.ssafy.closetory.ApplicationClass.Companion.authManager
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.signUp.SignUpFragment
 import com.ssafy.closetory.baseCode.base.BaseFragment
@@ -50,7 +49,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
 
         loginViewModel.loginData.observe(viewLifecycleOwner) { data ->
             if (data != null) {
-                authManager = ApplicationClass.authManager
+                val authManager = ApplicationClass.authManager
                 authManager.saveAccessToken(data.accessToken)
                 authManager.saveRefreshToken(data.refreshToken)
 
