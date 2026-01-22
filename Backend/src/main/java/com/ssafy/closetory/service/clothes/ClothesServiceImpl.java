@@ -1,11 +1,13 @@
-package com.ssafy.closetory.service.cloth;
+package com.ssafy.closetory.service.clothes;
 
-import com.ssafy.closetory.dto.cloth.ClosetClothesItem;
-import com.ssafy.closetory.dto.cloth.GetClosetRequest;
-import com.ssafy.closetory.dto.cloth.GetClosetResponse;
+import com.ssafy.closetory.dto.clothes.ClosetClothesItem;
+import com.ssafy.closetory.dto.clothes.GetClosetRequest;
+import com.ssafy.closetory.dto.clothes.GetClosetResponse;
+import com.ssafy.closetory.dto.clothes.GetClothesDetailResponse;
 import com.ssafy.closetory.entity.clothes.Clothes;
-import com.ssafy.closetory.enums.ClothColor;
+import com.ssafy.closetory.enums.ClothesColor;
 import com.ssafy.closetory.exception.common.BadRequestException;
+import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.ClothesRepository;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,7 @@ public class ClothesServiceImpl implements ClothesService {
     boolean tagIdsEmpty = tagIds.isEmpty();
     boolean seasonIdsEmpty = seasonIds.isEmpty();
 
-    ClothColor color = parseColorOrNull(request.color());
+    ClothesColor color = parseColorOrNull(request.color());
 
     List<Clothes> closet =
         clothesRepository.searchCloset(
@@ -57,11 +59,20 @@ public class ClothesServiceImpl implements ClothesService {
     return new GetClosetResponse(top, bottom, accessories, bags, outer);
   }
 
-  private ClothColor parseColorOrNull(String colorStr) {
+  @Override
+  public GetClothesDetailResponse getClothesDetail(Integer userId, Integer clothesId) {
+    Clothes clothes =
+        clothesRepository
+            .getClothesById(clothesId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 옷입니다."));
+    return GetClothesDetailResponse.from(clothes, userId);
+  }
+
+  private ClothesColor parseColorOrNull(String colorStr) {
     if (colorStr == null || colorStr.isBlank()) return null;
 
     try {
-      return ClothColor.valueOf(colorStr.trim().toUpperCase());
+      return ClothesColor.valueOf(colorStr.trim().toUpperCase());
     } catch (IllegalArgumentException e) {
       throw new BadRequestException("color 값이 올바르지 않습니다. 예: BLACK, WHITE, RED");
     }

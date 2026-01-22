@@ -1,6 +1,6 @@
 package com.ssafy.closetory.enums;
 
-public enum ClothColor {
+public enum ClothesColor {
   RED,
   ORANGE,
   YELLOW,
