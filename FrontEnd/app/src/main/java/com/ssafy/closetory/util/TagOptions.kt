@@ -15,22 +15,22 @@ object TagOptions {
 
     // 태그 목록
     public val items = listOf(
-        OptionItem("캐주얼", "CASUAL"),
-        OptionItem("귀여움", "CUTE"),
-        OptionItem("시크", "CHIC"),
-        OptionItem("화려함", "GLAM"),
-        OptionItem("밝음", "BRIGHT"),
-        OptionItem("유니크", "UNIQUE"),
-        OptionItem("여성스러움", "FEMININE"),
-        OptionItem("남성스러움", "MASCULINE"),
-        OptionItem("트렌디", "TRENDY"),
-        OptionItem("빈티지", "VINTAGE"),
-        OptionItem("데이트", "DATE"),
-        OptionItem("출근/업무", "WORK"),
-        OptionItem("일상", "DAILY"),
-        OptionItem("여행", "TRAVEL"),
-        OptionItem("격식 있는 자리", "FORMAL"),
-        OptionItem("운동", "SPORTS")
+        OptionItem("캐주얼", 1),
+        OptionItem("귀여움", 2),
+        OptionItem("시크", 3),
+        OptionItem("화려함", 4),
+        OptionItem("밝음", 5),
+        OptionItem("유니크", 6),
+        OptionItem("여성스러움", 7),
+        OptionItem("남성스러움", 8),
+        OptionItem("트렌디", 9),
+        OptionItem("빈티지", 10),
+        OptionItem("데이트", 11),
+        OptionItem("출근/업무", 12),
+        OptionItem("일상", 13),
+        OptionItem("여행", 14),
+        OptionItem("격식 있는 자리", 15),
+        OptionItem("운동", 16)
     )
 
     // 태그들 UI에 그리는 메서드
@@ -66,7 +66,7 @@ object TagOptions {
         group.isSelectionRequired = required
 
         // 선택된 태그 코드들을 저장할 목록
-        val selectedTags = linkedSetOf<String>()
+        val selectedTags = linkedSetOf<Int>()
 
         // 각각의 요소들 UI에 그리는 과정
         items.forEach { item ->
@@ -76,7 +76,7 @@ object TagOptions {
                 text = item.labelKorean
 
                 // 서버로 보낼 영문
-                tag = item.codeEnglish
+                tag = item.code
 
                 // 선택 가능하도록 만들기
                 isCheckable = true
@@ -98,7 +98,7 @@ object TagOptions {
             chip.setOnCheckedChangeListener { button, isChecked ->
                 // 선택 <-> 해제 왔다갔다 처리
 
-                val code = button.tag as String
+                val code = button.tag as Int
 
                 if (isChecked) {
                     // 선택됨
@@ -114,16 +114,16 @@ object TagOptions {
     }
 
     // 체크된 대상이 true인 대상만 골라서 반환
-    public fun getSelectedTag(sectionRoot: View): List<String> {
+    public fun getSelectedTag(sectionRoot: View): List<Int> {
         // 태그 그룹 가져오기
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
-        val result = mutableListOf<String>()
+        val result = mutableListOf<Int>()
 
         for (i in 0 until group.childCount) {
             // chip의 요소가 아니면 무시
             val chip = group.getChildAt(i) as? Chip ?: continue
             // 선택된 태그 요소의 영문을 String 타입으로 변경 및 리스트에 담기
-            if (chip.isChecked) result.add(chip.tag as String)
+            if (chip.isChecked) result.add(chip.tag as Int)
         }
 
         return result

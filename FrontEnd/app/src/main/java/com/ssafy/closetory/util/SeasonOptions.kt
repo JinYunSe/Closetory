@@ -13,10 +13,10 @@ import com.ssafy.closetory.R
 object SeasonOptions {
 
     val items = listOf(
-        OptionItem("봄", "SPRING"),
-        OptionItem("여름", "SUMMER"),
-        OptionItem("가을", "FALL"),
-        OptionItem("겨울", "WINTER")
+        OptionItem("봄", 1),
+        OptionItem("여름", 2),
+        OptionItem("가을", 3),
+        OptionItem("겨울", 4)
     )
 
     // UI에 해당 요소들 그리는 메서드
@@ -51,7 +51,7 @@ object SeasonOptions {
         items.forEach { item ->
             val chip = Chip(context).apply {
                 text = item.labelKorean
-                tag = item.codeEnglish
+                tag = item.code
                 isCheckable = true
 
                 // 칩간에 자동 간격 조절 끄기
@@ -71,14 +71,14 @@ object SeasonOptions {
         }
     }
 
-    public fun getSelectedSeason(sectionRoot: View): List<String> {
+    public fun getSelectedSeason(sectionRoot: View): List<Int> {
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
-        val result = mutableListOf<String>()
+        val result = mutableListOf<Int>()
 
         for (i in 0 until group.childCount) {
             val chip = group.getChildAt(i) as? Chip ?: continue
             // 선택된 항목에 대한 영문 코드 리스트에 담기
-            if (chip.isChecked) result.add(chip.tag as String)
+            if (chip.isChecked) result.add(chip.tag as Int)
         }
 
         return result
