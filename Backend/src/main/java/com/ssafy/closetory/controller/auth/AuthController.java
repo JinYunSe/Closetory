@@ -4,6 +4,7 @@ import com.ssafy.closetory.dto.auth.LoginRequest;
 import com.ssafy.closetory.dto.auth.LoginResponse;
 import com.ssafy.closetory.dto.auth.SignupRequest;
 import com.ssafy.closetory.dto.common.ApiResponse;
+import com.ssafy.closetory.exception.common.UnauthorizedException;
 import com.ssafy.closetory.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,5 +46,24 @@ public class AuthController {
   public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal Integer userId) {
     authService.logout(userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "로그아웃 성공", null));
+  }
+
+  //  토큰 재발급
+  @PostMapping("/token")
+  @Operation(summary = "토큰 재발급")
+  public ResponseEntity<ApiResponse<LoginResponse>> token(
+      @RequestHeader("Authorization") String authorization,
+      @RequestHeader("X-USER-ID") Integer userId) {
+
+    // Refresh Token 추출
+    if (authorization == null || !authorization.startsWith("Bearer ")) {
+      throw new UnauthorizedException("리프레시 토큰이 없습니다.");
+    }
+
+    String refreshToken = authorization.substring(7);
+
+    LoginResponse response = authService.token(userId, refreshToken);
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "토큰 재발급 성공", response));
   }
 }

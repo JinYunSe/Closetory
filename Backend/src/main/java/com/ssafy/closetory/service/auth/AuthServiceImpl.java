@@ -91,6 +91,7 @@ public class AuthServiceImpl implements AuthService {
     return new LoginResponse(accessToken, refreshToken);
   }
 
+  // 로그아웃
   @Override
   public void logout(Integer userId) {
     if (userId == null) {
@@ -99,5 +100,42 @@ public class AuthServiceImpl implements AuthService {
 
     // Redis에 저장된 refresh token 삭제
     refreshTokenService.delete(userId);
+  }
+
+  // 토큰 재발급
+  @Override
+  public LoginResponse token(Integer userId, String refreshToken) {
+
+    // 1. userId 검증
+    if (userId == null) {
+      throw new UnauthorizedException("인증되지 않은 사용자입니다.");
+    }
+
+    // 2. Refresh Token 존재 여부
+    if (refreshToken == null || refreshToken.isBlank()) {
+      throw new UnauthorizedException("리프레시 토큰이 없습니다.");
+    }
+
+    // 3. Redis에 저장된 Refresh Token 조회
+    String savedRefreshToken = refreshTokenService.get(userId);
+
+    if (savedRefreshToken == null) {
+      throw new UnauthorizedException("로그아웃된 사용자이거나 토큰이 만료되었습니다.");
+    }
+
+    // 4. Refresh Token 일치 여부
+    if (!savedRefreshToken.equals(refreshToken)) {
+      throw new UnauthorizedException("유효하지 않은 리프레시 토큰입니다.");
+    }
+
+    // 5. 새 토큰 발급
+    String newAccessToken = jwtProvider.createAccessToken(userId);
+    String newRefreshToken = refreshTokenService.createRefreshToken();
+
+    // 6. Refresh Token
+    refreshTokenService.save(userId, newRefreshToken);
+
+    // 7. 응답
+    return new LoginResponse(newAccessToken, newRefreshToken);
   }
 }
