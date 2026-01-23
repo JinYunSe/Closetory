@@ -14,4 +14,12 @@
         <item name="android:ellipsize">none</item>
         <item name="android:textSize">10sp</item>
     </style>
+
+    <!-- 원형 프로필 이미지용 ShapeAppearance -->
+    <style name="ShapeAppearance.Circle"
+        parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
 </resources>

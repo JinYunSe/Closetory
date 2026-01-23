@@ -34,4 +34,21 @@
         android:name="com.ssafy.closetory.homeActivity.addClose.AddClothFragment"
         android:label="@string/title_add_cloth"
         tools:layout="@layout/fragment_add_cloth" />
+
+    <fragment
+        android:id="@+id/navigation_my_page"
+        android:name="com.ssafy.closetory.homeActivity.mypage.MyPageFragment"
+        android:label="@string/title_my_page"
+        tools:layout="@layout/fragment_my_page">
+
+        <action
+            android:id="@+id/action_navigation_my_page_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.ssafy.closetory.homeActivity.mypage.edit.EditProfileFragment" />
+
 </navigation>

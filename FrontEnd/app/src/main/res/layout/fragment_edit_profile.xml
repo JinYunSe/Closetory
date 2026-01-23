@@ -103,7 +103,10 @@
         android:singleLine="true"
         android:maxLines="1"
         android:hint="닉네임"
-        android:padding="16dp" />
+        android:padding="16dp"
+        android:imeOptions="actionNext"
+        android:nextFocusDown="@id/etHeight"
+        />
 
     <LinearLayout
         android:id="@+id/layoutSize"
@@ -122,7 +125,9 @@
             android:background="#E0E0E0"
             android:hint="키(cm)"
             android:inputType="number"
-            android:padding="16dp" />
+            android:padding="16dp"
+            android:imeOptions="actionNext"
+            android:nextFocusDown="@id/etWeight"/>
 
         <EditText
             android:id="@+id/etWeight"
@@ -133,7 +138,9 @@
             android:background="#E0E0E0"
             android:hint="몸무게(kg)"
             android:inputType="number"
-            android:padding="16dp" />
+            android:padding="16dp"
+            android:imeOptions="actionNext"
+            android:nextFocusDown="@id/btnFemale"/>
     </LinearLayout>
 
     <LinearLayout

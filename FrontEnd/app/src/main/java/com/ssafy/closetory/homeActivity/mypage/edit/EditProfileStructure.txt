@@ -1,0 +1,18 @@
+homeActivity
+ └─ mypage
+     ├─ MyPageFragment.kt                ← 마이페이지 진입점
+     │
+     ├─ edit
+     │   ├─ EditProfileFragment.kt       ← 회원정보 수정 메인 화면 (UI)
+     │   ├─ EditProfileViewModel.kt      ← 회원정보 수정 로직
+     │   ├─ EditProfileRepository.kt     ← 회원정보 서버 통신
+     │   │
+     │   └─ dialog
+     │       ├─ PasswordChangeDialogFragment.kt
+     │       ├─ PasswordChangeViewModel.kt
+     │       └─ PasswordChangeRepository.kt
+
+res/layout
+ ├─ fragment_my_page.xml
+ ├─ fragment_edit_profile.xml
+ └─ dialog_password_change.xml

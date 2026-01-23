@@ -5,12 +5,12 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.AuthActivity
 import com.ssafy.closetory.authActivity.logout.LogoutViewModel
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
-// import com.ssafy.closetory.homeActivity.mypage.edit.EditProfileFragment
 import com.ssafy.closetory.util.AuthManager
 
 class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding::bind, R.layout.fragment_my_page) {
@@ -22,6 +22,11 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
 
         binding.btnLogout.setOnClickListener {
             showLogoutDialog()
+        }
+
+        // 회원정보 수정 화면 이동 (추가)
+        binding.tvEditProfile.setOnClickListener {
+            findNavController().navigate(R.id.action_navigation_my_page_to_editProfileFragment)
         }
         observeLogout()
         observeMessage()
