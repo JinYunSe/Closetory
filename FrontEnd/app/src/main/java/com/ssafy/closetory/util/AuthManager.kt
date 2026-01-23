@@ -1,10 +1,8 @@
 package com.ssafy.closetory.util
 
 import android.content.Context
-import android.util.Base64
 import android.util.Log
 import androidx.core.content.edit
-import org.json.JSONObject
 
 private const val TAG = "AuthManager_싸피"
 
@@ -17,6 +15,7 @@ class AuthManager(context: Context) {
         private const val PREFS_NAME = "auth_tokens"
         private const val KEY_ACCESS = "access_token"
         private const val KEY_REFRESH = "refresh_token"
+        private const val KEY_USER_ID = "user_id"
     }
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -41,5 +40,19 @@ class AuthManager(context: Context) {
             remove(KEY_ACCESS)
             remove(KEY_REFRESH)
         }
+    }
+
+    // 로그인 성공 시 userId 반드시 함께 저장
+    fun saveUserId(userId: Int) {
+        prefs.edit {
+            putInt(KEY_USER_ID, userId)
+        }
+    }
+
+    // EditProfile에서 userId 사용
+    fun getUserId(): Int? = if (prefs.contains(KEY_USER_ID)) {
+        prefs.getInt(KEY_USER_ID, -1)
+    } else {
+        null
     }
 }

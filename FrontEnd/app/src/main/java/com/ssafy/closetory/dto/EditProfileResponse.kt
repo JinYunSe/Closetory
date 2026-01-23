@@ -6,7 +6,7 @@ package com.ssafy.closetory.dto
 //    "password" : "ssafy123!",
 //    "nickname" : "김싸피123",
 // }
-data class EditProfileRequest(
+data class EditProfileResponse(
     val username: String,
     val password: String,
     val passwordConfirm: String,

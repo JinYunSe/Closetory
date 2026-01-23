@@ -10,4 +10,4 @@ package com.ssafy.closetory.dto
 //    }
 // }
 
-data class LoginResponse(val accessToken: String, val refreshToken: String)
+data class LoginResponse(val accessToken: String, val refreshToken: String, val userId: Int)

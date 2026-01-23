@@ -1,18 +1,42 @@
-homeActivity
- └─ mypage
-     ├─ MyPageFragment.kt                ← 마이페이지 진입점
-     │
-     ├─ edit
-     │   ├─ EditProfileFragment.kt       ← 회원정보 수정 메인 화면 (UI)
-     │   ├─ EditProfileViewModel.kt      ← 회원정보 수정 로직
-     │   ├─ EditProfileRepository.kt     ← 회원정보 서버 통신
-     │   │
-     │   └─ dialog
-     │       ├─ PasswordChangeDialogFragment.kt
-     │       ├─ PasswordChangeViewModel.kt
-     │       └─ PasswordChangeRepository.kt
-
-res/layout
- ├─ fragment_my_page.xml
- ├─ fragment_edit_profile.xml
- └─ dialog_password_change.xml
+com.ssafy.closetory
+├─ homeActivity
+│  └─ mypage
+│     ├─ MyPageFragment.kt
+│     │  └─ 마이페이지 메인 화면, 회원정보 수정 화면으로 이동
+│     │
+│     └─ edit
+│        ├─ EditProfileFragment.kt
+│        │  └─ 회원정보 수정 UI, 비밀번호 변경 다이얼로그 표시
+│        │
+│        ├─ EditProfileViewModel.kt
+│        │  └─ 회원정보 수정 / 비밀번호 변경 로직 및 유효성 검사
+│        │
+│        ├─ EditProfileRepository.kt
+│        │  └─ 회원정보 관련 데이터 요청 중계 (Service ↔ ViewModel)
+│        │
+│        └─ EditProfileService.kt
+│           └─ 회원정보 조회, 수정, 비밀번호 변경 API 정의
+│
+├─ dto
+│  ├─ EditProfileInfoResponse.kt
+│  │  └─ 내 회원정보 조회 응답 데이터 모델
+│  │
+│  ├─ EditProfileUpdateRequest.kt
+│  │  └─ 닉네임, 성별, 키/몸무게 등 회원정보 수정 요청 모델
+│  │
+│  ├─ EditProfilePasswordRequest.kt
+│  │  └─ 현재 비밀번호, 새 비밀번호 전달용 요청 모델
+│  │
+│  └─ EditProfileBaseResponse.kt
+│     └─ 성공 여부 및 메시지 공통 응답 모델
+│
+└─ res
+   └─ layout
+      ├─ fragment_my_page.xml
+      │  └─ 마이페이지 메인 UI 레이아웃
+      │
+      ├─ fragment_edit_profile.xml
+      │  └─ 회원정보 수정 화면 UI 레이아웃
+      │
+      └─ dialog_edit_profile_password.xml
+         └─ 비밀번호 변경 입력용 AlertDialog 레이아웃
