@@ -52,12 +52,14 @@
             android:background="@null"
             android:padding="16dp" />
 
-        <Button
+        <ImageButton
             android:id="@+id/btnToggleLoginPassword"
             android:layout_width="48dp"
             android:layout_height="match_parent"
-            android:text="👁"
-            android:backgroundTint="@color/main_color"/>
+            android:background="@null"
+            android:src="@drawable/ic_eye"
+            android:contentDescription="비밀번호 보기/숨기기" />
+
     </LinearLayout>
 
     <Button
