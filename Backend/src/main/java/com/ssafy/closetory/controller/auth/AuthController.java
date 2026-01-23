@@ -39,7 +39,7 @@ public class AuthController {
 
     LoginResponse response = authService.login(request);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(200, "로그인 성공", response));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "로그인 성공", response));
   }
 
   @PostMapping("/logout")
