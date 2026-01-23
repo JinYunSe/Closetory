@@ -46,6 +46,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        mlModelBinding = true
     }
 
     ktlint {
@@ -95,4 +96,7 @@ dependencies {
 
     // Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // Image Segmenter / Interactive Image Segmenter (이미지 배경 제거를 위해 추가)
+    implementation(libs.mediapipe.tasks.vision)
 }
