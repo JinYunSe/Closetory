@@ -8,11 +8,10 @@
 
     </style>
 
-    <!--    프로필 사진 원형 적용-->
-    <style name="ShapeAppearance.Circle"
-        parent="ShapeAppearance.MaterialComponents.SmallComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">50%</item>
+    <style name="ClosetTabText" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:maxLines">2</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">none</item>
+        <item name="android:textSize">10sp</item>
     </style>
-
 </resources>
