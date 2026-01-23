@@ -4,8 +4,10 @@ package com.ssafy.closetory.authActivity.signUp
 
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import androidx.fragment.app.viewModels
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
@@ -22,6 +24,21 @@ class SignUpFragment :
     private val signUpViewModel: SignUpViewModel by viewModels()
 
     private var selectedGender: String? = null // "Male" or "Female"
+
+    private fun togglePasswordVisibility(editText: EditText, isVisible: Boolean): Boolean {
+        if (isVisible) {
+            editText.inputType =
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        } else {
+            editText.inputType =
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        }
+
+        // 커서 맨 뒤 유지
+        editText.setSelection(editText.text.length)
+
+        return !isVisible
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -76,6 +93,19 @@ class SignUpFragment :
         // 로그인 이동
         binding.tvYesIdToLogin.setOnClickListener {
             parentFragmentManager.popBackStack()
+        }
+
+        var isPasswordVisible = false
+        var isPasswordConfirmVisible = false
+
+        binding.btnTogglePassword.setOnClickListener {
+            isPasswordVisible =
+                togglePasswordVisibility(binding.etSignupPassword, isPasswordVisible)
+        }
+
+        binding.btnTogglePasswordConfirmation.setOnClickListener {
+            isPasswordConfirmVisible =
+                togglePasswordVisibility(binding.etSignupPasswordConfirmation, isPasswordConfirmVisible)
         }
     }
 }

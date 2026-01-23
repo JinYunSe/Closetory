@@ -30,27 +30,74 @@
         android:layout_marginTop="40dp"
         android:background="#E0E0E0"
         android:hint="아이디"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:inputType="text"
         android:padding="16dp" />
 
-    <EditText
-        android:id="@+id/etSignupPassword"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
+        android:orientation="horizontal"
         android:background="#E0E0E0"
-        android:hint="비밀번호"
-        android:inputType="textPassword"
-        android:padding="16dp" />
+        android:gravity="center_vertical">
 
-    <EditText
-        android:id="@+id/etSignupPasswordConfirmation"
+        <EditText
+            android:id="@+id/etSignupPassword"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="비밀번호"
+            android:inputType="textPassword"
+            android:background="@null"
+            android:padding="16dp" />
+
+        <Button
+            android:id="@+id/btnTogglePassword"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:text="👁"
+            android:backgroundTint="@color/main_color"
+            android:focusable="false"/>
+    </LinearLayout>
+
+<!--    <EditText-->
+<!--        android:id="@+id/etSignupPasswordConfirmation"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="56dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:background="#E0E0E0"-->
+<!--        android:hint="비밀번호 확인"-->
+<!--        android:inputType="textPassword"-->
+<!--        android:padding="16dp" />-->
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
+        android:orientation="horizontal"
         android:background="#E0E0E0"
-        android:hint="비밀번호 확인"
-        android:inputType="textPassword"
-        android:padding="16dp" />
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/etSignupPasswordConfirmation"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="비밀번호 확인"
+            android:inputType="textPassword"
+            android:padding="16dp" />
+
+        <Button
+            android:id="@+id/btnTogglePasswordConfirmation"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:text="👁"
+            android:backgroundTint="@color/main_color"
+            android:focusable="false"/>
+    </LinearLayout>
 
     <EditText
         android:id="@+id/etSignupNickname"
@@ -59,7 +106,12 @@
         android:layout_marginTop="16dp"
         android:background="#E0E0E0"
         android:hint="닉네임"
-        android:padding="16dp" />
+        android:singleLine="true"
+        android:maxLines="1"
+        android:inputType="text"
+        android:padding="16dp"
+        android:imeOptions="actionNext"
+        android:nextFocusDown="@id/etPersonalHeight" />
 
     <LinearLayout
         android:id="@+id/personalSizeContainer"
@@ -77,8 +129,13 @@
             android:layout_weight="1"
             android:background="#E0E0E0"
             android:hint="키(cm)"
+            android:singleLine="true"
+            android:maxLines="1"
             android:inputType="number"
-            android:padding="16dp" />
+            android:padding="16dp"
+            android:imeOptions="actionNext"
+            android:nextFocusDown="@id/etPersonalWeight"
+            />
 
         <EditText
             android:id="@+id/etPersonalWeight"
@@ -88,8 +145,13 @@
             android:layout_weight="1"
             android:background="#E0E0E0"
             android:hint="몸무게(kg)"
+            android:singleLine="true"
+            android:maxLines="1"
             android:inputType="number"
-            android:padding="16dp" />
+            android:padding="16dp"
+            android:imeOptions="actionNext"
+            android:nextFocusDown="@id/btnFemale"
+            />
     </LinearLayout>
 
     <LinearLayout
@@ -107,7 +169,9 @@
             android:layout_marginEnd="12dp"
             android:layout_weight="1"
             android:backgroundTint="@color/gray_500"
-            android:text="여성" />
+            android:text="여성"
+            android:imeOptions="actionNext"
+            />
 
         <Button
             android:id="@+id/btnMale"
@@ -116,7 +180,9 @@
             android:layout_marginStart="12dp"
             android:layout_weight="1"
             android:backgroundTint="@color/gray_500"
-            android:text="남성" />
+            android:text="남성"
+            android:imeOptions="actionNext"
+            />
     </LinearLayout>
 
     <!-- 알람 수신 여부 -->
