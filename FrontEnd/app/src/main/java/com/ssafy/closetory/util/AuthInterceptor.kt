@@ -11,18 +11,24 @@ private const val TAG = "AuthInterceptor_싸피"
 // 요청에 Bearer 토큰 넣는 해더
 class AuthInterceptor : okhttp3.Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val original = chain.request()
+        val req = chain.request()
+        val path = req.url.encodedPath
+
+        // 토큰 필요 없는 주소
+        val noAuth = listOf("/auth/signup")
+
+        if (noAuth.any { path.contains(it) }) return chain.proceed(req)
 
         val token = ApplicationClass.authManager.getAccessToken()
 
         // 토큰이 있는 상황이면
         val newRequest = if (!token.isNullOrEmpty()) {
             // 해더에 Bearer token 값 넣기
-            original.newBuilder()
+            req.newBuilder()
                 .header(ApplicationClass.X_ACCESS_TOKEN, "Bearer $token")
                 .build()
         } else {
-            original
+            req
         }
 
         // log로 request할 때 토큰이 잘 가는지 확인하기

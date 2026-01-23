@@ -1,15 +1,17 @@
 package com.ssafy.closetory.homeActivity.closet
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.tabs.TabLayout
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentClosetBinding
+import com.ssafy.closetory.dto.ClosetResponse
 import com.ssafy.closetory.homeActivity.HomeActivity
 import com.ssafy.closetory.homeActivity.adpter.ClothAdapter
 import com.ssafy.closetory.util.ColorOptions
@@ -29,32 +31,29 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     private var currentTags: List<Int> = TagOptions.items.map { it.code }
     private var currentSeasons: List<Int> = SeasonOptions.items.map { it.code }
     private var currentColor: String? = null
-    private var checkedFavorites: Boolean = false
     private var checkedOnlyMyCloth: Boolean = false
 
-    // 어댑터를 멤버
-    private val topAdapter = ClothAdapter()
-    private val bottomAdapter = ClothAdapter()
-    private val outerAdapter = ClothAdapter()
-    private val shoesAdapter = ClothAdapter()
-    private val hatAdapter = ClothAdapter()
-    private val accAdapter = ClothAdapter()
+    // 옷 어댑터
+    private val clothAdapter = ClothAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         homeActivity = requireContext() as HomeActivity
 
-        initListViews()
+        initRecyclerViews()
         checkSwitch()
-        initSearchDialog()
-
+        searchDialog()
         registerObserve()
+        selectedTab()
+
+        // 옷 검색
+        runSearch()
     }
 
     // 검색 다이얼로그
-    fun initSearchDialog() {
-        binding.btnSearchDialog.setOnClickListener {
+    fun searchDialog() {
+        binding.ibtnSearchFilter.setOnClickListener {
             val dialogView = LayoutInflater.from(homeActivity)
                 .inflate(R.layout.dialog_search_filter, null, false)
 
@@ -90,15 +89,9 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         }
     }
 
-    // 스위치 초기화
+    // 스위치 체크 여부 확인
     fun checkSwitch() {
-        checkedFavorites = binding.swFavorites.isChecked
         checkedOnlyMyCloth = binding.swOnlyMyCloth.isChecked
-
-        binding.swFavorites.setOnCheckedChangeListener { _, isChecked ->
-            checkedFavorites = isChecked
-            runSearch()
-        }
 
         binding.swOnlyMyCloth.setOnCheckedChangeListener { _, isChecked ->
             checkedOnlyMyCloth = isChecked
@@ -110,47 +103,85 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     fun runSearch() {
         Log.d(
             TAG,
-            "runSearch tags=$currentTags seasons=$currentSeasons color=$currentColor fav=$checkedFavorites onlyMy=$checkedOnlyMyCloth"
+            "runSearch tags=$currentTags seasons=$currentSeasons color=$currentColor onlyMy=$checkedOnlyMyCloth"
         )
 
         viewModel.getClothesList(
             currentTags,
             currentColor,
             currentSeasons,
-            checkedFavorites,
             checkedOnlyMyCloth
         )
     }
 
     // 리스트 초기화
-    fun initListViews() {
+    fun initRecyclerViews() {
         // 리사이클러 뷰에 Adapter 붙이기
-        binding.lvTopCloth.adapter = topAdapter
-        binding.lvBottomCloth.adapter = bottomAdapter
-        binding.lvOuter.adapter = outerAdapter
-        binding.lvShoes.adapter = shoesAdapter
-        binding.lvHat.adapter = hatAdapter
-        binding.lvAccessory.adapter = accAdapter
+        binding.glCloset.apply {
+            adapter = clothAdapter
+            layoutManager = GridLayoutManager(homeActivity, 3)
+            setHasFixedSize(true)
+        }
     }
 
     fun registerObserve() {
-        viewModel.closetData.observe(viewLifecycleOwner) { data ->
+        // 서버 통신 결과 리스트 반영하기
+        viewModel.closetData.observe(viewLifecycleOwner) { data: ClosetResponse? ->
             if (data == null) return@observe
 
             Log.d(TAG, "registerObserve Data : $data")
 
-            // 어뎁터에 요소들 집어 넣기
-            topAdapter.submitList(data.topClothes)
-            bottomAdapter.submitList(data.bottomClothes)
-            outerAdapter.submitList(data.outerClothes)
-            shoesAdapter.submitList(data.shoes)
-            hatAdapter.submitList(data.hats)
-            accAdapter.submitList(data.accessories)
+            // 현재 선택된 탭 기준 요소들 집어 넣기
+            applyTabItems(data)
         }
 
+        // 에러 발생의 경우 토스트 메시지 띄우기
         viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
             if (message == null) return@observe
             showToast(message)
         }
+    }
+
+    // 탭 선택에 맞게 화면에 보여줄 리스트 갱신
+    fun selectedTab() {
+        // 리스너 구현체를 만들어 TabLayout에 외부에서 넣기
+        binding.tabCloset.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+
+            // 새로운 탭이 호출 될 경우
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                applyTabItems(viewModel.closetData.value)
+            }
+
+            // 아래는 어쩔 수 없이 override 해야 하는 메서드
+            // 기존에 선택된 대상이 해제된 순간
+            override fun onTabUnselected(p0: TabLayout.Tab?) {
+            }
+
+            // 똑같은 대상을 눌렀을 때
+            override fun onTabReselected(p0: TabLayout.Tab?) {
+            }
+        })
+    }
+
+    // 댑 대상 적용하기
+    fun applyTabItems(data: ClosetResponse?) {
+        if (data == null) return
+
+        // 누른 대상 index 가져오기
+        val position = binding.tabCloset.selectedTabPosition
+
+        // ?: emptyList()은 요청한 옷 목록에 요소가 없을 경우 빈 list로 보여주기 위해 사용
+        val list = when (position) {
+            0 -> data.topClothes ?: emptyList()
+            1 -> data.bottomClothes ?: emptyList()
+            2 -> data.outerClothes ?: emptyList()
+            3 -> data.shoes ?: emptyList()
+            4 -> data.bags ?: emptyList()
+            5 -> data.accessories ?: emptyList()
+            else -> emptyList()
+        }
+
+        // 리스트 갱신을 알리기
+        clothAdapter.submitList(list)
     }
 }

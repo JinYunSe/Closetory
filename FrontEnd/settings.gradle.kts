@@ -19,6 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FrontEnd"
+rootProject.name = "Closetory"
 include(":app")
- 

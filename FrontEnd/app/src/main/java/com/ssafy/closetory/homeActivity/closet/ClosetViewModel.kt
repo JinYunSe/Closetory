@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ssafy.closetory.dto.ClosetDataDto
+import com.ssafy.closetory.dto.ClosetResponse
 import kotlinx.coroutines.launch
 
 private const val TAG = "ClosetViewModel_싸피"
@@ -13,20 +13,19 @@ class ClosetViewModel : ViewModel() {
 
     private val repository = ClosetRepository()
 
-    private val _closetData = MutableLiveData<ClosetDataDto?>()
-    val closetData: LiveData<ClosetDataDto?> = _closetData
+    private val _closetData = MutableLiveData<ClosetResponse?>()
+    val closetData: LiveData<ClosetResponse?> = _closetData
 
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    fun getClothesList(tags: List<Int>?, color: String?, seasons: List<Int>?, onlyLike: Boolean?, onlyMine: Boolean?) {
+    fun getClothesList(tags: List<Int>?, color: String?, seasons: List<Int>?, onlyMine: Boolean?) {
         viewModelScope.launch {
             try {
                 val res = repository.getClothesList(
                     tags,
                     color,
                     seasons,
-                    onlyLike,
                     onlyMine
                 )
 
