@@ -18,7 +18,7 @@ public record GetClothesDetailResponse(
   public static GetClothesDetailResponse from(Clothes clothes, Integer userId) {
     List<String> tags = clothes.getTags().stream().map(Tag::getTagName).toList();
     List<String> seasons = clothes.getSeasons().stream().map(Season::getSeasonName).toList();
-    boolean isMine = userId.equals(clothes.getOwner().getId());
+    boolean isMine = userId.equals(clothes.getUserId());
 
     return new GetClothesDetailResponse(
         clothes.getId(),

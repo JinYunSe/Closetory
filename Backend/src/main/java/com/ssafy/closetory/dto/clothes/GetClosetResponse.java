@@ -8,5 +8,4 @@ public record GetClosetResponse(
     List<ClosetClothesItem> accessories,
     List<ClosetClothesItem> bags,
     List<ClosetClothesItem> outerClothes,
-    List<ClosetClothesItem> shoes
-) {}
+    List<ClosetClothesItem> shoes) {}

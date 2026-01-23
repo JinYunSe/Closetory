@@ -1,6 +1,5 @@
 package com.ssafy.closetory.entity.clothes;
 
-import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.enums.ClothesColor;
 import com.ssafy.closetory.enums.ClothesType;
 import jakarta.persistence.*;
@@ -33,9 +32,8 @@ public class Clothes {
   @Column(name = "color", nullable = false)
   private ClothesColor color;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
-  private User owner;
+  @Column(name = "user_id", nullable = false)
+  private Integer userId;
 
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;

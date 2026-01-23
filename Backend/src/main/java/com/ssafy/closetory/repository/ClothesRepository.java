@@ -16,10 +16,10 @@ public interface ClothesRepository extends JpaRepository<Clothes, Integer> {
     where c.deletedAt is null
 
       and (
-        (:onlyMine = true and c.owner.id = :userId)
+        (:onlyMine = true and c.userId = :userId)
         or
         (:onlyMine = false and (
-          c.owner.id = :userId
+          c.userId = :userId
           or exists (
             select 1
             from Save s
