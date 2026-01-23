@@ -43,7 +43,7 @@ public class AuthController {
   }
 
   @PostMapping("/logout")
-  @Operation(summary = "로그아웃")W
+  @Operation(summary = "로그아웃")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal Integer userId) {
     authService.logout(userId);
