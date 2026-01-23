@@ -11,7 +11,7 @@ import com.ssafy.closetory.exception.common.ConflictException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.exception.common.UnauthorizedException;
 import com.ssafy.closetory.repository.UserRepository;
-import com.ssafy.closetory.service.token.RefreshTokenServiceImpl;
+import com.ssafy.closetory.service.token.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,8 @@ public class AuthServiceImpl implements AuthService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtTokenProvider jwtProvider;
-  private final RefreshTokenServiceImpl refreshTokenService;
+  private final RefreshTokenService refreshTokenService;
+
 
   // 회원가입
   @Override

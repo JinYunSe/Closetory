@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-public class RefreshTokenServiceImpl {
+public class RefreshTokenServiceImpl implements  RefreshTokenService {
 
   private static final long REFRESH_TOKEN_TTL = 7; // 7일
 
