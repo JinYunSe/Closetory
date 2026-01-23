@@ -2,13 +2,14 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 
+    // KAPT
+    id("org.jetbrains.kotlin.kapt")
+
     // ROOM
     id("com.google.devtools.ksp")
 
     // Ktlint
     id("org.jlleitschuh.gradle.ktlint")
-
-    id("kotlin-kapt")
 }
 
 android {
@@ -96,6 +97,7 @@ dependencies {
 
     // Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
 
     // Image Segmenter / Interactive Image Segmenter (이미지 배경 제거를 위해 추가)
     implementation(libs.mediapipe.tasks.vision)

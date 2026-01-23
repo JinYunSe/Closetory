@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentEditProfileBinding
@@ -61,7 +62,7 @@ class EditProfileFragment :
     // 🔹 UI에 데이터 채우기
     private fun bindUserProfile(user: EditProfileInfoResponse) {
         Log.d("EDIT_PROFILE", "bindUserProfile called: $user")
-
+        // 텍스트 정보
         binding.etNickname.setText(user.nickname)
         binding.etHeight.setText(user.height.toString())
         binding.etWeight.setText(user.weight.toString())
@@ -70,7 +71,31 @@ class EditProfileFragment :
         isFemale = user.gender == "FEMALE"
         selectGender()
 
-        // 👉 이미지 로딩은 나중에 Glide로
+        // 프로필 사진
+        if (user.profilePhotoUrl.isNullOrBlank()) {
+            binding.imgProfile.setImageResource(R.drawable.ic_profile_default)
+            binding.tvProfilePlaceholder.visibility = View.VISIBLE
+        } else {
+            binding.tvProfilePlaceholder.visibility = View.GONE
+            Glide.with(this)
+                .load(user.profilePhotoUrl)
+                .placeholder(R.drawable.ic_profile_default)
+                .error(R.drawable.ic_profile_default)
+                .into(binding.imgProfile)
+        }
+
+        // 전신 사진
+        if (user.bodyPhotoUrl.isNullOrBlank()) {
+            binding.imgBody.setImageResource(R.drawable.ic_body_default)
+            binding.tvBodyPlaceholder.visibility = View.VISIBLE
+        } else {
+            binding.tvBodyPlaceholder.visibility = View.GONE
+            Glide.with(this)
+                .load(user.bodyPhotoUrl)
+                .placeholder(R.drawable.ic_body_default)
+                .error(R.drawable.ic_body_default)
+                .into(binding.imgBody)
+        }
     }
 
     private fun initUiEvents() {
