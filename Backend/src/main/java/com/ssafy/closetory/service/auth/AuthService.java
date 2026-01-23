@@ -14,4 +14,7 @@ public interface AuthService {
 
   // 로그아웃
   void logout(Integer userId);
+
+  // 토큰 재발급
+  LoginResponse token(Integer userId, String refreshToken);
 }

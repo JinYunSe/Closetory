@@ -9,14 +9,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -49,4 +48,18 @@ public class AuthController {
     authService.logout(userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "로그아웃 성공", null));
   }
+
+  @PostMapping("/token")
+  @Operation(summary = "토큰 재발급")
+  public ResponseEntity<ApiResponse<LoginResponse>> token(
+    @RequestHeader("X-REFRESH-TOKEN") String refreshToken,
+    @RequestHeader("X-USER-ID") Integer userId
+  ) {
+    LoginResponse response = authService.token(userId, refreshToken);
+
+    return ResponseEntity.ok(
+      ApiResponse.ok(200, "토큰 재발급 성공", response)
+    );
+  }
+
 }
