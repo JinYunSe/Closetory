@@ -39,11 +39,11 @@ public class AuthController {
 
     LoginResponse response = authService.login(request);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(200, "로그인 성공", response));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "로그인 성공", response));
   }
 
   @PostMapping("/logout")
-  @Operation(summary = "로그아웃")
+  @Operation(summary = "로그아웃")W
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal Integer userId) {
     authService.logout(userId);
