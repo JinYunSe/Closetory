@@ -22,8 +22,9 @@ class EditProfileRepository {
             request = request
         )
 
-    suspend fun changePassword(request: EditProfilePasswordRequest): Response<EditProfileBaseResponse> =
+    suspend fun changePassword(userId: Int, request: EditProfilePasswordRequest): Response<EditProfileBaseResponse> =
         editProfileService.changePassword(
+            userId = userId,
             request = request
         )
 }

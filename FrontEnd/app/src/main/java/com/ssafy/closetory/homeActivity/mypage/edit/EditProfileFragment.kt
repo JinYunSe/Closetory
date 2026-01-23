@@ -2,8 +2,13 @@ package com.ssafy.closetory.homeActivity.mypage.edit
 
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -23,11 +28,21 @@ class EditProfileFragment :
     // 성별 여부 확인
     private var isFemale: Boolean? = null
 
+    private fun togglePasswordVisibility(editText: EditText, isVisible: Boolean): Boolean {
+        if (isVisible) {
+            editText.inputType =
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        } else {
+            editText.inputType =
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        }
+
+        editText.setSelection(editText.text.length)
+        return !isVisible
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // ❌ 서버 아직 안 씀
-        // ❌ ViewModel 아직 안 씀
 
         initUiEvents()
         setupGenderButtons()
@@ -36,7 +51,7 @@ class EditProfileFragment :
         loadUserProfile()
     }
 
-    // 🔹 서버 요청 시작
+    // 서버에 기존 유저 정보 요청 시작
     private fun loadUserProfile() {
         Log.d("EDIT_PROFILE", "loadUserProfile() called")
         val authManager = AuthManager(requireContext())
@@ -48,7 +63,7 @@ class EditProfileFragment :
         )
     }
 
-    // 🔹 ViewModel 결과 관찰
+    // ViewModel 결과 관찰
     private fun observeViewModel() {
         viewModel.userProfile.observe(viewLifecycleOwner) { user ->
             bindUserProfile(user)
@@ -59,7 +74,7 @@ class EditProfileFragment :
         }
     }
 
-    // 🔹 UI에 데이터 채우기
+    // UI에 기존 데이터 채우기
     private fun bindUserProfile(user: EditProfileInfoResponse) {
         Log.d("EDIT_PROFILE", "bindUserProfile called: $user")
         // 텍스트 정보
@@ -110,9 +125,9 @@ class EditProfileFragment :
             showToast("저장 버튼 클릭됨")
         }
 
-        // 비밀번호 변경 → 아직 Dialog만 띄움
+        // 비밀번호 변경 다이얼로그
         binding.tvChangePassword.setOnClickListener {
-            showToast("비밀번호 변경 클릭")
+            showChangePasswordDialog()
         }
     }
 
@@ -146,5 +161,77 @@ class EditProfileFragment :
                 ColorStateList.valueOf(requireContext().getColor(R.color.gray_500))
             )
         }
+    }
+
+    // 🔹🔹🔹🔹 다이얼로그 구현 🔹🔹🔹🔹
+    private fun showChangePasswordDialog() {
+        val dialogView = layoutInflater
+            .inflate(R.layout.dialog_edit_profile_password, null)
+
+        // UI 구성 요소들
+        val etCurrent = dialogView.findViewById<EditText>(R.id.etCurrentPassword)
+        val btnToggleCurrent =
+            dialogView.findViewById<ImageButton>(R.id.btnToggleCurrentPassword)
+
+        val etNew = dialogView.findViewById<EditText>(R.id.etNewPassword)
+        val btnToggleNew =
+            dialogView.findViewById<ImageButton>(R.id.btnToggleNewPassword)
+
+        val etConfirm = dialogView.findViewById<EditText>(R.id.etNewPasswordConfirm)
+        val btnToggleConfirm =
+            dialogView.findViewById<ImageButton>(R.id.btnToggleNewPasswordConfirm)
+
+        val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirmChangePassword)
+
+        // 비밀번호 Visable 토글 기능 구현
+        var isCurrentVisible = false
+        var isNewVisible = false
+        var isConfirmVisible = false
+
+        btnToggleCurrent.setOnClickListener {
+            isCurrentVisible =
+                togglePasswordVisibility(etCurrent, isCurrentVisible)
+        }
+
+        btnToggleNew.setOnClickListener {
+            isNewVisible =
+                togglePasswordVisibility(etNew, isNewVisible)
+        }
+
+        btnToggleConfirm.setOnClickListener {
+            isConfirmVisible =
+                togglePasswordVisibility(etConfirm, isConfirmVisible)
+        }
+
+        // 다이얼로그 띄우기
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        btnConfirm.setOnClickListener {
+            val currentPw = etCurrent.text.toString()
+            val newPw = etNew.text.toString()
+            val confirmPw = etConfirm.text.toString()
+
+            // 🔹 유효성 검사 (지금은 Fragment에서)
+            if (currentPw.isBlank() || newPw.isBlank() || confirmPw.isBlank()) {
+                showToast("모든 항목을 입력해주세요.")
+                return@setOnClickListener
+            }
+
+            if (newPw != confirmPw) {
+                showToast("새 비밀번호가 일치하지 않습니다.")
+                return@setOnClickListener
+            }
+            if (newPw.length < 8) {
+                showToast("비밀번호는 8자리 이상이어야 합니다.")
+                return@setOnClickListener
+            }
+
+            // 👉 다음 단계: ViewModel로 전달
+            showToast("비밀번호 변경 요청")
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 }

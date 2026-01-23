@@ -23,6 +23,9 @@ interface EditProfileService {
         @Body request: EditProfileUpdateRequest
     ): Response<EditProfileBaseResponse>
 
-    @PATCH("users/password")
-    suspend fun changePassword(@Body request: EditProfilePasswordRequest): Response<EditProfileBaseResponse>
+    @PATCH("users/{userId}/password")
+    suspend fun changePassword(
+        @Path("userId") userId: Int,
+        @Body request: EditProfilePasswordRequest
+    ): Response<EditProfileBaseResponse>
 }
