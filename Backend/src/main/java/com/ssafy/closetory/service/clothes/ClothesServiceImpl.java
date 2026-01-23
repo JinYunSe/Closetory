@@ -43,6 +43,7 @@ public class ClothesServiceImpl implements ClothesService {
     List<ClosetClothesItem> accessories = new ArrayList<>();
     List<ClosetClothesItem> bags = new ArrayList<>();
     List<ClosetClothesItem> outer = new ArrayList<>();
+    List<ClosetClothesItem> shoes = new ArrayList<>();
 
     for (Clothes c : closet) {
       ClosetClothesItem item = ClosetClothesItem.from(c);
@@ -53,10 +54,11 @@ public class ClothesServiceImpl implements ClothesService {
         case ACCESSORIES -> accessories.add(item);
         case BAG -> bags.add(item);
         case OUTER -> outer.add(item);
+        case SHOES -> shoes.add(item);
       }
     }
 
-    return new GetClosetResponse(top, bottom, accessories, bags, outer);
+    return new GetClosetResponse(top, bottom, accessories, bags, outer, shoes);
   }
 
   @Override
