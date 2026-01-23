@@ -2,6 +2,7 @@ package com.ssafy.closetory.homeActivity.mypage.edit
 
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -29,36 +30,38 @@ class EditProfileFragment :
 
         initUiEvents()
         setupGenderButtons()
-//        observeViewModel()
+        observeViewModel()
 
         loadUserProfile()
     }
 
     // 🔹 서버 요청 시작
     private fun loadUserProfile() {
+        Log.d("EDIT_PROFILE", "loadUserProfile() called")
         val authManager = AuthManager(requireContext())
-        val token = authManager.getAccessToken() ?: return
         val userId = authManager.getUserId() ?: return
+        Log.d("loadUserProfile launch전", "loadUserProfile launch전")
 
-//        viewModel.loadUserProfile(
-//            accessToken = "Bearer $token",
-//            userId = userId
-//        )
+        viewModel.loadUserProfile(
+            userId = userId
+        )
     }
 
-//    // 🔹 ViewModel 결과 관찰
-//    private fun observeViewModel() {
-//        viewModel.userProfile.observe(viewLifecycleOwner) { user ->
-//            bindUserProfile(user)
-//        }
-//
-//        viewModel.message.observe(viewLifecycleOwner) {
-//            showToast(it)
-//        }
-//    }
+    // 🔹 ViewModel 결과 관찰
+    private fun observeViewModel() {
+        viewModel.userProfile.observe(viewLifecycleOwner) { user ->
+            bindUserProfile(user)
+        }
+
+        viewModel.message.observe(viewLifecycleOwner) {
+            showToast(it)
+        }
+    }
 
     // 🔹 UI에 데이터 채우기
     private fun bindUserProfile(user: EditProfileInfoResponse) {
+        Log.d("EDIT_PROFILE", "bindUserProfile called: $user")
+
         binding.etNickname.setText(user.nickname)
         binding.etHeight.setText(user.height.toString())
         binding.etWeight.setText(user.weight.toString())
