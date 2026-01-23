@@ -10,6 +10,7 @@ import com.ssafy.closetory.authActivity.AuthActivity
 import com.ssafy.closetory.authActivity.logout.LogoutViewModel
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
+// import com.ssafy.closetory.homeActivity.mypage.edit.EditProfileFragment
 import com.ssafy.closetory.util.AuthManager
 
 class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding::bind, R.layout.fragment_my_page) {

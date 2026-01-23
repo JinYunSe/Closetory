@@ -33,4 +33,19 @@
         android:backgroundTint="@color/main_color"
         android:layout_marginTop="32dp" />
 
+    <TextView
+        android:id="@+id/tvEditProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/btnLogout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textAlignment="center"
+        android:text="회원정보 수정"
+        android:textSize="14sp"
+        android:textColor="#000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
