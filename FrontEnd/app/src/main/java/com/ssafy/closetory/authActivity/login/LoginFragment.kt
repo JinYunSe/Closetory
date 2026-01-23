@@ -4,6 +4,7 @@ package com.ssafy.closetory.authActivity.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
@@ -15,6 +16,8 @@ import com.ssafy.closetory.databinding.FragmentLoginBinding
 import com.ssafy.closetory.homeActivity.HomeActivity
 
 private const val TAG = "LoginFragment_싸피"
+
+private var isLoginPasswordVisible = false
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::bind, R.layout.fragment_login) {
 
@@ -66,6 +69,23 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
             startActivity(intent)
+        }
+        binding.btnToggleLoginPassword.setOnClickListener {
+            isLoginPasswordVisible = !isLoginPasswordVisible
+
+            binding.etLoginPassword.inputType =
+                if (isLoginPasswordVisible) {
+                    InputType.TYPE_CLASS_TEXT or
+                        InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                } else {
+                    InputType.TYPE_CLASS_TEXT or
+                        InputType.TYPE_TEXT_VARIATION_PASSWORD
+                }
+
+            // 커서 맨 뒤 유지
+            binding.etLoginPassword.setSelection(
+                binding.etLoginPassword.text.length
+            )
         }
     }
 }
