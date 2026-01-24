@@ -11,11 +11,11 @@ import com.ssafy.closetory.R
 object ClothTypeOptions {
 
     val items = listOf(
-        OptionItem("상의", 0),
-        OptionItem("하의", 1),
-        OptionItem("악세사리", 2),
-        OptionItem("가방", 3),
-        OptionItem("아우터", 4)
+        OptionItem("상의", 1),
+        OptionItem("하의", 2),
+        OptionItem("악세사리", 3),
+        OptionItem("가방", 4),
+        OptionItem("아우터", 5)
     )
 
     fun render(sectionRoot: View, context: Context) {
@@ -70,11 +70,11 @@ object ClothTypeOptions {
     }
 
     // 선택 안 하면 null
-    public fun getClothType(sectionRoot: View): String? {
+    fun getClothType(sectionRoot: View): Int? {
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
         val checkedId = group.checkedChipId
         if (checkedId == View.NO_ID) return null
         val chip = group.findViewById<Chip>(checkedId)
-        return chip.tag as? String
+        return chip.tag as? Int
     }
 }

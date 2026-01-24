@@ -2,6 +2,7 @@ package com.ssafy.closetory.homeActivity.addClose
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
@@ -18,7 +19,9 @@ import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
 import java.io.File
 import kotlin.getValue
+import kotlin.text.isBlank
 
+private const val TAG = "RegistrationClothFragme_싸피"
 class RegistrationClothFragment :
     BaseFragment<FragmentRegistrationClothBinding>(
         FragmentRegistrationClothBinding::bind,
@@ -40,16 +43,16 @@ class RegistrationClothFragment :
 
     private lateinit var colorSection: View
 
-    // 카메라 원본 저장용 Uri
-    private var capturedImageUri: Uri? = null
+    // 최종 선택된 사진 Uri
+    private var selectedImageUri: Uri? = null
 
-    private val viewModel: RegistrationClothViewModel by viewModels()
+    private val registrationClothViewModel: RegistrationClothViewModel by viewModels()
 
     // 카메라 런처
     private val captureToUriLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (!success) return@registerForActivityResult
-            val uri = capturedImageUri ?: return@registerForActivityResult
+            val uri = selectedImageUri ?: return@registerForActivityResult
             binding.imbtnRegistrationCloth.setImageURI(uri)
             showPhotoPlaceholder(false)
         }
@@ -57,6 +60,7 @@ class RegistrationClothFragment :
     // 갤러리 런처
     private val photoPickerLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         uri ?: return@registerForActivityResult
+        selectedImageUri = uri
         binding.imbtnRegistrationCloth.setImageURI(uri)
         showPhotoPlaceholder(false)
     }
@@ -94,10 +98,49 @@ class RegistrationClothFragment :
         }
 
         binding.btnRegistrationCloth.setOnClickListener {
+            val photoUri = selectedImageUri
             val selectedTags = TagOptions.getSelectedTag(tagsSection)
+            val selectedClothType = ClothTypeOptions.getClothType(clothTypeSection)
             val selectedSeasons = SeasonOptions.getSelectedSeason(seasonSection)
-            val selectedOptions = ClothTypeOptions.getClothType(clothTypeSection)
-            val selectedCColor = colorAdapter.getSelectedColor()
+            val selectedColor = colorAdapter.getSelectedColor()
+
+            Log.d(
+                TAG,
+                "옷 등록 버튼 동작 photoUri : $photoUri, Tags : $selectedTags, ClothType : $selectedClothType, Seasons : $selectedSeasons, Color : $selectedColor"
+            )
+
+            if (photoUri == null) {
+                showToast("사진을 등록해주세요.")
+                return@setOnClickListener
+            }
+
+            if (selectedTags.isEmpty()) {
+                showToast("태그를 1개 이상 선택해주세요.")
+                return@setOnClickListener
+            }
+
+            if (selectedClothType == null) {
+                showToast("옷 종류를 선택해주세요.")
+                return@setOnClickListener
+            }
+
+            if (selectedSeasons.isEmpty()) {
+                showToast("계절을 1개 이상 선택해주세요.")
+                return@setOnClickListener
+            }
+
+            if (selectedColor.isNullOrBlank()) {
+                showToast("색상을 선택해주세요.")
+                return@setOnClickListener
+            }
+
+            registrationClothViewModel.registrationCloth(
+                photoUri,
+                selectedTags,
+                selectedClothType,
+                selectedSeasons,
+                selectedColor
+            )
         }
     }
 
@@ -141,8 +184,8 @@ class RegistrationClothFragment :
 
     // 카메라에 사진 원본 저장
     private fun launchCameraCaptureToUri() {
-        capturedImageUri = createImageUri()
-        val uri = capturedImageUri ?: return
+        selectedImageUri = createImageUri()
+        val uri = selectedImageUri ?: return
         captureToUriLauncher.launch(uri)
     }
 

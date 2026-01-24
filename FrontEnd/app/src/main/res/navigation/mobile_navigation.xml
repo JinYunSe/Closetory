@@ -30,8 +30,8 @@
         tools:layout="@layout/fragment_my_page" />
 
     <fragment
-        android:id="@+id/navigation_add_close"
-        android:name="com.ssafy.closetory.homeActivity.addClose.AddClothFragment"
-        android:label="@string/title_add_cloth"
-        tools:layout="@layout/fragment_add_cloth" />
+        android:id="@+id/navigation_registration_close"
+        android:name="com.ssafy.closetory.homeActivity.addClose.RegistrationClothFragment"
+        android:label="@string/title_registration_cloth"
+        tools:layout="@layout/fragment_registration_cloth" />
 </navigation>
