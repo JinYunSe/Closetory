@@ -99,4 +99,8 @@ dependencies {
 
     // Image Segmenter / Interactive Image Segmenter (이미지 배경 제거를 위해 추가)
     implementation(libs.mediapipe.tasks.vision)
+
+    // 코루틴 의존성 추가
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 }
