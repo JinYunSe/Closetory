@@ -19,12 +19,33 @@ fun interface OnGrantedListener {
 }
 
 private const val TAG = "CheckPermission_싸피"
-class PermissionChecker(activityOrFragment: Any) {
-    private lateinit var context: Context
 
-    private lateinit var permitted: OnGrantedListener
+class PermissionChecker {
+
+    private var context: Context? = null
+
+    private var permitted: OnGrantedListener? = null
     fun setOnGrantedListener(listener: OnGrantedListener) {
         permitted = listener
+    }
+
+    // init을 통해 미리 registerForActivityResult 등록
+    private var requestPermissionLauncher: ActivityResultLauncher<Array<String>>? = null
+
+    fun init(activity: AppCompatActivity) {
+        if (requestPermissionLauncher != null) return
+        requestPermissionLauncher =
+            activity.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                resultChecking(it)
+            }
+    }
+
+    fun init(fragment: Fragment) {
+        if (requestPermissionLauncher != null) return
+        requestPermissionLauncher =
+            fragment.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                resultChecking(it)
+            }
     }
 
     // 권한 체크
@@ -35,56 +56,40 @@ class PermissionChecker(activityOrFragment: Any) {
                 return false
             }
         }
-
         return true
     }
 
-    // 권한 호출한 이후 결과받아서 처리할 Launcher (startPermissionRequestResult )
-    val requestPermissionLauncher: ActivityResultLauncher<Array<String>> = when (activityOrFragment) {
-        is AppCompatActivity -> {
-            activityOrFragment.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-                resultChecking(it)
-            }
-        }
-
-        is Fragment -> {
-            activityOrFragment.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-                resultChecking(it)
-            }
-        }
-
-        else -> {
-            throw RuntimeException("Activity혹은 Fragment에서 권한설정이 가능합니다.")
-        }
+    // 권한 요청
+    fun requestPermissions(permissions: Array<String>) {
+        val launcher = requestPermissionLauncher
+            ?: throw IllegalStateException("PermissionChecker.init(fragment/activity)를 먼저 호출해야 합니다.")
+        launcher.launch(permissions)
     }
 
     private fun resultChecking(result: Map<String, Boolean>) {
+        val ctx = context ?: return
         Log.d(TAG, "requestPermissionLauncher: 건수 : ${result.size}")
 
-        if (result.values.contains(false)) { // false가 있는 경우라면..
-            Toast.makeText(context, "권한이 부족합니다.", Toast.LENGTH_SHORT).show()
-            moveToSettings()
+        if (result.values.contains(false)) {
+            Toast.makeText(ctx, "권한이 부족합니다.", Toast.LENGTH_SHORT).show()
+            moveToSettings(ctx)
         } else {
-            Toast.makeText(context, "모든 권한이 허가되었습니다.", Toast.LENGTH_SHORT).show()
-            permitted.onGranted()
+            Toast.makeText(ctx, "모든 권한이 허가되었습니다.", Toast.LENGTH_SHORT).show()
+            permitted?.onGranted()
         }
     }
 
-    // 사용자가 권한을 허용하지 않았을때, 설정창으로 이동
-    private fun moveToSettings() {
-        val alertDialog = AlertDialog.Builder(context)
-        alertDialog.setTitle("권한이 필요합니다.")
-        alertDialog.setMessage("설정으로 이동합니다.")
-        alertDialog.setPositiveButton("확인") { dialogInterface, i ->
-            // 안드로이드 버전에 따라 다를 수 있음.
-            val intent =
-                Intent(
-                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                ).setData(Uri.parse("package:" + context.packageName))
-            context.startActivity(intent)
-            dialogInterface.cancel()
-        }
-        alertDialog.setNegativeButton("취소") { dialogInterface, i -> dialogInterface.cancel() }
-        alertDialog.show()
+    private fun moveToSettings(ctx: Context) {
+        AlertDialog.Builder(ctx)
+            .setTitle("권한이 필요합니다.")
+            .setMessage("설정으로 이동합니다.")
+            .setPositiveButton("확인") { dialog, _ ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    .setData(Uri.parse("package:${ctx.packageName}"))
+                ctx.startActivity(intent)
+                dialog.dismiss()
+            }
+            .setNegativeButton("취소") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 }

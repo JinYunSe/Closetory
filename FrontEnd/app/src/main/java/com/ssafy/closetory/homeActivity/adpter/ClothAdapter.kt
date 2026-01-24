@@ -34,7 +34,7 @@ class ClothAdapter : ListAdapter<ClothItemDto, ClothAdapter.ViewHodler>(diffCall
             val imageUrl = "${ApplicationClass.SERVER_URL}${item.photoUrl}"
 
             Glide.with(binding.imgBtn.context)
-                .load(item.photoUrl)
+                .load(imageUrl)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.error)
                 .into(binding.imgBtn)
