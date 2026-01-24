@@ -1,18 +1,20 @@
 package com.ssafy.closetory.service.clothes;
 
-import com.ssafy.closetory.dto.clothes.ClosetClothesItem;
-import com.ssafy.closetory.dto.clothes.GetClosetRequest;
-import com.ssafy.closetory.dto.clothes.GetClosetResponse;
-import com.ssafy.closetory.dto.clothes.GetClothesDetailResponse;
+import com.ssafy.closetory.dto.clothes.*;
 import com.ssafy.closetory.entity.clothes.Clothes;
+import com.ssafy.closetory.entity.clothes.Season;
+import com.ssafy.closetory.entity.clothes.Tag;
 import com.ssafy.closetory.enums.ClothesColor;
 import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.NotFoundException;
-import com.ssafy.closetory.repository.ClothesRepository;
+import com.ssafy.closetory.repository.*;
+import com.ssafy.closetory.service.s3.S3ImageService;
+import java.time.LocalDateTime;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClothesServiceImpl implements ClothesService {
 
   private final ClothesRepository clothesRepository;
+  private final TagRepository tagRepository;
+  private final SeasonRepository seasonRepository;
+  private final S3ImageService s3ImageService;
 
   @Override
   public GetClosetResponse getCloset(Integer userId, GetClosetRequest request) {
@@ -43,6 +48,7 @@ public class ClothesServiceImpl implements ClothesService {
     List<ClosetClothesItem> accessories = new ArrayList<>();
     List<ClosetClothesItem> bags = new ArrayList<>();
     List<ClosetClothesItem> outer = new ArrayList<>();
+    List<ClosetClothesItem> shoes = new ArrayList<>();
 
     for (Clothes c : closet) {
       ClosetClothesItem item = ClosetClothesItem.from(c);
@@ -53,10 +59,11 @@ public class ClothesServiceImpl implements ClothesService {
         case ACCESSORIES -> accessories.add(item);
         case BAG -> bags.add(item);
         case OUTER -> outer.add(item);
+        case SHOES -> shoes.add(item);
       }
     }
 
-    return new GetClosetResponse(top, bottom, accessories, bags, outer);
+    return new GetClosetResponse(top, bottom, accessories, bags, outer, shoes);
   }
 
   @Override
@@ -66,6 +73,40 @@ public class ClothesServiceImpl implements ClothesService {
             .getClothesById(clothesId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 옷입니다."));
     return GetClothesDetailResponse.from(clothes, userId);
+  }
+
+  @Transactional
+  @Override
+  public void addClothes(Integer userId, AddClothesRequest request, MultipartFile photo) {
+    String photoUrl;
+    photoUrl = s3ImageService.upload(photo);
+
+    Clothes clothes =
+        Clothes.builder()
+            .photoUrl(photoUrl)
+            .clothesType(request.clothesType())
+            .color(request.color())
+            .userId(userId)
+            .createdAt(LocalDateTime.now())
+            .build();
+
+    if (request.tags() != null && !request.tags().isEmpty()) {
+      List<Tag> tags = tagRepository.findAllById(request.tags());
+      if (tags.size() != request.tags().size()) {
+        throw new NotFoundException("존재하지 않는 태그가 포함되어 있습니다.");
+      }
+      clothes.getTags().addAll(tags);
+    }
+
+    if (request.seasons() != null && !request.seasons().isEmpty()) {
+      List<Season> seasons = seasonRepository.findAllById(request.seasons());
+      if (seasons.size() != request.seasons().size()) {
+        throw new NotFoundException("존재하지 않는 계절이 포함되어 있습니다.");
+      }
+      clothes.getSeasons().addAll(seasons);
+    }
+
+    clothesRepository.save(clothes);
   }
 
   private ClothesColor parseColorOrNull(String colorStr) {
