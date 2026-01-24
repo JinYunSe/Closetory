@@ -9,9 +9,13 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentSignUpBinding
+import kotlinx.coroutines.launch
 
 private const val TAG = "SignUpFragment_싸피"
 
@@ -78,18 +82,23 @@ class SignUpFragment :
             )
         }
 
-        // 토스트 메시지
-        signUpViewModel.message.observe(viewLifecycleOwner) { msg ->
-            showToast(msg)
-        }
-
-        // 성공 시 로그인 화면 복귀
-        signUpViewModel.signUpSuccess.observe(viewLifecycleOwner) { success ->
-            if (success) {
-                parentFragmentManager.popBackStack()
+        // 토스트 메시지 수신
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                signUpViewModel.message.collect { msg ->
+                    if (msg.isNotBlank()) showToast(msg)
+                }
             }
         }
 
+        // 성공 이벤트 수신
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                signUpViewModel.signUpSuccess.collect { success ->
+                    if (success) parentFragmentManager.popBackStack()
+                }
+            }
+        }
         // 로그인 이동
         binding.tvYesIdToLogin.setOnClickListener {
             parentFragmentManager.popBackStack()
