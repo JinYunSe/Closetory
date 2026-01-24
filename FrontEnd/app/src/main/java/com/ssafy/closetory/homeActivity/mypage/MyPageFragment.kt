@@ -10,7 +10,7 @@ import com.ssafy.closetory.authActivity.AuthActivity
 import com.ssafy.closetory.authActivity.logout.LogoutViewModel
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
-import com.ssafy.closetory.util.AuthManager
+import com.ssafy.closetory.util.Auth.AuthManager
 
 class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding::bind, R.layout.fragment_my_page) {
 
@@ -48,9 +48,7 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
         val authManager = AuthManager(requireContext())
         val token = authManager.getAccessToken() ?: return
 
-        logoutViewModel.logout(
-            accessToken = "Bearer $token"
-        )
+        logoutViewModel.logout()
     }
 
     private fun observeLogout() {

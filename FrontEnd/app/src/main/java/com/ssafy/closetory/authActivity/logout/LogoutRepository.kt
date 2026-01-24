@@ -9,5 +9,5 @@ class LogoutRepository {
     private val service =
         ApplicationClass.retrofit.create(LogoutService::class.java)
 
-    suspend fun logout(accessToken: String) = service.logout(accessToken)
+    suspend fun logout() = service.logout()
 }

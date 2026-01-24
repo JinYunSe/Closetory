@@ -30,10 +30,9 @@ class SignUpViewModel : ViewModel() {
         weightText: String,
         alarmEnabled: Boolean
     ) {
-        Log.d("SIGNUP_FLOW", "ViewModel signUp() 진입")
-
-        // 1. 필수값 검증
-        if (username.isBlank() ||
+        // 1) 필수값 검증
+        if (
+            username.isBlank() ||
             password.isBlank() ||
             passwordConfirm.isBlank() ||
             nickname.isBlank()
@@ -42,33 +41,35 @@ class SignUpViewModel : ViewModel() {
             return
         }
 
-        // 2. 비밀번호 검증
+        // 2) 비밀번호 검증
         if (password.length < 8) {
             _message.value = "비밀번호는 8자 이상이어야 합니다."
             return
         }
-
         if (password != passwordConfirm) {
             _message.value = "비밀번호가 일치하지 않습니다."
             return
         }
 
-        // 3. 키 / 몸무게 숫자 변환
+        // 3) 키/몸무게 숫자 변환
         val height = heightText.toIntOrNull()
         val weight = weightText.toIntOrNull()
 
         if (height == null || weight == null) {
             _message.value = "키와 몸무게는 숫자로 입력해주세요."
             return
-        } else if (height < 0 || height > 400) {
+        }
+        if (height < 0 || height > 400) {
             _message.value = "키는 가능 범위로 입력하여주세요. (0~400)"
             return
-        } else if (weight < 0 || weight > 800) {
+        }
+        if (weight < 0 || weight > 800) {
             _message.value = "몸무게는 가능 범위로 입력하여주세요. (0~800)"
             return
         }
-        // 4. 성별 선택 여부
-        if (gender == null) {
+
+        // 4) 성별 선택 여부
+        if (gender.isNullOrBlank()) {
             _message.value = "성별을 선택해주세요."
             return
         }
@@ -85,39 +86,24 @@ class SignUpViewModel : ViewModel() {
                     weight = weight,
                     alarmEnabled = alarmEnabled
                 )
-                // request 로그 확인
-                Log.d("SIGNUP_REQUEST", request.toString())
 
                 val res = repository.signUp(request)
 
-                val errorJson = res.errorBody()?.string()
+                Log.d("SIGNUP_FLOW", "HTTP code = ${res.code()}, body=${res.body()}")
 
-                Log.d("DEBUG", "################")
-                Log.d("SIGNUP_FLOW", "HTTP code = ${res.code()}")
-                Log.d("SIGNUP_FLOW", "response body = ${res.body()}")
-                Log.d("SIGNUP_FLOW", "error body = $errorJson")
-                Log.d("DEBUG", "################")
+                val body = res.body()
 
                 if (res.isSuccessful) {
                     _signUpSuccess.value = true
-                    _message.value = "회원가입 성공"
+                    _message.value = body?.responseMessage ?: "회원가입 성공"
                 } else {
-                    val errorMessage = try {
-                        if (errorJson.isNullOrBlank()) {
-                            null
-                        } else {
-                            org.json.JSONObject(errorJson)
-                                .optString("errorMessage", null)
-                        }
-                    } catch (e: Exception) {
-                        null
-                    }
-
+                    _signUpSuccess.value = false
                     _message.value =
-                        errorMessage ?: "알 수 없는 오류로 회원가입 할 수 없습니다."
+                        body?.errorMessage ?: body?.responseMessage ?: "알 수 없는 오류로 회원가입 할 수 없습니다."
                 }
             } catch (e: Exception) {
-                Log.e("SIGNUP_FLOW", "signUp() 예외 발생 ${e.message}")
+                Log.e("SIGNUP_FLOW", "signUp() 예외 발생 ${e.message}", e)
+                _signUpSuccess.value = false
                 _message.value = "알 수 없는 오류로 회원가입 할 수 없습니다."
             }
         }

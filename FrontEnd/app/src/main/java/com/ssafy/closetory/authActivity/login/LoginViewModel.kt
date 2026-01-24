@@ -7,83 +7,56 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.LoginRequest
-import com.ssafy.closetory.dto.LoginResponse
+import com.ssafy.closetory.dto.TokenResponse
 import kotlinx.coroutines.launch
 
+private const val TAG = "LoginViewModel_싸피"
 class LoginViewModel : ViewModel() {
 
     private val repository = LoginRepository()
 
-    private val _loginData = MutableLiveData<LoginResponse?>()
-    val loginData: LiveData<LoginResponse?> = _loginData
+    private val _loginData = MutableLiveData<TokenResponse?>()
+    val loginData: LiveData<TokenResponse?> = _loginData
 
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> = _message
 
     fun login(username: String, password: String) {
-        Log.d("LOGIN_FLOW", "ViewModel login() 진입")
-
-        // 로그인 필수 값 검증
-        if (
-            username.isBlank() ||
-            password.isBlank()
-        ) {
+        if (username.isBlank() || password.isBlank()) {
             _message.value = "필수 항목을 입력해주세요."
             return
         }
 
         viewModelScope.launch {
-            Log.d("LOGIN_FLOW", "coroutine 시작")
-
             try {
                 val request = LoginRequest(username, password)
-                // request 로그 확인
-                Log.d("LOGIN_REQUEST", request.toString())
-
                 val res = repository.login(request)
-                val errorJson = res.errorBody()?.string()
-//              디버깅 목록
-                Log.d("DEBUG", "################")
-                // [추가] HTTP 상태 코드
-                Log.d("LOGIN_FLOW", "HTTP code = ${res.code()}")
-                // [추가] 성공 body
-                Log.d("LOGIN_FLOW", "response body = ${res.body()}")
-                // [추가] 에러 body (Raw JSON)
-                Log.d("LOGIN_FLOW", "error body = $errorJson")
-                Log.d("DEBUG", "################")
-//              디버깅 목록
+
+                Log.d(TAG, "HTTP code = ${res.code()}")
+                Log.d(TAG, "body = ${res.body()}")
+
+                val body = res.body()
 
                 if (res.isSuccessful) {
-                    val body = res.body()
+                    val tokenData = body?.data
 
-                    if (body?.data != null) {
-                        _loginData.value = body.data
+                    if (tokenData != null) {
+                        // 로그인 성공 시 토큰 저장
+                        ApplicationClass.authManager.saveTokens(tokenData.accessToken, tokenData.refreshToken)
+
+                        _loginData.value = tokenData
+                        _message.value = body.responseMessage ?: "로그인 성공"
                     } else {
-                        _message.value =
-                            body?.responseMessage ?: "로그인 응답이 비어있습니다"
+                        _message.value = body?.responseMessage ?: "로그인 응답이 비어있습니다."
                     }
                 } else {
-                    // ✨ [변경] errorBody(JSON) → errorMessage만 파싱
-                    val errorMessage = try {
-                        if (errorJson.isNullOrBlank()) {
-                            null
-                        } else {
-                            val jsonObject = org.json.JSONObject(errorJson)
-                            jsonObject.optString("errorMessage", null)
-                        }
-                    } catch (e: Exception) {
-                        null
-                    }
-                    // ✨ [변경] 기본 메시지 처리
-                    _message.value =
-                        errorMessage ?: "알 수 없는 오류로 로그인 할 수 없습니다."
+                    // 서버가 실패
+                    _message.value = body?.errorMessage ?: body?.responseMessage ?: "알 수 없는 오류로 로그인 할 수 없습니다."
                 }
             } catch (e: Exception) {
-                // ✨ [추가] 실제 원인을 로그로 확인
-                Log.e("LOGIN_FLOW", "login() 예외 발생 ${e.message}")
-
-                // ✨ [변경] 사용자에게는 포괄 메시지
+                Log.e(TAG, "login() 예외 발생: ${e.message}", e)
                 _message.value = "알 수 없는 오류로 로그인 할 수 없습니다."
             }
         }
