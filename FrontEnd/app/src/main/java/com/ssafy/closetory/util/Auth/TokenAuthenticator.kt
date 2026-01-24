@@ -22,18 +22,29 @@ class TokenAuthenticator(private val refreshTokenService: RefreshTokenService) :
     }
 
     override fun authenticate(route: Route?, response: Response): Request? {
+        val url = response.request.url.toString()
+        val path = response.request.url.encodedPath
+
+        Log.d(TAG, "authenticate() CALLED")
+        Log.d(TAG, " - url=$url")
+        Log.d(TAG, " - path=$path")
+        Log.d(TAG, " - code=${response.code}")
+
         // 토큰 갱신 무한 반복 현상 방지를 위한 코드
         if (responseCount(response) >= 2) return null
 
         // refresh 토큰 자체도 만료된 상태이면 로그아웃 처리
         if (response.request.url.encodedPath.contains("/auth/refresh")) {
+            Log.d(TAG, "refresh 토큰 만료된 상황")
             ApplicationClass.authManager.clearToken()
             return null
         }
 
         // 다른 스레드가 이미 토큰 갱신 했는지 확인
         // 401이 동시에 여러 개 터질 경우 방지
+        Log.d(TAG, "TRY: enter synchronized(lock)")
         synchronized(lock) {
+            Log.d(TAG, "ENTERED: synchronized(lock)")
             // 이미 다른 요청이 갱신 했는지 확인
             val currentAccess = ApplicationClass.authManager.getAccessToken()
 
@@ -70,9 +81,19 @@ class TokenAuthenticator(private val refreshTokenService: RefreshTokenService) :
 
             // 갱신된 토큰 변수에 담기
             val body = refreshRes.body()
+
+            Log.d(TAG, " - refresh body null=${body == null}")
+            Log.d(
+                TAG,
+                " - refresh body httpStatusCode=${body?.httpStatusCode}, responseMessage=${body?.responseMessage}, errorMessage=${body?.errorMessage}"
+            )
+
             val tokenData = body?.data
             val newAccess = tokenData?.accessToken
             val newRefresh = tokenData?.refreshToken
+
+            Log.d(TAG, " - newAccess exists=${!newAccess.isNullOrBlank()} len=${newAccess?.length ?: 0}")
+            Log.d(TAG, " - newRefresh exists=${!newRefresh.isNullOrBlank()} len=${newRefresh?.length ?: 0}")
 
             // 갱신 받은 토큰이 없는 경우
             if (newAccess.isNullOrBlank() || newRefresh.isNullOrBlank()) {
@@ -82,9 +103,11 @@ class TokenAuthenticator(private val refreshTokenService: RefreshTokenService) :
             }
 
             // accessToken과 refreshToken 저장
+            Log.d(TAG, "SAVE: saveTokens(access, refresh)")
             ApplicationClass.authManager.saveTokens(newAccess, newRefresh)
 
             // HttpStatusCode : 401 오류가 난 호출 다시 요청
+            Log.d(TAG, "RETRY: original request with new accessToken")
             return response.request.newBuilder()
                 .header("Authorization", "Bearer $newAccess")
                 .build()

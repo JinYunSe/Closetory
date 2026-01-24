@@ -7,10 +7,15 @@ import okhttp3.Response
 class RefreshTokenInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val refresh = ApplicationClass.authManager.getRefreshToken()
+        val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)
 
         val request = chain.request().newBuilder().apply {
             if (!refresh.isNullOrBlank()) {
-                header(ApplicationClass.X_ACCESS_TOKEN, "Bearer $refresh")
+                header(ApplicationClass.X_REFRESH_TOKEN, refresh)
+            }
+
+            if (userId != -1) {
+                header(ApplicationClass.USERID, userId.toString())
             }
         }.build()
 
