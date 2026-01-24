@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".homeActivity.addClose.AddClothFragment">
+    tools:context=".homeActivity.addClose.RegistrationClothFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -87,7 +87,7 @@
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <Button
-            android:id="@+id/btn_add_cloth"
+            android:id="@+id/btn_registration_cloth"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"

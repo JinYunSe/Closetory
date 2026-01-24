@@ -5,19 +5,25 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
+import androidx.fragment.app.viewModels
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
-import com.ssafy.closetory.databinding.FragmentAddClothBinding
+import com.ssafy.closetory.databinding.FragmentRegistrationClothBinding
 import com.ssafy.closetory.homeActivity.HomeActivity
+import com.ssafy.closetory.homeActivity.registrationCloth.RegistrationClothViewModel
 import com.ssafy.closetory.util.ClothTypeOptions
 import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.PermissionChecker
 import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
 import java.io.File
+import kotlin.getValue
 
-class AddClothFragment :
-    BaseFragment<FragmentAddClothBinding>(FragmentAddClothBinding::bind, R.layout.fragment_add_cloth) {
+class RegistrationClothFragment :
+    BaseFragment<FragmentRegistrationClothBinding>(
+        FragmentRegistrationClothBinding::bind,
+        R.layout.fragment_registration_cloth
+    ) {
 
     private lateinit var homeActivity: HomeActivity
 
@@ -37,8 +43,7 @@ class AddClothFragment :
     // 카메라 원본 저장용 Uri
     private var capturedImageUri: Uri? = null
 
-    // 권한 요청 런처
-    private var onCameraPermissionGranted: (() -> Unit)? = null
+    private val viewModel: RegistrationClothViewModel by viewModels()
 
     // 카메라 런처
     private val captureToUriLauncher =
@@ -70,10 +75,10 @@ class AddClothFragment :
         showPhotoPlaceholder(true)
 
         // 다른 XML 레이어 파일 가져오기
-        tagsSection = view.findViewById<View>(R.id.section_tags)
-        seasonSection = view.findViewById<View>(R.id.section_season)
-        clothTypeSection = view.findViewById<View>(R.id.section_cloth_type)
-        colorSection = view.findViewById<View>(R.id.section_color)
+        tagsSection = view.findViewById(R.id.section_tags)
+        seasonSection = view.findViewById(R.id.section_season)
+        clothTypeSection = view.findViewById(R.id.section_cloth_type)
+        colorSection = view.findViewById(R.id.section_color)
 
         setupOptionSection()
 
@@ -86,6 +91,13 @@ class AddClothFragment :
                         1 -> launchPhotoPicker()
                     }
                 }.show()
+        }
+
+        binding.btnRegistrationCloth.setOnClickListener {
+            val selectedTags = TagOptions.getSelectedTag(tagsSection)
+            val selectedSeasons = SeasonOptions.getSelectedSeason(seasonSection)
+            val selectedOptions = ClothTypeOptions.getClothType(clothTypeSection)
+            val selectedCColor = colorAdapter.getSelectedColor()
         }
     }
 
