@@ -31,15 +31,11 @@ class LogoutViewModel : ViewModel() {
                 val body = res.body()
 
                 if (res.isSuccessful) {
-                    // 로그아웃 성공 시 토큰 제거
-                    ApplicationClass.authManager.clearToken()
-
                     _logoutSuccess.value = true
                     _message.value = body?.responseMessage ?: "로그아웃에 성공했습니다."
                 } else {
                     _logoutSuccess.value = false
-                    _message.value =
-                        body?.errorMessage ?: body?.responseMessage ?: "알 수 없는 이유로 실패"
+                    _message.value = body?.errorMessage ?: body?.responseMessage ?: "알 수 없는 이유로 실패"
                 }
             } catch (e: Exception) {
                 Log.e("LOGOUT_FLOW", "logout() 예외 발생 ${e.message}", e)

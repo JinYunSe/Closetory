@@ -43,9 +43,6 @@ class LoginViewModel : ViewModel() {
                     val tokenData = body?.data
 
                     if (tokenData != null) {
-                        // 로그인 성공 시 토큰 저장
-                        ApplicationClass.authManager.saveTokens(tokenData.accessToken, tokenData.refreshToken)
-
                         _loginData.value = tokenData
                         _message.value = body.responseMessage ?: "로그인 성공"
                     } else {

@@ -60,7 +60,11 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
             if (data == null) return@observe
 
             val authManager = ApplicationClass.authManager
+            Log.d(TAG, "로그인 동작 확인 : accessToken : ${data.accessToken}, refreshToken : ${data.refreshToken}")
+
             authManager.saveTokens(data.accessToken, data.refreshToken)
+
+//            ApplicationClass.sharedPreferences.putUserId("userId", data.userId)
 
             Log.d(TAG, "HomeActivity 이동 버튼 동작 유무 확인")
 
