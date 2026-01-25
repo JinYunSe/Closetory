@@ -1,88 +1,124 @@
 package com.ssafy.closetory.homeActivity.mypage.edit
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.EditProfilePasswordRequest
+import com.ssafy.closetory.dto.EditProfileUpdateRequest
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+
+private const val TAG = "EditProfileViewModel_싸피"
 
 class EditProfileViewModel : ViewModel() {
 
     private val repository = EditProfileRepository()
 
-    // 회원정보 조회 전용 LiveData 추가
-    private val _userProfile = MutableLiveData<EditProfileInfoResponse>()
-    val userProfile: LiveData<EditProfileInfoResponse> = _userProfile
+    // 회원정보 데이터 (화면에 유지되는 데이터)
+    private val _userProfile = MutableSharedFlow<EditProfileInfoResponse>()
+    val userProfile: SharedFlow<EditProfileInfoResponse> = _userProfile
 
-    // 비밀번호 변경용 LiveData 추가
-    private val _passwordChangeSuccess = MutableLiveData<Boolean>()
-    val passwordChangeSuccess: LiveData<Boolean> = _passwordChangeSuccess
+    // 단발성 메시지
+    private val _message = MutableSharedFlow<String>()
+    val message: SharedFlow<String> = _message
 
-    private val _message = MutableLiveData<String>()
-    val message: LiveData<String> = _message
-
-    // 회원정보 조회 전용 함수
+    // 회원정보 조회
     fun loadUserProfile(userId: Int) {
+        Log.d(TAG, "loadUserProfile: ViewModel_loadUserProfile 실행")
         viewModelScope.launch {
-            val response = repository.getUserProfile(userId)
+            try {
+                val res = repository.getUserProfile(userId)
 
-            if (response.isSuccessful) {
-                Log.d("EDIT_PROFILE", "API body=${response.body()}")
-                response.body()?.let {
-                    _userProfile.value = it
+                if (res.isSuccessful) {
+                    val body = res.body()
+                    val data = body?.data
+
+                    if (data != null) {
+                        _userProfile.emit(data)
+                    } else {
+                        _message.emit("회원정보를 불러오지 못했습니다.")
+                    }
+                } else {
+                    val body = res.body()
+                    _message.emit(body?.errorMessage ?: "회원정보 조회 실패")
                 }
-            } else {
-                Log.d("EDIT_PROFILE", "API error=${response.errorBody()?.string()}")
-                _message.value = "회원정보를 불러오지 못했습니다."
+            } catch (e: Exception) {
+                Log.e(TAG, "loadUserProfile error", e)
+                _message.emit("네트워크 오류")
             }
         }
     }
 
-    // 비밀번호 변경 전용 함수
-    fun changePassword(userId: Int, currentPassword: String, newPassword: String, newPasswordConfirm: String) {
-        // 🔹 프론트에서 할 수 있는 최소 검증
-        if (currentPassword.isBlank() ||
-            newPassword.isBlank() ||
-            newPasswordConfirm.isBlank()
-        ) {
-            _message.value = "모든 항목을 입력해주세요."
-            return
-        }
-
-        if (newPassword != newPasswordConfirm) {
-            _message.value = "새 비밀번호가 일치하지 않습니다."
-            return
-        }
-        if (newPassword.length < 8) {
-            _message.value = "비밀번호는 8자리 이상이어야 합니다."
-            return
-        }
-
+    // 회원정보 수정
+    fun updateProfile(
+        nickname: String,
+        height: Int,
+        weight: Int,
+        gender: String,
+        alarmEnabled: Boolean,
+        profilePhotoUrl: String?,
+        bodyPhotoUrl: String?
+    ) {
         viewModelScope.launch {
-            val response = repository.changePassword(
-                userId = userId,
-                request = EditProfilePasswordRequest(
+            try {
+                val request = EditProfileUpdateRequest(
+                    nickname = nickname,
+                    height = height,
+                    weight = weight,
+                    gender = gender,
+                    alarmEnabled = alarmEnabled,
+                    profilePhotoUrl = profilePhotoUrl,
+                    bodyPhotoUrl = bodyPhotoUrl
+
+                )
+
+                val res = repository.updateProfile(
+                    userId = 0, // 토큰 기반이면 의미 없음
+                    request = request
+                )
+
+                if (res.isSuccessful) {
+                    val body = res.body()
+                    _message.emit(body?.responseMessage ?: "회원정보가 수정되었습니다.")
+                } else {
+                    val body = res.body()
+                    _message.emit(body?.errorMessage ?: "회원정보 수정 실패")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "updateProfile error", e)
+                _message.emit("네트워크 오류")
+            }
+        }
+    }
+
+    // 비밀번호 변경
+    fun changePassword(currentPassword: String, newPassword: String, newPasswordConfirm: String) {
+        viewModelScope.launch {
+            try {
+                val request = EditProfilePasswordRequest(
                     currentPassword = currentPassword,
                     newPassword = newPassword,
                     newPasswordConfirm = newPasswordConfirm
                 )
-            )
 
-            if (response.isSuccessful) {
-                // ✅ 성공
-                _passwordChangeSuccess.value = true
-                _message.value =
-                    response.body()?.responseMessage ?: "비밀번호 변경 완료"
-            } else {
-                // ❌ 실패
-                _message.value =
-                    response.errorBody()?.string() ?: "비밀번호 변경에 실패했습니다."
+                val res = repository.changePassword(
+                    userId = 0,
+                    request = request
+                )
+
+                if (res.isSuccessful) {
+                    val body = res.body()
+                    _message.emit(body?.responseMessage ?: "비밀번호가 변경되었습니다.")
+                } else {
+                    val body = res.body()
+                    _message.emit(body?.errorMessage ?: "비밀번호 변경 실패")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "changePassword error", e)
+                _message.emit("네트워크 오류")
             }
         }
     }
-
-    // 비밀번호 변경 전
 }

@@ -1,3 +1,4 @@
+// EditProfileFragment
 package com.ssafy.closetory.homeActivity.mypage.edit
 
 import android.content.res.ColorStateList
@@ -10,80 +11,87 @@ import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentEditProfileBinding
 import com.ssafy.closetory.dto.EditProfileInfoResponse
-import com.ssafy.closetory.util.AuthManager
+import kotlinx.coroutines.launch
+
+private const val TAG = "EditProfileFragment_싸피"
 
 class EditProfileFragment :
     BaseFragment<FragmentEditProfileBinding>(
         FragmentEditProfileBinding::bind,
         R.layout.fragment_edit_profile
     ) {
+
     private val viewModel: EditProfileViewModel by viewModels()
 
-    // 성별 여부 확인
-    private var isFemale: Boolean? = null
+    // 성별 상태 (FEMALE : 여성, MALE : 남성)
+    private var gender: String? = null
 
-    private fun togglePasswordVisibility(editText: EditText, isVisible: Boolean): Boolean {
-        if (isVisible) {
-            editText.inputType =
-                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-        } else {
-            editText.inputType =
-                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-        }
-
-        editText.setSelection(editText.text.length)
-        return !isVisible
-    }
+    // 서버에서 내려온 기존 값
+    private var profilePhotoUrl: String? = null
+    private var bodyPhotoUrl: String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initUiEvents()
+        // 서버에 기존 유저 정보 요청
+        clickListeners()
+
+        // 성별 버튼 이벤트
         setupGenderButtons()
+
+        // ViewModel 이벤트 수신
         observeViewModel()
 
+        // 서버에 기존 유저 정보 요청
         loadUserProfile()
     }
 
-    // 서버에 기존 유저 정보 요청 시작
+    // 서버에 기존 유저 정보 요청
     private fun loadUserProfile() {
-        Log.d("EDIT_PROFILE", "loadUserProfile() called")
-        val authManager = AuthManager(requireContext())
-        val userId = authManager.getUserId() ?: return
-        Log.d("loadUserProfile launch전", "loadUserProfile launch전")
-
-        viewModel.loadUserProfile(
-            userId = userId
-        )
+        Log.d(TAG, "loadUserProfile: loadUserProfile 실행")
+        val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: return
+        viewModel.loadUserProfile(userId)
     }
 
-    // ViewModel 결과 관찰
+    // ViewModel 데이터 / 메시지 수신
     private fun observeViewModel() {
-        viewModel.userProfile.observe(viewLifecycleOwner) { user ->
-            bindUserProfile(user)
+        // 회원정보 수신
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.userProfile.collect { user ->
+                bindUserProfile(user)
+            }
         }
 
-        viewModel.message.observe(viewLifecycleOwner) {
-            showToast(it)
+        // 메시지 수신 (성공 / 실패 공통)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.message.collect { message ->
+                showToast(message)
+
+                // 회원정보 수정 성공 후 뒤로가기 정책
+                if (message.contains("수정")) {
+                    findNavController().popBackStack()
+                }
+            }
         }
     }
 
-    // UI에 기존 데이터 채우기
+    // UI에 회원정보 바인딩
     private fun bindUserProfile(user: EditProfileInfoResponse) {
-        Log.d("EDIT_PROFILE", "bindUserProfile called: $user")
-        // 텍스트 정보
         binding.etNickname.setText(user.nickname)
-        binding.etHeight.setText(user.height.toString())
-        binding.etWeight.setText(user.weight.toString())
+        binding.etHeight.setText(user.height?.toString().orEmpty())
+        binding.etWeight.setText(user.weight?.toString().orEmpty())
         binding.switchAlarm.isChecked = user.alarmEnabled
-
-        isFemale = user.gender == "FEMALE"
+        gender = user.gender
+        profilePhotoUrl = user.profilePhotoUrl
+        bodyPhotoUrl = user.bodyPhotoUrl
         selectGender()
 
         // 프로필 사진
@@ -113,97 +121,122 @@ class EditProfileFragment :
         }
     }
 
-    private fun initUiEvents() {
-        // 취소 버튼 → 이전 화면
+    // 클릭 이벤트 및 입력 검증
+    private fun clickListeners() {
+        // 취소
         binding.btnCancel.setOnClickListener {
-            // Navigation 사용
             findNavController().popBackStack()
         }
 
-        // 저장 버튼 → 아직 동작 안 함 (토스트만)
+        // 저장
         binding.btnSave.setOnClickListener {
-            showToast("저장 버튼 클릭됨")
+            val nickname = binding.etNickname.text.toString().trim()
+            val heightText = binding.etHeight.text.toString().trim()
+            val weightText = binding.etWeight.text.toString().trim()
+
+            if (nickname.isBlank()) {
+                showToast("닉네임을 입력해주세요.")
+                return@setOnClickListener
+            }
+
+            val height = heightText.toIntOrNull()
+            val weight = weightText.toIntOrNull()
+
+            if (height == null) {
+                showToast("키는 숫자로 입력해주세요.")
+                return@setOnClickListener
+            }
+
+            if (weight == null) {
+                showToast("몸무게는 숫자로 입력해주세요.")
+                return@setOnClickListener
+            }
+
+            if (gender == null) {
+                showToast("성별을 선택해주세요.")
+                return@setOnClickListener
+            }
+
+            viewModel.updateProfile(
+                nickname = nickname,
+                height = height,
+                weight = weight,
+                gender = gender!!,
+                alarmEnabled = binding.switchAlarm.isChecked,
+                profilePhotoUrl = profilePhotoUrl,
+                bodyPhotoUrl = bodyPhotoUrl
+            )
         }
 
-        // 비밀번호 변경 다이얼로그
+        // 비밀번호 변경
         binding.tvChangePassword.setOnClickListener {
             showChangePasswordDialog()
         }
     }
 
-    //    회원 정보 수정 : 성별 선택 버튼
+    // 성별 버튼 이벤트
     private fun setupGenderButtons() {
         binding.btnFemale.setOnClickListener {
-            isFemale = true
+            gender = "FEMALE"
             selectGender()
         }
 
         binding.btnMale.setOnClickListener {
-            isFemale = false
+            gender = "MALE"
             selectGender()
         }
     }
 
-    // 회원 정보 수정 시 성별 선택 시 버튼 색 변경
+    // 성별 선택 UI 처리
     private fun selectGender() {
-        if (isFemale == true) {
-            binding.btnFemale.setBackgroundTintList(
+        if (gender == "FEMALE") {
+            binding.btnFemale.backgroundTintList =
                 ColorStateList.valueOf(requireContext().getColor(R.color.main_color))
-            )
-            binding.btnMale.setBackgroundTintList(
+            binding.btnMale.backgroundTintList =
                 ColorStateList.valueOf(requireContext().getColor(R.color.gray_500))
-            )
-        } else {
-            binding.btnMale.setBackgroundTintList(
+        } else if (gender == "MALE") {
+            binding.btnMale.backgroundTintList =
                 ColorStateList.valueOf(requireContext().getColor(R.color.main_color))
-            )
-            binding.btnFemale.setBackgroundTintList(
+            binding.btnFemale.backgroundTintList =
                 ColorStateList.valueOf(requireContext().getColor(R.color.gray_500))
-            )
         }
     }
 
-    // 🔹🔹🔹🔹 다이얼로그 구현 🔹🔹🔹🔹
+    // 비밀번호 변경 다이얼로그
     private fun showChangePasswordDialog() {
-        val dialogView = layoutInflater
-            .inflate(R.layout.dialog_edit_profile_password, null)
+        val dialogView =
+            layoutInflater.inflate(R.layout.dialog_edit_profile_password, null)
 
-        // UI 구성 요소들
         val etCurrent = dialogView.findViewById<EditText>(R.id.etCurrentPassword)
+        val etNew = dialogView.findViewById<EditText>(R.id.etNewPassword)
+        val etConfirm = dialogView.findViewById<EditText>(R.id.etNewPasswordConfirm)
+
         val btnToggleCurrent =
             dialogView.findViewById<ImageButton>(R.id.btnToggleCurrentPassword)
-
-        val etNew = dialogView.findViewById<EditText>(R.id.etNewPassword)
         val btnToggleNew =
             dialogView.findViewById<ImageButton>(R.id.btnToggleNewPassword)
-
-        val etConfirm = dialogView.findViewById<EditText>(R.id.etNewPasswordConfirm)
         val btnToggleConfirm =
             dialogView.findViewById<ImageButton>(R.id.btnToggleNewPasswordConfirm)
 
-        val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirmChangePassword)
+        val btnConfirm =
+            dialogView.findViewById<Button>(R.id.btnConfirmChangePassword)
 
-        // 비밀번호 Visable 토글 기능 구현
-        var isCurrentVisible = false
-        var isNewVisible = false
-        var isConfirmVisible = false
+        var currentVisible = false
+        var newVisible = false
+        var confirmVisible = false
 
         btnToggleCurrent.setOnClickListener {
-            isCurrentVisible =
-                togglePasswordVisibility(etCurrent, isCurrentVisible)
+            currentVisible = togglePasswordVisibility(etCurrent, currentVisible)
         }
 
         btnToggleNew.setOnClickListener {
-            isNewVisible =
-                togglePasswordVisibility(etNew, isNewVisible)
+            newVisible = togglePasswordVisibility(etNew, newVisible)
         }
 
         btnToggleConfirm.setOnClickListener {
-            isConfirmVisible =
-                togglePasswordVisibility(etConfirm, isConfirmVisible)
+            confirmVisible = togglePasswordVisibility(etConfirm, confirmVisible)
         }
 
-        // 다이얼로그 띄우기
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
             .create()
@@ -213,7 +246,6 @@ class EditProfileFragment :
             val newPw = etNew.text.toString()
             val confirmPw = etConfirm.text.toString()
 
-            // 🔹 유효성 검사 (지금은 Fragment에서)
             if (currentPw.isBlank() || newPw.isBlank() || confirmPw.isBlank()) {
                 showToast("모든 항목을 입력해주세요.")
                 return@setOnClickListener
@@ -223,15 +255,34 @@ class EditProfileFragment :
                 showToast("새 비밀번호가 일치하지 않습니다.")
                 return@setOnClickListener
             }
+
             if (newPw.length < 8) {
                 showToast("비밀번호는 8자리 이상이어야 합니다.")
                 return@setOnClickListener
             }
 
-            // 👉 다음 단계: ViewModel로 전달
-            showToast("비밀번호 변경 요청")
+            viewModel.changePassword(
+                currentPassword = currentPw,
+                newPassword = newPw,
+                newPasswordConfirm = confirmPw
+            )
+
             dialog.dismiss()
         }
+
         dialog.show()
+    }
+
+    // 비밀번호 표시/숨김 토글
+    private fun togglePasswordVisibility(editText: EditText, isVisible: Boolean): Boolean {
+        editText.inputType =
+            if (isVisible) {
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            } else {
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            }
+
+        editText.setSelection(editText.text.length)
+        return !isVisible
     }
 }

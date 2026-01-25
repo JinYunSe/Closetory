@@ -61,7 +61,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
 
             val authManager = ApplicationClass.authManager
             authManager.saveTokens(data.accessToken, data.refreshToken)
-            authManager.saveUserId(data.userId)
 
             Log.d(TAG, "HomeActivity 이동 버튼 동작 유무 확인")
 
