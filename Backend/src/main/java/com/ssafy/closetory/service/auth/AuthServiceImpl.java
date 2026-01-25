@@ -27,7 +27,6 @@ public class AuthServiceImpl implements AuthService {
   private final JwtTokenProvider jwtProvider;
   private final RefreshTokenService refreshTokenService;
 
-
   // 회원가입
   @Override
   public void signup(SignupRequest request) {

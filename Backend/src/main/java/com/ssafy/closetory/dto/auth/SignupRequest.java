@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
-public record   SignupRequest(
+public record SignupRequest(
     @NotBlank String username, // 아이디
     @NotBlank String password, // 비밀번호
     @NotBlank String passwordConfirm, // 비밀번호 확인

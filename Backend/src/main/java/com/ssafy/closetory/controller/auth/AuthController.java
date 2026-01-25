@@ -52,14 +52,10 @@ public class AuthController {
   @PostMapping("/token")
   @Operation(summary = "토큰 재발급")
   public ResponseEntity<ApiResponse<LoginResponse>> token(
-    @RequestHeader("X-REFRESH-TOKEN") String refreshToken,
-    @RequestHeader("X-USER-ID") Integer userId
-  ) {
+      @RequestHeader("X-REFRESH-TOKEN") String refreshToken,
+      @RequestHeader("X-USER-ID") Integer userId) {
     LoginResponse response = authService.token(userId, refreshToken);
 
-    return ResponseEntity.ok(
-      ApiResponse.ok(200, "토큰 재발급 성공", response)
-    );
+    return ResponseEntity.ok(ApiResponse.ok(200, "토큰 재발급 성공", response));
   }
-
 }
