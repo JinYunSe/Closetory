@@ -13,7 +13,7 @@ import com.ssafy.closetory.authActivity.AuthActivity
 import com.ssafy.closetory.authActivity.logout.MyPageViewModel
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
-import com.ssafy.closetory.util.Auth.AuthManager
+import com.ssafy.closetory.util.auth.AuthManager
 import kotlinx.coroutines.launch
 
 class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding::bind, R.layout.fragment_my_page) {

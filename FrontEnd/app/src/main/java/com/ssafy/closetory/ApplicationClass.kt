@@ -4,11 +4,10 @@ import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.ssafy.closetory.baseCode.data.local.SharedPreferencesUtil
-import com.ssafy.closetory.util.Auth.AuthInterceptor
-import com.ssafy.closetory.util.Auth.AuthManager
-import com.ssafy.closetory.util.Auth.RefreshService
-import com.ssafy.closetory.util.Auth.RefreshTokenService
-import com.ssafy.closetory.util.Auth.TokenAuthenticator
+import com.ssafy.closetory.util.auth.AuthInterceptor
+import com.ssafy.closetory.util.auth.AuthManager
+import com.ssafy.closetory.util.auth.RefreshService
+import com.ssafy.closetory.util.auth.TokenAuthenticator
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

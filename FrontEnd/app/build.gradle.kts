@@ -1,13 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-
-    // ROOM
     id("com.google.devtools.ksp")
-
-    // Ktlint
     id("org.jlleitschuh.gradle.ktlint")
-
     id("kotlin-kapt")
 }
 
@@ -21,7 +16,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -40,18 +34,19 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+    kotlinOptions { jvmTarget = "11" }
 
     buildFeatures {
         viewBinding = true
         mlModelBinding = true
     }
 
-    ktlint {
-        android.set(true)
+    // tflite 모델 압축 방지
+    androidResources {
+        noCompress += "tflite"
     }
+
+    ktlint { android.set(true) }
 }
 
 dependencies {
@@ -82,25 +77,21 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
-    // OkHttp (HTTP 클라이언트 엔진)
+    // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
-
-    // OkHttp Logging Interceptor (요청/응답 로그 출력용)
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
 
-    // Material (Chip 포함)
+    // Material / Flexbox / Glide
     implementation("com.google.android.material:material:1.12.0")
-
-    // FlexboxLayoutManager (줄바꿈 태그 배치)
     implementation("com.google.android.flexbox:flexbox:3.0.0")
-
-    // Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
-    // Image Segmenter / Interactive Image Segmenter (이미지 배경 제거를 위해 추가)
+    // MediaPipe Tasks Vision
     implementation(libs.mediapipe.tasks.vision)
 
-    // 코루틴 의존성 추가
+    // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+
+    implementation("org.opencv:opencv:4.13.0")
 }

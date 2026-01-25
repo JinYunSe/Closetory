@@ -3,7 +3,6 @@ package com.ssafy.closetory.authActivity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.ssafy.closetory.ApplicationClass
@@ -27,6 +26,7 @@ class AuthActivity : BaseActivity<ActivityAuthBinding>(ActivityAuthBinding::infl
         // 토큰 가져오기
         val access = ApplicationClass.authManager.getAccessToken()
 
+        ApplicationClass.authManager.clearToken()
         // 토큰이 없으면 아래 동작 실행 안 함
         if (access.isNullOrBlank()) return
 

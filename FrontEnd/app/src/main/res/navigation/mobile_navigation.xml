@@ -31,7 +31,7 @@
 
     <fragment
         android:id="@+id/navigation_registration_close"
-        android:name="com.ssafy.closetory.homeActivity.addClose.RegistrationClothFragment"
+        android:name="com.ssafy.closetory.homeActivity.registrationCloth.RegistrationClothFragment"
         android:label="@string/title_registration_cloth"
         tools:layout="@layout/fragment_registration_cloth" />
 </navigation>
