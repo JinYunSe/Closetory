@@ -15,6 +15,9 @@ import com.ssafy.closetory.dto.ClothItemDto
 private const val TAG = "ClothAdapter_싸피"
 class ClothAdapter : ListAdapter<ClothItemDto, ClothAdapter.ViewHodler>(diffCallback) {
 
+    // 클릭 이벤트를 StylingFragment로 전달하기 위한 람다 함수
+    var onItemClickListener: ((ClothItemDto) -> Unit)? = null
+
     companion object {
         private val diffCallback = object : DiffUtil.ItemCallback<ClothItemDto>() {
             override fun areItemsTheSame(oldItem: ClothItemDto, newItem: ClothItemDto): Boolean =
@@ -39,8 +42,10 @@ class ClothAdapter : ListAdapter<ClothItemDto, ClothAdapter.ViewHodler>(diffCall
                 .error(R.drawable.error)
                 .into(binding.imgBtn)
 
-            // 클릭에 따른 동작
-            binding.root.setOnClickListener {
+            // 클릭 시 프래그먼트에 알림
+            imgBtn.setOnClickListener {
+                Log.d(TAG, "아이템 클릭됨: ${item.clothesId}")
+                onItemClickListener?.invoke(item)
             }
         }
     }

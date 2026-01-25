@@ -31,7 +31,7 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
                 textId = R.id.nav_text_closet
             ),
             NavItem(
-                destinationId = R.id.navigation_styling,
+                destinationId = R.id.navigation_ai_styling,
                 containerId = R.id.nav_item_styling,
                 iconId = R.id.nav_icon_styling,
                 textId = R.id.nav_text_styling

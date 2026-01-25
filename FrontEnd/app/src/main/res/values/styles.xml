@@ -14,4 +14,10 @@
         <item name="android:ellipsize">none</item>
         <item name="android:textSize">10sp</item>
     </style>
+
+    <!-- 달력 -->
+    <style name="CalendarDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 </resources>
