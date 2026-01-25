@@ -27,7 +27,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         || path.equals("/auth/signup")
         || path.equals("/auth/token")
         || path.equals("/swagger-ui.html");
-
   }
 
   @Override
