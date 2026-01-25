@@ -17,4 +17,10 @@ class SharedPreferencesUtil(context: Context) {
     fun getUserCookie(): MutableSet<String>? = preferences.getStringSet(ApplicationClass.COOKIES_KEY_NAME, HashSet())
 
     fun getString(key: String): String? = preferences.getString(key, null)
+
+    fun putUserId(key: String, value: Int) {
+        preferences.edit().putInt(key, value).apply()
+    }
+
+    fun getUserId(key: String, defaultValue: Int = -1): Int? = preferences.getInt(key, defaultValue)
 }

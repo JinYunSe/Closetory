@@ -33,4 +33,15 @@
         android:backgroundTint="@color/main_color"
         android:layout_marginTop="32dp" />
 
+    <Button
+        android:id="@+id/btnSignout"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:text="회원 탈퇴"
+        app:layout_constraintTop_toBottomOf="@id/btnLogout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:backgroundTint="@color/main_color"
+        android:layout_marginTop="32dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
