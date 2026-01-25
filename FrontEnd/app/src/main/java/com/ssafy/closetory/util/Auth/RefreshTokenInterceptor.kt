@@ -15,7 +15,7 @@ class RefreshTokenInterceptor : Interceptor {
             }
 
             if (userId != -1) {
-                header(ApplicationClass.USERID, userId.toString())
+                header(ApplicationClass.USERID, "1")
             }
         }.build()
 
