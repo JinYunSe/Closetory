@@ -13,7 +13,7 @@ import com.ssafy.closetory.authActivity.AuthActivity
 import com.ssafy.closetory.authActivity.logout.MyPageViewModel
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
-import com.ssafy.closetory.util.AuthManager
+import com.ssafy.closetory.util.Auth.AuthManager
 import kotlinx.coroutines.launch
 
 class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding::bind, R.layout.fragment_my_page) {
@@ -48,9 +48,6 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
     }
 
     private fun requestLogout() {
-        val authManager = AuthManager(requireContext())
-        val token = authManager.getAccessToken() ?: return
-
         homeViewModel.logout()
     }
 
