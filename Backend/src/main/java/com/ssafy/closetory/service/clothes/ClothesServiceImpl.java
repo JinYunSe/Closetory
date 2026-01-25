@@ -6,6 +6,7 @@ import com.ssafy.closetory.entity.clothes.Season;
 import com.ssafy.closetory.entity.clothes.Tag;
 import com.ssafy.closetory.enums.ClothesColor;
 import com.ssafy.closetory.exception.common.BadRequestException;
+import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
 import com.ssafy.closetory.service.s3.S3ImageService;
@@ -107,6 +108,48 @@ public class ClothesServiceImpl implements ClothesService {
     }
 
     clothesRepository.save(clothes);
+  }
+
+  @Transactional
+  @Override
+  public GetClothesDetailResponse updateClothes(
+      Integer userId, Integer clothesId, UpdateClothesRequest req, MultipartFile photo) {
+
+    Clothes clothes =
+        clothesRepository
+            .findById(clothesId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 옷입니다."));
+
+    if (!clothes.getUserId().equals(userId)) {
+      throw new ForbiddenException("자신의 옷만 수정할 수 있습니다.");
+    }
+
+    if (req.clothesType() != null) clothes.setClothesType(req.clothesType());
+    if (req.color() != null) clothes.setColor(req.color());
+    if (req.tags() != null) {
+      Set<Tag> newTags = new HashSet<>(tagRepository.findAllById(req.tags()));
+      if (newTags.size() != req.tags().size()) {
+        throw new BadRequestException("존재하지 않는 태그가 포함되어 있습니다.");
+      }
+      clothes.getTags().clear();
+      clothes.getTags().addAll(newTags);
+    }
+
+    if (req.seasons() != null) {
+      Set<Season> newSeasons = new HashSet<>(seasonRepository.findAllById(req.seasons()));
+      if (newSeasons.size() != req.seasons().size()) {
+        throw new BadRequestException("존재하지 않는 계절이 포함되어 있습니다.");
+      }
+      clothes.getSeasons().clear();
+      clothes.getSeasons().addAll(newSeasons);
+    }
+
+    if (photo != null && !photo.isEmpty()) {
+      String newUrl = s3ImageService.upload(photo);
+      clothes.setPhotoUrl(newUrl);
+    }
+
+    return GetClothesDetailResponse.from(clothes, userId);
   }
 
   private ClothesColor parseColorOrNull(String colorStr) {
