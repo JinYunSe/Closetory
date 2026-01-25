@@ -137,6 +137,6 @@ public class AuthServiceImpl implements AuthService {
     refreshTokenService.save(userId, newRefreshToken);
 
     // 7. 응답
-    return new LoginResponse(newAccessToken, newRefreshToken);
+    return new LoginResponse(newAccessToken, newRefreshToken, userId);
   }
 }
