@@ -63,6 +63,10 @@ public class User {
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
+  public void changePassword(String encodedPassword) {
+    this.password = encodedPassword;
+  }
+
   @PrePersist
   protected void onCreate() {
     this.createdAt = LocalDateTime.now();
