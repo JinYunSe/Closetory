@@ -27,7 +27,7 @@ class ApplicationClass : Application() {
         // JWT Token Header 키 값
         const val X_ACCESS_TOKEN = "Authorization"
 
-        const val X_REFRESH_TOKEN = "X_REFRESH_TOKEN"
+        const val X_REFRESH_TOKEN = "X-REFRESH-TOKEN"
 
         const val USERID = "userId"
 
