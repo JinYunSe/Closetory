@@ -18,7 +18,7 @@ interface MyPageService {
     suspend fun getUserProfile(@Path("userId") userId: Int): Response<ApiResponse<EditProfileInfoResponse>>
 
     // 비밀번호 검증
-    @POST("user/{userId}/password")
+    @POST("users/{userId}/password")
     suspend fun checkPassword(
         @Path("userId") userId: Int,
         @Body request: EditProfilePasswordCheckRequest

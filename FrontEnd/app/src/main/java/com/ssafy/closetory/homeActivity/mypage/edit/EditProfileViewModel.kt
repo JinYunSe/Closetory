@@ -113,7 +113,7 @@ class EditProfileViewModel : ViewModel() {
                     userId = userId,
                     request = request
                 )
-
+                Log.d(TAG, "changePassword: $res")
                 if (res.isSuccessful) {
                     val body = res.body()
                     _message.emit(body?.responseMessage ?: "비밀번호가 변경되었습니다.")

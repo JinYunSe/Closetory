@@ -19,6 +19,7 @@ import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentEditProfileBinding
 import com.ssafy.closetory.dto.EditProfileInfoResponse
+import com.ssafy.closetory.homeActivity.edit.PreferenceTagsSurveyDialogFragment
 import kotlinx.coroutines.launch
 
 private const val TAG = "EditProfileFragment_싸피"
@@ -38,6 +39,9 @@ class EditProfileFragment :
     private var profilePhotoUrl: String? = null
     private var bodyPhotoUrl: String? = null
 
+    // 선호 태그(선택된 코드들)
+    private var selectedPreferenceTagCodes: List<Int> = emptyList()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -49,6 +53,9 @@ class EditProfileFragment :
 
         // ViewModel 이벤트 수신
         observeViewModel()
+
+        // 선호 태그 다이얼로그 결과 받기
+        setupPreferenceTagResultListener()
 
         // 서버에 기존 유저 정보 요청
         loadUserProfile()
@@ -121,6 +128,18 @@ class EditProfileFragment :
         }
     }
 
+    // 선호 태그 조사 버튼 클릭 이벤트
+    private fun setupPreferenceTagResultListener() {
+        parentFragmentManager.setFragmentResultListener("pref_tags_result", viewLifecycleOwner) { _, bundle ->
+            val codes = bundle.getIntArray("codes")?.toList().orEmpty()
+            selectedPreferenceTagCodes = codes
+
+            // (선택) 화면에 표시하고 싶으면 여기서 TextView 갱신
+            // binding.tvChangePreferenceTags.text = "선호 태그 (${codes.size})"
+            Log.d(TAG, "선호 태그 선택 결과: $codes")
+        }
+    }
+
     // 클릭 이벤트 및 입력 검증
     private fun clickListeners() {
         // 취소
@@ -171,6 +190,12 @@ class EditProfileFragment :
         // 비밀번호 변경
         binding.tvChangePassword.setOnClickListener {
             showChangePasswordDialog()
+        }
+
+        // 선호 태그 변경
+        binding.tvChangePreferenceTags.setOnClickListener {
+            PreferenceTagsSurveyDialogFragment()
+                .show(parentFragmentManager, "pref_tags_dialog")
         }
     }
 

@@ -79,6 +79,12 @@ class MyPageViewModel : ViewModel() {
             // 비밀번호 검증 API 요청
             val res = repository.checkPassword(userId, password)
 
+            // 🔍 여기서 ApiResponse 전부 확인 가능
+            Log.d(TAG, "httpStatus: ${res.httpStatusCode}")
+            Log.d(TAG, "responseMessage: ${res.responseMessage}")
+            Log.d(TAG, "errorMessage: ${res.errorMessage}")
+            Log.d(TAG, "data: ${res.data}")
+
             // HTTP 상태 코드 기준으로 결과 분기 처리
             if (res.httpStatusCode == 200) {
                 // 비밀번호 검증 성공 이벤트 전달

@@ -195,6 +195,7 @@ class MyPageFragment :
         // 비밀번호 검증 성공 여부 관찰
         viewLifecycleOwner.lifecycleScope.launch {
             myPageViewModel.passwordVerified.collect { success ->
+
                 if (success) {
                     // 다이얼로그 종료
                     passwordDialog?.dismiss()
