@@ -58,6 +58,8 @@ class MyPageViewModel : ViewModel() {
                     val body = res.body()
                     _logoutSuccess.emit(true)
                     _message.emit(body?.responseMessage!!)
+                    ApplicationClass.authManager.clearToken()
+                    ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
                 } else {
                     val body = res.body()
                     _logoutSuccess.emit(false)
