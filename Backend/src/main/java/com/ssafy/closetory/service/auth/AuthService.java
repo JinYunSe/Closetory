@@ -13,8 +13,8 @@ public interface AuthService {
   LoginResponse login(LoginRequest request);
 
   // 로그아웃
-  void logout(Integer userId);
+  void logout(String refreshToken);
 
   // 토큰 재발급
-  LoginResponse token(Integer userId, String refreshToken);
+  LoginResponse token(String refreshToken);
 }

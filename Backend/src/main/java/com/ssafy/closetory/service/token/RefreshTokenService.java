@@ -6,11 +6,14 @@ public interface RefreshTokenService {
   String createRefreshToken();
 
   // Redis 저장
-  void save(Integer userId, String refreshToken);
+  void save(String refreshToken, Integer userId);
 
   // Redis 조회
-  String get(Integer userId);
+  Integer getUserId(String refreshToken);
 
   // Redis 삭제 (로그아웃)
-  void delete(Integer userId);
+  void delete(String refreshToken);
+
+  // 토큰 재발급
+  void rotate(String oldRefreshToken, String newRefreshToken, Integer userId);
 }
