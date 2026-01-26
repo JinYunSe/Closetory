@@ -1,12 +1,8 @@
 package com.ssafy.closetory.homeActivity.registrationCloth
 
 import android.Manifest
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.View
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,11 +19,9 @@ import com.ssafy.closetory.util.PermissionChecker
 import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
 import java.io.File
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 
-/**
- * On-device AI(세그멘테이션/배경제거) 없이,
- * 사진 선택 즉시 imbtnRegistrationCloth에 반영하는 버전
- */
 class RegistrationClothFragment :
     BaseFragment<FragmentRegistrationClothBinding>(
         FragmentRegistrationClothBinding::bind,
@@ -47,28 +41,36 @@ class RegistrationClothFragment :
 
     private val registrationClothViewModel: RegistrationClothViewModel by viewModels()
 
-    // 카메라 촬영 결과를 미리 만든 Uri에 저장
-    private val captureToUriLauncher =
+    // 카메라 Uri에 원본 저장
+    private val takePicture =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (!success) return@registerForActivityResult
-            selectedImageUri?.let { onImageSelected(it) }
+            val uri = selectedImageUri ?: return@registerForActivityResult
+            val binary = uriToMultipart(uri)
+            registrationClothViewModel.removeImageBackground(binary)
+            onPhotoSelected(uri)
         }
 
-    // 갤러리(포토피커)에서 이미지 Uri 선택
-    private val photoPickerLauncher =
+    // 갤러리 Uri 받기
+    private val pickImage =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            uri?.let { onImageSelected(it) }
+            if (uri == null) return@registerForActivityResult
+            val binary = uriToMultipart(uri)
+
+            onPhotoSelected(uri)
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 카메라 권한
         cameraPermissionChecker.init(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        homeActivity = requireActivity() as HomeActivity
+        homeActivity = requireContext() as HomeActivity
 
         tagsSection = view.findViewById(R.id.section_tags)
         seasonSection = view.findViewById(R.id.section_season)
@@ -77,9 +79,22 @@ class RegistrationClothFragment :
 
         setupOptionSection()
 
-        // ✅ 사진 선택(카메라/갤러리)만 다이얼로그로 받고, 선택되면 즉시 버튼에 반영
-        binding.imbtnRegistrationCloth.setOnClickListener { showPickDialog() }
+        // "사진 등록 텍스트 보이게 설정
+        updatePhotoPlaceholder(false)
 
+        binding.imbtnRegistrationCloth.setOnClickListener {
+            AlertDialog.Builder(homeActivity)
+                .setTitle("사진 가져오기")
+                .setItems(arrayOf("카메라 촬영", "갤러리 선택")) { _, which ->
+                    when (which) {
+                        0 -> openCamera()
+                        1 -> openGalleryPicker()
+                    }
+                }
+                .show()
+        }
+
+        // 옷 등록
         binding.btnRegistrationCloth.setOnClickListener {
             val photoUri = selectedImageUri
             val selectedTags = TagOptions.getSelectedTag(tagsSection)
@@ -87,46 +102,60 @@ class RegistrationClothFragment :
             val selectedSeasons = SeasonOptions.getSelectedSeason(seasonSection)
             val selectedColor = colorAdapter.getSelectedColor()
 
-            if (photoUri == null ||
-                selectedTags.isEmpty() ||
-                selectedClothType == null ||
-                selectedSeasons.isEmpty() ||
-                selectedColor.isNullOrBlank()
-            ) {
-                showToast("모든 항목을 입력해주세요.")
-                return@setOnClickListener
+            when {
+                photoUri == null -> {
+                    showToast("사진을 등록해주세요.")
+                    return@setOnClickListener
+                }
+
+                selectedTags.isEmpty() -> {
+                    showToast("태그를 1개 이상 선택해주세요.")
+                    return@setOnClickListener
+                }
+
+                selectedClothType == null -> {
+                    showToast("의류 종류를 선택해주세요.")
+                    return@setOnClickListener
+                }
+
+                selectedSeasons.isEmpty() -> {
+                    showToast("계절을 1개 이상 선택해주세요.")
+                    return@setOnClickListener
+                }
+
+                selectedColor.isNullOrBlank() -> {
+                    showToast("색상을 선택해주세요.")
+                    return@setOnClickListener
+                }
             }
 
             registrationClothViewModel.registrationCloth(
-                photoUri,
+                photoUri!!,
                 selectedTags,
-                selectedClothType,
+                selectedClothType!!,
                 selectedSeasons,
-                selectedColor
+                selectedColor!!
             )
         }
     }
 
-    /**
-     * 카메라/갤러리 선택 다이얼로그 (이미지 미리보기 다이얼로그는 없음)
-     */
-    private fun showPickDialog() {
-        AlertDialog.Builder(homeActivity)
-            .setTitle("사진 가져오기")
-            .setItems(arrayOf("카메라 촬영", "갤러리 선택")) { _, which ->
-                when (which) {
-                    0 -> ensureCameraPermissionThenLaunch()
-                    1 -> launchPhotoPicker()
-                }
-            }
-            .show()
-    }
-
-    private fun onImageSelected(uri: Uri) {
+    // 등록된 사진 공통 처리
+    private fun onPhotoSelected(uri: Uri) {
         selectedImageUri = uri
         binding.imbtnRegistrationCloth.setImageURI(uri)
+        updatePhotoPlaceholder(true)
+
+        // TODO: Uri -> Binary(Multipart)로 변환까지만
+        val multipart: MultipartBody.Part = uriToMultipart(uri)
+        // TODO: 서버 전송은 이후에 구현
     }
 
+    // "사진 등록" 보이게, 안 보이게 설정
+    private fun updatePhotoPlaceholder(isPhotoSelected: Boolean) {
+        binding.tvPhotoPlaceholder.visibility = if (isPhotoSelected) View.GONE else View.VISIBLE
+    }
+
+    // 태그, 계절, 옷 종류, 색상 요소 UI 반영
     private fun setupOptionSection() {
         TagOptions.render(tagsSection, homeActivity)
         SeasonOptions.render(seasonSection, homeActivity)
@@ -134,27 +163,31 @@ class RegistrationClothFragment :
         colorAdapter = ColorOptions.setup(colorSection)
     }
 
-    private fun launchPhotoPicker() {
-        photoPickerLauncher.launch(
+    // 갤러리 실행
+    private fun openGalleryPicker() {
+        pickImage.launch(
             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
         )
     }
 
-    private fun ensureCameraPermissionThenLaunch() {
+    // 카메라 실행
+    private fun openCamera() {
         val permissions = arrayOf(Manifest.permission.CAMERA)
         if (cameraPermissionChecker.checkPermission(homeActivity, permissions)) {
-            launchCameraCaptureToUri()
+            launchCameraToUri()
             return
         }
-        cameraPermissionChecker.setOnGrantedListener { launchCameraCaptureToUri() }
+        cameraPermissionChecker.setOnGrantedListener { launchCameraToUri() }
         cameraPermissionChecker.requestPermissions(permissions)
     }
 
-    private fun launchCameraCaptureToUri() {
+    // 통일 된 양식으로
+    private fun launchCameraToUri() {
         selectedImageUri = createImageUri()
-        selectedImageUri?.let { captureToUriLauncher.launch(it) }
+        selectedImageUri?.let { takePicture.launch(it) }
     }
 
+    // 갤러리, 카메라에서 가져온 사진 양식 통일
     private fun createImageUri(): Uri? = try {
         val dir = File(requireContext().cacheDir, "images").apply { mkdirs() }
         val file = File(dir, "closetory_${System.currentTimeMillis()}.png")
@@ -167,30 +200,18 @@ class RegistrationClothFragment :
         null
     }
 
-    private fun uriToBitmap(uri: Uri): Bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
-        ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
-            decoder.isMutableRequired = true
-        }
-    } else {
-        @Suppress("DEPRECATION")
-        MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
-    }
+    // Uri -> Binary(Multipart) 변환
+    private fun uriToMultipart(uri: Uri): MultipartBody.Part {
+        val cr = requireContext().contentResolver
+        val bytes = cr.openInputStream(uri)?.use { it.readBytes() }
+            ?: throw IllegalStateException("이미지 스트림을 열 수 없습니다: $uri")
 
-    private fun Bitmap.toArgb8888Mutable(): Bitmap {
-        val base = if (config == Bitmap.Config.ARGB_8888) this else copy(Bitmap.Config.ARGB_8888, false)
-        return base.copy(Bitmap.Config.ARGB_8888, true)
-    }
+        val mime = cr.getType(uri) ?: "image/*"
+        val mediaType = mime.toMediaTypeOrNull() ?: "image/*".toMediaTypeOrNull()!!
 
-    private fun Bitmap.downscaleIfNeeded(maxSide: Int): Bitmap {
-        val m = maxOf(width, height)
-        if (m <= maxSide) return this
-        val scale = maxSide.toFloat() / m.toFloat()
-        return Bitmap.createScaledBitmap(
-            this,
-            (width * scale).toInt(),
-            (height * scale).toInt(),
-            true
-        )
+        val requestBody = okhttp3.RequestBody.create(mediaType, bytes)
+
+        val fileName = "upload_${System.currentTimeMillis()}.png"
+        return MultipartBody.Part.createFormData("image", fileName, requestBody)
     }
 }
