@@ -48,7 +48,6 @@ class RegistrationClothFragment :
             val uri = selectedImageUri ?: return@registerForActivityResult
             val binary = uriToMultipart(uri)
             registrationClothViewModel.removeImageBackground(binary)
-            onPhotoSelected(uri)
         }
 
     // 갤러리 Uri 받기
@@ -56,8 +55,7 @@ class RegistrationClothFragment :
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri == null) return@registerForActivityResult
             val binary = uriToMultipart(uri)
-
-            onPhotoSelected(uri)
+            registrationClothViewModel.removeImageBackground(binary)
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {

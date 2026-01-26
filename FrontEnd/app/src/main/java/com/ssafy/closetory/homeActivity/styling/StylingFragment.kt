@@ -291,7 +291,7 @@ class StylingFragment :
         Log.d(TAG, "slotType: $slotType")
         Log.d(TAG, "clothesId: ${item.clothesId}")
         Log.d(TAG, "photoUrl: ${item.photoUrl}")
-        Log.d(TAG, "SERVER_URL: ${ApplicationClass.SERVER_URL}")
+        Log.d(TAG, "SERVER_URL: ${ApplicationClass.API_BASE_URL}")
 
         selectedSlots[slotType] = item
 
@@ -300,7 +300,7 @@ class StylingFragment :
         val imageUrl = if (item.photoUrl.startsWith("http")) {
             item.photoUrl // 이미 완전한 URL
         } else {
-            "${ApplicationClass.SERVER_URL}${item.photoUrl}" // 상대 경로
+            "${ApplicationClass.API_BASE_URL}${item.photoUrl}" // 상대 경로
         }
 
         Glide.with(this)
@@ -438,7 +438,7 @@ class StylingFragment :
         val finalUrl = if (imageUrl.startsWith("http")) {
             imageUrl
         } else {
-            "${ApplicationClass.SERVER_URL}$imageUrl"
+            "${ApplicationClass.API_BASE_URL}$imageUrl"
         }
 
         // AI 이미지 로딩
