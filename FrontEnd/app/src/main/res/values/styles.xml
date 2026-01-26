@@ -22,4 +22,9 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <!-- 달력 -->
+    <style name="CalendarDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 </resources>

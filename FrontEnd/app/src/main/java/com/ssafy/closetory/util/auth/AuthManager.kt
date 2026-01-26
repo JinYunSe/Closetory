@@ -1,4 +1,4 @@
-package com.ssafy.closetory.util
+package com.ssafy.closetory.util.auth
 
 import android.content.Context
 import android.util.Log

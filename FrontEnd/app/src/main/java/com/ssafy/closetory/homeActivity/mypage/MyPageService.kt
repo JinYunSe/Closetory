@@ -15,4 +15,7 @@ interface MyPageService {
         @Path("userId") userId: Int,
         @Body request: EditProfilePasswordCheckRequest
     ): Response<ApiResponse<Unit>>
+
+    @POST("auth/logout")
+    suspend fun logout(): Response<ApiResponse<Unit>>
 }

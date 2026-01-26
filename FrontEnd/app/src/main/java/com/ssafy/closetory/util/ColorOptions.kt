@@ -108,7 +108,7 @@ object ColorOptions {
         }
 
         // 선택 없으면 null
-        public fun getSelectedColor(): String? {
+        fun getSelectedColor(): String? {
             if (selectedPos == RecyclerView.NO_POSITION) return null
             return items[selectedPos].codeEnglish
         }

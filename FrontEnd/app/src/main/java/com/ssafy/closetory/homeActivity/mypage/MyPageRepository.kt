@@ -1,3 +1,4 @@
+
 package com.ssafy.closetory.homeActivity.mypage
 
 import com.ssafy.closetory.ApplicationClass
@@ -8,7 +9,7 @@ private const val TAG = "MyPageRepository_싸피"
 
 class MyPageRepository {
 
-    private val service: MyPageService =
+    private val service =
         ApplicationClass.retrofit.create(MyPageService::class.java)
 
     // 비밀번호 검증
@@ -29,4 +30,6 @@ class MyPageRepository {
             )
         }
     }
+
+    suspend fun logout() = service.logout()
 }

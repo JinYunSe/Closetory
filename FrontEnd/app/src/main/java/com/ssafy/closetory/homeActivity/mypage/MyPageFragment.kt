@@ -9,19 +9,19 @@ import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.AuthActivity
-import com.ssafy.closetory.authActivity.logout.LogoutViewModel
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
-import com.ssafy.closetory.util.AuthManager
+import com.ssafy.closetory.util.auth.AuthManager
 import kotlinx.coroutines.launch
 
 class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding::bind, R.layout.fragment_my_page) {
 
-    private val logoutViewModel: LogoutViewModel by viewModels()
     private val myPageViewModel: MyPageViewModel by viewModels()
 
     private var passwordDialog: AlertDialog? = null
@@ -64,33 +64,30 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
 
     // 로그아웃 요청
     private fun requestLogout() {
-        val authManager = AuthManager(requireContext())
-        val token = authManager.getAccessToken() ?: return
-
-        logoutViewModel.logout(
-            accessToken = "Bearer $token"
-        )
+        myPageViewModel.logout()
     }
 
     // 로그아웃 옵저버
     private fun observeLogout() {
-        logoutViewModel.logoutSuccess.observe(viewLifecycleOwner) { success ->
-            if (success) {
-                val authManager = AuthManager(requireContext())
-                authManager.clearToken()
+        viewLifecycleOwner.lifecycleScope.launch {
+            myPageViewModel.logoutSuccess.collect { success ->
+                if (success) {
+                    val authManager = AuthManager(requireContext())
+                    authManager.clearToken()
 
-                val intent = Intent(requireContext(), AuthActivity::class.java)
-                intent.flags =
-                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
+                    val intent = Intent(requireContext(), AuthActivity::class.java)
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                }
             }
         }
     }
 
     private fun observeMessage() {
-        logoutViewModel.message.observe(viewLifecycleOwner) { msg ->
-            msg?.let {
-                showToast(it)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                myPageViewModel.message.collect { showToast(it) }
             }
         }
     }

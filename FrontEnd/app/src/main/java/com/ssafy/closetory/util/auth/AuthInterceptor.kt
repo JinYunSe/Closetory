@@ -1,4 +1,4 @@
-package com.ssafy.closetory.util
+package com.ssafy.closetory.util.auth
 
 import android.util.Log
 import com.ssafy.closetory.ApplicationClass
@@ -9,26 +9,26 @@ import okhttp3.Response
 private const val TAG = "AuthInterceptor_싸피"
 
 // 요청에 Bearer 토큰 넣는 해더
-class AuthInterceptor : okhttp3.Interceptor {
+class AuthInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val req = chain.request()
-        val path = req.url.encodedPath
+        val request = chain.request()
+        val path = request.url.encodedPath
 
         // 토큰 필요 없는 주소
-        val noAuth = listOf("/auth/signup")
+        val noAuth = listOf("/auth/signup", "/auth/login", "/auth/refresh")
 
-        if (noAuth.any { path.contains(it) }) return chain.proceed(req)
+        if (noAuth.any { path.contains(it) }) return chain.proceed(request)
 
-        val token = ApplicationClass.authManager.getAccessToken()
+        val accessToken = ApplicationClass.authManager.getAccessToken()
 
         // 토큰이 있는 상황이면
-        val newRequest = if (!token.isNullOrEmpty()) {
+        val newRequest = if (!accessToken.isNullOrEmpty()) {
             // 해더에 Bearer token 값 넣기
-            req.newBuilder()
-                .header(ApplicationClass.X_ACCESS_TOKEN, "Bearer $token")
+            request.newBuilder()
+                .header(ApplicationClass.X_ACCESS_TOKEN, "Bearer $accessToken")
                 .build()
         } else {
-            req
+            request
         }
 
         // log로 request할 때 토큰이 잘 가는지 확인하기

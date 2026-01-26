@@ -3,10 +3,7 @@ package com.ssafy.closetory.authActivity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.ssafy.closetory.ApplicationClass
-import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseActivity
 import com.ssafy.closetory.databinding.ActivityAuthBinding
 import com.ssafy.closetory.homeActivity.HomeActivity
@@ -28,12 +25,6 @@ class AuthActivity : BaseActivity<ActivityAuthBinding>(ActivityAuthBinding::infl
             )
             finish()
             return
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
         }
     }
 }

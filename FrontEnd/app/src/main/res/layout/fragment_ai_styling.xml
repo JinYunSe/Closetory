@@ -1,62 +1,215 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="16dp"
     tools:context=".homeActivity.aiStyling.AiStylingFragment">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_date_picker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="날짜 선택"
-            android:layout_weight="2"
-            />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_select_date"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="0.9"
+            android:backgroundTint="@color/white"
+            android:gravity="center"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:maxLines="2"
+            android:text="날짜\n선택"
+            android:textAlignment="center"
+            android:textColor="#A6DAF4"
+            android:textSize="14dp"
+            app:cornerRadius="0dp" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1.2"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp">
 
+            <!-- 파란 글씨(여기만 바뀌게) -->
             <TextView
-                android:text=""
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
+                android:id="@+id/tv_style_mode"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="0.8"
+                android:text="어울림"
+                android:textColor="#A6DAF4"
+                android:textSize="14sp" />
 
-
-            <Switch
-                android:id="@+id/switch_personal_reference"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
+            <!-- 스위치에는 글자 절대 표시 X -->
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_style_mode"
+                android:layout_width="0dp"
+                android:layout_weight="0.8"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:showText="false"
+                android:switchMinWidth="48dp"
+                app:thumbTint="@color/switch_thumb_selector"
+                app:trackTint="@color/switch_track_selector" />
         </LinearLayout>
 
-        <Switch
-            android:id="@+id/switch_only_my_cloth"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1.2"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp">
 
-        <Button
-            android:id="@+id/btn_styling_myself"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            <!-- 파란 글씨(여기만 바뀌게) -->
+            <TextView
+                android:id="@+id/tv_switch_owned_only"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="0.8"
+                android:text="모든 옷"
+                android:textColor="#A6DAF4"
+                android:textSize="14sp" />
+
+            <!-- 스위치에는 글자 절대 표시 X -->
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_switch_owned_only"
+                android:layout_width="0dp"
+                android:layout_weight="0.8"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:showText="false"
+                android:switchMinWidth="48dp"
+                app:thumbTint="@color/switch_thumb_selector"
+                app:trackTint="@color/switch_track_selector" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_makeoutfit"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:backgroundTint="#FFFFFF"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:text="직접 코디"
-            android:layout_weight="0.5"
-            />
+            android:textColor="#A6DAF4" />
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <ImageView
+        android:id="@+id/iv_ai_coordination"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.1"
+        android:background="@drawable/default_image"
+        android:scaleType="centerInside" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.8"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="10dp"
+        android:gravity="bottom">
+        <ImageView
+            android:id="@+id/iv_ai_profile"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/default_image"
+            android:layout_marginBottom="4dp" />
+
+
+        <androidx.core.widget.NestedScrollView
+        android:id="@+id/sv_ai_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_weight="1"
+        android:maxHeight="150dp"
+        android:overScrollMode="never">
+
+        <TextView
+            android:id="@+id/tv_ai_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/speech_bubble_left"
+            android:paddingStart="20dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="30dp"
+            android:paddingBottom="12dp"
+            android:text="AI가 여기에 답변을 해줍니다. 텍스트가 길어지면 자동으로 위로 늘어나며 스크롤이 생성됩니다."
+            android:textColor="#333333"
+            android:textSize="14sp"
+            android:lineSpacingExtra="4dp"
+            android:minHeight="44dp" />
+    </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- 등록 버튼 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_register"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="등록"
+            android:backgroundTint="#A6DAF4"
+            android:textColor="#FFFFFF"
+            app:cornerRadius="12dp" />
+
+        <View
+            android:layout_width="12dp"
+            android:layout_height="match_parent" />
+
+        <!-- AI 룩 생성 버튼 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ai_makeoutfit"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="AI 룩 생성"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#A6DAF4"
+            android:gravity="center"
+
+            app:icon="@drawable/ic_refresh"
+            app:iconGravity="textEnd"
+            app:iconPadding="8dp"
+            app:iconTint="#A6DAF4"
+            app:iconSize="24dp"
+
+            app:strokeWidth="1dp"
+            app:strokeColor="#A6DAF4"
+            app:cornerRadius="12dp" />
+
+
+
+    </LinearLayout>
+
+
+</LinearLayout>
