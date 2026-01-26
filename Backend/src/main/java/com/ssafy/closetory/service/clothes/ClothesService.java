@@ -12,4 +12,6 @@ public interface ClothesService {
 
   GetClothesDetailResponse updateClothes(
       Integer userId, Integer clothesId, UpdateClothesRequest request, MultipartFile photo);
+
+  void deleteClothes(Integer userId, Integer clothesId);
 }

@@ -152,6 +152,22 @@ public class ClothesServiceImpl implements ClothesService {
     return GetClothesDetailResponse.from(clothes, userId);
   }
 
+  @Transactional
+  @Override
+  public void deleteClothes(Integer userId, Integer clothesId) {
+    Clothes clothes =
+        clothesRepository
+            .findById(clothesId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 옷입니다."));
+
+    if (!clothes.getUserId().equals(userId)) {
+      throw new ForbiddenException("자신의 옷만 삭제할 수 있습니다.");
+    }
+
+    clothes.setDeletedAt(LocalDateTime.now());
+    clothesRepository.save(clothes);
+  }
+
   private ClothesColor parseColorOrNull(String colorStr) {
     if (colorStr == null || colorStr.isBlank()) return null;
 
