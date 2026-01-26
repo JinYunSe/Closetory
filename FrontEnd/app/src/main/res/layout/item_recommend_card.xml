@@ -1,6 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_recommend"
+    android:layout_width="160dp"
+    android:layout_height="210dp"
+    android:layout_marginEnd="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardUseCompatPadding="true"
+    app:strokeWidth="0dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- 이미지 자리(내용 없음) -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <View
+                android:id="@+id/v_thumb"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#E6E6E6"/>
+
+            <!-- 배지 자리(선택) -->
+            <View
+                android:id="@+id/v_badge"
+                android:layout_width="44dp"
+                android:layout_height="22dp"
+                android:layout_gravity="top|start"
+                android:layout_margin="10dp"
+                android:background="@drawable/bg_badge_placeholder"/>
+        </FrameLayout>
+
+        <!-- 텍스트 자리(내용 없음) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <View
+                android:id="@+id/v_title"
+                android:layout_width="match_parent"
+                android:layout_height="14dp"
+                android:background="#E6E6E6"/>
+
+            <View
+                android:id="@+id/v_subtitle"
+                android:layout_width="110dp"
+                android:layout_height="12dp"
+                android:layout_marginTop="10dp"
+                android:background="#F2F2F2"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
