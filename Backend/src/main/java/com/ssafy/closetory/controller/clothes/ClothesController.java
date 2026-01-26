@@ -2,10 +2,7 @@ package com.ssafy.closetory.controller.clothes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.closetory.dto.clothes.AddClothesRequest;
-import com.ssafy.closetory.dto.clothes.GetClosetRequest;
-import com.ssafy.closetory.dto.clothes.GetClosetResponse;
-import com.ssafy.closetory.dto.clothes.GetClothesDetailResponse;
+import com.ssafy.closetory.dto.clothes.*;
 import com.ssafy.closetory.dto.common.ApiResponse;
 import com.ssafy.closetory.service.clothes.ClothesService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ClothesController {
 
   private final ClothesService clothesService;
+  private final ObjectMapper objectMapper;
 
   @GetMapping
   @Operation(summary = "옷장 조회")
@@ -60,8 +58,29 @@ public class ClothesController {
       @RequestPart("request") String requestJson,
       @AuthenticationPrincipal Integer userId)
       throws JsonProcessingException {
-    AddClothesRequest request = new ObjectMapper().readValue(requestJson, AddClothesRequest.class);
+    AddClothesRequest request = objectMapper.readValue(requestJson, AddClothesRequest.class);
     clothesService.addClothes(userId, request, photo);
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201, "옷 등록 성공", null));
+  }
+
+  @PatchMapping(
+      value = "/{clothesId}",
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "옷 수정")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<GetClothesDetailResponse>> updateClothes(
+      @PathVariable Integer clothesId,
+      @RequestPart(value = "photo", required = false) MultipartFile photo,
+      @RequestPart(value = "request", required = false) String requestJson,
+      @AuthenticationPrincipal Integer userId)
+      throws JsonProcessingException {
+    UpdateClothesRequest request =
+        (requestJson == null || requestJson.isBlank())
+            ? new UpdateClothesRequest(null, null, null, null)
+            : objectMapper.readValue(requestJson, UpdateClothesRequest.class);
+    GetClothesDetailResponse response =
+        clothesService.updateClothes(userId, clothesId, request, photo);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "옷 수정 성공", response));
   }
 }

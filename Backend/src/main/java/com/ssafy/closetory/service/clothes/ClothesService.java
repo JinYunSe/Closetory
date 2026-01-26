@@ -1,9 +1,6 @@
 package com.ssafy.closetory.service.clothes;
 
-import com.ssafy.closetory.dto.clothes.AddClothesRequest;
-import com.ssafy.closetory.dto.clothes.GetClosetRequest;
-import com.ssafy.closetory.dto.clothes.GetClosetResponse;
-import com.ssafy.closetory.dto.clothes.GetClothesDetailResponse;
+import com.ssafy.closetory.dto.clothes.*;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ClothesService {
@@ -12,4 +9,7 @@ public interface ClothesService {
   GetClothesDetailResponse getClothesDetail(Integer userId, Integer clothesId);
 
   void addClothes(Integer userId, AddClothesRequest request, MultipartFile photo);
+
+  GetClothesDetailResponse updateClothes(
+      Integer userId, Integer clothesId, UpdateClothesRequest request, MultipartFile photo);
 }
