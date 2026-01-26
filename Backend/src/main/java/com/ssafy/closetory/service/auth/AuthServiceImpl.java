@@ -85,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
     String refreshToken = refreshTokenService.createRefreshToken();
 
     // 4. Refresh Token 저장 (Redis)
-    refreshTokenService.save(user.getId(), refreshToken);
+    refreshTokenService.save(refreshToken, user.getId());
 
     // 5. 응답
     return new LoginResponse(accessToken, refreshToken, user.getId());
@@ -93,49 +93,35 @@ public class AuthServiceImpl implements AuthService {
 
   // 로그아웃
   @Override
-  public void logout(Integer userId) {
-    if (userId == null) {
+  public void logout(String refreshToken) {
+    if (refreshToken == null || refreshToken.isBlank()) {
       throw new UnauthorizedException("인증되지 않은 사용자입니다.");
     }
 
     // Redis에 저장된 refresh token 삭제
-    refreshTokenService.delete(userId);
+    refreshTokenService.delete(refreshToken);
   }
 
   // 토큰 재발급
   @Override
-  public LoginResponse token(Integer userId, String refreshToken) {
+  public LoginResponse token(String refreshToken) {
 
-    // 1. userId 검증
-    if (userId == null) {
-      throw new UnauthorizedException("인증되지 않은 사용자입니다.");
-    }
-
-    // 2. Refresh Token 존재 여부
     if (refreshToken == null || refreshToken.isBlank()) {
       throw new UnauthorizedException("리프레시 토큰이 없습니다.");
     }
 
-    // 3. Redis에 저장된 Refresh Token 조회
-    String savedRefreshToken = refreshTokenService.get(userId);
+    Integer userId = refreshTokenService.getUserId(refreshToken);
 
-    if (savedRefreshToken == null) {
-      throw new UnauthorizedException("로그아웃된 사용자이거나 토큰이 만료되었습니다.");
+    if (userId == null) {
+      throw new UnauthorizedException("유효하지 않거나 만료된 리프레시 토큰입니다.");
     }
 
-    // 4. Refresh Token 일치 여부
-    if (!savedRefreshToken.equals(refreshToken)) {
-      throw new UnauthorizedException("유효하지 않은 리프레시 토큰입니다.");
-    }
-
-    // 5. 새 토큰 발급
     String newAccessToken = jwtProvider.createAccessToken(userId);
     String newRefreshToken = refreshTokenService.createRefreshToken();
 
-    // 6. Refresh Token
-    refreshTokenService.save(userId, newRefreshToken);
+    //  새 RT 저장 (rotation)
+    refreshTokenService.rotate(refreshToken, newRefreshToken, userId);
 
-    // 7. 응답
-    return new LoginResponse(newAccessToken, newRefreshToken, userId);
+    return new LoginResponse(newAccessToken, newRefreshToken, null);
   }
 }

@@ -15,26 +15,39 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
   private final RedisTemplate<String, String> redisTemplate;
 
   // Refresh Token 생성
+  @Override
   public String createRefreshToken() {
     return UUID.randomUUID().toString();
   }
 
-  // Redis 저장
-  public void save(Integer userId, String refreshToken) {
-    redisTemplate.opsForValue().set(key(userId), refreshToken, REFRESH_TOKEN_TTL, TimeUnit.DAYS);
+  // 로그인
+  @Override
+  public void save(String refreshToken, Integer userId) {
+    redisTemplate
+        .opsForValue()
+        .set(key(refreshToken), userId.toString(), REFRESH_TOKEN_TTL, TimeUnit.DAYS);
   }
 
-  // Redis 조회
-  public String get(Integer userId) {
-    return redisTemplate.opsForValue().get(key(userId));
+  @Override
+  public Integer getUserId(String refreshToken) {
+    String userId = redisTemplate.opsForValue().get(key(refreshToken));
+    return userId != null ? Integer.valueOf(userId) : null;
   }
 
-  // Redis 삭제 (로그아웃)
-  public void delete(Integer userId) {
-    redisTemplate.delete(key(userId));
+  // 토큰 재발급
+  @Override
+  public void rotate(String oldRefreshToken, String newRefreshToken, Integer userId) {
+    redisTemplate.delete(key(oldRefreshToken));
+    save(newRefreshToken, userId);
   }
 
-  private String key(Integer userId) {
-    return "RT:" + userId;
+  // 로그아웃
+  @Override
+  public void delete(String refreshToken) {
+    redisTemplate.delete(key(refreshToken));
+  }
+
+  private String key(String refreshToken) {
+    return "RT:" + refreshToken;
   }
 }
