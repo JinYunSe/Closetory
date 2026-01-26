@@ -83,4 +83,13 @@ public class ClothesController {
         clothesService.updateClothes(userId, clothesId, request, photo);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "옷 수정 성공", response));
   }
+
+  @DeleteMapping("/{clothesId}")
+  @Operation(summary = "옷 삭제")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Void>> deleteClothes(
+      @PathVariable Integer clothesId, @AuthenticationPrincipal Integer userId) {
+    clothesService.deleteClothes(userId, clothesId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "옷 삭제 성공", null));
+  }
 }
