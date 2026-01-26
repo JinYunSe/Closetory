@@ -5,6 +5,6 @@ import com.ssafy.closetory.dto.TokenResponse
 import retrofit2.Response
 import retrofit2.http.POST
 interface RefreshTokenService {
-    @POST("auth/refresh")
+    @POST("auth/token")
     suspend fun refresh(): Response<ApiResponse<TokenResponse>>
 }

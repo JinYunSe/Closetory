@@ -15,7 +15,7 @@ object RefreshService {
 
     val api: RefreshTokenService by lazy {
         Retrofit.Builder()
-            .baseUrl(ApplicationClass.SERVER_URL)
+            .baseUrl(ApplicationClass.API_BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(ApplicationClass.gson))
             .build()

@@ -15,8 +15,27 @@ class AuthInterceptor : Interceptor {
         val path = request.url.encodedPath
 
         // 토큰 필요 없는 주소
-        val noAuth = listOf("/auth/signup", "/auth/login", "/auth/refresh")
+        val noAuth = listOf("/auth/signup", "/auth/login", "/auth/token")
 
+        // 로그 아웃은 refreshToken를 서버가 요구해서 예외로 refreshToken을 제공
+        if (path.contains("/auth/logout")) {
+            val refreshToken = ApplicationClass.authManager.getRefreshToken()
+
+            val newReq = if (!refreshToken.isNullOrBlank()) {
+                request.newBuilder()
+                    .header(ApplicationClass.X_REFRESH_TOKEN, refreshToken)
+                    .build()
+            } else {
+                request
+            }
+
+            Log.d(TAG, "url=${newReq.url}")
+            Log.d(TAG, "${ApplicationClass.X_REFRESH_TOKEN}: ${newReq.header(ApplicationClass.X_REFRESH_TOKEN)}")
+
+            return chain.proceed(newReq)
+        }
+
+        // 토큰이 필요 없는 기능은 기능 진행시키기
         if (noAuth.any { path.contains(it) }) return chain.proceed(request)
 
         val accessToken = ApplicationClass.authManager.getAccessToken()
