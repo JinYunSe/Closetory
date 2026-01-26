@@ -1,9 +1,14 @@
 package com.ssafy.closetory.service.user;
 
+import com.ssafy.closetory.dto.user.AddStyleRequest;
+import com.ssafy.closetory.entity.clothes.Tag;
 import com.ssafy.closetory.entity.user.User;
-import com.ssafy.closetory.exception.common.BadRequestException;
-import com.ssafy.closetory.exception.common.UnauthorizedException;
+import com.ssafy.closetory.entity.user.UserFavoriteTag;
+import com.ssafy.closetory.exception.common.*;
+import com.ssafy.closetory.repository.TagRepository;
+import com.ssafy.closetory.repository.UserFavoriteTagRepository;
 import com.ssafy.closetory.repository.UserRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
+  private final TagRepository tagRepository;
+  private final UserFavoriteTagRepository userFavoriteTagRepository;
+
   private final PasswordEncoder passwordEncoder;
 
   // 비밀번호 검증
@@ -41,6 +49,38 @@ public class UserServiceImpl implements UserService {
     }
 
     user.changePassword(passwordEncoder.encode(newPassword));
+  }
+
+  @Transactional
+  @Override
+  public void addStyle(Integer userId, Integer authUserId, AddStyleRequest request) {
+
+    userRepository.findById(userId).orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
+
+    if (!userId.equals(authUserId)) {
+      throw new ForbiddenException("자신의 선호 태그만 등록할 수 있습니다.");
+    }
+
+    if (userFavoriteTagRepository.existsByIdUserId(userId)) {
+      throw new ConflictException("이미 선호 태그를 등록한 사용자입니다.");
+    }
+
+    List<Integer> tagIds =
+        request.tags() == null ? List.of() : request.tags().stream().distinct().toList();
+
+    if (tagIds.size() < 3) {
+      throw new BadRequestException("선호 태그는 최소 3개 이상 선택해야 합니다.");
+    }
+
+    List<Tag> tags = tagRepository.findAllById(tagIds);
+    if (tags.size() != tagIds.size()) {
+      throw new BadRequestException("존재하지 않는 태그가 포함되어 있습니다.");
+    }
+
+    List<UserFavoriteTag> rows =
+        tagIds.stream().map(tagId -> UserFavoriteTag.of(userId, tagId)).toList();
+
+    userFavoriteTagRepository.saveAll(rows);
   }
 
   // 사용자 검증
