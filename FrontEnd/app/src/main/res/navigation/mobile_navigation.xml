@@ -17,11 +17,35 @@
         android:label="@string/title_closet"
         tools:layout="@layout/fragment_closet" />
 
+<!--    <fragment-->
+<!--        android:id="@+id/navigation_styling"-->
+<!--        android:name="com.ssafy.closetory.homeActivity.aiStyling.AiStylingFragment"-->
+<!--        android:label="@string/title_styling"-->
+<!--        tools:layout="@layout/fragment_ai_styling" />-->
+
     <fragment
         android:id="@+id/navigation_styling"
+        android:name="com.ssafy.closetory.homeActivity.styling.StylingFragment"
+        android:label="@string/title_styling"
+        tools:layout="@layout/fragment_styling" />
+
+<!--    <fragment-->
+<!--        android:id="@+id/navigation_ai_styling"-->
+<!--        android:name="com.ssafy.closetory.homeActivity.aiStyling.AiStylingFragment"-->
+<!--        android:label="@string/title_styling"-->
+<!--        tools:layout="@layout/fragment_ai_styling" />-->
+
+    <fragment
+        android:id="@+id/navigation_ai_styling"
         android:name="com.ssafy.closetory.homeActivity.aiStyling.AiStylingFragment"
         android:label="@string/title_styling"
-        tools:layout="@layout/fragment_ai_styling" />
+        tools:layout="@layout/fragment_ai_styling">
+
+        <!-- AI 화면에서 "직접 코디 생성" 버튼 누르면 StylingFragment로 이동하는 코드-->
+        <action
+            android:id="@+id/action_ai_to_manual_styling"
+            app:destination="@id/navigation_styling" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_my_page"

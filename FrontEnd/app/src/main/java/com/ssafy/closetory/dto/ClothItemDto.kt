@@ -1,3 +1,3 @@
 package com.ssafy.closetory.dto
 
-data class ClothItemDto(val clothesId: Long, val photoUrl: String)
+data class ClothItemDto(val clothesId: Int, val photoUrl: String)
