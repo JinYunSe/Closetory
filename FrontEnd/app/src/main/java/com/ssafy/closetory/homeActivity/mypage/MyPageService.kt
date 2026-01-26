@@ -1,13 +1,21 @@
+// MyPageService
+
 package com.ssafy.closetory.homeActivity.mypage
 
 import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.EditProfilePasswordCheckRequest
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface MyPageService {
+
+    // 현재 유저정보 불러오기
+    @GET("users/{userId}")
+    suspend fun getUserProfile(@Path("userId") userId: Int): Response<ApiResponse<EditProfileInfoResponse>>
 
     // 비밀번호 검증
     @POST("user/{userId}/password")

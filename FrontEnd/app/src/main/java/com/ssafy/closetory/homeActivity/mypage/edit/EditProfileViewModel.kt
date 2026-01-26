@@ -3,6 +3,7 @@ package com.ssafy.closetory.homeActivity.mypage.edit
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.EditProfilePasswordRequest
 import com.ssafy.closetory.dto.EditProfileUpdateRequest
@@ -94,17 +95,22 @@ class EditProfileViewModel : ViewModel() {
     }
 
     // 비밀번호 변경
-    fun changePassword(currentPassword: String, newPassword: String, newPasswordConfirm: String) {
+    fun changePassword(newPassword: String, newPasswordConfirm: String) {
         viewModelScope.launch {
             try {
                 val request = EditProfilePasswordRequest(
-                    currentPassword = currentPassword,
                     newPassword = newPassword,
                     newPasswordConfirm = newPasswordConfirm
                 )
 
+                // userId 검증
+                val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: run {
+                    _message.emit("로그인이 필요합니다.")
+                    return@launch
+                }
+
                 val res = repository.changePassword(
-                    userId = 0,
+                    userId = userId,
                     request = request
                 )
 

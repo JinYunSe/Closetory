@@ -207,12 +207,9 @@ class EditProfileFragment :
         val dialogView =
             layoutInflater.inflate(R.layout.dialog_edit_profile_password, null)
 
-        val etCurrent = dialogView.findViewById<EditText>(R.id.etCurrentPassword)
         val etNew = dialogView.findViewById<EditText>(R.id.etNewPassword)
         val etConfirm = dialogView.findViewById<EditText>(R.id.etNewPasswordConfirm)
 
-        val btnToggleCurrent =
-            dialogView.findViewById<ImageButton>(R.id.btnToggleCurrentPassword)
         val btnToggleNew =
             dialogView.findViewById<ImageButton>(R.id.btnToggleNewPassword)
         val btnToggleConfirm =
@@ -221,13 +218,8 @@ class EditProfileFragment :
         val btnConfirm =
             dialogView.findViewById<Button>(R.id.btnConfirmChangePassword)
 
-        var currentVisible = false
         var newVisible = false
         var confirmVisible = false
-
-        btnToggleCurrent.setOnClickListener {
-            currentVisible = togglePasswordVisibility(etCurrent, currentVisible)
-        }
 
         btnToggleNew.setOnClickListener {
             newVisible = togglePasswordVisibility(etNew, newVisible)
@@ -242,11 +234,10 @@ class EditProfileFragment :
             .create()
 
         btnConfirm.setOnClickListener {
-            val currentPw = etCurrent.text.toString()
             val newPw = etNew.text.toString()
             val confirmPw = etConfirm.text.toString()
 
-            if (currentPw.isBlank() || newPw.isBlank() || confirmPw.isBlank()) {
+            if (newPw.isBlank() || confirmPw.isBlank()) {
                 showToast("모든 항목을 입력해주세요.")
                 return@setOnClickListener
             }
@@ -262,7 +253,6 @@ class EditProfileFragment :
             }
 
             viewModel.changePassword(
-                currentPassword = currentPw,
                 newPassword = newPw,
                 newPasswordConfirm = confirmPw
             )
