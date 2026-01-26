@@ -88,12 +88,7 @@ dependencies {
     implementation("com.google.android.flexbox:flexbox:3.0.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
-    // MediaPipe Tasks Vision
-    implementation(libs.mediapipe.tasks.vision)
-
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
-
-    implementation("org.opencv:opencv:4.13.0")
 }

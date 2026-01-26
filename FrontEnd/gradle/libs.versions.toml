@@ -15,7 +15,6 @@ navigationUiKtx = "2.9.6"
 activity = "1.12.2"
 recyclerview = "1.4.0"
 fragment = "1.8.9"
-mediapipe = "0.10.9"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,7 +31,6 @@ androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
-mediapipe-tasks-vision = { group = "com.google.mediapipe",name = "tasks-vision",version.ref = "mediapipe"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
