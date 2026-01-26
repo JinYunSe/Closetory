@@ -51,7 +51,7 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
         }
 
         // FAB 클릭 시 AddClose 화면으로 이동한다.
-        binding.fabAdd.setOnClickListener { navigateTo(navController, R.id.navigation_add_close) }
+        binding.fabAdd.setOnClickListener { navigateTo(navController, R.id.navigation_registration_close) }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val active = items.firstOrNull { it.destinationId == destination.id }

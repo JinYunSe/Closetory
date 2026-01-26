@@ -4,6 +4,7 @@
     <string name="title_closet">옷장</string>
     <string name="title_styling">코디</string>
     <string name="title_my_page">내 정보</string>
+    <string name="title_registration_cloth">옷 추가</string>
     <string name="title_add_cloth">옷 추가</string>
     <string name="desc_add">Add</string>
     <string name="title_add_close">AddClose</string>
