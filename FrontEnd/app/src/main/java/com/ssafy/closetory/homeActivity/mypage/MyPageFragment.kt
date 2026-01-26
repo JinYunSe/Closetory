@@ -2,9 +2,14 @@ package com.ssafy.closetory.homeActivity.mypage
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.AuthActivity
@@ -12,26 +17,34 @@ import com.ssafy.closetory.authActivity.logout.LogoutViewModel
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
 import com.ssafy.closetory.util.AuthManager
+import kotlinx.coroutines.launch
 
 class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding::bind, R.layout.fragment_my_page) {
 
     private val logoutViewModel: LogoutViewModel by viewModels()
+    private val myPageViewModel: MyPageViewModel by viewModels()
+
+    private var passwordDialog: AlertDialog? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 로그아웃 버튼 이벤트
         binding.btnLogout.setOnClickListener {
             showLogoutDialog()
         }
 
-        // 회원정보 수정 화면 이동 (추가)
+        // 회원정보 수정 진입 전 비밀번호 확인 이벤트
         binding.tvEditProfile.setOnClickListener {
-            findNavController().navigate(R.id.action_navigation_my_page_to_editProfileFragment)
+            showPasswordCheckDialog()
         }
+
         observeLogout()
         observeMessage()
+        observePasswordCheck()
     }
 
+    // 로그아웃 다이얼로그
     private fun showLogoutDialog() {
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle("로그아웃")
@@ -42,7 +55,6 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
             .setNegativeButton("취소", null)
             .show()
 
-        // 버튼 색상 변경
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             .setTextColor(requireContext().getColor(R.color.main_color))
 
@@ -50,6 +62,7 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
             .setTextColor(requireContext().getColor(R.color.gray_500))
     }
 
+    // 로그아웃 요청
     private fun requestLogout() {
         val authManager = AuthManager(requireContext())
         val token = authManager.getAccessToken() ?: return
@@ -59,6 +72,7 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
         )
     }
 
+    // 로그아웃 옵저버
     private fun observeLogout() {
         logoutViewModel.logoutSuccess.observe(viewLifecycleOwner) { success ->
             if (success) {
@@ -79,5 +93,82 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
                 showToast(it)
             }
         }
+    }
+
+    // 비밀번호 확인 다이얼로그
+    private fun showPasswordCheckDialog() {
+        val dialogView =
+            layoutInflater.inflate(R.layout.dialog_password_check, null)
+
+        val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
+        val btnToggle = dialogView.findViewById<ImageButton>(R.id.btnTogglePassword)
+        val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirm)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+
+        var visible = false
+
+        btnToggle.setOnClickListener {
+            visible = togglePasswordVisibility(etPassword, visible)
+        }
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        passwordDialog = dialog
+
+        // 비밀번호 확인의 취소 버튼
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        // 비밀번호 확인의 확인 버튼
+        btnConfirm.setOnClickListener {
+            val password = etPassword.text.toString()
+
+            // 사용자 입력 검증 (Fragment에서)
+            if (password.isBlank()) {
+                showToast("비밀번호를 입력해주세요.")
+                return@setOnClickListener
+            }
+
+            myPageViewModel.checkPassword(password)
+        }
+
+        dialog.show()
+    }
+
+    private fun observePasswordCheck() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            myPageViewModel.passwordVerified.collect { success ->
+                if (success) {
+                    passwordDialog?.dismiss()
+                    passwordDialog = null
+
+                    findNavController()
+                        .navigate(R.id.action_navigation_my_page_to_editProfileFragment)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            myPageViewModel.message.collect { msg ->
+                showToast(msg)
+            }
+        }
+    }
+
+    // 비밀번호 표시/숨김 토글
+    private fun togglePasswordVisibility(editText: EditText, isVisible: Boolean): Boolean {
+        editText.inputType =
+            if (isVisible) {
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            } else {
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            }
+
+        editText.setSelection(editText.text.length)
+        return !isVisible
     }
 }
