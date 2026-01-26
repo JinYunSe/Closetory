@@ -48,6 +48,21 @@ public class S3ImageServiceImpl implements S3ImageService {
     }
   }
 
+  // ai 생성 사진 (byte) 변환용
+  public String upload(byte[] imageBytes, String fileName) {
+    String key = prefix + UUID.randomUUID() + "-" + fileName;
+
+    PutObjectRequest req = PutObjectRequest.builder()
+      .bucket(bucket)
+      .key(key)
+      .contentType("image/png") // PNG 고정
+      .build();
+
+    s3.putObject(req, RequestBody.fromBytes(imageBytes));
+
+    return publicBaseUrl + "/" + key;
+  }
+
   @Override
   public void deleteByUrl(String url) {
     String key = url.replace(publicBaseUrl + "/", "");

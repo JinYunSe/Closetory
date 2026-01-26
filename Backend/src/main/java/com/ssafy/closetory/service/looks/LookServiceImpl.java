@@ -1,7 +1,6 @@
 package com.ssafy.closetory.service.looks;
 
 import com.ssafy.closetory.dto.looks.VirtualFittingRequest;
-import com.ssafy.closetory.dto.looks.VirtualFittingResponse;
 import com.ssafy.closetory.entity.clothes.Clothes;
 import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.exception.common.BadRequestException;
@@ -38,7 +37,7 @@ public class LookServiceImpl implements LookService {
   };
 
   @Override
-  public VirtualFittingResponse requestFitting(Integer userId, VirtualFittingRequest request) {
+  public byte[] requestFitting(Integer userId, VirtualFittingRequest request) {
 
     User user =
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
@@ -89,8 +88,9 @@ public class LookServiceImpl implements LookService {
           .contentType(MediaType.MULTIPART_FORM_DATA)
           .body(BodyInserters.fromMultipartData(builder.build()))
           .retrieve()
-          .bodyToMono(VirtualFittingResponse.class)
+          .bodyToMono(byte[].class)
           .block();
+
     } catch (Exception e) {
       throw new RuntimeException("AI 서버와 통신 중 오류가 발생했습니다.");
     }
