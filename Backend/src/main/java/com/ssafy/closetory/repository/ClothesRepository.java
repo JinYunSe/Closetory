@@ -13,19 +13,14 @@ public interface ClothesRepository extends JpaRepository<Clothes, Integer> {
       """
     select distinct c
     from Clothes c
-    where c.deletedAt is null
-
-      and (
-        (:onlyMine = true and c.userId = :userId)
+    where (
+        (c.userId = :userId and c.deletedAt is null)
         or
-        (:onlyMine = false and (
-          c.userId = :userId
-          or exists (
+        (:onlyMine = false and c.userId <> :userId and exists (
             select 1
             from Save s
             where s.user.id = :userId
               and s.clothes.id = c.id
-          )
         ))
       )
 
@@ -65,5 +60,7 @@ public interface ClothesRepository extends JpaRepository<Clothes, Integer> {
       @Param("tagIds") List<Integer> tagIds,
       @Param("tagIdsEmpty") boolean tagIdsEmpty);
 
-  Optional<Clothes> getClothesById(Integer id);
+  Optional<Clothes> getClothesByIdAndDeletedAtIsNull(Integer id);
+
+  Optional<Clothes> findByIdAndDeletedAtIsNull(Integer id);
 }
