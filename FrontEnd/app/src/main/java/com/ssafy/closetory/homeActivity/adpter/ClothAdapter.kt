@@ -30,11 +30,11 @@ class ClothAdapter : ListAdapter<ClothItemDto, ClothAdapter.ViewHodler>(diffCall
     inner class ViewHodler(private val binding: ItemClothBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: ClothItemDto) = with(binding) {
-            Log.d(TAG, "SERVER URL : ${ApplicationClass.SERVER_URL}")
+            Log.d(TAG, "SERVER URL : ${ApplicationClass.API_BASE_URL}")
             Log.d(TAG, "clothesId : ${item.clothesId}")
             Log.d(TAG, "photoUrl : ${item.photoUrl}")
 
-            val imageUrl = "${ApplicationClass.SERVER_URL}${item.photoUrl}"
+            val imageUrl = "${ApplicationClass.API_BASE_URL}${item.photoUrl}"
 
             Glide.with(binding.imgBtn.context)
                 .load(imageUrl)
