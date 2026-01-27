@@ -9,7 +9,12 @@
         android:id="@+id/navigation_home"
         android:name="com.ssafy.closetory.homeActivity.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_home_to_post_list"
+            app:destination="@id/navigation_post_list" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_closet"
@@ -58,4 +63,10 @@
         android:name="com.ssafy.closetory.homeActivity.registrationCloth.RegistrationClothFragment"
         android:label="@string/title_registration_cloth"
         tools:layout="@layout/fragment_registration_cloth" />
+
+    <fragment
+        android:id="@+id/navigation_post_list"
+        android:name="com.ssafy.closetory.homeActivity.post.PostListFragment"
+        android:label="PostList"
+        tools:layout="@layout/fragment_post_main" />
 </navigation>

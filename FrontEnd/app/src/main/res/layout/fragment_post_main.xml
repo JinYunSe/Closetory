@@ -98,7 +98,9 @@
                 android:layout_weight="1"
                 android:checked="true"
                 android:text="최신순"
-                android:textSize="10sp" />
+                android:textSize="10sp"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"/>
 
             <RadioButton
                 android:id="@+id/rbPopular"
