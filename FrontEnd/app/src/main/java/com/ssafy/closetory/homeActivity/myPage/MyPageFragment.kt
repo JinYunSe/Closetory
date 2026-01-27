@@ -1,10 +1,11 @@
-package com.ssafy.closetory.homeActivity.mypage
+package com.ssafy.closetory.homeActivity.myPage
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.AuthActivity
 import com.ssafy.closetory.authActivity.logout.LogoutViewModel
@@ -24,6 +25,10 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
         }
         observeLogout()
         observeMessage()
+
+        binding.btnCodyRepository.setOnClickListener {
+            findNavController().navigate(R.id.navigation_cody_repository)
+        }
     }
 
     private fun showLogoutDialog() {

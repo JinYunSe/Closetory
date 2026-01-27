@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fl_date"
+    android:layout_width="@dimen/gridWidth"
+    android:layout_height="@dimen/gridWidth"
+    android:layout_margin="@dimen/gridMargin">
+
+    <!-- 선택/오늘/기본 배경을 여기 View로 통제 -->
+    <View
+        android:id="@+id/v_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_calendar_border" />
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="@dimen/textSize"
+        android:textColor="@color/textColor"
+        android:textStyle="bold"/>
+</FrameLayout>

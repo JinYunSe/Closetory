@@ -1,8 +1,11 @@
 package com.ssafy.closetory.homeActivity.styling
 
 import com.ssafy.closetory.ApplicationClass
+import com.ssafy.closetory.dto.AiFittingRequest
+import com.ssafy.closetory.dto.AiFittingResponse
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.ClosetResponse
+import com.ssafy.closetory.dto.SaveLookRequest
 import com.ssafy.closetory.homeActivity.closet.ClosetService
 import retrofit2.Response
 
@@ -16,9 +19,7 @@ class StylingRepository {
     private val stylingService: StylingService =
         ApplicationClass.retrofit.create(StylingService::class.java)
 
-    /**
-     * 의류 리스트 조회 (ClosetService 재사용)
-     */
+    // 의류 리스트 조회 (ClosetService 재사용)
     suspend fun getClothesList(
         tags: List<Int>?,
         color: String?,
@@ -31,9 +32,10 @@ class StylingRepository {
         onlyMine
     )
 
-    /**
-     * 룩 저장
-     */
-    suspend fun saveLook(request: SaveLookRequest): Response<ApiResponse<SaveLookResponse>> =
-        stylingService.saveLook(request)
+    // 룩 저장
+    suspend fun saveLook(request: SaveLookRequest): Response<ApiResponse<Unit>> = stylingService.saveLook(request)
+
+    // AI 가상 피팅
+    suspend fun requestAiFitting(request: AiFittingRequest): Response<ApiResponse<AiFittingResponse>> =
+        stylingService.requestAiFitting(request)
 }

@@ -4,7 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".homeActivity.mypage.MyPageFragment">
+    tools:context=".homeActivity.myPage.MyPageFragment">
+
+
+    <!-- 위쪽 빈 공간 -->
 
     <Space
         android:layout_width="match_parent"
@@ -12,6 +15,7 @@
         android:layout_weight="2" />
 
 
+    <!-- 중앙 텍스트 -->
     <TextView
         android:id="@+id/text_my_page"
         android:layout_width="match_parent"
@@ -22,6 +26,7 @@
         android:textColor="@color/black"
         android:textSize="20sp" />
 
+    <!-- 로그아웃 버튼 -->
     <Button
         android:id="@+id/btnLogout"
         android:layout_width="wrap_content"
@@ -59,6 +64,9 @@
 
     </LinearLayout>
 
+
+
+    <!-- 아래쪽 여백 (필요 없으면 제거 가능) -->
     <Space
         android:layout_width="match_parent"
         android:layout_height="0dp"

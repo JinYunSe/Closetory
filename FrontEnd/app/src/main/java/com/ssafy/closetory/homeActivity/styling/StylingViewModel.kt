@@ -5,12 +5,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ssafy.closetory.dto.AiFittingRequest
 import com.ssafy.closetory.dto.ClosetResponse
+import com.ssafy.closetory.dto.SaveLookRequest
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val TAG = "StylingViewModel_싸피"
 
 class StylingViewModel : ViewModel() {
+
+    // 가상 데이터 생성
+    private val _aiImageUrl = MutableLiveData<String?>()
+    val aiImageUrl: LiveData<String?> = _aiImageUrl
 
     private val repository = StylingRepository()
 
@@ -66,32 +73,30 @@ class StylingViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 룩 저장
-     * 순서: Top, Bottom, Shoes, Outer, Accessory, Bag
-     */
-    fun saveLook(clothesIdList: List<Long>) {
+    // 룩 저장
+    fun saveLook(clothesIdList: List<Int>) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 _errorMessage.value = null
 
-                // 빈 리스트 체크
-                if (clothesIdList.all { it == -1L }) {
+                if (clothesIdList.all { it == -1 }) {
                     _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요"
                     _isLoading.value = false
                     return@launch
                 }
 
-                val request = SaveLookRequest(clothesIdList = clothesIdList)
+                val request = SaveLookRequest(clothIdList = clothesIdList)
                 Log.d(TAG, "saveLook 요청: $request")
 
                 val response = repository.saveLook(request)
 
                 if (response.isSuccessful) {
                     val body = response.body()
-                    Log.d(TAG, "saveLook 성공: ${body?.data}")
-                    _successMessage.value = "코디가 저장되었습니다!"
+                    // data가 없으므로 responseMessage만 사용
+                    val message = body?.responseMessage ?: "코디가 저장되었습니다!"
+                    Log.d(TAG, "saveLook 성공: $message")
+                    _successMessage.value = message
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e(TAG, "saveLook 실패 - 코드: ${response.code()}, 메시지: $errorBody")
@@ -99,6 +104,37 @@ class StylingViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "saveLook 예외 발생", e)
+                _errorMessage.value = "네트워크 오류: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // AI 가상피팅 결과 URL
+    fun requestAiFitting(clothIdList: List<Int>) { // List<Long> → List<Int>
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+                _errorMessage.value = null
+                _aiImageUrl.value = null
+
+                if (clothIdList.all { it == -1 }) { // .toInt() 제거
+                    _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요."
+                    return@launch
+                }
+
+                val request = AiFittingRequest(clothIdList)
+                val response = repository.requestAiFitting(request)
+
+                if (response.isSuccessful) {
+                    val url = response.body()?.data?.aiImageUrl
+                    _aiImageUrl.value = url
+                    _successMessage.value = "가상 피팅 성공!"
+                } else {
+                    _errorMessage.value = "가상피팅에 실패했습니다."
+                }
+            } catch (e: Exception) {
                 _errorMessage.value = "네트워크 오류: ${e.message}"
             } finally {
                 _isLoading.value = false
