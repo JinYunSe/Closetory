@@ -1,6 +1,7 @@
 package com.ssafy.closetory.homeActivity.registrationCloth
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -12,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import androidx.fragment.app.viewModels
+import com.bumptech.glide.Glide
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentRegistrationClothBinding
@@ -22,6 +24,7 @@ import com.ssafy.closetory.util.PermissionChecker
 import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
 import java.io.File
+import kotlin.math.log
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -53,7 +56,7 @@ class RegistrationClothFragment :
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (!success) return@registerForActivityResult
             val uri = selectedImageUri ?: return@registerForActivityResult
-            onPhotoSelected(uri) // ✅ 카메라도 공통 처리
+            onPhotoSelected(uri) // 카메라도 공통 처리
         }
 
     // 갤러리 Uri 받기
@@ -61,7 +64,7 @@ class RegistrationClothFragment :
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri == null) return@registerForActivityResult
 
-            // ✅ 갤러리 Uri를 cache/images에 "closetory_*.png"로 저장해서 통일 Uri로 변환
+            // 갤러리 Uri를 cache/images에 "closetory_*.png"로 저장해서 통일 Uri로 변환
             val normalized = copyUriAsPngToCache(uri)
             if (normalized == null) {
                 showToast("이미지 처리에 실패했습니다.")
@@ -151,6 +154,8 @@ class RegistrationClothFragment :
                 color = selectedColor!!
             )
         }
+
+        registerObserve()
     }
 
     // 사진 선택 공통 처리 (항상 "통일된 Uri"만 들어오게 설계)
@@ -163,6 +168,8 @@ class RegistrationClothFragment :
         val multipart: MultipartBody.Part = uriToMultipart(uri)
         Log.d(TAG, "normalized uri = $uri, multipart size prepared")
         // 서버 전송은 ViewModel에서 처리
+
+        registrationClothViewModel.removeImageBackground(multipart)
     }
 
     private fun updatePhotoPlaceholder(isPhotoSelected: Boolean) {
@@ -196,7 +203,7 @@ class RegistrationClothFragment :
         selectedImageUri?.let { takePicture.launch(it) }
     }
 
-    // 통일된 파일 Uri 생성 (cache/images/closetory_*.png)
+    // 통일된 파일 Uri 생성
     private fun createImageUri(): Uri? = try {
         val dir = File(requireContext().cacheDir, "images").apply { mkdirs() }
         val file = File(dir, "closetory_${System.currentTimeMillis()}.png")
@@ -209,7 +216,6 @@ class RegistrationClothFragment :
         null
     }
 
-    // ✅ 갤러리 Uri를 PNG로 재인코딩해서 cache/images/closetory_*.png 로 저장 후, FileProvider Uri 반환
     private fun copyUriAsPngToCache(sourceUri: Uri): Uri? {
         return try {
             val cr = requireContext().contentResolver
@@ -240,11 +246,21 @@ class RegistrationClothFragment :
         val bytes = cr.openInputStream(uri)?.use { it.readBytes() }
             ?: throw IllegalStateException("이미지 스트림을 열 수 없습니다: $uri")
 
-        // 지금은 통일해서 PNG로 만들었으니 image/png로 고정 가능
         val requestBody = bytes.toRequestBody("image/png".toMediaTypeOrNull())
         val fileName = "closetory_${System.currentTimeMillis()}.png"
 
-        // ⚠️ 서버에서 @RequestPart("photo") / @RequestParam("photo") 등 이름이 뭐냐에 맞춰야 함
         return MultipartBody.Part.createFormData("photo", fileName, requestBody)
+    }
+
+    @SuppressLint("CheckResult")
+    private fun registerObserve() {
+        registrationClothViewModel.maskedImage.observe(viewLifecycleOwner) { url ->
+
+            Log.d(TAG, "서버로 부터 전달 받은 url : $url")
+            Glide.with(binding.imbtnRegistrationCloth)
+                .load(url)
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.error)
+        }
     }
 }

@@ -4,16 +4,20 @@ import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.MaskedImageResponse
 import com.ssafy.closetory.dto.OriginalImageRequest
 import com.ssafy.closetory.dto.RegistrationClothRequest
+import okhttp3.MultipartBody
 import retrofit2.Response
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 
 interface RegistrationClothService {
 
     @POST("clothes")
     suspend fun registrationCloth(registrationClothRequest: RegistrationClothRequest): Response<ApiResponse<Unit>>
 
-    @POST("masking")
+    @Multipart
+    @POST("clothes/masking")
     suspend fun removeImageBackground(
-        originalImageRequest: OriginalImageRequest
+        @Part originalImageRequest: MultipartBody.Part
     ): Response<ApiResponse<MaskedImageResponse>>
 }

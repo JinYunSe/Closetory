@@ -55,16 +55,20 @@ class RegistrationClothViewModel : ViewModel() {
     fun removeImageBackground(binary: MultipartBody.Part) {
         viewModelScope.launch {
             try {
+                Log.d(TAG, "보낼 바이너리 사진 $binary")
+
                 val res = repository.removeImageBackground(
-                    OriginalImageRequest(binary)
+                    binary
                 )
 
                 if (res.isSuccessful) {
                     val data = res.body()!!.data!!
                     _maskedImage.value = data.maskedImage
+                    Log.d(TAG, "통신 받은 결과 ${_maskedImage.value}")
                 } else {
                     val errorMessage = res.body()!!.errorMessage!!
                     _message.emit(errorMessage)
+                    Log.d(TAG, "통신 받은 결과 실패 $errorMessage")
                 }
             } catch (e: Exception) {
                 Log.d(TAG, "removeImageBackground: ${e.message}")

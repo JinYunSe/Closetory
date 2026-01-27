@@ -5,6 +5,7 @@ import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.MaskedImageResponse
 import com.ssafy.closetory.dto.OriginalImageRequest
 import com.ssafy.closetory.dto.RegistrationClothRequest
+import okhttp3.MultipartBody
 import retrofit2.Response
 
 class RegistrationClothRepository {
@@ -18,6 +19,6 @@ class RegistrationClothRepository {
         )
 
     suspend fun removeImageBackground(
-        originalImageRequest: OriginalImageRequest
+        originalImageRequest: MultipartBody.Part
     ): Response<ApiResponse<MaskedImageResponse>> = service.removeImageBackground(originalImageRequest)
 }
