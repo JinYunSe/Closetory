@@ -37,6 +37,8 @@ class RegistrationClothViewModel : ViewModel() {
                     )
                 )
 
+                Log.d(TAG, "옷 등록 통신 결과 ${res.body()?.data!!}")
+
                 if (res.isSuccessful) {
                     val body = res.body()!!
                     _message.emit(body.responseMessage!!)

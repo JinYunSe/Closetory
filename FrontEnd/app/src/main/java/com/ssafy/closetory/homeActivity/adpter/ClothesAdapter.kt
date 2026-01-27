@@ -34,13 +34,11 @@ class ClothAdapter : ListAdapter<ClothItemDto, ClothAdapter.ViewHodler>(diffCall
             Log.d(TAG, "clothesId : ${item.clothesId}")
             Log.d(TAG, "photoUrl : ${item.photoUrl}")
 
-            val imageUrl = "${ApplicationClass.API_BASE_URL}${item.photoUrl}"
-
-            Glide.with(binding.imgBtn.context)
-                .load(imageUrl)
+            Glide.with(binding.ivPhoto)
+                .load(item.photoUrl)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.error)
-                .into(binding.imgBtn)
+                .into(binding.ivPhoto)
 
             // 클릭 시 프래그먼트에 알림
             imgBtn.setOnClickListener {

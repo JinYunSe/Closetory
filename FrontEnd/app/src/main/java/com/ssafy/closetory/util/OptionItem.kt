@@ -6,4 +6,4 @@ package com.ssafy.closetory.util
 // => 즉, 지금은 한국어와 영어에 대한 위의 메서드가 있는 클래스를 만든 상태가 됩니다.
 
 //                  UI에 표기할 한국어             서버로 보낼 영어
-data class OptionItem(val labelKorean: String, val code: Int)
+data class OptionItem(val codeEnglish: String?, val codeKorean: String, val code: Int)
