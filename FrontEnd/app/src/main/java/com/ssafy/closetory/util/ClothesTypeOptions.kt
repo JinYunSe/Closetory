@@ -15,7 +15,8 @@ object ClothTypeOptions {
         OptionItem("BOTTOM", "하의", 2),
         OptionItem("ACCESSORIES", "악세사리", 3),
         OptionItem("BAG", "가방", 4),
-        OptionItem("OUTER", "아우터", 5)
+        OptionItem("OUTER", "아우터", 5),
+        OptionItem("SHOES", "신발", 6)
     )
 
     private val byEnglish = items.associateBy { it.codeEnglish }
