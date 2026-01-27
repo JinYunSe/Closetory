@@ -18,6 +18,6 @@ interface ClosetService {
         @Query("onlyMine") onlyMine: Boolean?
     ): Response<ApiResponse<ClosetResponse>>
 
-    @GET("clothes/{clothes")
+    @GET("clothes/{clothesId}")
     suspend fun getClothesDetail(@Path("clothesId") clothesId: Int): Response<ApiResponse<ClothItemDto>>
 }

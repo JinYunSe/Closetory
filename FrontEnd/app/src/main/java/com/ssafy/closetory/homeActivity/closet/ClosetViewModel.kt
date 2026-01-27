@@ -60,9 +60,21 @@ class ClosetViewModel : ViewModel() {
                 if (res.isSuccessful) {
                     val data = res.body()?.data
                     _clothesData.value = data!!
+
+                    Log.d(TAG, "옷 상세 정보 통신 결과  clothesId : ${data.clothesId}")
+                    Log.d(TAG, "옷 상세 정보 통신 결과  photoUrl : ${data.photoUrl}")
+                    Log.d(TAG, "옷 상세 정보 통신 결과  tags : ${data.tags}")
+                    Log.d(TAG, "옷 상세 정보 통신 결과  clothesType : ${data.clothesType}")
+                    Log.d(TAG, "옷 상세 정보 통신 결과  color : ${data.color}")
+                    Log.d(TAG, "옷 상세 정보 통신 결과  isMine : ${data.isMine}")
+                    Log.d(TAG, "옷 상세 정보 통신 결과  seasons : ${data.seasons}")
+
                     Log.d(TAG, "옷 상세 정보 조회 결과 : $data")
                 } else {
                     val errorMessage = res.body()?.errorMessage
+
+                    Log.d(TAG, "옷 상세 정보 통신 결과  errorMessage : $errorMessage")
+
                     _errorMessage.emit(errorMessage)
                 }
             } catch (e: Exception) {
