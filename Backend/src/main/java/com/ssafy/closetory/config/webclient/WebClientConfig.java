@@ -11,13 +11,14 @@ public class WebClientConfig {
 
   @Bean
   public WebClient fastApiWebClient() {
-    ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
-      .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(20*1024*1024))
-      .build();
+    ExchangeStrategies exchangeStrategies =
+        ExchangeStrategies.builder()
+            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(20 * 1024 * 1024))
+            .build();
 
     return WebClient.builder()
-      .baseUrl("http://localhost:8000")
-      .exchangeStrategies(exchangeStrategies)
-      .build();
+        .baseUrl("http://localhost:8000")
+        .exchangeStrategies(exchangeStrategies)
+        .build();
   }
 }

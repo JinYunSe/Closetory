@@ -13,9 +13,15 @@ import com.ssafy.closetory.service.s3.S3ImageService;
 import java.time.LocalDateTime;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +32,8 @@ public class ClothesServiceImpl implements ClothesService {
   private final TagRepository tagRepository;
   private final SeasonRepository seasonRepository;
   private final S3ImageService s3ImageService;
+  private final WebClient fastApiWebClient;
+  private final RestClient.Builder builder;
 
   @Override
   public GetClosetResponse getCloset(Integer userId, GetClosetRequest request) {
@@ -175,6 +183,39 @@ public class ClothesServiceImpl implements ClothesService {
       return ClothesColor.valueOf(colorStr.trim().toUpperCase());
     } catch (IllegalArgumentException e) {
       throw new BadRequestException("color 값이 올바르지 않습니다. 예: BLACK, WHITE, RED");
+    }
+  }
+
+  @Override
+  public String createMaskingImage(byte[] rawImage) {
+
+    MultipartBodyBuilder builder = new MultipartBodyBuilder();
+
+    builder
+        .part(
+            "image",
+            new ByteArrayResource(rawImage) {
+              @Override
+              public String getFilename() {
+                return "masking_input.png"; // FastAPI가 '파일'로 인식하려면 이름이 필요함
+              }
+            })
+        .header("Content-Type", "image/png");
+
+    try {
+      byte[] responseImage =
+          fastApiWebClient
+              .post()
+              .uri("/masking")
+              .contentType(MediaType.MULTIPART_FORM_DATA)
+              .body(BodyInserters.fromMultipartData(builder.build()))
+              .retrieve()
+              .bodyToMono(byte[].class)
+              .block();
+
+      return s3ImageService.upload(responseImage, "result.png");
+    } catch (Exception e) {
+      throw new RuntimeException("AI 서버와 통신 중 오류가 발생했습니다.");
     }
   }
 }

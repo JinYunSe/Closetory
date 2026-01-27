@@ -52,11 +52,12 @@ public class S3ImageServiceImpl implements S3ImageService {
   public String upload(byte[] imageBytes, String fileName) {
     String key = prefix + UUID.randomUUID() + "-" + fileName;
 
-    PutObjectRequest req = PutObjectRequest.builder()
-      .bucket(bucket)
-      .key(key)
-      .contentType("image/png") // PNG 고정
-      .build();
+    PutObjectRequest req =
+        PutObjectRequest.builder()
+            .bucket(bucket)
+            .key(key)
+            .contentType("image/png") // PNG 고정
+            .build();
 
     s3.putObject(req, RequestBody.fromBytes(imageBytes));
 

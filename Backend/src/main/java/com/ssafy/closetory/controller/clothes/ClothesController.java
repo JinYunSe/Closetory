@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.closetory.dto.clothes.*;
 import com.ssafy.closetory.dto.common.ApiResponse;
 import com.ssafy.closetory.service.clothes.ClothesService;
+import com.ssafy.closetory.service.s3.S3ImageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +26,7 @@ public class ClothesController {
 
   private final ClothesService clothesService;
   private final ObjectMapper objectMapper;
+  private final S3ImageService s3ImageService;
 
   @GetMapping
   @Operation(summary = "옷장 조회")
@@ -91,5 +95,16 @@ public class ClothesController {
       @PathVariable Integer clothesId, @AuthenticationPrincipal Integer userId) {
     clothesService.deleteClothes(userId, clothesId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "옷 삭제 성공", null));
+  }
+
+  @PostMapping(value = "/masking", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @Operation(summary = "옷 누끼 따기")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Map<String, String>>> maskingImage(
+      @RequestParam("clothesPhotoUrl") MultipartFile file, @AuthenticationPrincipal Integer userId)
+      throws IOException {
+    String maskedImage = clothesService.createMaskingImage(file.getBytes());
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.ok(201, "옷 누끼 따기 성공", Map.of("maskedImage", maskedImage)));
   }
 }

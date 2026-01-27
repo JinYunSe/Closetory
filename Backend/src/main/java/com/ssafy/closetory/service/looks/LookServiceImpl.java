@@ -7,6 +7,7 @@ import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.ClothesRepository;
 import com.ssafy.closetory.repository.UserRepository;
+import com.ssafy.closetory.service.s3.S3ImageService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -30,6 +31,7 @@ public class LookServiceImpl implements LookService {
   private final ClothesRepository clothesRepository;
   private final UserRepository userRepository;
   private final WebClient fastApiWebClient;
+  private final S3ImageService s3ImageService;
 
   private static final String[] clothesType = {
     "top_image", "bottom_image", "shoes_image",
@@ -37,7 +39,7 @@ public class LookServiceImpl implements LookService {
   };
 
   @Override
-  public byte[] requestFitting(Integer userId, VirtualFittingRequest request) {
+  public String requestFitting(Integer userId, VirtualFittingRequest request) {
 
     User user =
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
@@ -82,15 +84,17 @@ public class LookServiceImpl implements LookService {
     }
 
     try {
-      return fastApiWebClient
-          .post()
-          .uri("/virtual-fitting")
-          .contentType(MediaType.MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(builder.build()))
-          .retrieve()
-          .bodyToMono(byte[].class)
-          .block();
+      byte[] response =
+          fastApiWebClient
+              .post()
+              .uri("/virtual-fitting")
+              .contentType(MediaType.MULTIPART_FORM_DATA)
+              .body(BodyInserters.fromMultipartData(builder.build()))
+              .retrieve()
+              .bodyToMono(byte[].class)
+              .block();
 
+      return s3ImageService.upload(response, "result.png");
     } catch (Exception e) {
       throw new RuntimeException("AI 서버와 통신 중 오류가 발생했습니다.");
     }
