@@ -14,4 +14,6 @@ public interface ClothesService {
       Integer userId, Integer clothesId, UpdateClothesRequest request, MultipartFile photo);
 
   void deleteClothes(Integer userId, Integer clothesId);
+
+  byte[] createMaskingImage(byte[] rawImage);
 }
