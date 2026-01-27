@@ -41,7 +41,7 @@ class ApplicationClass : Application() {
         gson = GsonBuilder().setLenient().create()
 
         val client: OkHttpClient = OkHttpClient.Builder()
-            .readTimeout(5000, TimeUnit.MILLISECONDS)
+            .readTimeout(60000, TimeUnit.MILLISECONDS)
             .connectTimeout(5000, TimeUnit.MILLISECONDS)
             .addInterceptor(AuthInterceptor())
             .authenticator(TokenAuthenticator(RefreshService.api))
