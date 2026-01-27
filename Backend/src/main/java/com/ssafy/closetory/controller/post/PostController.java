@@ -1,33 +1,43 @@
 package com.ssafy.closetory.controller.post;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.closetory.dto.common.ApiResponse;
 import com.ssafy.closetory.dto.post.PostCreateRequest;
 import com.ssafy.closetory.dto.post.PostCreateResponse;
 import com.ssafy.closetory.service.post.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/posts")
 public class PostController {
   private final PostService postService;
+  private final ObjectMapper objectMapper;
 
-  @PostMapping()
+  @PostMapping(
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "게시글 등록")
   @SecurityRequirement(name = "bearerAuth")
-  ResponseEntity<ApiResponse<PostCreateResponse>> createPost(
-      @AuthenticationPrincipal Integer userId, @Valid @RequestBody PostCreateRequest request) {
-    PostCreateResponse response = postService.createPost(userId, request);
+  public ResponseEntity<ApiResponse<PostCreateResponse>> createPost(
+      @RequestPart(value = "photo") MultipartFile photo,
+      @RequestPart("request") String requestJson,
+      @AuthenticationPrincipal Integer userId)
+      throws JsonProcessingException {
+    PostCreateRequest request = objectMapper.readValue(requestJson, PostCreateRequest.class);
+    PostCreateResponse response = postService.createPost(userId, request, photo);
 
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.ok(201, "게시글 등록 완료", response));
