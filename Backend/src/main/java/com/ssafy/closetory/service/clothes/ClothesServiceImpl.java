@@ -79,7 +79,7 @@ public class ClothesServiceImpl implements ClothesService {
   public GetClothesDetailResponse getClothesDetail(Integer userId, Integer clothesId) {
     Clothes clothes =
         clothesRepository
-            .getClothesByIdAndDeletedAtIsNull(clothesId)
+            .getClothesById(clothesId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 옷입니다."));
     return GetClothesDetailResponse.from(clothes, userId);
   }

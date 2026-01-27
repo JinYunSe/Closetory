@@ -60,7 +60,7 @@ public interface ClothesRepository extends JpaRepository<Clothes, Integer> {
       @Param("tagIds") List<Integer> tagIds,
       @Param("tagIdsEmpty") boolean tagIdsEmpty);
 
-  Optional<Clothes> getClothesByIdAndDeletedAtIsNull(Integer id);
+  Optional<Clothes> getClothesById(Integer id);
 
   Optional<Clothes> findByIdAndDeletedAtIsNull(Integer id);
 }
