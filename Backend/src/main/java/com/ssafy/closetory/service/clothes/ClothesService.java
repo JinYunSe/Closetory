@@ -15,5 +15,5 @@ public interface ClothesService {
 
   void deleteClothes(Integer userId, Integer clothesId);
 
-  byte[] createMaskingImage(byte[] rawImage);
+  String createMaskingImage(byte[] rawImage);
 }

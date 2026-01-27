@@ -187,7 +187,7 @@ public class ClothesServiceImpl implements ClothesService {
   }
 
   @Override
-  public byte[] createMaskingImage(byte[] rawImage) {
+  public String createMaskingImage(byte[] rawImage) {
 
     MultipartBodyBuilder builder = new MultipartBodyBuilder();
 
@@ -203,15 +203,17 @@ public class ClothesServiceImpl implements ClothesService {
         .header("Content-Type", "image/png");
 
     try {
-      return fastApiWebClient
-          .post()
-          .uri("/masking")
-          .contentType(MediaType.MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(builder.build()))
-          .retrieve()
-          .bodyToMono(byte[].class)
-          .block();
+      byte[] responseImage =
+          fastApiWebClient
+              .post()
+              .uri("/masking")
+              .contentType(MediaType.MULTIPART_FORM_DATA)
+              .body(BodyInserters.fromMultipartData(builder.build()))
+              .retrieve()
+              .bodyToMono(byte[].class)
+              .block();
 
+      return s3ImageService.upload(responseImage, "result.png");
     } catch (Exception e) {
       throw new RuntimeException("AI 서버와 통신 중 오류가 발생했습니다.");
     }

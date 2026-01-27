@@ -103,12 +103,8 @@ public class ClothesController {
   public ResponseEntity<ApiResponse<Map<String, String>>> maskingImage(
       @RequestParam("clothesPhotoUrl") MultipartFile file, @AuthenticationPrincipal Integer userId)
       throws IOException {
-
-    byte[] imageBytes = file.getBytes();
-    byte[] responseImage = clothesService.createMaskingImage(imageBytes);
-    String maskedImage = s3ImageService.upload(responseImage, "result.png");
-
-    return ResponseEntity.status(HttpStatus.OK)
+    String maskedImage = clothesService.createMaskingImage(file.getBytes());
+    return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.ok(201, "옷 누끼 따기 성공", Map.of("maskedImage", maskedImage)));
   }
 }
