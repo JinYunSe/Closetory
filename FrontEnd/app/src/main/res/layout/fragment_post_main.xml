@@ -73,7 +73,7 @@
         android:id="@+id/rgPostOption"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="2dp"
         android:layout_marginStart="150dp"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@+id/llSearch"
@@ -99,8 +99,7 @@
                 android:checked="true"
                 android:text="최신순"
                 android:textSize="10sp"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"/>
+                android:paddingStart="6dp"/>
 
             <RadioButton
                 android:id="@+id/rbPopular"
@@ -138,8 +137,7 @@
                 android:paddingBottom="0dp"
                 android:text="내가 쓴 게시글 보기"
                 android:textSize="10sp"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp" />
+                android:paddingStart="6dp" />
 
             <RadioButton
                 android:id="@+id/rbLiked"

@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
@@ -74,6 +75,11 @@ class PostListFragment :
         // 검색 버튼 클릭 시: keyword 포함해서 요청
         binding.btnSearch.setOnClickListener {
             requestPosts(keyword = getKeywordOrNull())
+        }
+
+        // 게시글 생성 버튼 클릭 시: 게시글 생성 화면으로 이동
+        binding.btnCreatePost.setOnClickListener {
+            findNavController().navigate(R.id.action_post_list_to_post_create)
         }
     }
 
