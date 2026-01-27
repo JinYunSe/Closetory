@@ -25,8 +25,6 @@ class ClothesDetailFragment :
 
     private lateinit var homeActivity: HomeActivity
 
-    private var isExistedBookMark = false
-
     private var isRental = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -73,7 +71,7 @@ class ClothesDetailFragment :
                 .into(binding.ivPhoto)
 
             binding.tvType.text = ClothTypeOptions.englishToKorean(item.clothesType)
-            binding.tvSeasons.text = item.seasons?.joinToString(" . ")
+            binding.tvSeasons.text = item.seasons?.joinToString(" · ")
             binding.tvColor.text = ColorOptions.englishToKorean(item.color)
 
             binding.cgTags.removeAllViews()
