@@ -126,5 +126,16 @@ object ColorOptions {
             if (selectedPos == RecyclerView.NO_POSITION) return null
             return items[selectedPos].codeEnglish
         }
+
+        fun setSelectedColor(codeEnglish: String) {
+            val key = codeEnglish.trim().uppercase()
+            val newPos = items.indexOfFirst { it.codeEnglish.uppercase() == key }
+
+            val prev = selectedPos
+            selectedPos = if (newPos >= 0) newPos else RecyclerView.NO_POSITION
+
+            if (prev != RecyclerView.NO_POSITION) notifyItemChanged(prev)
+            if (selectedPos != RecyclerView.NO_POSITION) notifyItemChanged(selectedPos)
+        }
     }
 }

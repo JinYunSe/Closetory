@@ -70,6 +70,8 @@ object ClothTypeOptions {
         }
     }
 
+    fun englishToKorean(code: String?): String? = byEnglish[code]?.codeKorean
+
     fun getClothType(sectionRoot: View): Int? {
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
         val id = group.checkedChipId
@@ -80,5 +82,18 @@ object ClothTypeOptions {
         }
     }
 
-    fun englishToKorean(code: String?): String? = byEnglish[code]?.codeKorean
+    fun setClothType(sectionRoot: View, clothType: Int) {
+        val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
+
+        // tag(code) == clothType 인 chip을 찾아 check
+        val targetChip = (0 until group.childCount)
+            .mapNotNull { group.getChildAt(it) as? Chip }
+            .firstOrNull { (it.tag as? Int) == clothType }
+
+        if (targetChip == null) {
+            group.clearCheck()
+        } else {
+            group.check(targetChip.id)
+        }
+    }
 }

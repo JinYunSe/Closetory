@@ -74,4 +74,16 @@ object SeasonOptions {
             .filter { it.isChecked }
             .map { it.tag as Int }
     }
+
+    fun setSelectedSeason(sectionRoot: View, selected: List<Int>) {
+        val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
+        val selectedSet = selected.toSet()
+
+        (0 until group.childCount)
+            .mapNotNull { group.getChildAt(it) as? Chip }
+            .forEach { chip ->
+                val code = chip.tag as? Int ?: return@forEach
+                chip.isChecked = selectedSet.contains(code)
+            }
+    }
 }

@@ -17,9 +17,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 class ApplicationClass : Application() {
 
     companion object {
-
-        val SERVER_URL = "http://i14d102.p.ssafy.io:8080/api/v1/"
-
         lateinit var sharedPreferences: SharedPreferencesUtil
 
         lateinit var authManager: AuthManager

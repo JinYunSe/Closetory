@@ -6,6 +6,7 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentClothesDetailBinding
@@ -51,6 +52,36 @@ class ClothesDetailFragment :
                 isRental = true
                 binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
             }
+        }
+
+        // 본인 옷인 경우만 수정, 삭제 이미지 버튼이 보이게 처리해서
+        // 옷을 가져온 사람은 수정, 삭제 불가능
+        binding.ibtnEdit.setOnClickListener {
+            MaterialAlertDialogBuilder(homeActivity)
+                .setTitle("옷 정보 수정")
+                .setMessage("옷의 정보를 수정하시겠습니까?")
+                // 왼쪽에 "취소" 배치를 위해서
+                .setPositiveButton("취소", null)
+                // 오른쪽에 "수정" 배치를 위해서
+                .setNegativeButton("수정") { _, _ ->
+                    // TODO : 수정 화면으로 이동
+                }
+                .show()
+        }
+
+        // 본인 옷인 경우만 수정, 삭제 이미지 버튼이 보이게 처리해서
+        // 옷을 가져온 사람은 수정, 삭제 불가능
+        binding.ibtnDelete.setOnClickListener {
+            MaterialAlertDialogBuilder(homeActivity)
+                .setTitle("옷 삭제")
+                .setMessage("옷을 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.")
+                // 오른쪾에 "취소" 배치를 위해서
+                .setPositiveButton("취소", null)
+                // 오른쪽에 "삭제" 배치를 위해서
+                .setNegativeButton("삭제") { _, _ ->
+                    // TODO : 삭제 화면으로 이동
+                }
+                .show()
         }
     }
 
@@ -115,10 +146,12 @@ class ClothesDetailFragment :
             }
             // 본인 옷이면 북마크 안 보이게 설정
             if (item.isMine == true) {
-                binding.ibtnBookmark.visibility = View.GONE
+                binding.ibtnEdit.visibility = View.VISIBLE
+                binding.editLinearLayout.visibility = View.VISIBLE
             } else {
                 // 본인 옷이 아니면 남의 옷 가져온 상황
                 isRental = true
+                binding.editLinearLayout.visibility = View.GONE
                 binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
             }
         }
