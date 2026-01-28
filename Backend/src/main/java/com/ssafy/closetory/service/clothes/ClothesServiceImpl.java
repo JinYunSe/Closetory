@@ -19,7 +19,6 @@ import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -86,13 +85,10 @@ public class ClothesServiceImpl implements ClothesService {
 
   @Transactional
   @Override
-  public void addClothes(Integer userId, AddClothesRequest request, MultipartFile photo) {
-    String photoUrl;
-    photoUrl = s3ImageService.upload(photo);
-
+  public void addClothes(Integer userId, AddClothesRequest request) {
     Clothes clothes =
         Clothes.builder()
-            .photoUrl(photoUrl)
+            .photoUrl(request.photoUrl())
             .clothesType(request.clothesType())
             .color(request.color())
             .userId(userId)
@@ -100,7 +96,9 @@ public class ClothesServiceImpl implements ClothesService {
             .build();
 
     if (request.tags() != null && !request.tags().isEmpty()) {
-      List<Tag> tags = tagRepository.findAllById(request.tags());
+      List<Integer> tagIds = request.tags().stream().distinct().toList();
+
+      List<Tag> tags = tagRepository.findAllById(tagIds);
       if (tags.size() != request.tags().size()) {
         throw new NotFoundException("존재하지 않는 태그가 포함되어 있습니다.");
       }
@@ -108,7 +106,9 @@ public class ClothesServiceImpl implements ClothesService {
     }
 
     if (request.seasons() != null && !request.seasons().isEmpty()) {
-      List<Season> seasons = seasonRepository.findAllById(request.seasons());
+      List<Integer> seasonIds = request.seasons().stream().distinct().toList();
+
+      List<Season> seasons = seasonRepository.findAllById(seasonIds);
       if (seasons.size() != request.seasons().size()) {
         throw new NotFoundException("존재하지 않는 계절이 포함되어 있습니다.");
       }
@@ -121,22 +121,25 @@ public class ClothesServiceImpl implements ClothesService {
   @Transactional
   @Override
   public GetClothesDetailResponse updateClothes(
-      Integer userId, Integer clothesId, UpdateClothesRequest req, MultipartFile photo) {
+      Integer userId, Integer clothesId, UpdateClothesRequest req) {
 
     Clothes clothes =
         clothesRepository
             .findByIdAndDeletedAtIsNull(clothesId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 옷입니다."));
 
-    if (!clothes.getUserId().equals(userId)) {
+    if (!userId.equals(clothes.getUserId())) {
       throw new ForbiddenException("자신의 옷만 수정할 수 있습니다.");
     }
 
+    if (req.photoUrl() != null) clothes.setPhotoUrl(req.photoUrl());
     if (req.clothesType() != null) clothes.setClothesType(req.clothesType());
     if (req.color() != null) clothes.setColor(req.color());
     if (req.tags() != null) {
-      Set<Tag> newTags = new HashSet<>(tagRepository.findAllById(req.tags()));
-      if (newTags.size() != req.tags().size()) {
+      List<Integer> tagIds = req.tags().stream().distinct().toList();
+
+      List<Tag> newTags = tagRepository.findAllById(tagIds);
+      if (newTags.size() != tagIds.size()) {
         throw new BadRequestException("존재하지 않는 태그가 포함되어 있습니다.");
       }
       clothes.getTags().clear();
@@ -144,17 +147,14 @@ public class ClothesServiceImpl implements ClothesService {
     }
 
     if (req.seasons() != null) {
-      Set<Season> newSeasons = new HashSet<>(seasonRepository.findAllById(req.seasons()));
-      if (newSeasons.size() != req.seasons().size()) {
+      List<Integer> seasonIds = req.seasons().stream().distinct().toList();
+
+      List<Season> newSeasons = seasonRepository.findAllById(seasonIds);
+      if (newSeasons.size() != seasonIds.size()) {
         throw new BadRequestException("존재하지 않는 계절이 포함되어 있습니다.");
       }
       clothes.getSeasons().clear();
       clothes.getSeasons().addAll(newSeasons);
-    }
-
-    if (photo != null && !photo.isEmpty()) {
-      String newUrl = s3ImageService.upload(photo);
-      clothes.setPhotoUrl(newUrl);
     }
 
     return GetClothesDetailResponse.from(clothes, userId);

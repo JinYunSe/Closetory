@@ -41,7 +41,7 @@ public class Clothes {
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
       name = "clothes_seasons",
       joinColumns = @JoinColumn(name = "clothes_id"),
@@ -49,7 +49,7 @@ public class Clothes {
   @Builder.Default
   private Set<Season> seasons = new HashSet<>();
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
       name = "tags_clothes",
       joinColumns = @JoinColumn(name = "clothes_id"),
