@@ -20,5 +20,5 @@ interface RegistrationClothService {
     // 배경 제거
     @Multipart
     @POST("clothes/masking")
-    suspend fun removeImageBackground(photo: MultipartBody.Part): Response<ApiResponse<MaskedImageResponse>>
+    suspend fun removeImageBackground(@Part photo: MultipartBody.Part): Response<ApiResponse<MaskedImageResponse>>
 }
