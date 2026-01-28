@@ -89,7 +89,8 @@ class StylingViewModel : ViewModel() {
                     return@launch
                 }
 
-                val request = SaveLookRequest(clothIdList = clothesIdList)
+                val request = SaveLookRequest(clothesIdList = clothesIdList)
+
                 Log.d(TAG, "saveLook 요청: $request")
 
                 val response = repository.saveLook(request)
@@ -113,19 +114,23 @@ class StylingViewModel : ViewModel() {
     }
 
     // AI 가상피팅 결과 URL
-    fun requestAiFitting(clothIdList: List<Int>) { // List<Long> → List<Int>
+
+    fun requestAiFitting(clothesIdList: List<Int>) { // List<Long> → List<Int>
+
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 _errorMessage.value = null
                 _aiImageUrl.value = null
 
-                if (clothIdList.all { it == -1 }) { // .toInt() 제거
+                if (clothesIdList.all { it == -1 }) { // .toInt() 제거
+
                     _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요."
                     return@launch
                 }
 
-                val request = AiFittingRequest(clothIdList)
+                val request = AiFittingRequest(clothesIdList)
+
                 val response = repository.requestAiFitting(request)
 
                 if (response.isSuccessful) {
@@ -141,5 +146,11 @@ class StylingViewModel : ViewModel() {
                 _isLoading.value = false
             }
         }
+    }
+
+    // 가상생성페이지도 모두 내리는 코드
+    fun clearAiFittingResult() {
+        _aiImageUrl.value = null
+        Log.d(TAG, "AI 가상 피팅 결과 초기화")
     }
 }

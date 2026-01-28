@@ -17,7 +17,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 class ApplicationClass : Application() {
 
     companion object {
+
+        val SERVER_URL = "http://i14d102.p.ssafy.io:8080/api/v1/"
+
         lateinit var sharedPreferences: SharedPreferencesUtil
+
         lateinit var authManager: AuthManager
 
         val X_ACCESS_TOKEN: String get() = BuildConfig.X_ACCESS_TOKEN
@@ -37,17 +41,20 @@ class ApplicationClass : Application() {
         super.onCreate()
 
         sharedPreferences = SharedPreferencesUtil(this)
+
         authManager = AuthManager(this)
         gson = GsonBuilder().setLenient().create()
 
         val client: OkHttpClient = OkHttpClient.Builder()
-            .readTimeout(5000, TimeUnit.MILLISECONDS)
-            .connectTimeout(5000, TimeUnit.MILLISECONDS)
+            .readTimeout(60000, TimeUnit.MILLISECONDS)
+            .connectTimeout(300000, TimeUnit.MILLISECONDS)
+            // 자동으로 해더에 token 붙여 넣기
             .addInterceptor(AuthInterceptor())
             .authenticator(TokenAuthenticator(RefreshService.api))
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
             .build()
 
+        // 앱이 처음 생성되는 순간, retrofit 인스턴스를 생성
         retrofit = Retrofit.Builder()
             .baseUrl(API_BASE_URL)
             .client(client)

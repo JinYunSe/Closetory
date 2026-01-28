@@ -1,3 +1,3 @@
 package com.ssafy.closetory.dto
 
-data class AiFittingRequest(val clothIdList: List<Int>)
+data class AiFittingRequest(val clothesIdList: List<Int>)
