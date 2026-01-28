@@ -8,5 +8,19 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray_500">#FF9E9E9E</color>
+
+    <!-- 달력 -->
+    <color name="textColor">#222222</color>
+    <color name="borderColor">#E0E0E0</color>
+
+    <!--    토요일, 일요일 색상-->
+    <color name="satColor">#1E88E5</color>
+    <color name="sunColor">#E53935</color>
+    <color name="todayBorderColor">#4CA3FF</color>
+
+
     <color name="main_color">#A6DAF4</color>
+
+    <!--chip 기본 색상-->
+    <color name="chip_bg_default">#F2F2F2</color>
 </resources>

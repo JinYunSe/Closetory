@@ -11,15 +11,17 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.AuthActivity
-import com.ssafy.closetory.authActivity.logout.LogoutViewModel
+import com.ssafy.closetory.authActivity.logout.MyPageViewModel
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
 import com.ssafy.closetory.homeActivity.mypage.signout.SignoutViewModel
-import com.ssafy.closetory.util.AuthManager
+import com.ssafy.closetory.util.auth.AuthManager
 import kotlinx.coroutines.launch
 
 private const val TAG = "MyPageFragment_싸피"
@@ -30,7 +32,7 @@ class MyPageFragment :
         R.layout.fragment_my_page
     ) {
 
-    private val logoutViewModel: LogoutViewModel by viewModels()
+    private val homeViewModel: MyPageViewModel by viewModels()
     private val signoutViewModel: SignoutViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,6 +50,7 @@ class MyPageFragment :
         }
 
         observeLogout()
+        observeMessage()
         collectSignout()
     }
 
@@ -63,6 +66,7 @@ class MyPageFragment :
             .setNegativeButton("취소", null)
             .show()
 
+        // 버튼 색상 변경
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             .setTextColor(requireContext().getColor(R.color.main_color))
 
@@ -71,30 +75,34 @@ class MyPageFragment :
     }
 
     private fun requestLogout() {
-        val authManager = AuthManager(requireContext())
-        val token = authManager.getAccessToken() ?: return
-
-        logoutViewModel.logout(
-            accessToken = "Bearer $token"
-        )
+        homeViewModel.logout()
     }
 
     private fun observeLogout() {
-        logoutViewModel.logoutSuccess.observe(viewLifecycleOwner) { success ->
-            if (success) {
-                AuthManager(requireContext()).clearToken()
-                moveToLogin()
-            }
-        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            homeViewModel.logoutSuccess.collect { success ->
+                if (success) {
+                    val authManager = AuthManager(requireContext())
+                    authManager.clearToken()
 
-        logoutViewModel.message.observe(viewLifecycleOwner) { msg ->
-            msg?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                    val intent = Intent(requireContext(), AuthActivity::class.java)
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                }
             }
         }
     }
 
-    /* -------------------- 회원 탈퇴 -------------------- */
+    private fun observeMessage() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homeViewModel.message.collect { showToast(it) }
+            }
+        }
+    }
+
+/* -------------------- 회원 탈퇴 -------------------- */
 
     private fun collectSignout() {
         viewLifecycleOwner.lifecycleScope.launch {

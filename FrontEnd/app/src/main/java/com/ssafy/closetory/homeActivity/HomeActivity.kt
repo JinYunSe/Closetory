@@ -31,7 +31,7 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
                 textId = R.id.nav_text_closet
             ),
             NavItem(
-                destinationId = R.id.navigation_styling,
+                destinationId = R.id.navigation_ai_styling,
                 containerId = R.id.nav_item_styling,
                 iconId = R.id.nav_icon_styling,
                 textId = R.id.nav_text_styling
@@ -51,7 +51,7 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
         }
 
         // FAB 클릭 시 AddClose 화면으로 이동한다.
-        binding.fabAdd.setOnClickListener { navigateTo(navController, R.id.navigation_add_close) }
+        binding.fabAdd.setOnClickListener { navigateTo(navController, R.id.navigation_registration_close) }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val active = items.firstOrNull { it.destinationId == destination.id }

@@ -9,24 +9,38 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ssafy.closetory.R
 
-//                      서버로 보낼 영문        UI에 보여줄 색상
-data class ColorItem(val codeEnglish: String, val argb: Int)
+//                      서버로 보낼 영문       사용자에게 보여줄 한국어       UI에 보여줄 색상
+data class ColorItem(val codeEnglish: String, val codeKorean: String, val argb: Int)
 
 object ColorOptions {
 
     val items = listOf(
-        ColorItem("RED", 0xFFE53935.toInt()),
-        ColorItem("ORANGE", 0xFFFB8C00.toInt()),
-        ColorItem("YELLOW", 0xFFFDD835.toInt()),
-        ColorItem("GREEN", 0xFF43A047.toInt()),
-        ColorItem("BLUE", 0xFF1E88E5.toInt()),
-        ColorItem("PURPLE", 0xFF8E24AA.toInt()),
-        ColorItem("PINK", 0xFFD81B60.toInt()),
-        ColorItem("BLACK", 0xFF000000.toInt()),
-        ColorItem("WHITE", 0xFFFFFFFF.toInt()),
-        ColorItem("BEIGE", 0xFFD7CCC8.toInt()),
-        ColorItem("GRAY", 0xFFBDBDBD.toInt())
+        ColorItem("RED", "빨간색", 0xFFE53935.toInt()),
+        ColorItem("ORANGE", "주황색", 0xFFFB8C00.toInt()),
+        ColorItem("YELLOW", "노란색", 0xFFFDD835.toInt()),
+        ColorItem("GREEN", "초록색", 0xFF43A047.toInt()),
+        ColorItem("BLUE", "파란색", 0xFF1E88E5.toInt()),
+        ColorItem("PURPLE", "보라색", 0xFF8E24AA.toInt()),
+        ColorItem("PINK", "핑크색", 0xFFD81B60.toInt()),
+        ColorItem("BLACK", "검은색", 0xFF000000.toInt()),
+        ColorItem("WHITE", "흰색", 0xFFFFFFFF.toInt()),
+        ColorItem("BEIGE", "베이지", 0xFFD7CCC8.toInt()),
+        ColorItem("GRAY", "회색", 0xFFBDBDBD.toInt())
     )
+
+    private val byCode = items.associateBy { it.codeEnglish }
+
+    // 영문을 한국어로 변형
+    fun englishToKorean(code: String?): String? {
+        val key = code?.trim()?.uppercase() ?: return null
+        return byCode[key]?.codeKorean
+    }
+
+    // 영문을 색상으로 변형
+    fun englishToArgb(code: String?): Int? {
+        val key = code?.trim()?.uppercase() ?: return null
+        return byCode[key]?.argb
+    }
 
     fun setup(sectionRoot: View): ColorAdapter {
         // 텍스트와 리사이클러 뷰 가져오기
@@ -53,8 +67,8 @@ object ColorOptions {
 
         // 리사이클러 뷰 요소가 반영될 XML의 요소들 가져오기
         inner class ViewHold(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val circle: View = itemView.findViewById(R.id.vCircle)
-            val stroke: View = itemView.findViewById(R.id.vStroke)
+            val circle: View = itemView.findViewById(R.id.v_circle)
+            val stroke: View = itemView.findViewById(R.id.v_stroke)
         }
 
         // 리사이클러 뷰 요소가 반영될 XML 가져오기
@@ -108,7 +122,7 @@ object ColorOptions {
         }
 
         // 선택 없으면 null
-        public fun getSelectedColor(): String? {
+        fun getSelectedColor(): String? {
             if (selectedPos == RecyclerView.NO_POSITION) return null
             return items[selectedPos].codeEnglish
         }
