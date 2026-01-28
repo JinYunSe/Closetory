@@ -13,12 +13,12 @@ class PostCreateRepository {
         ApplicationClass.retrofit.create(PostCreateService::class.java)
 
     suspend fun createPost(
-        image: MultipartBody.Part,
+        photoUrl: MultipartBody.Part,
         title: RequestBody,
         content: RequestBody,
         items: RequestBody?
     ): Response<ApiResponse<PostCreateResponse>> = service.createPost(
-        image = image,
+        photoUrl = photoUrl,
         title = title,
         content = content,
         items = items

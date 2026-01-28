@@ -14,7 +14,7 @@ interface PostCreateService {
     @Multipart
     @POST("posts")
     suspend fun createPost(
-        @Part image: MultipartBody.Part, // 파일
+        @Part photoUrl: MultipartBody.Part, // 파일
         @Part("title") title: RequestBody, // 문자열 파트
         @Part("content") content: RequestBody, // 문자열 파트
         @Part("items") items: RequestBody? // JSON 문자열 파트 (nullable)

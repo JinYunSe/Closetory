@@ -227,9 +227,9 @@ class PostCreateFragment :
             Log.d("POST_CREATE_REQ", "title=$titleText")
             Log.d("POST_CREATE_REQ", "content=$contentText")
             Log.d("POST_CREATE_REQ", "itemIds=$itemIds")
-            Log.d("POST_CREATE_REQ", "imageUri=$uri")
+            Log.d("POST_CREATE_REQ", "photoUrl=$uri")
 
-            val imagePart = createImagePartFromUri(uri)
+            val photoUrl = createImagePartFromUri(uri)
             val titleBody = titleText.toRequestBody("text/plain".toMediaType())
             val contentBody = contentText.toRequestBody("text/plain".toMediaType())
             val itemsBody: RequestBody? =
@@ -237,7 +237,7 @@ class PostCreateFragment :
                     ?.let { Gson().toJson(it).toRequestBody("application/json".toMediaType()) }
 
             viewModel.createPost(
-                imagePart = imagePart,
+                photoUrl = photoUrl,
                 title = titleBody,
                 content = contentBody,
                 items = itemsBody
@@ -262,7 +262,7 @@ class PostCreateFragment :
         }
 
         return MultipartBody.Part.createFormData(
-            name = "image", // ⚠️ 서버 파트명에 맞춰 image/file/photo 중 하나로 수정
+            name = "photoUrl", // ⚠️ 서버 파트명에 맞춰 image/file/photo 중 하나로 수정
             filename = "post_${System.currentTimeMillis()}.$ext",
             body = requestBody
         )
