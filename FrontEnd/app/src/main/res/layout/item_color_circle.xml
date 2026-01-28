@@ -4,14 +4,14 @@
     android:layout_marginEnd="12dp">
 
     <View
-        android:id="@+id/vStroke"
+        android:id="@+id/v_stroke"
         android:layout_width="44dp"
         android:layout_height="44dp"
         android:background="@drawable/bg_circle_stroke"
         android:visibility="gone" />
 
     <View
-        android:id="@+id/vCircle"
+        android:id="@+id/v_circle"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_gravity="center"

@@ -15,7 +15,7 @@ import com.ssafy.closetory.dto.ClothItemDto
 private const val TAG = "ClothAdapter_싸피"
 class ClothAdapter : ListAdapter<ClothItemDto, ClothAdapter.ViewHodler>(diffCallback) {
 
-    // ✅ 클릭 이벤트를 StylingFragment로 전달하기 위한 람다 함수
+    // 클릭 이벤트를 StylingFragment로 전달하기 위한 람다 함수
     var onItemClickListener: ((ClothItemDto) -> Unit)? = null
 
     companion object {
@@ -30,17 +30,15 @@ class ClothAdapter : ListAdapter<ClothItemDto, ClothAdapter.ViewHodler>(diffCall
     inner class ViewHodler(private val binding: ItemClothBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: ClothItemDto) = with(binding) {
-            Log.d(TAG, "SERVER URL : ${ApplicationClass.SERVER_URL}")
+            Log.d(TAG, "SERVER URL : ${ApplicationClass.API_BASE_URL}")
             Log.d(TAG, "clothesId : ${item.clothesId}")
             Log.d(TAG, "photoUrl : ${item.photoUrl}")
 
-            val imageUrl = "${ApplicationClass.SERVER_URL}${item.photoUrl}"
-
-            Glide.with(binding.imgBtn.context)
+            Glide.with(binding.ivPhoto)
                 .load(item.photoUrl)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.error)
-                .into(binding.imgBtn)
+                .into(binding.ivPhoto)
 
             // 클릭 시 프래그먼트에 알림
             imgBtn.setOnClickListener {

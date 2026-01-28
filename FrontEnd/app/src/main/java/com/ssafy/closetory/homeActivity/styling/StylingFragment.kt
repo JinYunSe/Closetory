@@ -115,16 +115,6 @@ class StylingFragment :
             }
         }
         binding.lvShoesCloth.adapter = shoeAdapter
-
-        // 테스트용도
-        binding.btnAiVirtualfitting.setOnClickListener {
-            showAiFittingResult("https://picsum.photos/400/600")
-        }
-
-//        binding.btnAiVirtualfitting.setOnClickListener {
-//            hideAiFittingResult()
-//            viewModel.requestAiFittingDemo()
-//        }
     }
 
     /**
@@ -166,8 +156,9 @@ class StylingFragment :
         setupRemoveButtons()
     }
 
-    // 스위치 텍스트 업데이트
-
+    /**
+     * 스위치 텍스트 업데이트
+     */
     private fun updateSwitchText(isOwnedOnly: Boolean) {
         binding.tvSwitchOwnedOnly.text = if (isOwnedOnly) "내 옷만" else "모든 옷"
     }
@@ -263,8 +254,6 @@ class StylingFragment :
         viewModel.successMessage.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
-                // 성공 시 모든 슬롯 초기화
-                clearAllSlots()
             }
         }
     }
@@ -300,7 +289,7 @@ class StylingFragment :
         Log.d(TAG, "slotType: $slotType")
         Log.d(TAG, "clothesId: ${item.clothesId}")
         Log.d(TAG, "photoUrl: ${item.photoUrl}")
-        Log.d(TAG, "SERVER_URL: ${ApplicationClass.SERVER_URL}")
+        Log.d(TAG, "SERVER_URL: ${ApplicationClass.API_BASE_URL}")
 
         selectedSlots[slotType] = item
 
@@ -309,7 +298,7 @@ class StylingFragment :
         val imageUrl = if (item.photoUrl.startsWith("http")) {
             item.photoUrl // 이미 완전한 URL
         } else {
-            "${ApplicationClass.SERVER_URL}${item.photoUrl}" // 상대 경로
+            "${ApplicationClass.API_BASE_URL}${item.photoUrl}" // 상대 경로
         }
 
         Glide.with(this)
@@ -338,7 +327,7 @@ class StylingFragment :
                     dataSource: com.bumptech.glide.load.DataSource,
                     isFirstResource: Boolean
                 ): Boolean {
-                    Log.d(TAG, "슬롯 이미지 로딩 성공!")
+                    Log.d(TAG, "✅ 슬롯 이미지 로딩 성공!")
                     return false
                 }
             })
@@ -381,6 +370,10 @@ class StylingFragment :
         removeItemFromSlot("BAG", binding.ivSlotBag, binding.btnRemoveBag)
         removeItemFromSlot("SHOES", binding.ivSlotShoes, binding.btnRemoveShoes)
 
+        // AI 가상 피팅 결과도 함께 초기화
+        hideAiFittingResult()
+        viewModel.clearAiFittingResult()
+
         Toast.makeText(requireContext(), "코디가 초기화되었습니다", Toast.LENGTH_SHORT).show()
     }
 
@@ -392,7 +385,7 @@ class StylingFragment :
         Log.d(TAG, "saveLook 호출")
 
         // 선택된 아이템 ID 리스트 생성 (순서 중요!)
-        val clothIdList = listOf(
+        val clothesIdList = listOf(
             selectedSlots["TOP"]?.clothesId ?: -1, // Top
             selectedSlots["BOTTOM"]?.clothesId ?: -1, // Bottom
             selectedSlots["SHOES"]?.clothesId ?: -1, // Shoes
@@ -401,23 +394,28 @@ class StylingFragment :
             selectedSlots["BAG"]?.clothesId ?: -1 // Bag
         )
 
-        Log.d(TAG, "전송할 clothesIdList: $clothIdList")
+        Log.d(TAG, "전송할 clothesIdList: $clothesIdList")
 
         // 최소 1개 이상 선택 확인
-        if (clothIdList.all { it == -1 }) {
+        if (clothesIdList.all { it == -1 }) {
+        }
+        Log.d(TAG, "전송할 clothesIdList: $clothesIdList")
+
+        // 최소 1개 이상 선택 확인
+        if (clothesIdList.all { it == -1 }) {
             Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해주세요", Toast.LENGTH_SHORT).show()
             return
         }
 
         // ViewModel을 통해 서버로 전송
-        viewModel.saveLook(clothIdList)
+        viewModel.saveLook(clothesIdList)
     }
 
     // AI가상피팅
     private fun requestAiFitting() {
         Log.d(TAG, "requestAiFitting 호출")
 
-        val clothIdList = listOf(
+        val clothesIdList = listOf(
             selectedSlots["TOP"]?.clothesId ?: -1,
             selectedSlots["BOTTOM"]?.clothesId ?: -1,
             selectedSlots["SHOES"]?.clothesId ?: -1,
@@ -426,16 +424,20 @@ class StylingFragment :
             selectedSlots["BAG"]?.clothesId ?: -1
         )
 
-        Log.d(TAG, "AI 피팅 요청 clothIdList: $clothIdList")
+        Log.d(TAG, "AI 피팅 요청 clothesIdList: $clothesIdList")
 
         // 최소 1개 이상 선택 확인
-        if (clothIdList.all { it == -1 }) {
+        if (clothesIdList.all { it == -1 }) {
+            Log.d(TAG, "AI 피팅 요청 clothIdList: $clothesIdList")
+        }
+        // 최소 1개 이상 선택 확인
+        if (clothesIdList.all { it == -1 }) {
             Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해주세요.", Toast.LENGTH_SHORT)
             return
         }
 
         // ViewModel을 통해 AI피팅 요청
-        viewModel.requestAiFitting(clothIdList)
+        viewModel.requestAiFitting(clothesIdList)
     }
 
     // AI 가상 피팅 결과 표시
@@ -447,7 +449,7 @@ class StylingFragment :
         val finalUrl = if (imageUrl.startsWith("http")) {
             imageUrl
         } else {
-            "${ApplicationClass.SERVER_URL}$imageUrl"
+            "${ApplicationClass.API_BASE_URL}$imageUrl"
         }
 
         // AI 이미지 로딩

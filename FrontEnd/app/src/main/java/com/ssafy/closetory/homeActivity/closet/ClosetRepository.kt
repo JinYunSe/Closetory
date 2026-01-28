@@ -3,7 +3,9 @@ package com.ssafy.closetory.homeActivity.closet
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.ClosetResponse
+import com.ssafy.closetory.dto.ClothItemDto
 import retrofit2.Response
+import retrofit2.http.Path
 
 class ClosetRepository {
 
@@ -20,5 +22,9 @@ class ClosetRepository {
         color,
         seasons,
         onlyMine
+    )
+
+    suspend fun getClothesDetail(clothesId: Int): Response<ApiResponse<ClothItemDto>> = service.getClothesDetail(
+        clothesId
     )
 }

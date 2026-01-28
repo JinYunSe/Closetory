@@ -17,18 +17,18 @@
             android:layout_width="55dp"
             android:layout_height="48dp"
             android:backgroundTint="@color/white"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            android:paddingVertical="0dp"
             android:text="&lt;"
-
             android:textColor="#A6DAF4"
             app:backgroundTint="@android:color/white"
-            app:cornerRadius="12dp"
+            app:strokeWidth="0.8dp"
             app:strokeColor="#A6DAF4"
-            app:strokeWidth="0.8dp" />
+            app:cornerRadius="12dp"
+
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingVertical="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_ai_virtualfitting"
@@ -36,10 +36,9 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:text="✨ AI가상 생성"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/bg_aicodybutton"
+            android:textColor="#A6DAF4"
 
-            app:backgroundTint="@null"
+            app:backgroundTint="@android:color/white"
             app:strokeWidth="0.8dp"
             app:strokeColor="#A6DAF4"
             app:cornerRadius="12dp"

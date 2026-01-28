@@ -5,28 +5,57 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".homeActivity.addClose.AddClothFragment">
+    tools:context=".homeActivity.registrationCloth.RegistrationClothFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageButton
-            android:id="@+id/imbtn_registration_cloth"
+        <!-- 이미지 영역 컨테이너 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/photo_container"
             android:layout_width="0dp"
             android:layout_height="350dp"
             android:layout_margin="16dp"
-            android:scaleType="fitXY"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageButton
+                android:id="@+id/imbtn_registration_cloth"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:scaleType="centerCrop"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:backgroundTint="@color/white"
+                />
+
+            <!-- 사진이 없을 때 보여줄 안내 문구 -->
+            <TextView
+                android:id="@+id/tv_photo_placeholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="사진 등록"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/darker_gray"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
             android:id="@+id/section_tags"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             layout="@layout/section_chip"
-            app:layout_constraintTop_toBottomOf="@id/imbtn_registration_cloth"
+            app:layout_constraintTop_toBottomOf="@id/photo_container"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -58,7 +87,7 @@
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <Button
-            android:id="@+id/btn_add_cloth"
+            android:id="@+id/btn_registration_cloth"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
@@ -67,5 +96,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

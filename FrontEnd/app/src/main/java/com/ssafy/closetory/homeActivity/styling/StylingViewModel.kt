@@ -15,7 +15,6 @@ private const val TAG = "StylingViewModel_싸피"
 
 class StylingViewModel : ViewModel() {
 
-    // 가상 데이터 생성
     private val _aiImageUrl = MutableLiveData<String?>()
     val aiImageUrl: LiveData<String?> = _aiImageUrl
 
@@ -73,30 +72,33 @@ class StylingViewModel : ViewModel() {
         }
     }
 
-    // 룩 저장
+    /**
+     * 룩 저장
+     * 순서: Top, Bottom, Shoes, Outer, Accessory, Bag
+     */
     fun saveLook(clothesIdList: List<Int>) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 _errorMessage.value = null
 
+                // 빈 리스트 체크
                 if (clothesIdList.all { it == -1 }) {
                     _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요"
                     _isLoading.value = false
                     return@launch
                 }
 
-                val request = SaveLookRequest(clothIdList = clothesIdList)
+                val request = SaveLookRequest(clothesIdList = clothesIdList)
+
                 Log.d(TAG, "saveLook 요청: $request")
 
                 val response = repository.saveLook(request)
 
                 if (response.isSuccessful) {
                     val body = response.body()
-                    // data가 없으므로 responseMessage만 사용
-                    val message = body?.responseMessage ?: "코디가 저장되었습니다!"
-                    Log.d(TAG, "saveLook 성공: $message")
-                    _successMessage.value = message
+                    Log.d(TAG, "saveLook 성공: ${body?.data}")
+                    _successMessage.value = "코디가 저장되었습니다!"
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e(TAG, "saveLook 실패 - 코드: ${response.code()}, 메시지: $errorBody")
@@ -112,19 +114,23 @@ class StylingViewModel : ViewModel() {
     }
 
     // AI 가상피팅 결과 URL
-    fun requestAiFitting(clothIdList: List<Int>) { // List<Long> → List<Int>
+
+    fun requestAiFitting(clothesIdList: List<Int>) { // List<Long> → List<Int>
+
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 _errorMessage.value = null
                 _aiImageUrl.value = null
 
-                if (clothIdList.all { it == -1 }) { // .toInt() 제거
+                if (clothesIdList.all { it == -1 }) { // .toInt() 제거
+
                     _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요."
                     return@launch
                 }
 
-                val request = AiFittingRequest(clothIdList)
+                val request = AiFittingRequest(clothesIdList)
+
                 val response = repository.requestAiFitting(request)
 
                 if (response.isSuccessful) {
@@ -140,5 +146,11 @@ class StylingViewModel : ViewModel() {
                 _isLoading.value = false
             }
         }
+    }
+
+    // 가상생성페이지도 모두 내리는 코드
+    fun clearAiFittingResult() {
+        _aiImageUrl.value = null
+        Log.d(TAG, "AI 가상 피팅 결과 초기화")
     }
 }

@@ -1,10 +1,8 @@
-package com.ssafy.closetory.util
+package com.ssafy.closetory.util.auth
 
 import android.content.Context
-import android.util.Base64
 import android.util.Log
 import androidx.core.content.edit
-import org.json.JSONObject
 
 private const val TAG = "AuthManager_싸피"
 

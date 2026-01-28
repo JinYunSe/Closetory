@@ -4,16 +4,17 @@ import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.ssafy.closetory.baseCode.data.local.SharedPreferencesUtil
-import com.ssafy.closetory.util.AuthInterceptor
-import com.ssafy.closetory.util.AuthManager
+import com.ssafy.closetory.util.auth.AuthInterceptor
+import com.ssafy.closetory.util.auth.AuthManager
+import com.ssafy.closetory.util.auth.RefreshService
+import com.ssafy.closetory.util.auth.TokenAuthenticator
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class
-ApplicationClass : Application() {
+class ApplicationClass : Application() {
 
     companion object {
 
@@ -23,13 +24,17 @@ ApplicationClass : Application() {
 
         lateinit var authManager: AuthManager
 
-        // JWT Token Header 키 값
-        const val X_ACCESS_TOKEN = "Authorization"
-        const val SHARED_PREFERENCES_NAME = "SSAFY_TEMPLATE_APP"
-        const val COOKIES_KEY_NAME = "cookies"
+        val X_ACCESS_TOKEN: String get() = BuildConfig.X_ACCESS_TOKEN
+        val X_REFRESH_TOKEN: String get() = BuildConfig.X_REFRESH_TOKEN
+        val USERID: String get() = BuildConfig.USERID
+        val SHARED_PREFERENCES_NAME: String get() = BuildConfig.SHARED_PREFERENCES_NAME
+        val COOKIES_KEY_NAME: String get() = BuildConfig.COOKIES_KEY_NAME
 
-        // 전역변수 문법을 통해 Retrofit 인스턴스를 앱 실행 시 1번만 생성하여 사용
+        val API_BASE_URL: String
+            get() = BuildConfig.BASE_URL.trim().removeSuffix("/") + "/"
+
         lateinit var retrofit: Retrofit
+        lateinit var gson: Gson
     }
 
     override fun onCreate() {
@@ -38,27 +43,22 @@ ApplicationClass : Application() {
         sharedPreferences = SharedPreferencesUtil(this)
 
         authManager = AuthManager(this)
+        gson = GsonBuilder().setLenient().create()
 
         val client: OkHttpClient = OkHttpClient.Builder()
-            .readTimeout(5000, TimeUnit.MILLISECONDS)
-            .connectTimeout(5000, TimeUnit.MILLISECONDS)
+            .readTimeout(60000, TimeUnit.MILLISECONDS)
+            .connectTimeout(300000, TimeUnit.MILLISECONDS)
             // 자동으로 해더에 token 붙여 넣기
             .addInterceptor(AuthInterceptor())
-            // 로그캣에 okhttp.OkHttpClient로 검색하면 http 통신 내용을 보여줍니다.
+            .authenticator(TokenAuthenticator(RefreshService.api))
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
             .build()
 
         // 앱이 처음 생성되는 순간, retrofit 인스턴스를 생성
         retrofit = Retrofit.Builder()
-            .baseUrl(SERVER_URL)
+            .baseUrl(API_BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
-
-    // GSon은 엄격한 json type을 요구하는데, 느슨하게 하기 위한 설정.
-    // success, fail등 문자로 리턴될 경우 오류 발생한다. json 문자열이 아니라고..
-    val gson: Gson = GsonBuilder()
-        .setLenient()
-        .create()
 }
