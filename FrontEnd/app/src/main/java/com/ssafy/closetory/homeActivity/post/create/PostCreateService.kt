@@ -11,13 +11,12 @@ import retrofit2.http.Part
 
 interface PostCreateService {
 
-    // @Body JSON 방식 제거 → @Multipart로 파일 + 텍스트 전송
     @Multipart
     @POST("posts")
     suspend fun createPost(
-        @Part photoUrl: MultipartBody.Part, // 파일
-        @Part("title") title: RequestBody, // 텍스트
-        @Part("content") content: RequestBody, // 텍스트
-        @Part("items") items: RequestBody // JSON 배열 문자열: "[1,2,3]"
+        @Part image: MultipartBody.Part, // 파일
+        @Part("title") title: RequestBody, // 문자열 파트
+        @Part("content") content: RequestBody, // 문자열 파트
+        @Part("items") items: RequestBody? // JSON 문자열 파트 (nullable)
     ): Response<ApiResponse<PostCreateResponse>>
 }

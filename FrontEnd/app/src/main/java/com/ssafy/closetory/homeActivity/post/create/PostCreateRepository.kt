@@ -12,14 +12,13 @@ class PostCreateRepository {
     private val service: PostCreateService =
         ApplicationClass.retrofit.create(PostCreateService::class.java)
 
-    // photoUrl(String) 제거, 대신 imagePart / RequestBody들을 받음
     suspend fun createPost(
-        imagePart: MultipartBody.Part,
+        image: MultipartBody.Part,
         title: RequestBody,
         content: RequestBody,
-        items: RequestBody
+        items: RequestBody?
     ): Response<ApiResponse<PostCreateResponse>> = service.createPost(
-        photoUrl = imagePart,
+        image = image,
         title = title,
         content = content,
         items = items

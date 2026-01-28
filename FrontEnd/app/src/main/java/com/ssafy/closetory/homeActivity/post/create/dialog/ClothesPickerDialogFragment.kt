@@ -59,7 +59,7 @@ class ClothesPickerDialogFragment : DialogFragment() {
     }
 
     // -------------------------
-    // ✅ 옷 클릭 시 결과 전달 + 닫기
+    // 옷 클릭 시 결과 전달 + 닫기
     // -------------------------
     private fun setupPickListener() {
         clothAdapter.onItemClickListener = { item ->
@@ -143,9 +143,9 @@ class ClothesPickerDialogFragment : DialogFragment() {
             applyTabItems(data)
         }
 
-        viewModel.errorMessage.observe(this) { msg ->
-            if (msg == null) return@observe
-            // 필요하면 토스트 처리
+        viewModel.closetData.observe(viewLifecycleOwner) { data ->
+            if (data == null) return@observe
+            applyTabItems(data)
         }
     }
 

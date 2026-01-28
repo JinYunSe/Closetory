@@ -18,29 +18,25 @@ private const val TAG = "PostCreateViewModel_싸피"
 
 class PostCreateViewModel : ViewModel() {
 
-    private val repository = PostCreateRepository()
+    private val repository = PostCreateRepository() // 네트워크 호출 담당 Repository
 
-    // 게시글 등록 결과(1회성)
-    private val _createResult = MutableSharedFlow<PostCreateResponse?>(extraBufferCapacity = 1)
+    private val _createResult = MutableSharedFlow<PostCreateResponse?>(extraBufferCapacity = 1) // 등록 성공 결과 1회 전달
     val createResult = _createResult.asSharedFlow()
 
-    // 토스트/스낵바용 메시지(1회성)
-    private val _message = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    private val _message = MutableSharedFlow<String>(extraBufferCapacity = 1) // 토스트/스낵바 메시지 1회 전달
     val message = _message.asSharedFlow()
 
-    // 로딩이 필요하면 사용(선택)
-    private val _isLoading = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+    private val _isLoading = MutableSharedFlow<Boolean>(extraBufferCapacity = 1) // 로딩 상태 전달(선택)
     val isLoading = _isLoading.asSharedFlow()
 
-    // 입력 검증은 Fragment에서 끝내고, ViewModel은 "통신"만 담당
-    // photoUrl(String) 제거 → imagePart + RequestBody 받기
-    fun createPost(imagePart: MultipartBody.Part, title: RequestBody, content: RequestBody, items: RequestBody) {
+    // 게시글 등록(멀티파트 전송) 요청
+    fun createPost(imagePart: MultipartBody.Part, title: RequestBody, content: RequestBody, items: RequestBody?) {
         viewModelScope.launch {
             _isLoading.tryEmit(true)
 
             try {
                 val res = repository.createPost(
-                    imagePart = imagePart,
+                    image = imagePart,
                     title = title,
                     content = content,
                     items = items
@@ -48,15 +44,10 @@ class PostCreateViewModel : ViewModel() {
 
                 if (res.isSuccessful) {
                     val body = res.body()
-                    val data = body?.data
-                    Log.d(TAG, "createPost success data=$data")
-
-                    _createResult.tryEmit(data)
+                    _createResult.tryEmit(body?.data)
                     _message.tryEmit(body?.responseMessage ?: "게시글 등록 성공")
                 } else {
                     val apiError = parseErrorBody(res)
-                    Log.d(TAG, "createPost fail code=${res.code()} error=$apiError")
-
                     _message.tryEmit(
                         apiError?.errorMessage
                             ?: apiError?.responseMessage
@@ -72,7 +63,7 @@ class PostCreateViewModel : ViewModel() {
         }
     }
 
-    // errorBody()를 ApiResponse 형태로 파싱 (서버가 공통 ApiResponse를 내려준다는 가정)
+    // errorBody()를 ApiResponse 형태로 파싱
     private fun parseErrorBody(res: Response<ApiResponse<PostCreateResponse>>): ApiResponse<PostCreateResponse>? {
         return try {
             val json = res.errorBody()?.string() ?: return null
