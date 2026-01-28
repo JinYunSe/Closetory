@@ -6,7 +6,6 @@ import com.ssafy.closetory.dto.AiFittingResponse
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.ClosetResponse
 import com.ssafy.closetory.dto.SaveLookRequest
-import com.ssafy.closetory.dto.SaveLookResponse
 import com.ssafy.closetory.homeActivity.closet.ClosetService
 import retrofit2.Response
 
@@ -34,8 +33,7 @@ class StylingRepository {
     )
 
     // 룩 저장
-    suspend fun saveLook(request: SaveLookRequest): Response<ApiResponse<SaveLookResponse>> =
-        stylingService.saveLook(request)
+    suspend fun saveLook(request: SaveLookRequest): Response<ApiResponse<Unit>> = stylingService.saveLook(request)
 
     // AI 가상 피팅
     suspend fun requestAiFitting(request: AiFittingRequest): Response<ApiResponse<AiFittingResponse>> =

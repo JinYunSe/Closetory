@@ -5,23 +5,35 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.AuthActivity
-import com.ssafy.closetory.authActivity.logout.LogoutViewModel
+import com.ssafy.closetory.authActivity.logout.MyPageViewModel
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
-import com.ssafy.closetory.util.AuthManager
+import com.ssafy.closetory.util.auth.AuthManager
+import kotlinx.coroutines.launch
 
 class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding::bind, R.layout.fragment_my_page) {
 
-    private val logoutViewModel: LogoutViewModel by viewModels()
-
+    private val homeViewModel: MyPageViewModel by viewModels()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnLogout.setOnClickListener {
             showLogoutDialog()
         }
+
+        // 더보기 버튼으로 코디저장소로 이동하는 코드
+        binding.tvCodyRepository.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_navigation_my_page_to_navigation_cody_repository
+            )
+        }
+
         observeLogout()
         observeMessage()
     }
@@ -45,32 +57,29 @@ class MyPageFragment : BaseFragment<FragmentMyPageBinding>(FragmentMyPageBinding
     }
 
     private fun requestLogout() {
-        val authManager = AuthManager(requireContext())
-        val token = authManager.getAccessToken() ?: return
-
-        logoutViewModel.logout(
-            accessToken = "Bearer $token"
-        )
+        homeViewModel.logout()
     }
 
     private fun observeLogout() {
-        logoutViewModel.logoutSuccess.observe(viewLifecycleOwner) { success ->
-            if (success) {
-                val authManager = AuthManager(requireContext())
-                authManager.clearToken()
+        viewLifecycleOwner.lifecycleScope.launch {
+            homeViewModel.logoutSuccess.collect { success ->
+                if (success) {
+                    val authManager = AuthManager(requireContext())
+                    authManager.clearToken()
 
-                val intent = Intent(requireContext(), AuthActivity::class.java)
-                intent.flags =
-                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
+                    val intent = Intent(requireContext(), AuthActivity::class.java)
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                }
             }
         }
     }
 
     private fun observeMessage() {
-        logoutViewModel.message.observe(viewLifecycleOwner) { msg ->
-            msg?.let {
-                showToast(it)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homeViewModel.message.collect { showToast(it) }
             }
         }
     }

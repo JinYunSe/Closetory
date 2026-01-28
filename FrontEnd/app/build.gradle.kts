@@ -97,6 +97,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.fragment)
+    implementation(libs.engage.core)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -7,9 +7,10 @@ import kotlinx.coroutines.withContext
 import retrofit2.Response
 
 class CodyRepository(private val service: CodyRepositoryService) {
+
     suspend fun getLooks(): Result<List<CodyRepositoryResponse>> = withContext(Dispatchers.IO) {
         try {
-            val response: Response<ApiResponse<List<CodyRepositoryResponse>>> = service.getlooks()
+            val response: Response<ApiResponse<List<CodyRepositoryResponse>>> = service.getLooks()
 
             if (response.isSuccessful) {
                 val body = response.body()

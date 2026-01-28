@@ -7,5 +7,5 @@ import retrofit2.http.GET
 
 interface CodyRepositoryService {
     @GET("looks")
-    suspend fun getlooks(): Response<ApiResponse<List<CodyRepositoryResponse>>>
+    suspend fun getLooks(): Response<ApiResponse<List<CodyRepositoryResponse>>>
 }

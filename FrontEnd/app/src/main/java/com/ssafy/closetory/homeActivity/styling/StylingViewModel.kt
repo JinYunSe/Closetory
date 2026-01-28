@@ -114,7 +114,6 @@ class StylingViewModel : ViewModel() {
     }
 
     // AI 가상피팅 결과 URL
-
     fun requestAiFitting(clothesIdList: List<Int>) { // List<Long> → List<Int>
 
         viewModelScope.launch {

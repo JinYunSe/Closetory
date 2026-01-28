@@ -1,13 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_cody_item"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
-    android:layout_margin="6dp">
+    android:layout_height="0dp"
+    android:layout_margin="6dp"
+    app:layout_constraintDimensionRatio="1:1">
 
+    <!-- 코디 이미지 -->
     <ImageView
         android:id="@+id/iv_cody"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:background="#dee2e6" />
+        android:background="#dee2e6"
+        android:scaleType="centerCrop" />
+
+    <!-- 내 옷만 뱃지 (원형 클리핑) -->
+    <ImageView
+        android:id="@+id/iv_only_mine_badge"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="8dp"
+        android:background="@drawable/bg_circle_badge"
+        android:src="@drawable/closetory_badge"
+        android:padding="6dp"
+        android:scaleType="centerInside"
+        android:contentDescription="내 옷만 배지"
+        android:visibility="gone" />
+
+    <!-- 날짜 TextView -->
+    <TextView
+        android:id="@+id/tv_cody_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/main_color"
+        android:gravity="center"
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        tools:text="2026-01-20" />
+
 </FrameLayout>

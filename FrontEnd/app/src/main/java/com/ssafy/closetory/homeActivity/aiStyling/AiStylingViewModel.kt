@@ -89,7 +89,7 @@ class AiStylingViewModel : ViewModel() {
             _isLoading.value = true
             try {
                 val orderedIds = buildFittingIdList(coordination)
-                val request = AiFittingRequest(clothIdList = orderedIds)
+                val request = AiFittingRequest(clothesIdList = orderedIds)
 
                 val response = repository.requestAiFitting(request)
                 if (response.isSuccessful) {
@@ -137,7 +137,7 @@ class AiStylingViewModel : ViewModel() {
             _isLoading.value = true
             try {
                 val clothIds = coordination.clothIdList.map { it.clothesId }
-                val request = SaveLookRequest(clothIdList = clothIds)
+                val request = SaveLookRequest(clothesIdList = clothIds)
 
                 val response = repository.saveLook(request)
                 if (response.isSuccessful) {

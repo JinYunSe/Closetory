@@ -49,12 +49,12 @@
         android:gravity="end|center_vertical">
 
         <TextView
-            android:id="@+id/btn_cody_repository"
+            android:id="@+id/tv_cody_repository"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="20dp"
+            android:layout_gravity="end|center"
             android:clickable="true"
             android:focusable="true"
-            android:layout_gravity="end|center"
             android:text="더보기"
             android:textColor="#000000"
             android:textSize="12dp" />

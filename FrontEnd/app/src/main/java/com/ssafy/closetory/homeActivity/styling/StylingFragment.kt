@@ -357,9 +357,7 @@ class StylingFragment :
         Log.d(TAG, "슬롯 제거 완료: $slotType")
     }
 
-    /**
-     * 모든 슬롯 초기화 (초기화 버튼 클릭 시)
-     */
+    // 모든 슬롯 초기화 (초기화 버튼 클릭 시)
     private fun clearAllSlots() {
         Log.d(TAG, "clearAllSlots 호출")
 
@@ -377,10 +375,8 @@ class StylingFragment :
         Toast.makeText(requireContext(), "코디가 초기화되었습니다", Toast.LENGTH_SHORT).show()
     }
 
-    /**
-     * 룩 저장 (등록 버튼 클릭 시 서버로 전송)
-     * 순서: Top, Bottom, Shoes, Outer, Accessory, Bag
-     */
+//      룩 저장 (등록 버튼 클릭 시 서버로 전송)
+//      순서: Top, Bottom, Shoes, Outer, Accessory, Bag
     private fun saveLook() {
         Log.d(TAG, "saveLook 호출")
 
