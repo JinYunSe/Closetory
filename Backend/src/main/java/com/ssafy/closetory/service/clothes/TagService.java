@@ -1,7 +1,8 @@
 package com.ssafy.closetory.service.clothes;
 
-import com.ssafy.closetory.dto.clothes.GetTagsResponse;
+import com.ssafy.closetory.entity.clothes.TagItem;
+import java.util.List;
 
 public interface TagService {
-  GetTagsResponse getTags();
+  List<TagItem> getTags();
 }
