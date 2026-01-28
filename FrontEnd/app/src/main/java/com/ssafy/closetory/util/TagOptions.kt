@@ -32,6 +32,16 @@ object TagOptions {
         OptionItem(null, "운동", 16)
     )
 
+    // 코드를 한국어로 변환
+    private val codeByKorean: Map<String, Int> =
+        items.associate { it.codeKorean.trim() to it.code }
+
+    fun toCode(value: String?): Int? {
+        val v = value?.trim().orEmpty()
+        if (v.isEmpty()) return null
+        return v.toIntOrNull() ?: codeByKorean[v]
+    }
+
     fun render(sectionRoot: View, context: Context) {
         renderChips(sectionRoot, context, "태그", items, false, false)
     }

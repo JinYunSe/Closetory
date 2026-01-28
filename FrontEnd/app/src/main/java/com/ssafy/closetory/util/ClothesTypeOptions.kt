@@ -10,16 +10,18 @@ import com.ssafy.closetory.R
 
 object ClothTypeOptions {
 
+    data class ClothTypeItem(val codeKorean: String, val code: Int, val english: String)
+
     val items = listOf(
-        OptionItem("TOP", "상의", 1),
-        OptionItem("BOTTOM", "하의", 2),
-        OptionItem("ACCESSORIES", "악세사리", 3),
-        OptionItem("BAG", "가방", 4),
-        OptionItem("OUTER", "아우터", 5),
-        OptionItem("SHOES", "신발", 6)
+        ClothTypeItem("상의", 1, "TOP"),
+        ClothTypeItem("하의", 2, "BOTTOM"),
+        ClothTypeItem("아우터", 3, "OUTER"),
+        ClothTypeItem("신발", 4, "SHOES"),
+        ClothTypeItem("가방", 5, "BAG"),
+        ClothTypeItem("악세서리", 6, "ACCESSORY")
     )
 
-    private val byEnglish = items.associateBy { it.codeEnglish }
+    val byEnglish: Map<String, ClothTypeItem> = items.associateBy { it.english }
 
     fun render(sectionRoot: View, context: Context) {
         val tv = sectionRoot.findViewById<TextView>(R.id.tvTitle)
@@ -30,11 +32,8 @@ object ClothTypeOptions {
         group.isSingleSelection = true
         group.isSelectionRequired = false
 
-        var lastCheckedId = View.NO_ID
-
         items.forEach { item ->
             val chip = Chip(context).apply {
-                id = View.generateViewId()
                 text = item.codeKorean
                 tag = item.code
                 isCheckable = true
@@ -49,51 +48,47 @@ object ClothTypeOptions {
                     )
                 )
 
-                chipBackgroundColor =
-                    context.getColorStateList(R.color.chip_bg_selector)
-                setTextColor(
-                    context.getColorStateList(R.color.chip_text_selector)
-                )
+                chipBackgroundColor = context.getColorStateList(R.color.chip_bg_selector)
+                setTextColor(context.getColorStateList(R.color.chip_text_selector))
             }
-
-            chip.setOnClickListener {
-                if (lastCheckedId == chip.id) {
-                    group.clearCheck()
-                    lastCheckedId = View.NO_ID
-                } else {
-                    group.check(chip.id)
-                    lastCheckedId = chip.id
-                }
-            }
-
             group.addView(chip)
         }
     }
 
-    fun englishToKorean(code: String?): String? = byEnglish[code]?.codeKorean
-
-    fun getClothType(sectionRoot: View): Int? {
+    fun getClothTypeEnglish(sectionRoot: View): String? {
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
-        val id = group.checkedChipId
-        return if (id == View.NO_ID) {
-            null
-        } else {
-            (group.findViewById<Chip>(id).tag as Int)
-        }
+        val checkedId = group.checkedChipId
+        if (checkedId == View.NO_ID) return null
+
+        val chip = group.findViewById<Chip>(checkedId)
+        val code = chip.tag as? Int ?: return null
+        return items.firstOrNull { it.code == code }?.english
     }
 
     fun setClothType(sectionRoot: View, clothType: Int) {
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
-
-        // tag(code) == clothType 인 chip을 찾아 check
-        val targetChip = (0 until group.childCount)
-            .mapNotNull { group.getChildAt(it) as? Chip }
-            .firstOrNull { (it.tag as? Int) == clothType }
-
-        if (targetChip == null) {
-            group.clearCheck()
-        } else {
-            group.check(targetChip.id)
+        for (i in 0 until group.childCount) {
+            val chip = group.getChildAt(i) as? Chip ?: continue
+            val code = chip.tag as? Int ?: continue
+            if (code == clothType) {
+                chip.isChecked = true
+                return
+            }
         }
+        group.clearCheck()
+    }
+
+    fun setClothTypeByEnglish(sectionRoot: View, english: String) {
+        val code = byEnglish[english]?.code
+        if (code == null) {
+            sectionRoot.findViewById<ChipGroup>(R.id.chipGroup).clearCheck()
+            return
+        }
+        setClothType(sectionRoot, code)
+    }
+
+    fun englishToKorean(english: String?): String {
+        if (english.isNullOrBlank()) return ""
+        return byEnglish[english]?.codeKorean ?: english
     }
 }
