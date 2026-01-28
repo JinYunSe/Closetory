@@ -107,7 +107,9 @@ class MyPageFragment :
     private fun collectSignout() {
         viewLifecycleOwner.lifecycleScope.launch {
             signoutViewModel.signoutSuccess.collect {
-                AuthManager(requireContext()).clearToken()
+                ApplicationClass.authManager.clearToken()
+                ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+
                 moveToLogin()
             }
         }
@@ -119,6 +121,7 @@ class MyPageFragment :
         }
     }
 
+    // 회원 탈퇴 다이얼로그 띄우기
     private fun showSignoutDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_signout, null)
 
@@ -157,10 +160,20 @@ class MyPageFragment :
                 Toast.makeText(requireContext(), "비밀번호를 입력해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            Log.d(
+                TAG,
+                "USERID key = '${ApplicationClass.USERID}', PREF_NAME='${ApplicationClass.SHARED_PREFERENCES_NAME}'"
+            )
 
-            val userId = ApplicationClass.sharedPreferences
-                .getUserId(ApplicationClass.USERID)
-                ?: return@setOnClickListener
+            Log.d(TAG, "userId value = ${ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)}")
+
+            // SharedPreferencesUtil 수정 안 하므로 null 체크가 아니라 -1 체크해야 함
+            val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
+            Log.d(TAG, "userID : $userId")
+            if (userId == -1) {
+                Toast.makeText(requireContext(), "유저 정보가 없습니다. 다시 로그인 해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             signoutViewModel.signout(userId, password)
             dialog.dismiss()

@@ -27,4 +27,7 @@ class SharedPreferencesUtil(context: Context) {
     }
 
     fun getUserId(key: String, defaultValue: Int = -1): Int? = preferences.getInt(key, defaultValue)
+    fun clearUserId(key: String) {
+        preferences.edit().remove(key).apply()
+    }
 }
