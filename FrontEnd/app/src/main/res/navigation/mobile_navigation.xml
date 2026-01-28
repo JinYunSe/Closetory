@@ -31,19 +31,17 @@
         android:id="@+id/navigation_styling"
         android:name="com.ssafy.closetory.homeActivity.styling.StylingFragment"
         android:label="@string/title_styling"
-        tools:layout="@layout/fragment_styling" >
+        tools:layout="@layout/fragment_styling">
         <action
             android:id="@+id/action_navigation_styling_to_navigation_ai_styling"
             app:destination="@id/navigation_ai_styling" />
     </fragment>
-
 
     <fragment
         android:id="@+id/navigation_ai_styling"
         android:name="com.ssafy.closetory.homeActivity.aiStyling.AiStylingFragment"
         android:label="@string/title_styling"
         tools:layout="@layout/fragment_ai_styling">
-
         <action
             android:id="@+id/action_ai_to_manual_styling"
             app:destination="@id/navigation_styling" />
