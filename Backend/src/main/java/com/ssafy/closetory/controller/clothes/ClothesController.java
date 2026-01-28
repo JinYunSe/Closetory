@@ -51,10 +51,11 @@ public class ClothesController {
   @PostMapping()
   @Operation(summary = "옷 등록")
   @SecurityRequirement(name = "bearerAuth")
-  public ResponseEntity<ApiResponse<Void>> addClothes(
+  public ResponseEntity<ApiResponse<AddClothesResponse>> addClothes(
       @Valid @RequestBody AddClothesRequest request, @AuthenticationPrincipal Integer userId) {
-    clothesService.addClothes(userId, request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201, "옷 등록 성공", null));
+    Integer clothesId = clothesService.addClothes(userId, request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.ok(201, "옷 등록 성공", new AddClothesResponse(clothesId)));
   }
 
   @PatchMapping(value = "/{clothesId}")

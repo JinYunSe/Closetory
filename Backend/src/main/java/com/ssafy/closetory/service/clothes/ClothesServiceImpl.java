@@ -85,7 +85,7 @@ public class ClothesServiceImpl implements ClothesService {
 
   @Transactional
   @Override
-  public void addClothes(Integer userId, AddClothesRequest request) {
+  public Integer addClothes(Integer userId, AddClothesRequest request) {
     Clothes clothes =
         Clothes.builder()
             .photoUrl(request.photoUrl())
@@ -99,7 +99,7 @@ public class ClothesServiceImpl implements ClothesService {
       List<Integer> tagIds = request.tags().stream().distinct().toList();
 
       List<Tag> tags = tagRepository.findAllById(tagIds);
-      if (tags.size() != request.tags().size()) {
+      if (tags.size() != tagIds.size()) {
         throw new NotFoundException("존재하지 않는 태그가 포함되어 있습니다.");
       }
       clothes.getTags().addAll(tags);
@@ -109,13 +109,14 @@ public class ClothesServiceImpl implements ClothesService {
       List<Integer> seasonIds = request.seasons().stream().distinct().toList();
 
       List<Season> seasons = seasonRepository.findAllById(seasonIds);
-      if (seasons.size() != request.seasons().size()) {
+      if (seasons.size() != seasonIds.size()) {
         throw new NotFoundException("존재하지 않는 계절이 포함되어 있습니다.");
       }
       clothes.getSeasons().addAll(seasons);
     }
 
-    clothesRepository.save(clothes);
+    Clothes saved = clothesRepository.save(clothes);
+    return saved.getId();
   }
 
   @Transactional

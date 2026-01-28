@@ -7,7 +7,7 @@ public interface ClothesService {
 
   GetClothesDetailResponse getClothesDetail(Integer userId, Integer clothesId);
 
-  void addClothes(Integer userId, AddClothesRequest request);
+  Integer addClothes(Integer userId, AddClothesRequest request);
 
   GetClothesDetailResponse updateClothes(
       Integer userId, Integer clothesId, UpdateClothesRequest request);
