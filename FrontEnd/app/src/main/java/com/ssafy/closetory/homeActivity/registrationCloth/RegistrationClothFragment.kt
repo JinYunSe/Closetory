@@ -1,8 +1,11 @@
 package com.ssafy.closetory.homeActivity.registrationCloth
 
 import android.Manifest
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,6 +24,9 @@ import com.ssafy.closetory.util.TagOptions
 import java.io.File
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+
+private const val TAG = "RegistrationClothFragme_싸피"
 
 class RegistrationClothFragment :
     BaseFragment<FragmentRegistrationClothBinding>(
@@ -37,31 +43,36 @@ class RegistrationClothFragment :
     private lateinit var clothTypeSection: View
     private lateinit var colorSection: View
 
+    // 최종 선택된 "통일된" Uri (항상 fileprovider + closetory_*.png)
     private var selectedImageUri: Uri? = null
 
     private val registrationClothViewModel: RegistrationClothViewModel by viewModels()
 
-    // 카메라 Uri에 원본 저장
+    // 카메라 Uri에 원본 저장 (selectedImageUri에 미리 넣어둔 Uri로 저장됨)
     private val takePicture =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (!success) return@registerForActivityResult
             val uri = selectedImageUri ?: return@registerForActivityResult
-            val binary = uriToMultipart(uri)
-            registrationClothViewModel.removeImageBackground(binary)
+            onPhotoSelected(uri) // ✅ 카메라도 공통 처리
         }
 
     // 갤러리 Uri 받기
     private val pickImage =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri == null) return@registerForActivityResult
-            val binary = uriToMultipart(uri)
-            registrationClothViewModel.removeImageBackground(binary)
+
+            // ✅ 갤러리 Uri를 cache/images에 "closetory_*.png"로 저장해서 통일 Uri로 변환
+            val normalized = copyUriAsPngToCache(uri)
+            if (normalized == null) {
+                showToast("이미지 처리에 실패했습니다.")
+                return@registerForActivityResult
+            }
+
+            onPhotoSelected(normalized)
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // 카메라 권한
         cameraPermissionChecker.init(this)
     }
 
@@ -77,8 +88,8 @@ class RegistrationClothFragment :
 
         setupOptionSection()
 
-        // "사진 등록 텍스트 보이게 설정
-        updatePhotoPlaceholder(false)
+        // 처음엔 사진 없음 → placeholder 보여야 함
+        updatePhotoPlaceholder(isPhotoSelected = false)
 
         binding.imbtnRegistrationCloth.setOnClickListener {
             AlertDialog.Builder(homeActivity)
@@ -127,33 +138,37 @@ class RegistrationClothFragment :
                 }
             }
 
+            Log.d(
+                TAG,
+                "photo : $photoUri selectedTags : $selectedTags selectedClothType : $selectedClothType selectedSeasons : $selectedSeasons, selectedColor $selectedColor"
+            )
+
             registrationClothViewModel.registrationCloth(
-                photoUri!!,
-                selectedTags,
-                selectedClothType!!,
-                selectedSeasons,
-                selectedColor!!
+                photoUrl = photoUri!!,
+                tags = selectedTags,
+                clothesTypes = selectedClothType!!,
+                seasons = selectedSeasons,
+                color = selectedColor!!
             )
         }
     }
 
-    // 등록된 사진 공통 처리
+    // 사진 선택 공통 처리 (항상 "통일된 Uri"만 들어오게 설계)
     private fun onPhotoSelected(uri: Uri) {
         selectedImageUri = uri
         binding.imbtnRegistrationCloth.setImageURI(uri)
-        updatePhotoPlaceholder(true)
+        updatePhotoPlaceholder(isPhotoSelected = true)
 
-        // TODO: Uri -> Binary(Multipart)로 변환까지만
+        // 필요하면 여기서 multipart 변환까지 해두면 됨
         val multipart: MultipartBody.Part = uriToMultipart(uri)
-        // TODO: 서버 전송은 이후에 구현
+        Log.d(TAG, "normalized uri = $uri, multipart size prepared")
+        // 서버 전송은 ViewModel에서 처리
     }
 
-    // "사진 등록" 보이게, 안 보이게 설정
     private fun updatePhotoPlaceholder(isPhotoSelected: Boolean) {
         binding.tvPhotoPlaceholder.visibility = if (isPhotoSelected) View.GONE else View.VISIBLE
     }
 
-    // 태그, 계절, 옷 종류, 색상 요소 UI 반영
     private fun setupOptionSection() {
         TagOptions.render(tagsSection, homeActivity)
         SeasonOptions.render(seasonSection, homeActivity)
@@ -161,14 +176,10 @@ class RegistrationClothFragment :
         colorAdapter = ColorOptions.setup(colorSection)
     }
 
-    // 갤러리 실행
     private fun openGalleryPicker() {
-        pickImage.launch(
-            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-        )
+        pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
-    // 카메라 실행
     private fun openCamera() {
         val permissions = arrayOf(Manifest.permission.CAMERA)
         if (cameraPermissionChecker.checkPermission(homeActivity, permissions)) {
@@ -179,23 +190,48 @@ class RegistrationClothFragment :
         cameraPermissionChecker.requestPermissions(permissions)
     }
 
-    // 통일 된 양식으로
     private fun launchCameraToUri() {
+        // 카메라는 애초에 cache/images/closetory_*.png Uri를 만들어서 저장하게 함 → 이미 통일됨
         selectedImageUri = createImageUri()
         selectedImageUri?.let { takePicture.launch(it) }
     }
 
-    // 갤러리, 카메라에서 가져온 사진 양식 통일
+    // 통일된 파일 Uri 생성 (cache/images/closetory_*.png)
     private fun createImageUri(): Uri? = try {
         val dir = File(requireContext().cacheDir, "images").apply { mkdirs() }
         val file = File(dir, "closetory_${System.currentTimeMillis()}.png")
         FileProvider.getUriForFile(
             requireContext(),
-            "${homeActivity.packageName}.fileprovider",
+            "${requireContext().packageName}.fileprovider",
             file
         )
     } catch (_: Exception) {
         null
+    }
+
+    // ✅ 갤러리 Uri를 PNG로 재인코딩해서 cache/images/closetory_*.png 로 저장 후, FileProvider Uri 반환
+    private fun copyUriAsPngToCache(sourceUri: Uri): Uri? {
+        return try {
+            val cr = requireContext().contentResolver
+
+            val bitmap = cr.openInputStream(sourceUri)?.use { BitmapFactory.decodeStream(it) }
+                ?: return null
+
+            val dir = File(requireContext().cacheDir, "images").apply { mkdirs() }
+            val outFile = File(dir, "closetory_${System.currentTimeMillis()}.png")
+
+            outFile.outputStream().use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+
+            FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                outFile
+            )
+        } catch (_: Exception) {
+            null
+        }
     }
 
     // Uri -> Binary(Multipart) 변환
@@ -204,12 +240,11 @@ class RegistrationClothFragment :
         val bytes = cr.openInputStream(uri)?.use { it.readBytes() }
             ?: throw IllegalStateException("이미지 스트림을 열 수 없습니다: $uri")
 
-        val mime = cr.getType(uri) ?: "image/*"
-        val mediaType = mime.toMediaTypeOrNull() ?: "image/*".toMediaTypeOrNull()!!
+        // 지금은 통일해서 PNG로 만들었으니 image/png로 고정 가능
+        val requestBody = bytes.toRequestBody("image/png".toMediaTypeOrNull())
+        val fileName = "closetory_${System.currentTimeMillis()}.png"
 
-        val requestBody = okhttp3.RequestBody.create(mediaType, bytes)
-
-        val fileName = "upload_${System.currentTimeMillis()}.png"
-        return MultipartBody.Part.createFormData("image", fileName, requestBody)
+        // ⚠️ 서버에서 @RequestPart("photo") / @RequestParam("photo") 등 이름이 뭐냐에 맞춰야 함
+        return MultipartBody.Part.createFormData("photo", fileName, requestBody)
     }
 }
