@@ -1,7 +1,10 @@
 package com.ssafy.closetory.entity.post;
 
+import com.ssafy.closetory.entity.clothes.Clothes;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +22,7 @@ public class Post {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @Column(nullable = false)
+  @Column(nullable = false, length = 30)
   private String title;
 
   @Column(name = "photo_url", nullable = false)
@@ -39,4 +42,21 @@ public class Post {
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
+
+  @ManyToMany
+  @JoinTable(
+      name = "post_item_clothes",
+      joinColumns = @JoinColumn(name = "post_id"),
+      inverseJoinColumns = @JoinColumn(name = "clothes_id"))
+  @Builder.Default
+  private List<Clothes> clothes = new ArrayList<>();
+
+  public void update(String title, String content) {
+    this.title = title;
+    this.content = content;
+  }
+
+  public void updatePhoto(String photoUrl) {
+    this.photoUrl = photoUrl;
+  }
 }
