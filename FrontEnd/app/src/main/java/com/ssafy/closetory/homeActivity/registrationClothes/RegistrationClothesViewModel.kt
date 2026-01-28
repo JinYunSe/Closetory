@@ -1,11 +1,11 @@
-package com.ssafy.closetory.homeActivity.registrationCloth
+package com.ssafy.closetory.homeActivity.registrationClothes
 
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ssafy.closetory.dto.RegistrationClothDto
+import com.ssafy.closetory.dto.RegistrationClothesDto
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -15,7 +15,7 @@ private const val TAG = "RegistrationClothViewModel_싸피"
 
 class RegistrationClothViewModel : ViewModel() {
 
-    private val repository = RegistrationClothRepository()
+    private val repository = RegistrationClothesRepository()
 
     // 토스트 전용
     private val _message = MutableSharedFlow<String>(replay = 0)
@@ -57,14 +57,18 @@ class RegistrationClothViewModel : ViewModel() {
     }
 
     // 옷 등록
-    fun registrationCloth(photoUrl: String, tags: List<Int>, clothesTypes: Int, seasons: List<Int>, color: String) {
+    fun registrationCloth(photoUrl: String, tags: List<Int>, clothesType: String, seasons: List<Int>, color: String) {
         viewModelScope.launch {
+            Log.d(
+                TAG,
+                "registrationCloth: photoUrl : $photoUrl tags : $tags, clothesTypes : $clothesType, seasons : $seasons, color : $color"
+            )
             try {
                 val res = repository.registrationCloth(
-                    RegistrationClothDto(
+                    RegistrationClothesDto(
                         photoUrl = photoUrl,
                         tags = tags,
-                        clothesTypes = clothesTypes,
+                        clothesType = clothesType,
                         seasons = seasons,
                         color = color
                     )
@@ -72,12 +76,12 @@ class RegistrationClothViewModel : ViewModel() {
 
                 if (res.isSuccessful) {
                     _message.emit(res.body()?.responseMessage ?: "등록 성공")
-
                     // 등록 후 상세 페이지 이동 관련 로직
                     val newId = res.body()?.data?.clothesId
                     if (newId == null) return@launch
                     _navigateToDetail.emit(newId)
                 } else {
+                    Log.d(TAG, "등록 실패 : ${res.body()?.errorMessage}")
                     _message.emit(res.body()?.errorMessage ?: "등록 실패")
                 }
             } catch (e: Exception) {
@@ -91,7 +95,7 @@ class RegistrationClothViewModel : ViewModel() {
         clothesId: Int,
         photoUrl: String,
         tags: List<Int>,
-        clothesTypes: Int,
+        clothesType: String,
         seasons: List<Int>,
         color: String
     ) {
@@ -99,10 +103,10 @@ class RegistrationClothViewModel : ViewModel() {
             try {
                 val res = repository.patchCloth(
                     clothesId,
-                    RegistrationClothDto(
+                    RegistrationClothesDto(
                         photoUrl = photoUrl,
                         tags = tags,
-                        clothesTypes = clothesTypes,
+                        clothesType = clothesType,
                         seasons = seasons,
                         color = color
                     )

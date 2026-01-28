@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".homeActivity.registrationCloth.RegistrationClothFragment">
+    tools:context=".homeActivity.registrationClothes.RegistrationClothFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -22,12 +22,12 @@
             app:layout_constraintEnd_toEndOf="parent">
 
             <ImageButton
-                android:id="@+id/imbtn_registration_cloth"
+                android:id="@+id/imbtn_registration_clothes"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="@android:color/transparent"
                 android:backgroundTint="@color/white"
-                android:scaleType="centerCrop"
+                android:scaleType="centerInside"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -74,7 +74,7 @@
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <include
-            android:id="@+id/section_cloth_type"
+            android:id="@+id/section_clothes_type"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             layout="@layout/section_chip"
@@ -87,7 +87,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             layout="@layout/section_chip"
-            app:layout_constraintTop_toBottomOf="@id/section_cloth_type"
+            app:layout_constraintTop_toBottomOf="@id/section_clothes_type"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -101,7 +101,7 @@
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <Button
-            android:id="@+id/btn_registration_cloth"
+            android:id="@+id/btn_registration_clothes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
