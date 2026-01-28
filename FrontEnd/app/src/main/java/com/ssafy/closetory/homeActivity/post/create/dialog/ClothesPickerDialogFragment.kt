@@ -7,10 +7,12 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.FragmentClosetBinding
+import com.ssafy.closetory.dto.ClosetResponse
 import com.ssafy.closetory.homeActivity.adpter.ClothAdapter
 import com.ssafy.closetory.homeActivity.closet.ClosetViewModel
 import com.ssafy.closetory.util.ColorOptions
@@ -32,13 +34,18 @@ class ClothesPickerDialogFragment : DialogFragment() {
     private var currentColor: String? = null
     private var checkedOnlyMyCloth: Boolean = false
 
+    // observe는 viewLifecycleOwner가 준비된 이후에만 붙이기 위해 Observer를 필드로 분리
+    private val closetObserver = Observer<ClosetResponse?> { data ->
+        if (data == null) return@Observer
+        applyTabItems(data)
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = FragmentClosetBinding.inflate(LayoutInflater.from(requireContext()))
 
         initRecyclerViews()
         checkSwitch()
         searchDialog()
-        registerObserve()
         selectedTab()
 
         // 최초 조회
@@ -47,6 +54,12 @@ class ClothesPickerDialogFragment : DialogFragment() {
         return AlertDialog.Builder(requireContext())
             .setView(binding.root)
             .create()
+    }
+
+    // DialogFragment에서 viewLifecycleOwner가 안전하게 존재하는 시점에 observe 연결
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        registerObserve()
     }
 
     override fun onStart() {
@@ -138,15 +151,14 @@ class ClothesPickerDialogFragment : DialogFragment() {
     }
 
     private fun registerObserve() {
-        viewModel.closetData.observe(this) { data ->
-            if (data == null) return@observe
-            applyTabItems(data)
-        }
+        viewModel.closetData.observe(viewLifecycleOwner, closetObserver)
+    }
 
-        viewModel.closetData.observe(viewLifecycleOwner) { data ->
-            if (data == null) return@observe
-            applyTabItems(data)
-        }
+    // View가 사라질 때 observe 해제 (DialogFragment 재사용/회전 시 안전)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.closetData.removeObserver(closetObserver) // ✅ 추가
+        _binding = null
     }
 
     // 탭 선택에 맞게 화면에 보여줄 리스트 갱신
@@ -176,11 +188,6 @@ class ClothesPickerDialogFragment : DialogFragment() {
         }
 
         clothAdapter.submitList(list)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     companion object {

@@ -4,7 +4,9 @@ import android.Manifest
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -12,7 +14,6 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.gson.Gson
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentPostCreateBinding
@@ -21,12 +22,10 @@ import com.ssafy.closetory.homeActivity.HomeActivity
 import com.ssafy.closetory.homeActivity.post.create.adapter.PostItemAdapter
 import com.ssafy.closetory.homeActivity.post.create.dialog.ClothesPickerDialogFragment
 import com.ssafy.closetory.util.PermissionChecker
+import com.ssafy.closetory.util.image.ImageMultipartUtil
 import java.io.File
+import kotlin.math.abs
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 
 class PostCreateFragment :
     BaseFragment<FragmentPostCreateBinding>(FragmentPostCreateBinding::bind, R.layout.fragment_post_create) {
@@ -189,14 +188,56 @@ class PostCreateFragment :
 
     // EditText 스크롤 시 부모(NestedScrollView) 터치 가로채기 방지
     private fun setupContentInnerScroll() {
-        binding.etContent.setOnTouchListener { v, event ->
-            when (event.actionMasked) {
-                android.view.MotionEvent.ACTION_DOWN -> v.parent?.requestDisallowInterceptTouchEvent(true)
+        val et = binding.etContent
+        val touchSlop = ViewConfiguration.get(requireContext()).scaledTouchSlop
 
-                android.view.MotionEvent.ACTION_UP,
-                android.view.MotionEvent.ACTION_CANCEL -> v.parent?.requestDisallowInterceptTouchEvent(false)
+        var startX = 0f
+        var startY = 0f
+        var moved = false
+
+        et.setOnTouchListener { v, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    startX = event.rawX
+                    startY = event.rawY
+                    moved = false
+
+                    // 기본은 내부 스크롤 우선
+                    v.parent?.requestDisallowInterceptTouchEvent(true)
+                    false
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    val dx = event.rawX - startX
+                    val dy = event.rawY - startY
+
+                    if (!moved && (abs(dx) > touchSlop || abs(dy) > touchSlop)) {
+                        moved = true
+                    }
+
+                    // 손가락이 위로 이동(dy<0)하면 내용은 아래로 스크롤 가능해야 함(direction=1)
+                    // 손가락이 아래로 이동(dy>0)하면 내용은 위로 스크롤 가능해야 함(direction=-1)
+                    val direction = if (dy < 0) 1 else -1
+
+                    val canInnerScroll = v.canScrollVertically(direction)
+
+                    // 내부에서 더 스크롤 가능하면 부모 가로채기 금지, 끝이면 부모에게 넘김
+                    v.parent?.requestDisallowInterceptTouchEvent(canInnerScroll)
+
+                    false
+                }
+
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    // 이동이 거의 없으면 탭으로 처리 -> 포커스/키보드
+                    if (!moved) v.performClick()
+
+                    // 다음 터치를 위해 원복
+                    v.parent?.requestDisallowInterceptTouchEvent(false)
+                    false
+                }
+
+                else -> false
             }
-            v.onTouchEvent(event)
         }
     }
 
@@ -229,43 +270,31 @@ class PostCreateFragment :
             Log.d("POST_CREATE_REQ", "itemIds=$itemIds")
             Log.d("POST_CREATE_REQ", "photoUrl=$uri")
 
-            val photoUrl = createImagePartFromUri(uri)
-            val titleBody = titleText.toRequestBody("text/plain".toMediaType())
-            val contentBody = contentText.toRequestBody("text/plain".toMediaType())
-            val itemsBody: RequestBody? =
-                itemIds.takeIf { it.isNotEmpty() }
-                    ?.let { Gson().toJson(it).toRequestBody("application/json".toMediaType()) }
+            val photo = ImageMultipartUtil.uriToCompressedMultipart(
+                context = requireContext(),
+                uri = uri,
+                partName = "photo", // 서버에서 받는 키
+                maxBytes = 600 * 1024, // 600KB 제한
+                maxDimension = 1280 // 최대 해상도
+            )
+            // 파일 파트 name/filename 확인 로그
+            Log.d("POST_CREATE_REQ", "fileHeaders=${photo.headers}")
+
+            val titleBody = binding.etTitle.text.toString()
+            val contentBody = binding.etContent.text.toString()
+
+            val items = mutableListOf<Int>()
+            for (item in selectedItems) {
+                items.add(item.clothesId)
+            }
 
             viewModel.createPost(
-                photoUrl = photoUrl,
+                photo = photo,
                 title = titleBody,
-                content = contentBody,
-                items = itemsBody
+                content = contentBody
+//                items = items
             )
         }
-    }
-
-    // Uri를 읽어서 MultipartBody.Part(file)로 변환
-    private fun createImagePartFromUri(uri: Uri): MultipartBody.Part {
-        val resolver = requireContext().contentResolver
-        val mimeType = resolver.getType(uri) ?: "image/png"
-
-        val bytes = resolver.openInputStream(uri)?.use { it.readBytes() }
-            ?: throw IllegalStateException("이미지 읽기 실패: $uri")
-
-        val requestBody = bytes.toRequestBody(mimeType.toMediaType())
-
-        val ext = when (mimeType) {
-            "image/png" -> "png"
-            "image/jpeg", "image/jpg" -> "jpg"
-            else -> "png"
-        }
-
-        return MultipartBody.Part.createFormData(
-            name = "photoUrl", // ⚠️ 서버 파트명에 맞춰 image/file/photo 중 하나로 수정
-            filename = "post_${System.currentTimeMillis()}.$ext",
-            body = requestBody
-        )
     }
 
     // ViewModel Flow를 수신해 토스트/성공 후처리 수행
@@ -279,7 +308,7 @@ class PostCreateFragment :
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.createResult.collect { data ->
                 if (data != null) {
-                    // 등록 성공 후 화면 처리(예: popBackStack)
+                    parentFragmentManager.popBackStack()
                 }
             }
         }

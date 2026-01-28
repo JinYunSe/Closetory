@@ -6,12 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.PostCreateRequest
 import com.ssafy.closetory.dto.PostCreateResponse
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import retrofit2.Response
 
 private const val TAG = "PostCreateViewModel_싸피"
@@ -30,29 +30,46 @@ class PostCreateViewModel : ViewModel() {
     val isLoading = _isLoading.asSharedFlow()
 
     // 게시글 등록(멀티파트 전송) 요청
-    fun createPost(photoUrl: MultipartBody.Part, title: RequestBody, content: RequestBody, items: RequestBody?) {
+    fun createPost(
+        photo: MultipartBody.Part,
+        title: String,
+        content: String
+        //               items: List<Int>
+    ) {
         viewModelScope.launch {
             _isLoading.tryEmit(true)
 
             try {
+                Log.d(
+                    TAG,
+                    "게시글 등록 Request 전송 확인  : photo : $photo, title : $title, content : $content, "
+                    // items : $items"
+                )
+
                 val res = repository.createPost(
-                    photoUrl = photoUrl,
-                    title = title,
-                    content = content,
-                    items = items
+                    photo = photo,
+                    request = PostCreateRequest(
+                        title = title,
+                        content = content
+                    )
                 )
 
                 if (res.isSuccessful) {
                     val body = res.body()
                     _createResult.tryEmit(body?.data)
-                    _message.tryEmit(body?.responseMessage ?: "게시글 등록 성공")
+
+                    // 성공 시 하드코딩 없이 서버 responseMessage 그대로 출력
+                    val msg = body?.responseMessage
+                        ?: body?.errorMessage
+                        ?: "응답 메시지가 없습니다."
+                    _message.tryEmit(msg)
                 } else {
                     val apiError = parseErrorBody(res)
-                    _message.tryEmit(
+                    // 실패 시 errorMessage 그대로 출력
+                    val msg =
                         apiError?.errorMessage
-                            ?: apiError?.responseMessage
-                            ?: "게시글 등록 실패 (code=${res.code()})"
-                    )
+                            ?: "요청 실패 (code=${res.code()})"
+                    _message.tryEmit(msg)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "createPost exception", e)

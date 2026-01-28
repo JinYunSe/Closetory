@@ -2,9 +2,9 @@ package com.ssafy.closetory.homeActivity.post.create
 
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.PostCreateRequest
 import com.ssafy.closetory.dto.PostCreateResponse
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import retrofit2.Response
 
 class PostCreateRepository {
@@ -13,14 +13,10 @@ class PostCreateRepository {
         ApplicationClass.retrofit.create(PostCreateService::class.java)
 
     suspend fun createPost(
-        photoUrl: MultipartBody.Part,
-        title: RequestBody,
-        content: RequestBody,
-        items: RequestBody?
+        photo: MultipartBody.Part,
+        request: PostCreateRequest
     ): Response<ApiResponse<PostCreateResponse>> = service.createPost(
-        photoUrl = photoUrl,
-        title = title,
-        content = content,
-        items = items
+        photo = photo,
+        request = request
     )
 }
