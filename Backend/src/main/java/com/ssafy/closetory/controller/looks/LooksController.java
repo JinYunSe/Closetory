@@ -1,6 +1,8 @@
 package com.ssafy.closetory.controller.looks;
 
 import com.ssafy.closetory.dto.common.ApiResponse;
+import com.ssafy.closetory.dto.looks.AiRecommendationRequest;
+import com.ssafy.closetory.dto.looks.AiRecommendationResponse;
 import com.ssafy.closetory.dto.looks.VirtualFittingRequest;
 import com.ssafy.closetory.service.looks.LookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,5 +28,15 @@ public class LooksController {
     String aiImageUrl = lookService.requestFitting(userId, request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.ok(201, "가상 피팅 성공", Map.of("aiImageUrl", aiImageUrl)));
+  }
+
+  @PostMapping("/ai/recommendation")
+  @Operation(summary = "AI 코디 추천")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<AiRecommendationResponse>> requestAiRecommendation(
+      @RequestBody AiRecommendationRequest request, @AuthenticationPrincipal Integer userId) {
+    AiRecommendationResponse response = lookService.requestAiRecommendation(userId, request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.ok(201, "ai 코디 추천 성공", response));
   }
 }

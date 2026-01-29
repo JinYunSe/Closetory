@@ -66,6 +66,21 @@ public interface ClothesRepository extends JpaRepository<Clothes, Integer> {
   Optional<Clothes> findByIdAndDeletedAtIsNull(Integer id);
 
   @Query(
+      """
+    SELECT DISTINCT c
+    FROM Clothes c
+    LEFT JOIN Save s ON s.clothes.id = c.id AND s.user.id = :userId
+    WHERE c.deletedAt IS NULL
+    AND (
+        c.userId = :userId
+        OR
+        (:onlyMine = false AND s.id IS NOT NULL)
+    )
+""")
+  List<Clothes> findSavedClothesByUserId(
+      @Param("userId") Integer userId, @Param("onlyMine") boolean onlyMine);
+
+  @Query(
       value =
           """
     WITH
@@ -139,7 +154,7 @@ public interface ClothesRepository extends JpaRepository<Clothes, Integer> {
         AND c.deleted_at IS NULL
         AND c.id <> :targetClothesId
 
-        -- 선택한 옷과 동일 카테고리 제외
+        -- 선택한 옷과 같은 타입 제외
         AND c.clothes_type <> (SELECT clothes_type FROM clothes WHERE id = :targetClothesId)
 
         -- 가방/악세서리는 항상 제외

@@ -1,21 +1,31 @@
 package com.ssafy.closetory.service.looks;
 
-import com.ssafy.closetory.dto.looks.VirtualFittingRequest;
+import com.ssafy.closetory.dto.clothes.ClosetClothesItem;
+import com.ssafy.closetory.dto.clothes.GetClosetResponse;
+import com.ssafy.closetory.dto.looks.*;
 import com.ssafy.closetory.entity.clothes.Clothes;
+import com.ssafy.closetory.entity.post.Post;
 import com.ssafy.closetory.entity.user.User;
+import com.ssafy.closetory.enums.ClothesType;
 import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.ClothesRepository;
+import com.ssafy.closetory.repository.PostRepository;
 import com.ssafy.closetory.repository.UserRepository;
+import com.ssafy.closetory.service.clothes.ClothesService;
 import com.ssafy.closetory.service.s3.S3ImageService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
@@ -32,6 +42,8 @@ public class LookServiceImpl implements LookService {
   private final UserRepository userRepository;
   private final WebClient fastApiWebClient;
   private final S3ImageService s3ImageService;
+  private final PostRepository postRepository;
+  private final ClothesService clothesService;
 
   private static final String[] clothesType = {
     "top_image", "bottom_image", "shoes_image",
@@ -137,5 +149,134 @@ public class LookServiceImpl implements LookService {
         return filename;
       }
     };
+  }
+
+  @Override
+  public AiRecommendationResponse requestAiRecommendation(
+      Integer userId, AiRecommendationRequest request) {
+
+    Pageable limit = PageRequest.of(0, 10);
+    List<Post> posts = new ArrayList<>();
+
+    // true, false에 따라 참고하는 게시글이 달라짐
+    // true : 내가 원하는 코디, false : 나에게 어울리는 코디
+    if (request.isPersonalized() == true) {
+      posts = postRepository.findLikedPostsByUserId(userId, limit);
+    } else {
+      posts = postRepository.findWrittenPostsByUserId(userId, limit);
+    }
+
+    // error 발생
+    // '내가 원하는 코디'의 경우, 좋아요를 누른 게시글이 없는 경우
+    // '나에게 어울리는 코디'의 경우, 내가 작성한 게시글이 없는 경우
+    if (posts.isEmpty()) {
+      posts = postRepository.findPostsByViews(limit);
+      if (posts.isEmpty()) {
+        throw new NotFoundException("추천할 게시글이 존재하지 않습니다.");
+      }
+    }
+
+    // 상위 10개의 게시글 중, 랜덤하게 선택
+    // 상위 5개는 동일하게 15%, 하위 5개는 동일 X
+    Random random = new Random();
+    int percent = random.nextInt(100);
+
+    int randomIndex;
+    if (percent < 75) {
+      randomIndex = percent / 15;
+    } else if (percent < 82) {
+      randomIndex = 5;
+    } else if (percent < 88) {
+      randomIndex = 6;
+    } else if (percent < 93) {
+      randomIndex = 7;
+    } else if (percent < 97) {
+      randomIndex = 8;
+    } else {
+      randomIndex = 9;
+    }
+
+    if (randomIndex >= posts.size()) {
+      randomIndex = 0;
+    }
+
+    GetClosetResponse myCloset =
+        clothesService.getClosetForAiRecommendation(userId, request.onlyMine());
+
+    FastApiRequest aiRequest =
+        FastApiRequest.builder()
+            .refImage(posts.get(randomIndex).getPhotoUrl())
+            .tops(toUrlList(myCloset.topClothes()))
+            .bottoms(toUrlList(myCloset.bottomClothes()))
+            .shoes(toUrlList(myCloset.shoes()))
+            .outers(toUrlList(myCloset.outerClothes()))
+            .accessories(toUrlList(myCloset.accessories()))
+            .bags(toUrlList(myCloset.bags()))
+            .build();
+
+    if (aiRequest.tops().isEmpty()) {
+      throw new BadRequestException("상의를 추가해주세요.");
+    } else if (aiRequest.bottoms().isEmpty()) {
+      throw new BadRequestException("하의를 추가해주세요.");
+    } else if (aiRequest.shoes().isEmpty()) {
+      throw new BadRequestException("신발을 추가해주세요.");
+    }
+
+    FastApiResponse aiResponse =
+        fastApiWebClient
+            .post()
+            .uri("/recommend-fit")
+            .bodyValue(aiRequest)
+            .retrieve()
+            .bodyToMono(FastApiResponse.class)
+            .block();
+
+    if (aiResponse == null) {
+      throw new RuntimeException();
+    }
+
+    List<LooksItem> selectedItems = new ArrayList<>();
+    Map<String, Integer> selections = aiResponse.selections();
+
+    selectedLookItem(selectedItems, selections.get("Top"), myCloset.topClothes(), ClothesType.TOP);
+    selectedLookItem(
+        selectedItems, selections.get("Bottom"), myCloset.bottomClothes(), ClothesType.BOTTOM);
+    selectedLookItem(selectedItems, selections.get("Shoes"), myCloset.shoes(), ClothesType.SHOES);
+    selectedLookItem(
+        selectedItems, selections.get("Outer"), myCloset.outerClothes(), ClothesType.OUTER);
+    selectedLookItem(selectedItems, selections.get("Bag"), myCloset.bags(), ClothesType.BAG);
+    selectedLookItem(
+        selectedItems,
+        selections.get("Accessory"),
+        myCloset.accessories(),
+        ClothesType.ACCESSORIES);
+
+    // 6. 결과 반환
+    return new AiRecommendationResponse(aiResponse.reason(), selectedItems);
+  }
+
+  private List<String> toUrlList(List<ClosetClothesItem> items) {
+    if (items == null) return new ArrayList<>();
+
+    return items.stream().map(ClosetClothesItem::photoUrl).toList();
+  }
+
+  private void selectedLookItem(
+      List<LooksItem> resultList,
+      Integer index,
+      List<ClosetClothesItem> sourceList,
+      ClothesType type) {
+
+    if (index != null && index >= 0 && index < sourceList.size()) {
+      // 1. 리스트에서 꺼냄 (ID, URL 있음)
+      ClosetClothesItem item = sourceList.get(index);
+
+      // 2. LooksItem 생성
+      resultList.add(
+          new LooksItem(
+              item.clothesId(),
+              type, // 여기서 전달받은 타입을 사용
+              item.photoUrl()));
+    }
   }
 }

@@ -17,5 +17,7 @@ public interface ClothesService {
 
   String createMaskingImage(byte[] rawImage);
 
+  GetClosetResponse getClosetForAiRecommendation(Integer userId, Boolean onlyMine);
+
   List<ClothesRecommendItem> getClothesRecommend(Integer clothedId, Integer userId);
 }
