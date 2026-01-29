@@ -9,6 +9,7 @@ import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
+import com.ssafy.closetory.repository.projection.ClothesRecommendRow;
 import com.ssafy.closetory.service.s3.S3ImageService;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -218,5 +219,30 @@ public class ClothesServiceImpl implements ClothesService {
     } catch (Exception e) {
       throw new RuntimeException("AI 서버와 통신 중 오류가 발생했습니다.");
     }
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<ClothesRecommendItem> getClothesRecommend(Integer clothedId, Integer userId) {
+
+    Clothes target =
+        clothesRepository
+            .findByIdAndDeletedAtIsNull(clothedId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 옷입니다."));
+
+    if (!target.getUserId().equals(userId)) {
+      return Collections.emptyList();
+    }
+
+    // 가을/겨울 포함일 때만 아우터 추천
+    boolean includeOuter =
+        target.getSeasons().stream().map(Season::getId).anyMatch(id -> id == 3 || id == 4);
+
+    List<ClothesRecommendRow> rows =
+        clothesRepository.recommendTopByCategory(userId, clothedId, includeOuter);
+
+    return rows.stream()
+        .map(r -> new ClothesRecommendItem(r.getClothesId(), r.getPhotoUrl()))
+        .toList();
   }
 }
