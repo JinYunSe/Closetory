@@ -119,6 +119,12 @@ class MyPageFragment :
                     // 저장된 토큰 삭제
                     val authManager = AuthManager(requireContext())
                     authManager.clearToken()
+                    ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+
+                    Log.d(
+                        TAG,
+                        "로그아웃 직후 userId : ${ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)}"
+                    )
 
                     // 인증 화면으로 이동 및 백스택 제거
                     val intent = Intent(requireContext(), AuthActivity::class.java)

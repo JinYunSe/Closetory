@@ -1,7 +1,8 @@
-// EditProfileFragment
 package com.ssafy.closetory.homeActivity.mypage.edit
 
+import android.Manifest
 import android.content.res.ColorStateList
+import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -9,18 +10,27 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.FileProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.google.gson.Gson
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentEditProfileBinding
 import com.ssafy.closetory.dto.EditProfileInfoResponse
-import com.ssafy.closetory.homeActivity.edit.PreferenceTagsSurveyDialogFragment
+import com.ssafy.closetory.dto.EditProfileUpdateData
+import com.ssafy.closetory.util.PermissionChecker
+import com.ssafy.closetory.util.image.ImageMultipartUtil
+import java.io.File
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 
 private const val TAG = "EditProfileFragment_싸피"
 
@@ -30,78 +40,129 @@ class EditProfileFragment :
         R.layout.fragment_edit_profile
     ) {
 
+    // ViewModel 참조임
     private val viewModel: EditProfileViewModel by viewModels()
 
-    // 성별 상태 (FEMALE : 여성, MALE : 남성)
+    // 카메라 권한 체크 유틸임
+    private val cameraPermissionChecker = PermissionChecker()
+
+    // 성별 상태 저장임
     private var gender: String? = null
 
-    // 서버에서 내려온 기존 값
+    // 서버 사진 URL 저장임
     private var profilePhotoUrl: String? = null
     private var bodyPhotoUrl: String? = null
 
-    // 선호 태그(선택된 코드들)
-    private var selectedPreferenceTagCodes: List<Int> = emptyList()
+    // 선택된 프로필 사진 Uri 저장임
+    private var selectedProfileUri: Uri? = null
+
+    // 선택된 바디 사진 Uri 저장임
+    private var selectedBodyUri: Uri? = null
+
+    // 사진 선택 타겟 구분 enum임
+    private enum class PhotoTarget { PROFILE, BODY }
+
+    // 현재 사진 선택 타겟 저장임
+    private var currentTarget: PhotoTarget? = null
+
+    // 카메라 촬영 결과 처리임
+    private val takePicture =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (!success) return@registerForActivityResult
+
+            when (currentTarget) {
+                PhotoTarget.PROFILE -> selectedProfileUri?.let { onProfileSelected(it) }
+                PhotoTarget.BODY -> selectedBodyUri?.let { onBodySelected(it) }
+                else -> Unit
+            }
+        }
+
+    // 갤러리 선택 결과 처리임
+    private val pickImage =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri == null) return@registerForActivityResult
+
+            when (currentTarget) {
+                PhotoTarget.PROFILE -> {
+                    selectedProfileUri = uri
+                    onProfileSelected(uri)
+                }
+
+                PhotoTarget.BODY -> {
+                    selectedBodyUri = uri
+                    onBodySelected(uri)
+                }
+
+                else -> Unit
+            }
+        }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // 권한 체크 유틸 초기화임
+        cameraPermissionChecker.init(this)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 서버에 기존 유저 정보 요청
+        // 사진 클릭 이벤트 연결임
+        setupPhotoClick()
+
+        // 버튼 클릭 이벤트 연결임
         clickListeners()
 
-        // 성별 버튼 이벤트
+        // 성별 버튼 이벤트 연결임
         setupGenderButtons()
 
-        // ViewModel 이벤트 수신
+        // ViewModel Flow 관찰 연결임
         observeViewModel()
 
-        // 선호 태그 다이얼로그 결과 받기
-        setupPreferenceTagResultListener()
-
-        // 서버에 기존 유저 정보 요청
+        // 회원정보 조회 요청 시작임
         loadUserProfile()
     }
 
-    // 서버에 기존 유저 정보 요청
+    // 회원정보 조회 요청 함수임
     private fun loadUserProfile() {
-        Log.d(TAG, "loadUserProfile: loadUserProfile 실행")
         val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: return
         viewModel.loadUserProfile(userId)
     }
 
-    // ViewModel 데이터 / 메시지 수신
+    // ViewModel 결과 관찰 처리임
     private fun observeViewModel() {
-        // 회원정보 수신
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.userProfile.collect { user ->
                 bindUserProfile(user)
             }
         }
 
-        // 메시지 수신 (성공 / 실패 공통)
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.message.collect { message ->
-                showToast(message)
+                if (!message.isNullOrBlank()) showToast(message)
+            }
+        }
 
-                // 회원정보 수정 성공 후 뒤로가기 정책
-                if (message.contains("수정")) {
-                    findNavController().popBackStack()
-                }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.updateResult.collect { result ->
+                if (result != null) findNavController().popBackStack()
             }
         }
     }
 
-    // UI에 회원정보 바인딩
+    // 회원정보 UI 바인딩 처리임
     private fun bindUserProfile(user: EditProfileInfoResponse) {
         binding.etNickname.setText(user.nickname)
         binding.etHeight.setText(user.height?.toString().orEmpty())
         binding.etWeight.setText(user.weight?.toString().orEmpty())
         binding.switchAlarm.isChecked = user.alarmEnabled
+
         gender = user.gender
-        profilePhotoUrl = user.profilePhotoUrl
-        bodyPhotoUrl = user.bodyPhotoUrl
         selectGender()
 
-        // 프로필 사진
+        profilePhotoUrl = user.profilePhotoUrl
+        bodyPhotoUrl = user.bodyPhotoUrl
+
         if (user.profilePhotoUrl.isNullOrBlank()) {
             binding.imgProfile.setImageResource(R.drawable.ic_profile_default)
             binding.tvProfilePlaceholder.visibility = View.VISIBLE
@@ -114,7 +175,6 @@ class EditProfileFragment :
                 .into(binding.imgProfile)
         }
 
-        // 전신 사진
         if (user.bodyPhotoUrl.isNullOrBlank()) {
             binding.imgBody.setImageResource(R.drawable.ic_body_default)
             binding.tvBodyPlaceholder.visibility = View.VISIBLE
@@ -128,26 +188,90 @@ class EditProfileFragment :
         }
     }
 
-    // 선호 태그 조사 버튼 클릭 이벤트
-    private fun setupPreferenceTagResultListener() {
-        parentFragmentManager.setFragmentResultListener("pref_tags_result", viewLifecycleOwner) { _, bundle ->
-            val codes = bundle.getIntArray("codes")?.toList().orEmpty()
-            selectedPreferenceTagCodes = codes
+    // 사진 클릭 이벤트 세팅임
+    private fun setupPhotoClick() {
+        binding.layoutProfileImage.setOnClickListener {
+            currentTarget = PhotoTarget.PROFILE
+            showPhotoSourceDialog()
+        }
 
-            // (선택) 화면에 표시하고 싶으면 여기서 TextView 갱신
-            // binding.tvChangePreferenceTags.text = "선호 태그 (${codes.size})"
-            Log.d(TAG, "선호 태그 선택 결과: $codes")
+        binding.layoutBodyImage.setOnClickListener {
+            currentTarget = PhotoTarget.BODY
+            showPhotoSourceDialog()
         }
     }
 
-    // 클릭 이벤트 및 입력 검증
+    // 사진 소스 선택 다이얼로그 표시임
+    private fun showPhotoSourceDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("사진 가져오기")
+            .setItems(arrayOf("카메라 촬영", "갤러리 선택")) { _, which ->
+                when (which) {
+                    0 -> openCamera()
+                    1 -> openGalleryPicker()
+                }
+            }
+            .show()
+    }
+
+    // 갤러리 포토피커 실행임
+    private fun openGalleryPicker() {
+        pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+    }
+
+    // 카메라 권한 확인 후 촬영 실행임
+    private fun openCamera() {
+        val permissions = arrayOf(Manifest.permission.CAMERA)
+        if (cameraPermissionChecker.checkPermission(requireContext(), permissions)) {
+            launchCameraToUri()
+            return
+        }
+        cameraPermissionChecker.setOnGrantedListener { launchCameraToUri() }
+        cameraPermissionChecker.requestPermissions(permissions)
+    }
+
+    // 카메라 저장 Uri 생성 후 TakePicture 실행임
+    private fun launchCameraToUri() {
+        val uri = createImageUri() ?: return
+        when (currentTarget) {
+            PhotoTarget.PROFILE -> selectedProfileUri = uri
+            PhotoTarget.BODY -> selectedBodyUri = uri
+            else -> return
+        }
+        takePicture.launch(uri)
+    }
+
+    // FileProvider 기반 임시 Uri 생성임
+    private fun createImageUri(): Uri? = try {
+        val dir = File(requireContext().cacheDir, "images").apply { mkdirs() }
+        val file = File(dir, "user_${System.currentTimeMillis()}.png")
+        FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            file
+        )
+    } catch (_: Exception) {
+        null
+    }
+
+    // 프로필 사진 미리보기 반영 처리임
+    private fun onProfileSelected(uri: Uri) {
+        binding.imgProfile.setImageURI(uri)
+        binding.tvProfilePlaceholder.visibility = View.GONE
+    }
+
+    // 바디 사진 미리보기 반영 처리임
+    private fun onBodySelected(uri: Uri) {
+        binding.imgBody.setImageURI(uri)
+        binding.tvBodyPlaceholder.visibility = View.GONE
+    }
+
+    // 버튼 클릭 이벤트 및 입력 검증 처리임
     private fun clickListeners() {
-        // 취소
         binding.btnCancel.setOnClickListener {
             findNavController().popBackStack()
         }
 
-        // 저장
         binding.btnSave.setOnClickListener {
             val nickname = binding.etNickname.text.toString().trim()
             val heightText = binding.etHeight.text.toString().trim()
@@ -176,30 +300,52 @@ class EditProfileFragment :
                 return@setOnClickListener
             }
 
-            viewModel.updateProfile(
+            val profilePart = selectedProfileUri?.let { uri ->
+                ImageMultipartUtil.uriToCompressedMultipart(
+                    context = requireContext(),
+                    uri = uri,
+                    partName = "profilePhoto",
+                    maxBytes = 600 * 1024,
+                    maxDimension = 1280
+                )
+            }
+
+            val bodyPart = selectedBodyUri?.let { uri ->
+                ImageMultipartUtil.uriToCompressedMultipart(
+                    context = requireContext(),
+                    uri = uri,
+                    partName = "bodyPhoto",
+                    maxBytes = 900 * 1024,
+                    maxDimension = 1600
+                )
+            }
+
+            val dataObj = EditProfileUpdateData(
                 nickname = nickname,
                 height = height,
                 weight = weight,
                 gender = gender!!,
-                alarmEnabled = binding.switchAlarm.isChecked,
-                profilePhotoUrl = profilePhotoUrl,
-                bodyPhotoUrl = bodyPhotoUrl
+                alarmEnabled = binding.switchAlarm.isChecked
+            )
+
+            val json = Gson().toJson(dataObj)
+            val dataBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
+
+            Log.d(TAG, "updateProfile: profileUri=$selectedProfileUri, bodyUri=$selectedBodyUri, data=$json")
+
+            viewModel.updateProfileMultipart(
+                profilePhoto = profilePart,
+                bodyPhoto = bodyPart,
+                data = dataBody
             )
         }
 
-        // 비밀번호 변경
         binding.tvChangePassword.setOnClickListener {
             showChangePasswordDialog()
         }
-
-        // 선호 태그 변경
-        binding.tvChangePreferenceTags.setOnClickListener {
-            PreferenceTagsSurveyDialogFragment()
-                .show(parentFragmentManager, "pref_tags_dialog")
-        }
     }
 
-    // 성별 버튼 이벤트
+    // 성별 버튼 클릭 이벤트 처리임
     private fun setupGenderButtons() {
         binding.btnFemale.setOnClickListener {
             gender = "FEMALE"
@@ -212,7 +358,7 @@ class EditProfileFragment :
         }
     }
 
-    // 성별 선택 UI 처리
+    // 성별 선택 UI 반영 처리임
     private fun selectGender() {
         if (gender == "FEMALE") {
             binding.btnFemale.backgroundTintList =
@@ -227,21 +373,17 @@ class EditProfileFragment :
         }
     }
 
-    // 비밀번호 변경 다이얼로그
+    // 비밀번호 변경 다이얼로그 표시 및 검증 처리임
     private fun showChangePasswordDialog() {
-        val dialogView =
-            layoutInflater.inflate(R.layout.dialog_edit_profile_password, null)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_profile_password, null)
 
         val etNew = dialogView.findViewById<EditText>(R.id.etNewPassword)
         val etConfirm = dialogView.findViewById<EditText>(R.id.etNewPasswordConfirm)
 
-        val btnToggleNew =
-            dialogView.findViewById<ImageButton>(R.id.btnToggleNewPassword)
-        val btnToggleConfirm =
-            dialogView.findViewById<ImageButton>(R.id.btnToggleNewPasswordConfirm)
+        val btnToggleNew = dialogView.findViewById<ImageButton>(R.id.btnToggleNewPassword)
+        val btnToggleConfirm = dialogView.findViewById<ImageButton>(R.id.btnToggleNewPasswordConfirm)
 
-        val btnConfirm =
-            dialogView.findViewById<Button>(R.id.btnConfirmChangePassword)
+        val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirmChangePassword)
 
         var newVisible = false
         var confirmVisible = false
@@ -288,7 +430,7 @@ class EditProfileFragment :
         dialog.show()
     }
 
-    // 비밀번호 표시/숨김 토글
+    // 비밀번호 표시 토글 처리임
     private fun togglePasswordVisibility(editText: EditText, isVisible: Boolean): Boolean {
         editText.inputType =
             if (isVisible) {

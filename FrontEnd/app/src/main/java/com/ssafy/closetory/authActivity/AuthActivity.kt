@@ -12,6 +12,7 @@ import com.ssafy.closetory.baseCode.base.BaseActivity
 import com.ssafy.closetory.databinding.ActivityAuthBinding
 import com.ssafy.closetory.homeActivity.HomeActivity
 
+private const val TAG = "AuthActivity_싸피"
 class AuthActivity : BaseActivity<ActivityAuthBinding>(ActivityAuthBinding::inflate) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

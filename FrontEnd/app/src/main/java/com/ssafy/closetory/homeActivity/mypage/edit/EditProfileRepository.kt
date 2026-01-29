@@ -6,7 +6,8 @@ import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.EditProfilePasswordRequest
-import com.ssafy.closetory.dto.EditProfileUpdateRequest
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 
 private const val TAG = "EditProfileRepository_싸피"
@@ -22,11 +23,17 @@ class EditProfileRepository {
         service.getUserProfile(userId)
 
     // 회원정보 수정
-    suspend fun updateProfile(userId: Int, request: EditProfileUpdateRequest): Response<ApiResponse<Unit>> =
-        service.updateProfile(
-            userId = userId,
-            request = request
-        )
+    suspend fun updateProfileMultipart(
+        userId: Int,
+        profilePhoto: MultipartBody.Part?,
+        bodyPhoto: MultipartBody.Part?,
+        data: RequestBody
+    ): Response<ApiResponse<Unit>> = service.updateProfileMultipart(
+        userId = userId,
+        profilePhoto = profilePhoto,
+        bodyPhoto = bodyPhoto,
+        data = data
+    )
 
     // 비밀번호 변경
     suspend fun changePassword(userId: Int, request: EditProfilePasswordRequest): Response<ApiResponse<Unit>> =

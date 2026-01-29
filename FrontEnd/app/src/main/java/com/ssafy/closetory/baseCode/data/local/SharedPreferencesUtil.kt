@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.ssafy.closetory.ApplicationClass
 
+private const val TAG = "SharedPreferencesUtil_싸피"
 class SharedPreferencesUtil(context: Context) {
     private var preferences: SharedPreferences =
         context.getSharedPreferences(ApplicationClass.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -29,6 +30,6 @@ class SharedPreferencesUtil(context: Context) {
     fun getUserId(key: String, defaultValue: Int = -1): Int? = preferences.getInt(key, defaultValue)
 
     fun clearUserId(key: String) {
-        preferences.edit().putInt(key, -1)
+        preferences.edit().remove(key).apply()
     }
 }

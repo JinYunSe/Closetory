@@ -5,11 +5,14 @@ package com.ssafy.closetory.homeActivity.mypage.edit
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.EditProfilePasswordRequest
-import com.ssafy.closetory.dto.EditProfileUpdateRequest
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.PATCH
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface EditProfileService {
@@ -18,11 +21,13 @@ interface EditProfileService {
     @GET("users/{userId}")
     suspend fun getUserProfile(@Path("userId") userId: Int): Response<ApiResponse<EditProfileInfoResponse>>
 
-    // 현재 유저정보 변경하기
+    @Multipart
     @PATCH("users/{userId}")
-    suspend fun updateProfile(
+    suspend fun updateProfileMultipart(
         @Path("userId") userId: Int,
-        @Body request: EditProfileUpdateRequest
+        @Part profilePhoto: MultipartBody.Part?, // 키: profilePhoto
+        @Part bodyPhoto: MultipartBody.Part?, // 키: bodyPhoto
+        @Part("data") data: RequestBody // 키: data (JSON 문자열)
     ): Response<ApiResponse<Unit>>
 
     // 현재 비밀번호 변경하기

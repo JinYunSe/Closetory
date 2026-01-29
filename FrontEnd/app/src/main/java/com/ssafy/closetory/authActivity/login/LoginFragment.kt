@@ -72,6 +72,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
                     )
 
                     authManager.saveTokens(data.accessToken, data.refreshToken)
+                    ApplicationClass.sharedPreferences.putUserId(ApplicationClass.USERID, data.userId)
                     Log.d(TAG, "로그인 성공에 따른 userId 확인 : ${data.userId}")
 
                     // HomeActivity 이동
