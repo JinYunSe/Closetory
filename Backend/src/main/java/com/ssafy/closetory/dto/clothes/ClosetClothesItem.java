@@ -6,4 +6,8 @@ public record ClosetClothesItem(Integer clothesId, String photoUrl, Boolean isMi
   public static ClosetClothesItem of(Clothes c, boolean isMine) {
     return new ClosetClothesItem(c.getId(), c.getPhotoUrl(), isMine);
   }
+
+  public static ClosetClothesItem from(Clothes c) {
+    return new ClosetClothesItem(c.getId(), c.getPhotoUrl(), null);
+  }
 }
