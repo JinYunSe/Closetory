@@ -1,6 +1,7 @@
 package com.ssafy.closetory.service.clothes;
 
 import com.ssafy.closetory.dto.clothes.*;
+import java.util.List;
 
 public interface ClothesService {
   GetClosetResponse getCloset(Integer userId, GetClosetRequest request);
@@ -15,4 +16,8 @@ public interface ClothesService {
   void deleteClothes(Integer userId, Integer clothesId);
 
   String createMaskingImage(byte[] rawImage);
+
+  GetClosetResponse getClosetForAiRecommendation(Integer userId, Boolean onlyMine);
+
+  List<ClothesRecommendItem> getClothesRecommend(Integer clothedId, Integer userId);
 }

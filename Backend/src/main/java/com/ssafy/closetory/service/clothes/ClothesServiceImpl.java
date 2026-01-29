@@ -9,6 +9,7 @@ import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
+import com.ssafy.closetory.repository.projection.ClothesRecommendRow;
 import com.ssafy.closetory.service.s3.S3ImageService;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -18,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -32,7 +32,6 @@ public class ClothesServiceImpl implements ClothesService {
   private final SeasonRepository seasonRepository;
   private final S3ImageService s3ImageService;
   private final WebClient fastApiWebClient;
-  private final RestClient.Builder builder;
 
   @Override
   public GetClosetResponse getCloset(Integer userId, GetClosetRequest request) {
@@ -59,7 +58,8 @@ public class ClothesServiceImpl implements ClothesService {
     List<ClosetClothesItem> shoes = new ArrayList<>();
 
     for (Clothes c : closet) {
-      ClosetClothesItem item = ClosetClothesItem.from(c);
+      boolean isMine = userId.equals(c.getUserId());
+      ClosetClothesItem item = ClosetClothesItem.of(c, isMine);
 
       switch (c.getClothesType()) {
         case TOP -> top.add(item);
@@ -218,5 +218,55 @@ public class ClothesServiceImpl implements ClothesService {
     } catch (Exception e) {
       throw new RuntimeException("AI 서버와 통신 중 오류가 발생했습니다.");
     }
+  }
+
+  @Override
+  public GetClosetResponse getClosetForAiRecommendation(Integer userId, Boolean onlyMine) {
+    List<Clothes> savedClothes = clothesRepository.findSavedClothesByUserId(userId, onlyMine);
+
+    List<ClosetClothesItem> top = new ArrayList<>();
+    List<ClosetClothesItem> bottom = new ArrayList<>();
+    List<ClosetClothesItem> accessories = new ArrayList<>();
+    List<ClosetClothesItem> bags = new ArrayList<>();
+    List<ClosetClothesItem> outer = new ArrayList<>();
+    List<ClosetClothesItem> shoes = new ArrayList<>();
+
+    for (Clothes c : savedClothes) {
+      ClosetClothesItem item = ClosetClothesItem.from(c);
+
+      switch (c.getClothesType()) {
+        case TOP -> top.add(item);
+        case BOTTOM -> bottom.add(item);
+        case ACCESSORIES -> accessories.add(item);
+        case BAG -> bags.add(item);
+        case OUTER -> outer.add(item);
+        case SHOES -> shoes.add(item);
+      }
+    }
+
+    return new GetClosetResponse(top, bottom, accessories, bags, outer, shoes);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<ClothesRecommendItem> getClothesRecommend(Integer clothedId, Integer userId) {
+
+    Clothes target =
+        clothesRepository
+            .findByIdAndDeletedAtIsNull(clothedId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 옷입니다."));
+
+    if (!target.getUserId().equals(userId)) {
+      return Collections.emptyList();
+    }
+
+    List<Integer> seasonIds = target.getSeasons().stream().map(Season::getId).distinct().toList();
+
+    List<ClothesRecommendRow> rows =
+        clothesRepository.recommendTopByCategory(userId, clothedId, seasonIds);
+
+    return rows.stream()
+        .map(r -> new ClothesRecommendItem(r.getClothesId(), r.getPhotoUrl()))
+        .toList();
   }
 }

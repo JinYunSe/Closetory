@@ -50,7 +50,7 @@ public class PostController {
 
     PostDetailResponse response = postService.getPostDetail(postId, userId);
 
-    return ResponseEntity.ok(ApiResponse.ok(200, "게시글 상세 조회 완료", response));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "게시글 수정 완료", response));
   }
 
   @PatchMapping(
