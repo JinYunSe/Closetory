@@ -3,11 +3,12 @@ package com.ssafy.closetory.entity.user;
 import com.ssafy.closetory.enums.Gender;
 import com.ssafy.closetory.enums.Provider;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -73,5 +74,33 @@ public class User {
     if (this.alarmEnabled == null) {
       this.alarmEnabled = false;
     }
+  }
+
+  public void updateNickname(String nickname) {
+    this.nickname = nickname;
+  }
+
+  public void updateGender(Gender gender) {
+    this.gender = gender;
+  }
+
+  public void updateHeight(Short height) {
+    this.height = height;
+  }
+
+  public void updateWeight(Short weight) {
+    this.weight = weight;
+  }
+
+  public void updateAlarmEnabled(Boolean alarmEnabled) {
+    this.alarmEnabled = alarmEnabled;
+  }
+
+  public void updateProfilePhotoUrl(String profilePhotoUrl) {
+    this.profilePhotoUrl = profilePhotoUrl;
+  }
+
+  public void updateBodyPhotoUrl(String bodyPhotoUrl) {
+    this.bodyPhotoUrl = bodyPhotoUrl;
   }
 }

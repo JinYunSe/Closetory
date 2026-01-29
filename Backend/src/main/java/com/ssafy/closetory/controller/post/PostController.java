@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.closetory.dto.common.ApiResponse;
 import com.ssafy.closetory.dto.post.PostCreateRequest;
 import com.ssafy.closetory.dto.post.PostCreateResponse;
+import com.ssafy.closetory.dto.post.PostUpdateRequest;
 import com.ssafy.closetory.service.post.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -13,10 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -41,5 +39,24 @@ public class PostController {
 
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.ok(201, "게시글 등록 완료", response));
+  }
+
+  @PatchMapping(
+      value = "/{postId}",
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "게시글 수정")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<PostCreateResponse>> updatePost(
+      @PathVariable Integer postId,
+      @RequestPart(value = "photo") MultipartFile photo,
+      @RequestPart("request") String requestJson,
+      @AuthenticationPrincipal Integer userId)
+      throws JsonProcessingException {
+    PostUpdateRequest request = objectMapper.readValue(requestJson, PostUpdateRequest.class);
+
+    PostCreateResponse response = postService.updatePost(userId, postId, request, photo);
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "게시글 수정 완료", response));
   }
 }

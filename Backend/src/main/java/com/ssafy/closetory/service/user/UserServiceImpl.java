@@ -1,6 +1,7 @@
 package com.ssafy.closetory.service.user;
 
 import com.ssafy.closetory.dto.user.AddStyleRequest;
+import com.ssafy.closetory.dto.user.UpdateUserRequest;
 import com.ssafy.closetory.entity.clothes.Tag;
 import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.entity.user.UserFavoriteTag;
@@ -8,13 +9,16 @@ import com.ssafy.closetory.exception.common.*;
 import com.ssafy.closetory.repository.TagRepository;
 import com.ssafy.closetory.repository.UserFavoriteTagRepository;
 import com.ssafy.closetory.repository.UserRepository;
-import java.util.List;
+import com.ssafy.closetory.service.s3.S3ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,10 +28,52 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final TagRepository tagRepository;
   private final UserFavoriteTagRepository userFavoriteTagRepository;
-
+  private final S3ImageService s3ImageService;
   private final PasswordEncoder passwordEncoder;
 
   // 비밀번호 검증
+  @Override
+  public void updateUser(
+      Integer authUserId,
+      Integer userId,
+      UpdateUserRequest request,
+      MultipartFile profilePhoto,
+      MultipartFile bodyPhoto) {
+    if (!authUserId.equals(userId)) {
+      throw new ForbiddenException("사용자의 권한이 없습니다.");
+    }
+
+    User user =
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
+
+    if (profilePhoto != null && !profilePhoto.isEmpty()) {
+      String profileUrl = s3ImageService.upload(profilePhoto);
+      user.updateProfilePhotoUrl(profileUrl);
+    }
+
+    if (bodyPhoto != null && !bodyPhoto.isEmpty()) {
+      String bodyUrl = s3ImageService.upload(bodyPhoto);
+      user.updateBodyPhotoUrl(bodyUrl);
+    }
+
+    if (request != null) {
+      if (request.nickname() != null) {
+        user.updateNickname(request.nickname());
+      }
+      if (request.gender() != null) {
+        user.updateGender(request.gender());
+      }
+      if (request.height() != null) {
+        user.updateHeight(request.height().shortValue());
+      }
+      if (request.weight() != null) {
+        user.updateWeight(request.weight().shortValue());
+      }
+      if (request.alarmEnabled() != null) {
+        user.updateAlarmEnabled(request.alarmEnabled());
+      }
+    }
+  }
 
   @Override
   @Transactional(readOnly = true)

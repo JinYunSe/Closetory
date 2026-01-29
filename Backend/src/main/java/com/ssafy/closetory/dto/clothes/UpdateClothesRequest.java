@@ -5,4 +5,8 @@ import com.ssafy.closetory.enums.ClothesType;
 import java.util.List;
 
 public record UpdateClothesRequest(
-    List<Integer> tags, ClothesType clothesType, List<Integer> seasons, ClothesColor color) {}
+    String photoUrl,
+    List<Integer> tags,
+    ClothesType clothesType,
+    List<Integer> seasons,
+    ClothesColor color) {}

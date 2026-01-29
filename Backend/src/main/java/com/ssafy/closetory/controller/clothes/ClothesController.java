@@ -1,13 +1,11 @@
 package com.ssafy.closetory.controller.clothes;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.closetory.dto.clothes.*;
 import com.ssafy.closetory.dto.common.ApiResponse;
 import com.ssafy.closetory.service.clothes.ClothesService;
-import com.ssafy.closetory.service.s3.S3ImageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class ClothesController {
 
   private final ClothesService clothesService;
-  private final ObjectMapper objectMapper;
-  private final S3ImageService s3ImageService;
 
   @GetMapping
   @Operation(summary = "옷장 조회")
@@ -52,39 +48,24 @@ public class ClothesController {
         .body(ApiResponse.ok(200, "옷 상세 정보 조회 성공", response));
   }
 
-  @PostMapping(
-      consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping()
   @Operation(summary = "옷 등록")
   @SecurityRequirement(name = "bearerAuth")
-  public ResponseEntity<ApiResponse<Void>> addClothes(
-      @RequestPart("photo") MultipartFile photo,
-      @RequestPart("request") String requestJson,
-      @AuthenticationPrincipal Integer userId)
-      throws JsonProcessingException {
-    AddClothesRequest request = objectMapper.readValue(requestJson, AddClothesRequest.class);
-    clothesService.addClothes(userId, request, photo);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201, "옷 등록 성공", null));
+  public ResponseEntity<ApiResponse<AddClothesResponse>> addClothes(
+      @Valid @RequestBody AddClothesRequest request, @AuthenticationPrincipal Integer userId) {
+    Integer clothesId = clothesService.addClothes(userId, request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.ok(201, "옷 등록 성공", new AddClothesResponse(clothesId)));
   }
 
-  @PatchMapping(
-      value = "/{clothesId}",
-      consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(value = "/{clothesId}")
   @Operation(summary = "옷 수정")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<GetClothesDetailResponse>> updateClothes(
       @PathVariable Integer clothesId,
-      @RequestPart(value = "photo", required = false) MultipartFile photo,
-      @RequestPart(value = "request", required = false) String requestJson,
-      @AuthenticationPrincipal Integer userId)
-      throws JsonProcessingException {
-    UpdateClothesRequest request =
-        (requestJson == null || requestJson.isBlank())
-            ? new UpdateClothesRequest(null, null, null, null)
-            : objectMapper.readValue(requestJson, UpdateClothesRequest.class);
-    GetClothesDetailResponse response =
-        clothesService.updateClothes(userId, clothesId, request, photo);
+      @RequestBody UpdateClothesRequest request,
+      @AuthenticationPrincipal Integer userId) {
+    GetClothesDetailResponse response = clothesService.updateClothes(userId, clothesId, request);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "옷 수정 성공", response));
   }
 
@@ -101,10 +82,10 @@ public class ClothesController {
   @Operation(summary = "옷 누끼 따기")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<Map<String, String>>> maskingImage(
-      @RequestParam("clothesPhotoUrl") MultipartFile file, @AuthenticationPrincipal Integer userId)
+      @RequestParam("clothesPhoto") MultipartFile file, @AuthenticationPrincipal Integer userId)
       throws IOException {
-    String maskedImage = clothesService.createMaskingImage(file.getBytes());
+    String maskedImageUrl = clothesService.createMaskingImage(file.getBytes());
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponse.ok(201, "옷 누끼 따기 성공", Map.of("maskedImage", maskedImage)));
+        .body(ApiResponse.ok(201, "옷 누끼 따기 성공", Map.of("maskedImageUrl", maskedImageUrl)));
   }
 }
