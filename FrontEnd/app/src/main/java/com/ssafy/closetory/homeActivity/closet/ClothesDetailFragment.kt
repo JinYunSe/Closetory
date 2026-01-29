@@ -15,6 +15,7 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentClothesDetailBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.homeActivity.HomeActivity
+import com.ssafy.closetory.util.ChipUtils
 import com.ssafy.closetory.util.ClothTypeOptions
 import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.SeasonOptions
@@ -120,24 +121,14 @@ class ClothesDetailFragment :
             } else {
                 binding.cgTags.visibility = View.VISIBLE
                 tags.forEach { tag ->
-                    val chip = com.google.android.material.chip.Chip(homeActivity).apply {
-                        text = "#$tag"
-                        isCheckable = true
-                        isChecked = true
-                        isClickable = false
-                        isFocusable = false
-                        setEnsureMinTouchTargetSize(false)
-                        setChipDrawable(
-                            com.google.android.material.chip.ChipDrawable.createFromAttributes(
-                                homeActivity,
-                                null,
-                                0,
-                                com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
-                            )
-                        )
-                        chipBackgroundColor = homeActivity.getColorStateList(R.color.chip_bg_selector)
-                        setTextColor(homeActivity.getColorStateList(R.color.chip_text_selector))
-                    }
+                    val chip = ChipUtils.createChoiceChip(
+                        context = homeActivity,
+                        text = "#$tag",
+                        checkable = true,
+                        checked = true,
+                        clickable = false,
+                        focusable = false
+                    )
                     binding.cgTags.addView(chip)
                 }
             }
