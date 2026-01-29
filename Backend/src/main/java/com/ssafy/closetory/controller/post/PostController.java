@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.closetory.dto.common.ApiResponse;
 import com.ssafy.closetory.dto.post.PostCreateRequest;
 import com.ssafy.closetory.dto.post.PostCreateResponse;
+import com.ssafy.closetory.dto.post.PostDetailResponse;
 import com.ssafy.closetory.dto.post.PostUpdateRequest;
 import com.ssafy.closetory.service.post.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +40,17 @@ public class PostController {
 
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.ok(201, "게시글 등록 완료", response));
+  }
+
+  @GetMapping("/{postId}")
+  @Operation(summary = "게시글 상세 조회")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<PostDetailResponse>> getPostDetail(
+      @PathVariable Integer postId, @AuthenticationPrincipal Integer userId) {
+
+    PostDetailResponse response = postService.getPostDetail(postId, userId);
+
+    return ResponseEntity.ok(ApiResponse.ok(200, "게시글 상세 조회 완료", response));
   }
 
   @PatchMapping(
