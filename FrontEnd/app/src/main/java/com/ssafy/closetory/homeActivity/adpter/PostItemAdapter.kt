@@ -11,6 +11,7 @@ import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.ItemPostItemBinding
 import com.ssafy.closetory.dto.PostCreateSelectedItem
 
+private const val TAG = "PostItemAdapter_싸피"
 class PostItemAdapter : ListAdapter<PostCreateSelectedItem, PostItemAdapter.ViewHolder>(diffCallback) {
 
     // 외부로 클릭 이벤트 전달
@@ -32,7 +33,13 @@ class PostItemAdapter : ListAdapter<PostCreateSelectedItem, PostItemAdapter.View
     inner class ViewHolder(private val binding: ItemPostItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: PostCreateSelectedItem) = with(binding) {
-            val imageUrl = "${ApplicationClass.API_BASE_URL}${item.photoUrl}"
+            val imageUrl = if (item.photoUrl.startsWith("http")) {
+                item.photoUrl
+            } else {
+                "${ApplicationClass.API_BASE_URL}${item.photoUrl}"
+            }
+            android.util.Log.d("POST_ITEM_ADAPTER", "photoUrl=${item.photoUrl}")
+            android.util.Log.d("POST_ITEM_ADAPTER", "imageUrl=$imageUrl")
 
             Glide.with(ivItem.context)
                 .load(imageUrl)
