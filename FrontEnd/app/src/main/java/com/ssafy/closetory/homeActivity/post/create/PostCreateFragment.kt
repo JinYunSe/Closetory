@@ -317,7 +317,7 @@ class PostCreateFragment :
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.createResult.collect { data ->
                 if (data != null) {
-//                    parentFragmentManager.popBackStack()
+                    parentFragmentManager.popBackStack()
                 }
             }
         }
