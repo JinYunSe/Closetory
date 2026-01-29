@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -33,7 +32,6 @@ public class ClothesServiceImpl implements ClothesService {
   private final SeasonRepository seasonRepository;
   private final S3ImageService s3ImageService;
   private final WebClient fastApiWebClient;
-  private final RestClient.Builder builder;
 
   @Override
   public GetClosetResponse getCloset(Integer userId, GetClosetRequest request) {
@@ -217,5 +215,32 @@ public class ClothesServiceImpl implements ClothesService {
     } catch (Exception e) {
       throw new RuntimeException("AI 서버와 통신 중 오류가 발생했습니다.");
     }
+  }
+
+  @Override
+  public GetClosetResponse getClosetForAiRecommendation(Integer userId, Boolean onlyMine) {
+    List<Clothes> savedClothes = clothesRepository.findSavedClothesByUserId(userId, onlyMine);
+
+    List<ClosetClothesItem> top = new ArrayList<>();
+    List<ClosetClothesItem> bottom = new ArrayList<>();
+    List<ClosetClothesItem> accessories = new ArrayList<>();
+    List<ClosetClothesItem> bags = new ArrayList<>();
+    List<ClosetClothesItem> outer = new ArrayList<>();
+    List<ClosetClothesItem> shoes = new ArrayList<>();
+
+    for (Clothes c : savedClothes) {
+      ClosetClothesItem item = ClosetClothesItem.from(c);
+
+      switch (c.getClothesType()) {
+        case TOP -> top.add(item);
+        case BOTTOM -> bottom.add(item);
+        case ACCESSORIES -> accessories.add(item);
+        case BAG -> bags.add(item);
+        case OUTER -> outer.add(item);
+        case SHOES -> shoes.add(item);
+      }
+    }
+
+    return new GetClosetResponse(top, bottom, accessories, bags, outer, shoes);
   }
 }

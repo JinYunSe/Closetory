@@ -16,4 +16,6 @@ public interface ClothesService {
   void deleteClothes(Integer userId, Integer clothesId);
 
   String createMaskingImage(byte[] rawImage);
+
+  GetClosetResponse getClosetForAiRecommendation(Integer userId, Boolean onlyMine);
 }

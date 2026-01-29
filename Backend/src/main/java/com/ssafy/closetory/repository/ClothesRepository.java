@@ -63,4 +63,35 @@ public interface ClothesRepository extends JpaRepository<Clothes, Integer> {
   Optional<Clothes> getClothesById(Integer id);
 
   Optional<Clothes> findByIdAndDeletedAtIsNull(Integer id);
+
+  //  @Query(
+  //      """
+  //    SELECT c
+  //    FROM Save s
+  //    JOIN s.clothes c
+  //    WHERE s.user.id = :userId
+  //      AND c.deletedAt IS NULL
+  //      AND (
+  //          :onlyMine = false
+  //          OR c.userId = :userId
+  //      )
+  //    ORDER BY s.createdAt DESC
+  // """)
+  //  List<Clothes> findSavedClothesByUserId(
+  //      @Param("userId") Integer userId, @Param("onlyMine") boolean onlyMine);
+
+  @Query(
+      """
+    SELECT DISTINCT c
+    FROM Clothes c
+    LEFT JOIN Save s ON s.clothes.id = c.id AND s.user.id = :userId
+    WHERE c.deletedAt IS NULL
+    AND (
+        c.userId = :userId
+        OR
+        (:onlyMine = false AND s.id IS NOT NULL)
+    )
+""")
+  List<Clothes> findSavedClothesByUserId(
+      @Param("userId") Integer userId, @Param("onlyMine") boolean onlyMine);
 }
