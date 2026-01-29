@@ -9,11 +9,11 @@ import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.EditProfilePasswordRequest
+import com.ssafy.closetory.dto.EditProfileUpdateData
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import retrofit2.Response
 
 private const val TAG = "EditProfileViewModel_싸피"
@@ -70,24 +70,37 @@ class EditProfileViewModel : ViewModel() {
     }
 
     // 회원정보 수정 멀티파트 요청 처리임
-    fun updateProfileMultipart(profilePhoto: MultipartBody.Part?, bodyPhoto: MultipartBody.Part?, data: RequestBody) {
+    fun updateProfileMultipart(
+        userId: Int,
+        profilePhoto: MultipartBody.Part?,
+        bodyPhoto: MultipartBody.Part?,
+        nickname: String,
+        gender: String,
+        height: Short,
+        weight: Short,
+        alarmEnabled: Boolean
+    ) {
         viewModelScope.launch {
             _isLoading.tryEmit(true)
 
-            try {
-                val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)
-                    ?: run {
-                        _message.tryEmit("로그인이 필요합니다.")
-                        return@launch
-                    }
+            if (userId == -1) {
+                _message.tryEmit("로그인이 필요합니다.")
+                return@launch
+            }
 
+            try {
                 val res = repository.updateProfileMultipart(
                     userId = userId,
                     profilePhoto = profilePhoto,
                     bodyPhoto = bodyPhoto,
-                    data = data
+                    request = EditProfileUpdateData(
+                        nickname = nickname,
+                        gender = gender,
+                        height = height,
+                        weight = weight,
+                        alarmEnabled = alarmEnabled
+                    )
                 )
-
                 if (res.isSuccessful) {
                     val body = res.body()
                     _updateResult.tryEmit(Unit)

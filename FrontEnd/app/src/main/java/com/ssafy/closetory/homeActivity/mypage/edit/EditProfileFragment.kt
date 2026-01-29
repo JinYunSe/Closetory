@@ -29,8 +29,6 @@ import com.ssafy.closetory.util.PermissionChecker
 import com.ssafy.closetory.util.image.ImageMultipartUtil
 import java.io.File
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
 
 private const val TAG = "EditProfileFragment_싸피"
 
@@ -273,6 +271,12 @@ class EditProfileFragment :
         }
 
         binding.btnSave.setOnClickListener {
+            val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID, -1) ?: -1
+            if (userId == -1) {
+                showToast("로그인이 필요합니다.")
+                return@setOnClickListener
+            }
+
             val nickname = binding.etNickname.text.toString().trim()
             val heightText = binding.etHeight.text.toString().trim()
             val weightText = binding.etWeight.text.toString().trim()
@@ -282,8 +286,8 @@ class EditProfileFragment :
                 return@setOnClickListener
             }
 
-            val height = heightText.toIntOrNull()
-            val weight = weightText.toIntOrNull()
+            val height = heightText.toShortOrNull()
+            val weight = weightText.toShortOrNull()
 
             if (height == null) {
                 showToast("키는 숫자로 입력해주세요.")
@@ -329,14 +333,21 @@ class EditProfileFragment :
             )
 
             val json = Gson().toJson(dataObj)
-            val dataBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
 
-            Log.d(TAG, "updateProfile: profileUri=$selectedProfileUri, bodyUri=$selectedBodyUri, data=$json")
+            Log.d(
+                TAG,
+                "updateProfile: userId=$userId, profilePhoto=$selectedProfileUri, bodyPhoto=$selectedBodyUri, data=$json"
+            )
 
             viewModel.updateProfileMultipart(
+                userId = userId,
                 profilePhoto = profilePart,
                 bodyPhoto = bodyPart,
-                data = dataBody
+                nickname = nickname,
+                height = height,
+                weight = weight,
+                gender = gender!!,
+                alarmEnabled = binding.switchAlarm.isChecked
             )
         }
 
