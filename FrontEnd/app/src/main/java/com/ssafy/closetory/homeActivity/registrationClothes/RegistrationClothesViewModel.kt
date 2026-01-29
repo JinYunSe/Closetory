@@ -13,7 +13,7 @@ import okhttp3.MultipartBody
 
 private const val TAG = "RegistrationClothViewModel_싸피"
 
-class RegistrationClothViewModel : ViewModel() {
+class RegistrationClothesViewModel : ViewModel() {
 
     private val repository = RegistrationClothesRepository()
 
@@ -75,17 +75,16 @@ class RegistrationClothViewModel : ViewModel() {
                 )
 
                 if (res.isSuccessful) {
-                    _message.emit(res.body()?.responseMessage ?: "등록 성공")
+//                    _message.emit(res.body()?.responseMessage ?: "등록 성공")
                     // 등록 후 상세 페이지 이동 관련 로직
-                    val newId = res.body()?.data?.clothesId
-                    if (newId == null) return@launch
+                    val newId = res.body()?.data?.clothesId ?: return@launch
                     _navigateToDetail.emit(newId)
                 } else {
                     Log.d(TAG, "등록 실패 : ${res.body()?.errorMessage}")
                     _message.emit(res.body()?.errorMessage ?: "등록 실패")
                 }
             } catch (e: Exception) {
-                _message.emit(e.message ?: "네트워크 오류")
+                Log.e(TAG, "옷 등록 오류 발생 : ${e.message}")
             }
         }
     }
@@ -113,7 +112,7 @@ class RegistrationClothViewModel : ViewModel() {
                 )
 
                 if (res.isSuccessful) {
-                    _message.emit(res.body()?.responseMessage ?: "수정 성공")
+//                    _message.emit(res.body()?.responseMessage ?: "수정 성공")
                     _navigateToDetail.emit(clothesId)
                 } else {
                     _message.emit(res.body()?.errorMessage ?: "수정 실패")
