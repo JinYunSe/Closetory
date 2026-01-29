@@ -97,7 +97,7 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
 
     fun registerObserve() {
         homeInitViewModel.tagsList.observe(this) {
-            TagOptions.updateFromServer(it)
+            TagOptions.setTags(it)
         }
     }
 }
