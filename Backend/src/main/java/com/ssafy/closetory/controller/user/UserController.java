@@ -1,9 +1,12 @@
 package com.ssafy.closetory.controller.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.closetory.dto.common.ApiResponse;
 import com.ssafy.closetory.dto.user.AddStyleRequest;
 import com.ssafy.closetory.dto.user.PasswordChangeRequest;
 import com.ssafy.closetory.dto.user.PasswordVerifyRequest;
+import com.ssafy.closetory.dto.user.UpdateUserRequest;
 import com.ssafy.closetory.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -11,9 +14,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -22,6 +27,30 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
   private final UserService userService;
+  private final ObjectMapper objectMapper;
+
+  @PatchMapping(
+      value = "/{userId}",
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "회원 정보 수정")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Void>> updateUser(
+      @PathVariable Integer userId,
+      @AuthenticationPrincipal Integer authUserId,
+      @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto,
+      @RequestPart(value = "bodyPhoto", required = false) MultipartFile bodyPhoto,
+      @Valid @RequestPart(value = "request", required = false) String requestJson)
+      throws JsonProcessingException {
+    UpdateUserRequest request = null;
+    if (requestJson != null) {
+      request = objectMapper.readValue(requestJson, UpdateUserRequest.class);
+    }
+
+    userService.updateUser(authUserId, userId, request, profilePhoto, bodyPhoto);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.ok(200, "회원정보가 수정 완료 되었습니다.", null));
+  }
 
   // 비밀번호 검증
   @PostMapping("/{userId}/password")
