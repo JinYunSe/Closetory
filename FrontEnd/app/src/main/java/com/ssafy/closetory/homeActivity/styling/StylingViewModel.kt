@@ -77,36 +77,35 @@ class StylingViewModel : ViewModel() {
      * 순서: Top, Bottom, Shoes, Outer, Accessory, Bag
      */
     fun saveLook(clothesIdList: List<Int>) {
+        val aiImageUrl = _aiImageUrl.value // ViewModel이 가지고 있는 값 사용
+
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 _errorMessage.value = null
 
-                // 빈 리스트 체크
                 if (clothesIdList.all { it == -1 }) {
                     _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요"
-                    _isLoading.value = false
                     return@launch
                 }
 
-                val request = SaveLookRequest(clothesIdList = clothesIdList)
+                if (aiImageUrl.isNullOrBlank()) {
+                    _errorMessage.value = "AI 이미지가 없습니다. 먼저 가상 피팅을 진행해 주세요."
+                    return@launch
+                }
 
-                Log.d(TAG, "saveLook 요청: $request")
+                val request = SaveLookRequest(
+                    clothesIdList = clothesIdList.filter { it != -1 },
+                    aiImageUrl = aiImageUrl
+                )
 
                 val response = repository.saveLook(request)
 
                 if (response.isSuccessful) {
-                    val body = response.body()
-                    Log.d(TAG, "saveLook 성공: ${body?.data}")
                     _successMessage.value = "코디가 저장되었습니다!"
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    Log.e(TAG, "saveLook 실패 - 코드: ${response.code()}, 메시지: $errorBody")
                     _errorMessage.value = "코디 저장에 실패했습니다"
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "saveLook 예외 발생", e)
-                _errorMessage.value = "네트워크 오류: ${e.message}"
             } finally {
                 _isLoading.value = false
             }

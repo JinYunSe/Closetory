@@ -196,6 +196,9 @@ class StylingFragment :
         binding.btnRemoveShoes.setOnClickListener {
             removeItemFromSlot("SHOES", binding.ivSlotShoes, binding.btnRemoveShoes)
         }
+        binding.btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 
     /**
@@ -263,33 +266,6 @@ class StylingFragment :
             }
         }
     }
-
-    /**
-     * 슬롯에 아이템 추가 (클릭 시 올라가기)
-     */
-//    private fun addItemToSlot(slotType: String, item: ClothItemDto, imageView: ImageView, removeButton: View) {
-// //        Log.d(TAG, "addItemToSlot - slotType: $slotType, itemId: ${item.clothesId}")
-// //
-// //        // 슬롯에 저장
-// //        selectedSlots[slotType] = item
-// //
-// //        // 이미지 로드
-// //        val imageUrl = "${ApplicationClass.SERVER_URL}${item.photoUrl}"
-// //        Glide.with(this)
-// //            .load(imageUrl)
-// //            .placeholder(R.drawable.bg_slot_empty)
-// //            .error(R.drawable.bg_slot_empty)
-// //            .centerInside()
-// //            .into(imageView)
-// //
-// //        // 배경 제거 (이미지만 보이게)
-// //        imageView.background = null
-// //
-// //        // 삭제 버튼 표시
-// //        removeButton.visibility = View.VISIBLE
-// //
-// //        Log.d(TAG, "슬롯 업데이트 완료: $slotType")
-// //    }
     private fun addItemToSlot(slotType: String, item: ClothesItemDto, imageView: ImageView, removeButton: View) {
         Log.d(TAG, "=== addItemToSlot 호출 ===")
         Log.d(TAG, "slotType: $slotType")

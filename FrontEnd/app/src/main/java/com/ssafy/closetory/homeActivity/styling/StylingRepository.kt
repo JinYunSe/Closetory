@@ -34,8 +34,7 @@ class StylingRepository {
     )
 
     // 룩 저장
-    suspend fun saveLook(request: SaveLookRequest): Response<ApiResponse<SaveLookResponse>> =
-        stylingService.saveLook(request)
+    suspend fun saveLook(request: SaveLookRequest): Response<ApiResponse<Unit>> = stylingService.saveLook(request)
 
     // AI 가상 피팅
     suspend fun requestAiFitting(request: AiFittingRequest): Response<ApiResponse<AiFittingResponse>> =
