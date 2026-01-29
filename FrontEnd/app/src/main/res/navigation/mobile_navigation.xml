@@ -49,15 +49,32 @@
         tools:layout="@layout/fragment_my_page" />
 
     <fragment
-        android:id="@+id/navigation_registration_close"
-        android:name="com.ssafy.closetory.homeActivity.registrationCloth.RegistrationClothFragment"
-        android:label="@string/title_registration_cloth"
-        tools:layout="@layout/fragment_registration_cloth" />
+        android:id="@+id/navigation_registration_clothes"
+        android:name="com.ssafy.closetory.homeActivity.registrationClothes.RegistrationClothFragment"
+        android:label="@string/title_registration_clothes"
+        tools:layout="@layout/fragment_registration_clothes">
+
+        <action
+            android:id="@+id/action_registration_to_clothes_detail"
+            app:destination="@id/navigation_clothes_detail"
+            app:popUpTo="@id/navigation_registration_clothes"
+            app:popUpToInclusive="true" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_clothes_detail"
         android:name="com.ssafy.closetory.homeActivity.closet.ClothesDetailFragment"
         android:label="@string/title_clothes_detail"
-        tools:layout="@layout/fragment_clothes_detail"
-        />
+        tools:layout="@layout/fragment_clothes_detail">
+
+        <action
+            android:id="@+id/action_clothes_detail_to_registration"
+            app:destination="@+id/navigation_registration_clothes"
+            />
+
+        <argument
+            android:name="clothesId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
 </navigation>
