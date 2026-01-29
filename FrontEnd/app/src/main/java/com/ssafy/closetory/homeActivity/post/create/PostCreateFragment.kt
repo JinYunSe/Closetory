@@ -291,8 +291,8 @@ class PostCreateFragment :
             viewModel.createPost(
                 photo = photo,
                 title = titleBody,
-                content = contentBody
-//                items = items
+                content = contentBody,
+                items = items
             )
         }
     }
