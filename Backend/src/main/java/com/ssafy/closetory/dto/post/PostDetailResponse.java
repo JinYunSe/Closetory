@@ -12,4 +12,7 @@ public record PostDetailResponse(
     LocalDateTime createdAt,
     Integer views,
     Integer likeCount,
-    Boolean isLiked) {}
+    Boolean isLiked,
+    Integer userId,
+    String nickname,
+    String profilePhotoUrl) {}
