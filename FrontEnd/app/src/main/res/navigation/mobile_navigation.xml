@@ -55,7 +55,7 @@
 
     <fragment
         android:id="@+id/navigation_registration_clothes"
-        android:name="com.ssafy.closetory.homeActivity.registrationClothes.RegistrationClothFragment"
+        android:name="com.ssafy.closetory.homeActivity.registrationClothes.RegistrationClothesFragment"
         android:label="@string/title_registration_clothes"
         tools:layout="@layout/fragment_registration_clothes">
 
