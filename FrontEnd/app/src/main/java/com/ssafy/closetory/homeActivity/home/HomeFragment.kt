@@ -116,12 +116,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
             val found = days.firstOrNull { it.inMonth && it.dayOfMonth == todayDay }
             if (found != null) {
                 selectedDay = found
-                selectedKey = keyof(found)
+//                selectedKey = keyof(found)
                 calendarAdapter.setSelected(found)
             }
         } else {
             selectedDay = null
-            selectedKey = null
+//            selectedKey = null
         }
     }
 

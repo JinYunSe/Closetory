@@ -2,6 +2,7 @@ package com.ssafy.closetory.homeActivity.adpter
 
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -34,6 +35,12 @@ class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.ViewHodler>(di
             Log.d(TAG, "SERVER URL : ${ApplicationClass.API_BASE_URL}")
             Log.d(TAG, "clothesId : ${item.clothesId}")
             Log.d(TAG, "photoUrl : ${item.photoUrl}")
+
+            // 남의 옷 가져온 경우
+            if (item.isMine == false) {
+                binding.ivBookmark.setImageResource(R.drawable.baseline_bookmark_24)
+                binding.ivBookmark.visibility = View.VISIBLE
+            }
 
             Glide.with(binding.ivPhoto)
                 .load(item.photoUrl)
