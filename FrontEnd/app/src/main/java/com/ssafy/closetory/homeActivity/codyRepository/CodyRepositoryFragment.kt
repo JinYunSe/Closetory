@@ -32,7 +32,7 @@ class CodyRepositoryFragment :
         setupObservers()
 
         // 페이지 들어가자 마자 최초로 로드해서 모든 룩을 보여주는 것
-        viewModel.loadLooks() // (네 ViewModel 함수명이 다르면 여기만 수정)
+        viewModel.getLooks() // (네 ViewModel 함수명이 다르면 여기만 수정)
     }
 
     // 페이지에 이미지를 보여주는 형식은 3열 그리드방식
