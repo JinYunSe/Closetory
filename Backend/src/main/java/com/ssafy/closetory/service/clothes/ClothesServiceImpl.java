@@ -60,7 +60,8 @@ public class ClothesServiceImpl implements ClothesService {
     List<ClosetClothesItem> shoes = new ArrayList<>();
 
     for (Clothes c : closet) {
-      ClosetClothesItem item = ClosetClothesItem.from(c);
+      boolean isMine = userId.equals(c.getUserId());
+      ClosetClothesItem item = ClosetClothesItem.of(c, isMine);
 
       switch (c.getClothesType()) {
         case TOP -> top.add(item);
