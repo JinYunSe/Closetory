@@ -23,6 +23,17 @@
         android:textColor="@color/black"
         android:textSize="20sp" />
 
+    <!-- 회원정보 수정 버튼 (추가) -->
+    <Button
+        android:id="@+id/tvEditProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:layout_marginTop="24dp"
+        android:layout_gravity="center_horizontal"
+        android:text="회원정보 수정"
+        android:backgroundTint="@color/main_color"
+        android:textColor="@color/black" />
+
     <!-- 로그아웃 버튼 -->
     <Button
         android:id="@+id/btnLogout"
@@ -32,40 +43,4 @@
         android:layout_gravity="center_horizontal"
         android:text="로그아웃"
         android:backgroundTint="@color/main_color" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="30dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="코디 저장소"
-            android:textStyle="bold"
-            android:gravity="center|start"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:gravity="end|center_vertical">
-
-        <TextView
-            android:id="@+id/btn_cody_repository"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_gravity="end|center"
-            android:text="더보기"
-            android:textColor="#000000"
-            android:textSize="12dp" />
-
-    </LinearLayout>
-
-
-    <!-- 아래쪽 여백 (필요 없으면 제거 가능) -->
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2" />
-
 </LinearLayout>

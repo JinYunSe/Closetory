@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 private const val TAG = "ClosetViewModel_싸피"
+
 class ClosetViewModel : ViewModel() {
 
     private val repository = ClosetRepository()
