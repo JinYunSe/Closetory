@@ -30,7 +30,12 @@ class PostCreateViewModel : ViewModel() {
     val isLoading = _isLoading.asSharedFlow()
 
     // 게시글 등록(멀티파트 전송) 요청
-    fun createPost(photo: MultipartBody.Part, title: String, content: String, items: List<Int>) {
+    fun createPost(
+        photo: MultipartBody.Part,
+        title: String,
+        content: String,
+        items: List<Int>
+    ) {
         viewModelScope.launch {
             _isLoading.tryEmit(true)
 

@@ -5,5 +5,5 @@ data class PostCreateResponse(
     val title: String,
     val photoUrl: String,
     val content: String,
-    val items: List<Int>?
+    val items: List<Int>?,
 )

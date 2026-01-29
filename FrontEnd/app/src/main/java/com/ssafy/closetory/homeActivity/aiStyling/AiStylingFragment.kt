@@ -7,6 +7,7 @@ import android.text.style.RelativeSizeSpan
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
+import androidx.activity.addCallback
 import androidx.navigation.fragment.findNavController
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
@@ -21,6 +22,11 @@ class AiStylingFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // 뒤로 가기 버튼을 누르면 무조건 HomeFragment로 가게 설정
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            findNavController().popBackStack(R.id.navigation_home, false)
+        }
 
         // 직접 코디 생성 버튼 클릭 시 StylingFragment로 이동
         // HomeActivity에서 이미 R.id.navigation_styling를 StylingFragment와 연결해두었기 때문에 이 코드를 사용합니다.

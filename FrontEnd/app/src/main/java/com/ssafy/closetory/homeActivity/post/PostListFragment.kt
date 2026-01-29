@@ -18,7 +18,6 @@ import com.ssafy.closetory.homeActivity.adpter.PostListAdapter
 import kotlinx.coroutines.launch
 
 private const val TAG = "PostListFragment_싸피"
-
 class PostListFragment :
     BaseFragment<FragmentPostMainBinding>(FragmentPostMainBinding::bind, R.layout.fragment_post_main) {
 
@@ -31,7 +30,10 @@ class PostListFragment :
 
         setupRecyclerView()
         setupPostOptionRadios()
+
+        // 검색, 버튼 리스너
         setupListeners()
+
         observeViewModel()
 
         // 기본 진입 시: 최신(latest)으로 전체 목록 호출

@@ -1,6 +1,5 @@
 package com.ssafy.closetory.homeActivity.closet
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,22 +8,18 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.tabs.TabLayout
-import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
-import com.ssafy.closetory.authActivity.AuthActivity
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentClosetBinding
 import com.ssafy.closetory.dto.ClosetResponse
 import com.ssafy.closetory.homeActivity.HomeActivity
-import com.ssafy.closetory.homeActivity.adpter.ClothAdapter
+import com.ssafy.closetory.homeActivity.adpter.ClothesAdapter
 import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
-import com.ssafy.closetory.util.auth.AuthManager
 import kotlinx.coroutines.launch
 
 private const val TAG = "ClosetFragment_싸피"
@@ -43,7 +38,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     private var checkedOnlyMyCloth: Boolean = false
 
     // 옷 어댑터
-    private val clothAdapter = ClothAdapter()
+    private val clothAdapter = ClothesAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -55,6 +50,9 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         searchDialog()
         registerObserve()
         selectedTab()
+
+        // 옷 삭제가 들어올 경우 새로고침
+        observeRefreshSignal()
 
         // 옷 검색
         runSearch()
@@ -147,9 +145,9 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
             applyTabItems(data)
         }
 
-        // 에러 발생의 경우 토스트 메시지 띄우기
+        // 토스트 메시지 띄우기
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.errorMessage.collect { message ->
+            viewModel.message.collect { message ->
                 if (message == null) return@collect
                 showToast(message)
             }
@@ -209,6 +207,17 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
                 R.id.action_closet_to_clothes_detail,
                 bundleOf("clothesId" to item.clothesId)
             )
+        }
+    }
+
+    private fun observeRefreshSignal() {
+        val handle = findNavController().currentBackStackEntry?.savedStateHandle ?: return
+
+        handle.getLiveData<Boolean>("refreshCloset").observe(viewLifecycleOwner) { need ->
+            if (need) {
+                handle.remove<Boolean>("refreshCloset")
+                runSearch()
+            }
         }
     }
 }

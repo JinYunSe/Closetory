@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="본인 옷만"
+            android:text="내 옷만"
             android:textSize="14sp" />
 
         <androidx.appcompat.widget.SwitchCompat
@@ -89,7 +89,7 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="악세사리" />
+            android:text="소품류" />
 
 
     </com.google.android.material.tabs.TabLayout>
@@ -104,7 +104,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tab_closet"
-        tools:listitem="@layout/item_cloth"
+        tools:listitem="@layout/item_clothes"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>
-
