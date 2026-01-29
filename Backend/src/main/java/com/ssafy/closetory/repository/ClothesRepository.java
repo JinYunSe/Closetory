@@ -145,8 +145,14 @@ public interface ClothesRepository extends JpaRepository<Clothes, Integer> {
         -- 가방/악세서리는 항상 제외
         AND c.clothes_type NOT IN ('BAG', 'ACCESSORIES')
 
-        -- 가을/겨울 아닐 때는 OUTER 제외
-        AND (:includeOuter = TRUE OR c.clothes_type <> 'OUTER')
+        -- 같은 계절인 옷만
+        AND EXISTS (
+          SELECT 1
+          FROM clothes_seasons cs
+          WHERE cs.clothes_id = c.id
+            AND cs.season_id IN (:seasonIds)
+        )
+
     ),
     ranked AS (
       SELECT
@@ -178,5 +184,5 @@ public interface ClothesRepository extends JpaRepository<Clothes, Integer> {
   List<ClothesRecommendRow> recommendTopByCategory(
       @Param("userId") Integer userId,
       @Param("targetClothesId") Integer targetClothesId,
-      @Param("includeOuter") boolean includeOuter);
+      @Param("seasonIds") List<Integer> seasonIds);
 }

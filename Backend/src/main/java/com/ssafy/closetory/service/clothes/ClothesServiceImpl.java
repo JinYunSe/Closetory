@@ -234,12 +234,10 @@ public class ClothesServiceImpl implements ClothesService {
       return Collections.emptyList();
     }
 
-    // 가을/겨울 포함일 때만 아우터 추천
-    boolean includeOuter =
-        target.getSeasons().stream().map(Season::getId).anyMatch(id -> id == 3 || id == 4);
+    List<Integer> seasonIds = target.getSeasons().stream().map(Season::getId).distinct().toList();
 
     List<ClothesRecommendRow> rows =
-        clothesRepository.recommendTopByCategory(userId, clothedId, includeOuter);
+        clothesRepository.recommendTopByCategory(userId, clothedId, seasonIds);
 
     return rows.stream()
         .map(r -> new ClothesRecommendItem(r.getClothesId(), r.getPhotoUrl()))
