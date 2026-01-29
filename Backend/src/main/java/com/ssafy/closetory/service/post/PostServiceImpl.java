@@ -1,12 +1,11 @@
 package com.ssafy.closetory.service.post;
 
-import com.ssafy.closetory.dto.post.PostCreateRequest;
-import com.ssafy.closetory.dto.post.PostCreateResponse;
-import com.ssafy.closetory.dto.post.PostUpdateRequest;
+import com.ssafy.closetory.dto.post.*;
 import com.ssafy.closetory.entity.post.Post;
 import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.repository.ClothesRepository;
 import com.ssafy.closetory.repository.PostRepository;
+import com.ssafy.closetory.repository.SaveRepository;
 import com.ssafy.closetory.service.s3.S3ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,7 @@ public class PostServiceImpl implements PostService {
   private final PostRepository postRepository;
   private final ClothesRepository clothesRepository;
   private final S3ImageService s3ImageService;
+  private final SaveRepository saveRepository;
 
   @Override
   public PostCreateResponse createPost(
@@ -109,5 +109,39 @@ public class PostServiceImpl implements PostService {
         post.getPhotoUrl(),
         post.getContent(),
         items == null ? List.of() : items);
+  }
+
+  @Override
+  public PostDetailResponse getPostDetail(Integer postId, Integer userId) {
+
+    Post post =
+        postRepository
+            .findById(postId)
+            .orElseThrow(() -> new BadRequestException("존재하지 않는 게시글입니다."));
+
+    post.increaseViews();
+
+    List<PostItemResponse> items =
+        post.getClothes().stream()
+            .map(
+                clothes -> {
+                  Integer clothesId = clothes.getId();
+
+                  boolean isSaved = saveRepository.existsByUserIdAndClothesId(userId, clothesId);
+
+                  return new PostItemResponse(clothesId, clothes.getPhotoUrl(), isSaved);
+                })
+            .toList();
+    return new PostDetailResponse(
+        post.getId(),
+        post.getTitle(),
+        post.getPhotoUrl(),
+        post.getContent(),
+        items,
+        post.getCreatedAt(),
+        post.getViews(),
+        0, // 좋아요 개수
+        false // 좋아요 유무
+        );
   }
 }

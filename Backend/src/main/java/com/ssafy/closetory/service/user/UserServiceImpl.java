@@ -10,6 +10,7 @@ import com.ssafy.closetory.repository.TagRepository;
 import com.ssafy.closetory.repository.UserFavoriteTagRepository;
 import com.ssafy.closetory.repository.UserRepository;
 import com.ssafy.closetory.service.s3.S3ImageService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,8 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
