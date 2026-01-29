@@ -32,6 +32,16 @@ object TagOptions {
         OptionItem(null, "운동", 16)
     )
 
+    // 코드를 한국어로 변환
+    private val codeByKorean: Map<String, Int> =
+        items.associate { it.codeKorean.trim() to it.code }
+
+    fun toCode(value: String?): Int? {
+        val v = value?.trim().orEmpty()
+        if (v.isEmpty()) return null
+        return v.toIntOrNull() ?: codeByKorean[v]
+    }
+
     fun render(sectionRoot: View, context: Context) {
         renderChips(sectionRoot, context, "태그", items, false, false)
     }
@@ -84,5 +94,17 @@ object TagOptions {
             .mapNotNull { group.getChildAt(it) as? Chip }
             .filter { it.isChecked }
             .map { it.tag as Int }
+    }
+
+    fun setSelectedTag(sectionRoot: View, selected: List<Int>) {
+        val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
+        val selectedSet = selected.toSet()
+
+        (0 until group.childCount)
+            .mapNotNull { group.getChildAt(it) as? Chip }
+            .forEach { chip ->
+                val code = chip.tag as? Int ?: return@forEach
+                chip.isChecked = selectedSet.contains(code)
+            }
     }
 }

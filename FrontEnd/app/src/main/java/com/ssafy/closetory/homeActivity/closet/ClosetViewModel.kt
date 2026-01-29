@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.dto.ClosetResponse
-import com.ssafy.closetory.dto.ClothItemDto
+import com.ssafy.closetory.dto.ClothesItemDto
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -19,11 +19,14 @@ class ClosetViewModel : ViewModel() {
     private val _closetData = MutableLiveData<ClosetResponse?>()
     val closetData: LiveData<ClosetResponse?> = _closetData
 
-    private val _errorMessage = MutableSharedFlow<String?>(replay = 0)
-    val errorMessage: SharedFlow<String?> = _errorMessage
+    private val _message = MutableSharedFlow<String?>(replay = 0)
+    val message: SharedFlow<String?> = _message
 
-    private val _clothesData = MutableLiveData<ClothItemDto>()
-    val clothesData: LiveData<ClothItemDto> = _clothesData
+    private val _clothesData = MutableLiveData<ClothesItemDto>()
+    val clothesData: LiveData<ClothesItemDto> = _clothesData
+
+    private val _deleteSuccess = MutableSharedFlow<Boolean>(replay = 0)
+    val deleteSuccess: SharedFlow<Boolean> = _deleteSuccess
 
     fun getClothesList(tags: List<Int>?, color: String?, seasons: List<Int>?, onlyMine: Boolean?) {
         viewModelScope.launch {
@@ -44,10 +47,10 @@ class ClosetViewModel : ViewModel() {
                     _closetData.value = data
                 } else { // 통신 결과 400, 500번 때 결과
                     val body = res.body()
-                    _errorMessage.emit(body?.errorMessage!!)
+                    _message.emit(body?.errorMessage!!)
                 }
             } catch (e: Exception) {
-                _errorMessage.emit(e.message ?: "네트워크 오류")
+                _message.emit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -75,10 +78,27 @@ class ClosetViewModel : ViewModel() {
 
                     Log.d(TAG, "옷 상세 정보 통신 결과  errorMessage : $errorMessage")
 
-                    _errorMessage.emit(errorMessage)
+                    _message.emit(errorMessage)
                 }
             } catch (e: Exception) {
-                _errorMessage.emit(e.message ?: "네트워크 오류")
+                _message.emit(e.message ?: "네트워크 오류")
+            }
+        }
+    }
+
+    fun deleteClothes(clothesId: Int) {
+        viewModelScope.launch {
+            try {
+                val res = repository.deleteClothes(clothesId)
+
+                if (res.isSuccessful) {
+                    _deleteSuccess.emit(true)
+                } else {
+                    _message.emit(res.body()?.errorMessage ?: "삭제 실패")
+                    _deleteSuccess.emit(false)
+                }
+            } catch (e: Exception) {
+                _message.emit(e.message ?: "네트워크 오류")
             }
         }
     }
