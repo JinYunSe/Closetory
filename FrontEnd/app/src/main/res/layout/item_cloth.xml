@@ -1,17 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 이 파일이 있는지, 내용이 올바른지 확인 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="100dp"
     android:layout_height="100dp"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    app:cardCornerRadius="18dp"
+    app:cardUseCompatPadding="false"
+    app:cardPreventCornerOverlap="false"
+    app:strokeWidth="0dp">
 
-    <ImageButton
-        android:id="@+id/img_btn"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerInside"
-        android:background="@drawable/bg_slot_empty"
-        android:clickable="true"
-        android:focusable="true" />
+        android:layout_height="match_parent">
 
-</FrameLayout>
+        <!-- 이미지 -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_photo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="@null" />
+
+        <!-- 점선 테두리(항상 최상단) -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_slot_empty"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <!-- 클릭 영역 -->
+        <ImageButton
+            android:id="@+id/img_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="@null" />
+
+    </FrameLayout>
+
+</com.google.android.material.card.MaterialCardView>

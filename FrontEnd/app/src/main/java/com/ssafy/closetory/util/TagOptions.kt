@@ -13,39 +13,39 @@ import com.ssafy.closetory.R
 // 태그 요소
 object TagOptions {
 
-    // 태그 목록
-    public val items = listOf(
-        OptionItem("캐주얼", 1),
-        OptionItem("귀여움", 2),
-        OptionItem("시크", 3),
-        OptionItem("화려함", 4),
-        OptionItem("밝음", 5),
-        OptionItem("유니크", 6),
-        OptionItem("여성스러움", 7),
-        OptionItem("남성스러움", 8),
-        OptionItem("트렌디", 9),
-        OptionItem("빈티지", 10),
-        OptionItem("데이트", 11),
-        OptionItem("출근/업무", 12),
-        OptionItem("일상", 13),
-        OptionItem("여행", 14),
-        OptionItem("격식 있는 자리", 15),
-        OptionItem("운동", 16)
+    val items = listOf(
+        OptionItem(null, "캐주얼", 1),
+        OptionItem(null, "귀여움", 2),
+        OptionItem(null, "시크", 3),
+        OptionItem(null, "화려함", 4),
+        OptionItem(null, "밝음", 5),
+        OptionItem(null, "유니크", 6),
+        OptionItem(null, "여성스러움", 7),
+        OptionItem(null, "남성스러움", 8),
+        OptionItem(null, "트렌디", 9),
+        OptionItem(null, "빈티지", 10),
+        OptionItem(null, "데이트", 11),
+        OptionItem(null, "출근/업무", 12),
+        OptionItem(null, "일상", 13),
+        OptionItem(null, "여행", 14),
+        OptionItem(null, "격식 있는 자리", 15),
+        OptionItem(null, "운동", 16)
     )
 
-    // 태그들 UI에 그리는 메서드
-    fun render(sectionRoot: View, context: Context) {
-        renderChips(
-            sectionRoot,
-            context,
-            "태그",
-            items,
-            false, // 단일 선택이 아님을 지정 => 다중 선택 가능
-            false // 꼭 넣어야 하는 요소인지 표기하기
-        )
+    // 코드를 한국어로 변환
+    private val codeByKorean: Map<String, Int> =
+        items.associate { it.codeKorean.trim() to it.code }
+
+    fun toCode(value: String?): Int? {
+        val v = value?.trim().orEmpty()
+        if (v.isEmpty()) return null
+        return v.toIntOrNull() ?: codeByKorean[v]
     }
 
-    // 태그 목록 그리기
+    fun render(sectionRoot: View, context: Context) {
+        renderChips(sectionRoot, context, "태그", items, false, false)
+    }
+
     private fun renderChips(
         sectionRoot: View,
         context: Context,
@@ -57,34 +57,18 @@ object TagOptions {
         val tv = sectionRoot.findViewById<TextView>(R.id.tvTitle)
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
 
-        // 태그 제목
         tv.text = title
-
-        // 화면을 왔다 갔다 할 경우 새로 UI 요소 그리기 위해서 기존 요소 제거
         group.removeAllViews()
         group.isSingleSelection = single
         group.isSelectionRequired = required
 
-        // 선택된 태그 코드들을 저장할 목록
-        val selectedTags = linkedSetOf<Int>()
-
-        // 각각의 요소들 UI에 그리는 과정
         items.forEach { item ->
-
             val chip = Chip(context).apply {
-                // UI에 한국어 반영
-                text = item.labelKorean
-
-                // 서버로 보낼 영문
+                text = item.codeKorean
                 tag = item.code
-
-                // 선택 가능하도록 만들기
                 isCheckable = true
-
-                // 칩간에 자동 간격 조절 끄기
                 setEnsureMinTouchTargetSize(false)
 
-                // UI 그리는 작업 메서드
                 setChipDrawable(
                     ChipDrawable.createFromAttributes(
                         context,
@@ -93,39 +77,34 @@ object TagOptions {
                         com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
                     )
                 )
+
+                chipBackgroundColor =
+                    context.getColorStateList(R.color.chip_bg_selector)
+                setTextColor(
+                    context.getColorStateList(R.color.chip_text_selector)
+                )
             }
-
-            chip.setOnCheckedChangeListener { button, isChecked ->
-                // 선택 <-> 해제 왔다갔다 처리
-
-                val code = button.tag as Int
-
-                if (isChecked) {
-                    // 선택됨
-                    selectedTags.add(code)
-                } else {
-                    // 해제됨
-                    selectedTags.remove(code)
-                }
-            }
-
             group.addView(chip)
         }
     }
 
-    // 체크된 대상이 true인 대상만 골라서 반환
-    public fun getSelectedTag(sectionRoot: View): List<Int> {
-        // 태그 그룹 가져오기
+    fun getSelectedTag(sectionRoot: View): List<Int> {
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
-        val result = mutableListOf<Int>()
+        return (0 until group.childCount)
+            .mapNotNull { group.getChildAt(it) as? Chip }
+            .filter { it.isChecked }
+            .map { it.tag as Int }
+    }
 
-        for (i in 0 until group.childCount) {
-            // chip의 요소가 아니면 무시
-            val chip = group.getChildAt(i) as? Chip ?: continue
-            // 선택된 태그 요소의 영문을 String 타입으로 변경 및 리스트에 담기
-            if (chip.isChecked) result.add(chip.tag as Int)
-        }
+    fun setSelectedTag(sectionRoot: View, selected: List<Int>) {
+        val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
+        val selectedSet = selected.toSet()
 
-        return result
+        (0 until group.childCount)
+            .mapNotNull { group.getChildAt(it) as? Chip }
+            .forEach { chip ->
+                val code = chip.tag as? Int ?: return@forEach
+                chip.isChecked = selectedSet.contains(code)
+            }
     }
 }

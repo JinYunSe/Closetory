@@ -13,22 +13,33 @@ import com.ssafy.closetory.R
 object SeasonOptions {
 
     val items = listOf(
-        OptionItem("봄", 1),
-        OptionItem("여름", 2),
-        OptionItem("가을", 3),
-        OptionItem("겨울", 4)
+        OptionItem("SPRING", "봄", 1),
+        OptionItem("SUMMER", "여름", 2),
+        OptionItem("FALL", "가을", 3),
+        OptionItem("WINTER", "겨울", 4)
     )
 
-    // UI에 해당 요소들 그리는 메서드
+    // 영문, 한글이 와도 Int형 코드를 반환하는 코드
+    fun toCode(value: String?): Int? {
+        val v = value?.trim().orEmpty()
+        if (v.isEmpty()) return null
+        v.toIntOrNull()?.let { return it }
+        val upper = v.uppercase()
+        codeByEnglish[upper]?.let { return it }
+        return codeByKorean[v]
+    }
+
+    // 코드를 영어로
+    private val codeByEnglish: Map<String, Int> =
+        items.mapNotNull { item ->
+            item.codeEnglish?.trim()?.let { eng -> eng to item.code }
+        }.toMap()
+
+    private val codeByKorean: Map<String, Int> =
+        items.associate { it.codeKorean.trim() to it.code }
+
     fun render(sectionRoot: View, context: Context) {
-        renderChips(
-            sectionRoot,
-            context,
-            "계절",
-            items,
-            false, // 여러개 선택 가능함을 의미
-            false // 필수 요소가 아님(선택하지 않아도 됨)
-        )
+        renderChips(sectionRoot, context, "계절", items, false, false)
     }
 
     private fun renderChips(
@@ -43,20 +54,18 @@ object SeasonOptions {
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
 
         tv.text = title
-
         group.removeAllViews()
         group.isSingleSelection = single
         group.isSelectionRequired = required
 
         items.forEach { item ->
             val chip = Chip(context).apply {
-                text = item.labelKorean
+                text = item.codeKorean
                 tag = item.code
                 isCheckable = true
-
-                // 칩간에 자동 간격 조절 끄기
                 setEnsureMinTouchTargetSize(false)
 
+                // 1️기본 스타일
                 setChipDrawable(
                     ChipDrawable.createFromAttributes(
                         context,
@@ -65,22 +74,35 @@ object SeasonOptions {
                         com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
                     )
                 )
-            }
 
+                // 2️상태 색상
+                chipBackgroundColor =
+                    context.getColorStateList(R.color.chip_bg_selector)
+                setTextColor(
+                    context.getColorStateList(R.color.chip_text_selector)
+                )
+            }
             group.addView(chip)
         }
     }
 
     fun getSelectedSeason(sectionRoot: View): List<Int> {
         val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
-        val result = mutableListOf<Int>()
+        return (0 until group.childCount)
+            .mapNotNull { group.getChildAt(it) as? Chip }
+            .filter { it.isChecked }
+            .map { it.tag as Int }
+    }
 
-        for (i in 0 until group.childCount) {
-            val chip = group.getChildAt(i) as? Chip ?: continue
-            // 선택된 항목에 대한 영문 코드 리스트에 담기
-            if (chip.isChecked) result.add(chip.tag as Int)
-        }
+    fun setSelectedSeason(sectionRoot: View, selected: List<Int>) {
+        val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
+        val selectedSet = selected.toSet()
 
-        return result
+        (0 until group.childCount)
+            .mapNotNull { group.getChildAt(it) as? Chip }
+            .forEach { chip ->
+                val code = chip.tag as? Int ?: return@forEach
+                chip.isChecked = selectedSet.contains(code)
+            }
     }
 }

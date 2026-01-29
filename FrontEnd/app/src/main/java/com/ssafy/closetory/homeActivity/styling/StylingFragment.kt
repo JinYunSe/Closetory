@@ -5,14 +5,16 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentStylingBinding
-import com.ssafy.closetory.dto.ClothItemDto
-import com.ssafy.closetory.homeActivity.adpter.ClothAdapter
+import com.ssafy.closetory.dto.ClothesItemDto
+import com.ssafy.closetory.homeActivity.adpter.ClothesAdapter
 
 private const val TAG = "StylingFragment_싸피"
 
@@ -26,16 +28,16 @@ class StylingFragment :
     private val viewModel: StylingViewModel by viewModels()
 
     // 각 타입별 어댑터
-    private lateinit var topAdapter: ClothAdapter
-    private lateinit var bottomAdapter: ClothAdapter
-    private lateinit var outerAdapter: ClothAdapter
-    private lateinit var accAdapter: ClothAdapter
-    private lateinit var bagAdapter: ClothAdapter
-    private lateinit var shoeAdapter: ClothAdapter
+    private lateinit var topAdapter: ClothesAdapter
+    private lateinit var bottomAdapter: ClothesAdapter
+    private lateinit var outerAdapter: ClothesAdapter
+    private lateinit var accAdapter: ClothesAdapter
+    private lateinit var bagAdapter: ClothesAdapter
+    private lateinit var shoeAdapter: ClothesAdapter
 
     // 현재 슬롯에 선택된 아이템들을 저장
     // 순서: Top, Bottom, Shoes, Outer, Accessory, Bag
-    private val selectedSlots = mutableMapOf<String, ClothItemDto?>(
+    private val selectedSlots = mutableMapOf<String, ClothesItemDto?>(
         "TOP" to null,
         "BOTTOM" to null,
         "SHOES" to null,
@@ -46,6 +48,10 @@ class StylingFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            findNavController().popBackStack(R.id.navigation_home, false)
+        }
 
         Log.d(TAG, "🚀 StylingFragment onViewCreated 시작")
 
@@ -63,7 +69,7 @@ class StylingFragment :
      */
     private fun setupRecyclerViews() {
         // 상의 어댑터
-        topAdapter = ClothAdapter().apply {
+        topAdapter = ClothesAdapter().apply {
             onItemClickListener = { item ->
                 Log.d(TAG, "상의 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("TOP", item, binding.ivSlotTop, binding.btnRemoveTop)
@@ -72,7 +78,7 @@ class StylingFragment :
         binding.lvTopCloth.adapter = topAdapter
 
         // 하의 어댑터
-        bottomAdapter = ClothAdapter().apply {
+        bottomAdapter = ClothesAdapter().apply {
             onItemClickListener = { item ->
                 Log.d(TAG, "하의 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("BOTTOM", item, binding.ivSlotBottom, binding.btnRemoveBottom)
@@ -81,7 +87,7 @@ class StylingFragment :
         binding.lvBottomCloth.adapter = bottomAdapter
 
         // 아우터 어댑터
-        outerAdapter = ClothAdapter().apply {
+        outerAdapter = ClothesAdapter().apply {
             onItemClickListener = { item ->
                 Log.d(TAG, "아우터 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("OUTER", item, binding.ivSlotOuter, binding.btnRemoveOuter)
@@ -90,7 +96,7 @@ class StylingFragment :
         binding.lvOuter.adapter = outerAdapter
 
         // 액세서리 어댑터
-        accAdapter = ClothAdapter().apply {
+        accAdapter = ClothesAdapter().apply {
             onItemClickListener = { item ->
                 Log.d(TAG, "액세서리 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("ACC", item, binding.ivSlotAcc, binding.btnRemoveAcc)
@@ -99,7 +105,7 @@ class StylingFragment :
         binding.lvAccCloth.adapter = accAdapter
 
         // 가방 어댑터
-        bagAdapter = ClothAdapter().apply {
+        bagAdapter = ClothesAdapter().apply {
             onItemClickListener = { item ->
                 Log.d(TAG, "가방 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("BAG", item, binding.ivSlotBag, binding.btnRemoveBag)
@@ -108,7 +114,7 @@ class StylingFragment :
         binding.lvBagCloth.adapter = bagAdapter
 
         // 신발 어댑터
-        shoeAdapter = ClothAdapter().apply {
+        shoeAdapter = ClothesAdapter().apply {
             onItemClickListener = { item ->
                 Log.d(TAG, "신발 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("SHOES", item, binding.ivSlotShoes, binding.btnRemoveShoes)
@@ -254,8 +260,6 @@ class StylingFragment :
         viewModel.successMessage.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
-                // 성공 시 모든 슬롯 초기화
-                clearAllSlots()
             }
         }
     }
@@ -286,7 +290,7 @@ class StylingFragment :
 // //
 // //        Log.d(TAG, "슬롯 업데이트 완료: $slotType")
 // //    }
-    private fun addItemToSlot(slotType: String, item: ClothItemDto, imageView: ImageView, removeButton: View) {
+    private fun addItemToSlot(slotType: String, item: ClothesItemDto, imageView: ImageView, removeButton: View) {
         Log.d(TAG, "=== addItemToSlot 호출 ===")
         Log.d(TAG, "slotType: $slotType")
         Log.d(TAG, "clothesId: ${item.clothesId}")
@@ -372,6 +376,10 @@ class StylingFragment :
         removeItemFromSlot("BAG", binding.ivSlotBag, binding.btnRemoveBag)
         removeItemFromSlot("SHOES", binding.ivSlotShoes, binding.btnRemoveShoes)
 
+        // AI 가상 피팅 결과도 함께 초기화
+        hideAiFittingResult()
+        viewModel.clearAiFittingResult()
+
         Toast.makeText(requireContext(), "코디가 초기화되었습니다", Toast.LENGTH_SHORT).show()
     }
 
@@ -383,7 +391,7 @@ class StylingFragment :
         Log.d(TAG, "saveLook 호출")
 
         // 선택된 아이템 ID 리스트 생성 (순서 중요!)
-        val clothIdList = listOf(
+        val clothesIdList = listOf(
             selectedSlots["TOP"]?.clothesId ?: -1, // Top
             selectedSlots["BOTTOM"]?.clothesId ?: -1, // Bottom
             selectedSlots["SHOES"]?.clothesId ?: -1, // Shoes
@@ -392,23 +400,28 @@ class StylingFragment :
             selectedSlots["BAG"]?.clothesId ?: -1 // Bag
         )
 
-        Log.d(TAG, "전송할 clothesIdList: $clothIdList")
+        Log.d(TAG, "전송할 clothesIdList: $clothesIdList")
 
         // 최소 1개 이상 선택 확인
-        if (clothIdList.all { it == -1 }) {
+        if (clothesIdList.all { it == -1 }) {
+        }
+        Log.d(TAG, "전송할 clothesIdList: $clothesIdList")
+
+        // 최소 1개 이상 선택 확인
+        if (clothesIdList.all { it == -1 }) {
             Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해주세요", Toast.LENGTH_SHORT).show()
             return
         }
 
         // ViewModel을 통해 서버로 전송
-        viewModel.saveLook(clothIdList)
+        viewModel.saveLook(clothesIdList)
     }
 
     // AI가상피팅
     private fun requestAiFitting() {
         Log.d(TAG, "requestAiFitting 호출")
 
-        val clothIdList = listOf(
+        val clothesIdList = listOf(
             selectedSlots["TOP"]?.clothesId ?: -1,
             selectedSlots["BOTTOM"]?.clothesId ?: -1,
             selectedSlots["SHOES"]?.clothesId ?: -1,
@@ -417,16 +430,20 @@ class StylingFragment :
             selectedSlots["BAG"]?.clothesId ?: -1
         )
 
-        Log.d(TAG, "AI 피팅 요청 clothIdList: $clothIdList")
+        Log.d(TAG, "AI 피팅 요청 clothesIdList: $clothesIdList")
 
         // 최소 1개 이상 선택 확인
-        if (clothIdList.all { it == -1 }) {
+        if (clothesIdList.all { it == -1 }) {
+            Log.d(TAG, "AI 피팅 요청 clothIdList: $clothesIdList")
+        }
+        // 최소 1개 이상 선택 확인
+        if (clothesIdList.all { it == -1 }) {
             Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해주세요.", Toast.LENGTH_SHORT)
             return
         }
 
         // ViewModel을 통해 AI피팅 요청
-        viewModel.requestAiFitting(clothIdList)
+        viewModel.requestAiFitting(clothesIdList)
     }
 
     // AI 가상 피팅 결과 표시

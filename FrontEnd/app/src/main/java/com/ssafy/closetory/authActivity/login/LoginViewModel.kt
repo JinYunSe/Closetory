@@ -37,6 +37,7 @@ class LoginViewModel : ViewModel() {
 
                 if (res.isSuccessful) {
                     val tokenData = body?.data
+
                     if (tokenData != null) {
                         _loginData.emit(tokenData)
                         _message.emit(body.responseMessage ?: "로그인 성공")

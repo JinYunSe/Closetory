@@ -70,16 +70,9 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
                         TAG,
                         "로그인 동작 확인 : accessToken : ${data.accessToken}, refreshToken : ${data.refreshToken}"
                     )
-                    Log.d(TAG, "userId 확인 : ${data.userId}")
 
                     authManager.saveTokens(data.accessToken, data.refreshToken)
-                    ApplicationClass.sharedPreferences.putUserId(ApplicationClass.USERID, data.userId)
-                    Log.d(
-                        TAG,
-                        "sharedPreferences userId 확인 : ${ApplicationClass.sharedPreferences.getUserId(
-                            ApplicationClass.USERID
-                        )}"
-                    )
+                    Log.d(TAG, "로그인 성공에 따른 userId 확인 : ${data.userId}")
 
                     // HomeActivity 이동
                     Log.d(TAG, "HomeActivity 이동 버튼 동작 유무 확인")
