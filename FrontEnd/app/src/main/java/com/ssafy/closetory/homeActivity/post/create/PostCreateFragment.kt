@@ -74,6 +74,9 @@ class PostCreateFragment :
         // 대표 사진 선택(카메라/갤러리) 클릭 이벤트 세팅
         setupMainPhotoClick()
 
+        // 사진 텍스트 보이기 숨기기
+        updateMainPhotoPlaceholder(false)
+
         // EditText 스크롤 충돌 방지(부모 스크롤 가로채기 방지)
         setupContentInnerScroll()
 
@@ -105,10 +108,16 @@ class PostCreateFragment :
         }
     }
 
+    // "사진" placeholder 보이기/숨기기
+    private fun updateMainPhotoPlaceholder(isPhotoSelected: Boolean) {
+        binding.tvMainPhotoHint.visibility = if (isPhotoSelected) View.GONE else View.VISIBLE
+    }
+
     // 대표 사진 Uri 저장 + ImageView에 미리보기 반영
     private fun onMainPhotoSelected(uri: Uri) {
         selectedMainPhotoUri = uri
         binding.ivMainPhoto.setImageURI(uri)
+        updateMainPhotoPlaceholder(true)
     }
 
     // 갤러리(포토피커) 실행
