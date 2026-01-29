@@ -88,4 +88,14 @@ public class ClothesController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.ok(201, "옷 누끼 따기 성공", Map.of("maskedImageUrl", maskedImageUrl)));
   }
+
+  @GetMapping("/{clothesId}/recommend")
+  @Operation(summary = "함께 입으면 좋을 옷 추천")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<List<ClothesRecommendItem>>> getClothesRecommend(
+      @PathVariable Integer clothesId, @AuthenticationPrincipal Integer userId) {
+    List<ClothesRecommendItem> response = clothesService.getClothesRecommend(clothesId, userId);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.ok(200, "함께 입으면 좋을 옷 추천 성공", response));
+  }
 }
