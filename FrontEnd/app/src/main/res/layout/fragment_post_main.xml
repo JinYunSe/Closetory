@@ -6,8 +6,8 @@
     android:id="@+id/postMainContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".homeActivity.post.PostMainFragment">
+    android:padding="16dp">
+<!--    tools:context=".homeActivity.post.PostMainFragment">-->
 
     <!-- 상단 제목 -->
     <TextView

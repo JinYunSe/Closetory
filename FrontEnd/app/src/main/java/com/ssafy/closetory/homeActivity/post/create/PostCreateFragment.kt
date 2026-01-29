@@ -280,8 +280,8 @@ class PostCreateFragment :
             // 파일 파트 name/filename 확인 로그
             Log.d("POST_CREATE_REQ", "fileHeaders=${photo.headers}")
 
-            val titleBody = binding.etTitle.text.toString()
-            val contentBody = binding.etContent.text.toString()
+            val title = binding.etTitle.text.toString()
+            val content = binding.etContent.text.toString()
 
             val items = mutableListOf<Int>()
             for (item in selectedItems) {
@@ -290,9 +290,9 @@ class PostCreateFragment :
 
             viewModel.createPost(
                 photo = photo,
-                title = titleBody,
-                content = contentBody
-//                items = items
+                title = title,
+                content = content,
+                items = items
             )
         }
     }
@@ -308,7 +308,7 @@ class PostCreateFragment :
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.createResult.collect { data ->
                 if (data != null) {
-                    parentFragmentManager.popBackStack()
+//                    parentFragmentManager.popBackStack()
                 }
             }
         }
