@@ -2,6 +2,7 @@ package com.ssafy.closetory.service.user;
 
 import com.ssafy.closetory.dto.user.AddStyleRequest;
 import com.ssafy.closetory.dto.user.UpdateUserRequest;
+import com.ssafy.closetory.dto.user.UserDetailResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
@@ -21,4 +22,6 @@ public interface UserService {
   void changePassword(Integer userId, String newPassword, String newPasswordConfirm);
 
   void addStyle(Integer userId, Integer authUserId, AddStyleRequest request);
+
+  UserDetailResponse getUserDetail(Integer authUserId, Integer userId);
 }

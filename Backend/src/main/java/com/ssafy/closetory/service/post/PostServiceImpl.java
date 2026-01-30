@@ -10,13 +10,12 @@ import com.ssafy.closetory.repository.PostRepository;
 import com.ssafy.closetory.repository.SaveRepository;
 import com.ssafy.closetory.repository.UserRepository;
 import com.ssafy.closetory.service.s3.S3ImageService;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -63,12 +62,12 @@ public class PostServiceImpl implements PostService {
     if (items != null && !items.isEmpty()) {
       for (Integer clothesId : items) {
         clothesRepository
-          .findByIdAndDeletedAtIsNull(clothesId)
-          .ifPresentOrElse(
-            post.getClothes()::add,
-            () -> {
-              throw new NotFoundException("존재하지 않은 옷이 포함되어 있습니다.");
-            });
+            .findByIdAndDeletedAtIsNull(clothesId)
+            .ifPresentOrElse(
+                post.getClothes()::add,
+                () -> {
+                  throw new NotFoundException("존재하지 않은 옷이 포함되어 있습니다.");
+                });
       }
     }
 
@@ -115,12 +114,12 @@ public class PostServiceImpl implements PostService {
     if (items != null && !items.isEmpty()) {
       for (Integer clothesId : items) {
         clothesRepository
-          .findByIdAndDeletedAtIsNull(clothesId)
-          .ifPresentOrElse(
-            post.getClothes()::add,
-            () -> {
-              throw new NotFoundException("존재하지 않은 옷이 포함되어 있습니다.");
-            });
+            .findByIdAndDeletedAtIsNull(clothesId)
+            .ifPresentOrElse(
+                post.getClothes()::add,
+                () -> {
+                  throw new NotFoundException("존재하지 않은 옷이 포함되어 있습니다.");
+                });
       }
     }
     return new PostCreateResponse(
