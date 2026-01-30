@@ -1,11 +1,11 @@
 package com.ssafy.closetory.service.clothes;
 
 import com.ssafy.closetory.dto.clothes.*;
-import com.ssafy.closetory.entity.clothes.Clothes;
-import com.ssafy.closetory.entity.clothes.Season;
-import com.ssafy.closetory.entity.clothes.Tag;
+import com.ssafy.closetory.entity.clothes.*;
+import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.enums.ClothesColor;
 import com.ssafy.closetory.exception.common.BadRequestException;
+import com.ssafy.closetory.exception.common.ConflictException;
 import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
@@ -30,6 +30,8 @@ public class ClothesServiceImpl implements ClothesService {
   private final ClothesRepository clothesRepository;
   private final TagRepository tagRepository;
   private final SeasonRepository seasonRepository;
+  private final SaveRepository saveRepository;
+  private final UserRepository userRepository;
   private final S3ImageService s3ImageService;
   private final WebClient fastApiWebClient;
 
@@ -268,5 +270,37 @@ public class ClothesServiceImpl implements ClothesService {
     return rows.stream()
         .map(r -> new ClothesRecommendItem(r.getClothesId(), r.getPhotoUrl()))
         .toList();
+  }
+
+  @Transactional
+  @Override
+  public void saveClothes(Integer clothesId, Integer userId) {
+    SaveId saveId = new SaveId(clothesId, userId);
+
+    if (saveRepository.existsById(saveId)) {
+      throw new ConflictException("이미 저장한 옷입니다.");
+    }
+
+    User user =
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
+
+    Clothes clothes =
+        clothesRepository
+            .findByIdAndDeletedAtIsNull(clothesId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 옷입니다."));
+
+    if (clothes.getUserId() != null && clothes.getUserId().equals(userId)) {
+      throw new ForbiddenException("자신의 옷은 저장할 수 없습니다.");
+    }
+
+    Save save =
+        Save.builder()
+            .id(saveId)
+            .user(user)
+            .clothes(clothes)
+            .createdAt(LocalDateTime.now())
+            .build();
+
+    saveRepository.save(save);
   }
 }

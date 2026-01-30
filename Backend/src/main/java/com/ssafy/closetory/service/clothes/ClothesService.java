@@ -20,4 +20,6 @@ public interface ClothesService {
   GetClosetResponse getClosetForAiRecommendation(Integer userId, Boolean onlyMine);
 
   List<ClothesRecommendItem> getClothesRecommend(Integer clothedId, Integer userId);
+
+  void saveClothes(Integer clothesId, Integer userId);
 }
