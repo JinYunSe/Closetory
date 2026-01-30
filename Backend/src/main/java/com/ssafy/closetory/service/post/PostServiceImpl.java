@@ -60,7 +60,15 @@ public class PostServiceImpl implements PostService {
 
     List<Integer> items = request.items();
     if (items != null && !items.isEmpty()) {
-      post.getClothes().addAll(clothesRepository.findAllById(items));
+      for (Integer clothesId : items) {
+        clothesRepository
+          .findByIdAndDeletedAtIsNull(clothesId)
+          .ifPresentOrElse(
+            post.getClothes()::add,
+            () -> {
+              throw new BadRequestException("삭제된 옷이 포함되어 있습니다.");
+            });
+      }
     }
 
     Post savedPost = postRepository.save(post);
@@ -104,7 +112,15 @@ public class PostServiceImpl implements PostService {
 
     List<Integer> items = request.items();
     if (items != null && !items.isEmpty()) {
-      post.getClothes().addAll(clothesRepository.findAllById(items));
+      for (Integer clothesId : items) {
+        clothesRepository
+          .findByIdAndDeletedAtIsNull(clothesId)
+          .ifPresentOrElse(
+            post.getClothes()::add,
+            () -> {
+              throw new BadRequestException("삭제된 옷이 포함되어 있습니다.");
+            });
+      }
     }
     return new PostCreateResponse(
         post.getId(),
