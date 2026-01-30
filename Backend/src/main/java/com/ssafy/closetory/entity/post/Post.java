@@ -2,13 +2,14 @@ package com.ssafy.closetory.entity.post;
 
 import com.ssafy.closetory.entity.clothes.Clothes;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -49,6 +50,7 @@ public class Post {
       joinColumns = @JoinColumn(name = "post_id"),
       inverseJoinColumns = @JoinColumn(name = "clothes_id"))
   @Builder.Default
+  @org.hibernate.annotations.Where(clause = "deleted_at IS NULL")
   private List<Clothes> clothes = new ArrayList<>();
 
   public void update(String title, String content) {
