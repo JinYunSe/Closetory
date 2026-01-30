@@ -2,12 +2,10 @@ package com.ssafy.closetory.homeActivity
 
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseActivity
 import com.ssafy.closetory.databinding.ActivityHomeBinding
-import com.ssafy.closetory.util.PermissionChecker
 import com.ssafy.closetory.util.TagOptions
 
 class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::inflate) {
@@ -66,8 +64,6 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
         }
         // 앱 시작 시 기본 선택 상태를 적용한다.
         updateSelection(items, items.first())
-
-        registerObserve()
     }
 
     private fun updateSelection(items: List<NavItem>, active: NavItem?) {

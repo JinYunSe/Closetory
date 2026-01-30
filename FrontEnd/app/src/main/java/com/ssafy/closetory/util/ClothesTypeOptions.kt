@@ -2,57 +2,28 @@ package com.ssafy.closetory.util
 
 import android.content.Context
 import android.view.View
-import android.widget.TextView
 import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipDrawable
 import com.google.android.material.chip.ChipGroup
 import com.ssafy.closetory.R
 
 object ClothTypeOptions {
 
-    data class ClothTypeItem(val codeKorean: String, val code: Int, val english: String)
-
     val items = listOf(
-        ClothTypeItem("상의", 1, "TOP"),
-        ClothTypeItem("하의", 2, "BOTTOM"),
-        ClothTypeItem("아우터", 3, "OUTER"),
-        ClothTypeItem("신발", 4, "SHOES"),
-        ClothTypeItem("가방", 5, "BAG"),
-        ClothTypeItem("악세서리", 6, "ACCESSORY")
+        OptionItem("TOP", "상의", 1),
+        OptionItem("BOTTOM", "하의", 2),
+        OptionItem("OUTER", "아우터", 3),
+        OptionItem("SHOES", "신발", 4),
+        OptionItem("BAG", "가방", 5),
+        OptionItem("ACCESSORY", "소품류", 6)
     )
 
-    val byEnglish: Map<String, ClothTypeItem> = items.associateBy { it.english }
+    val byEnglish: Map<String, OptionItem> =
+        items.mapNotNull { item ->
+            item.codeEnglish?.let { eng -> eng to item }
+        }.toMap()
 
     fun render(sectionRoot: View, context: Context) {
-        val tv = sectionRoot.findViewById<TextView>(R.id.tvTitle)
-        val group = sectionRoot.findViewById<ChipGroup>(R.id.chipGroup)
-
-        tv.text = "옷 종류"
-        group.removeAllViews()
-        group.isSingleSelection = true
-        group.isSelectionRequired = false
-
-        items.forEach { item ->
-            val chip = Chip(context).apply {
-                text = item.codeKorean
-                tag = item.code
-                isCheckable = true
-                setEnsureMinTouchTargetSize(false)
-
-                setChipDrawable(
-                    ChipDrawable.createFromAttributes(
-                        context,
-                        null,
-                        0,
-                        com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
-                    )
-                )
-
-                chipBackgroundColor = context.getColorStateList(R.color.chip_bg_selector)
-                setTextColor(context.getColorStateList(R.color.chip_text_selector))
-            }
-            group.addView(chip)
-        }
+        ChipUtils.renderOptionSection(sectionRoot, context, "옷 종류", items, true, false)
     }
 
     fun getClothTypeEnglish(sectionRoot: View): String? {
@@ -62,7 +33,7 @@ object ClothTypeOptions {
 
         val chip = group.findViewById<Chip>(checkedId)
         val code = chip.tag as? Int ?: return null
-        return items.firstOrNull { it.code == code }?.english
+        return items.firstOrNull { it.code == code }?.codeEnglish
     }
 
     fun setClothType(sectionRoot: View, clothType: Int) {
