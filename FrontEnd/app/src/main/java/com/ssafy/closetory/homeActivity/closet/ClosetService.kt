@@ -24,4 +24,7 @@ interface ClosetService {
 
     @DELETE("clothes/{clothesId}")
     suspend fun deleteClothes(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
+
+    @GET("clothes/{clothesId}/recommend")
+    suspend fun getRecommendedClothes(@Path("clothesId") clothesId: Int): Response<ApiResponse<List<ClothesItemDto>>>
 }

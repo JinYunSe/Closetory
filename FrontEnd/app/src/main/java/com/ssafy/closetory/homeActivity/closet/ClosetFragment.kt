@@ -200,7 +200,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
     // 옷 상세 검색 실행
     fun callClothesDetail() {
         // 어뎁터에 요소 클릭할 경우
-        clothAdapter.onItemClickListener = { item ->
+        clothAdapter.onItemClick = { item ->
 
             // Fragment 전환과 clothesId 대상 적용
             findNavController().navigate(
