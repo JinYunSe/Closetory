@@ -18,28 +18,26 @@ object ChipUtils {
         checked: Boolean = false,
         clickable: Boolean = true,
         focusable: Boolean = false
-    ): Chip {
-        return Chip(context).apply {
-            this.text = text
-            this.tag = tag
-            isCheckable = checkable
-            isChecked = checked
-            isClickable = clickable
-            isFocusable = focusable
-            setEnsureMinTouchTargetSize(false)
+    ): Chip = Chip(context).apply {
+        this.text = text
+        this.tag = tag
+        isCheckable = checkable
+        isChecked = checked
+        isClickable = clickable
+        isFocusable = focusable
+        setEnsureMinTouchTargetSize(false)
 
-            setChipDrawable(
-                ChipDrawable.createFromAttributes(
-                    context,
-                    null,
-                    0,
-                    com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
-                )
+        setChipDrawable(
+            ChipDrawable.createFromAttributes(
+                context,
+                null,
+                0,
+                com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
             )
+        )
 
-            chipBackgroundColor = context.getColorStateList(R.color.chip_bg_selector)
-            setTextColor(context.getColorStateList(R.color.chip_text_selector))
-        }
+        chipBackgroundColor = context.getColorStateList(R.color.chip_bg_selector)
+        setTextColor(context.getColorStateList(R.color.chip_text_selector))
     }
 
     fun renderOptionSection(

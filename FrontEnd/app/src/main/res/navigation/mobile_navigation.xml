@@ -111,6 +111,9 @@
         <action
             android:id="@+id/action_post_list_to_post_detail"
             app:destination="@id/navigation_post_detail" />
+        <action
+            android:id="@+id/action_post_list_to_post_edit"
+            app:destination="@id/navigation_post_edit" />
     </fragment>
 
     <fragment
@@ -133,6 +136,18 @@
         <action
             android:id="@+id/action_post_detail_to_post_edit"
             app:destination="@id/navigation_post_create" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_post_edit"
+        android:name="com.ssafy.closetory.homeActivity.post.edit.PostEditFragment"
+        android:label="PostEdit"
+        tools:layout="@layout/fragment_post_create">
+
+        <argument
+            android:name="postId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
 
 </navigation>
