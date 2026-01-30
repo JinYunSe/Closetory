@@ -1,6 +1,7 @@
 package com.ssafy.closetory.homeActivity.post.create.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -16,6 +17,15 @@ class PostDetailItemAdapter(private val onItemClick: (PostDetailItemDto) -> Unit
     RecyclerView.Adapter<PostDetailItemAdapter.ViewHolder>() {
 
     private val items = mutableListOf<PostDetailItemDto>()
+
+    // 내 게시글인지 확인
+    private var isMinePost: Boolean = false
+
+    // Fragment에서 이용
+    fun setIsMinePost(value: Boolean) {
+        isMinePost = value
+        notifyDataSetChanged()
+    }
 
     // items 리스트 갱신
     fun submitList(newItems: List<PostDetailItemDto>) {
@@ -40,6 +50,22 @@ class PostDetailItemAdapter(private val onItemClick: (PostDetailItemDto) -> Unit
                 .placeholder(R.drawable.bg_gray_box) // 없으면 placeholder로 교체
                 .error(R.drawable.bg_gray_box)
                 .into(binding.ivItem)
+
+            // 내 게시글 : 저장 버튼 숨김
+            binding.ivSave.visibility = if (isMinePost) View.GONE else View.VISIBLE
+
+            if (!isMinePost) {
+                binding.ivSave.setImageResource(
+                    if (item.isSaved) {
+                        R.drawable.baseline_bookmark_24
+                    } else {
+                        R.drawable.baseline_bookmark_border_24
+                    }
+                )
+            } else {
+                // 재사용 대비: 리스너 제거
+                binding.ivSave.setOnClickListener(null)
+            }
 
             // 옷 요소 클릭 이벤트 처리
             binding.root.setOnClickListener {

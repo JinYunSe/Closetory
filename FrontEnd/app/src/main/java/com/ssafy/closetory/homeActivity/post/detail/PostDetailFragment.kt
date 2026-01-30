@@ -56,6 +56,12 @@ class PostDetailFragment :
 
         // 게시글 상세 조회 요청
         viewModel.loadPostDetail(postId)
+
+        // 댓글 스크롤과 NestedScrollView와 충돌 방지
+        binding.etComment.setOnTouchListener { v, event ->
+            v.parent.requestDisallowInterceptTouchEvent(true)
+            false
+        }
     }
 
     // 좋아요 버튼 클릭
@@ -83,11 +89,7 @@ class PostDetailFragment :
     // 옷 요소 가로 RecyclerView 초기 세팅
     private fun setupItemsRecyclerView() {
         itemAdapter = PostDetailItemAdapter { item ->
-            Toast.makeText(
-                requireContext(),
-                "clothId=${item.clothId}, saved=${item.isSaved}",
-                Toast.LENGTH_SHORT
-            ).show()
+            // TODO: 옷 요소 터치했을 때 사용 동작
         }
 
         binding.rvClothes.apply {
@@ -142,7 +144,19 @@ class PostDetailFragment :
                         Log.d(TAG, "게시글 사용자인지 판별하기 : $isMine")
                         binding.layoutPostActions.visibility = if (isMine) View.VISIBLE else View.GONE
 
-                        // 옷 요소 리스트 표시
+                        val hasClothes = detail.items.isNotEmpty()
+
+                        // 옷 요소가 없으면 "옷 정보가 없습니다" 표시 해주기
+                        binding.rvClothes.visibility = if (hasClothes) View.VISIBLE else View.GONE
+                        binding.tvNoClothes.visibility = if (hasClothes) View.GONE else View.VISIBLE
+
+                        if (hasClothes) {
+                            itemAdapter.submitList(detail.items)
+                        } else {
+                            itemAdapter.submitList(emptyList())
+                        }
+                        // 내 게시글인지 확인 후 숨기기.
+                        itemAdapter.setIsMinePost(isMine)
                         itemAdapter.submitList(detail.items)
                     }
                 }

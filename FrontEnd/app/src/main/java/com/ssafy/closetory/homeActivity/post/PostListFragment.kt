@@ -47,6 +47,7 @@ class PostListFragment :
     private fun setupQuickJumpButtons() {
         binding.btnGoPost29.setOnClickListener { goToPostDetail(29) }
         binding.btnGoPost10.setOnClickListener { goToPostDetail(10) }
+        binding.btnGoPost32.setOnClickListener { goToPostDetail(32) }
     }
 
     private fun goToPostDetail(targetPostId: Int) {
