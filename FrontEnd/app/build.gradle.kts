@@ -82,6 +82,9 @@ android {
 }
 
 dependencies {
+    // 비디오 의존성
+    implementation("com.airbnb.android:lottie:6.1.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

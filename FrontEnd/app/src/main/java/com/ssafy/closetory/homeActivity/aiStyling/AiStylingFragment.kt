@@ -1,5 +1,6 @@
 package com.ssafy.closetory.homeActivity.aiStyling
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.InputDevice
@@ -29,7 +30,7 @@ class AiStylingFragment :
         setupUI()
         setupObservers()
         setupListeners()
-        applyStageUi(AiStylingStage.RECOMMEND)
+        setupVideoLoading()
     }
 
     private fun setupUI() {
@@ -40,19 +41,23 @@ class AiStylingFragment :
     }
 
     private fun setupObservers() {
+        // ⭐ 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.btnAiVirtualfitting.isEnabled = !isLoading
-            binding.btnRegister.isEnabled = !isLoading && viewModel.stage.value == AiStylingStage.FITTING_DONE
+            updateMainButton()
+            updateVideoAnimation(isLoading)
         }
 
+        // ⭐ 단계 상태 관찰
         viewModel.stage.observe(viewLifecycleOwner) { stage ->
-            applyStageUi(stage)
+            updateMainButton()
         }
 
+        // AI 추천 이유
         viewModel.aiReason.observe(viewLifecycleOwner) { reason ->
             reason?.let { binding.tvAiMessage.text = it }
         }
 
+        // AI 코디 추천 결과
         viewModel.aiCoordination.observe(viewLifecycleOwner) { coordination ->
             if (coordination == null) {
                 clearSlots()
@@ -63,17 +68,19 @@ class AiStylingFragment :
             fillSlots(coordination)
         }
 
+        // AI 가상피팅 이미지
         viewModel.aiImageUrl.observe(viewLifecycleOwner) { url ->
             if (url.isNullOrBlank()) return@observe
 
             binding.layoutAiFitting.visibility = View.VISIBLE
-            binding.progressAiFitting.visibility = View.GONE
+            binding.vvAiFitting.visibility = View.GONE
 
             Glide.with(requireContext())
                 .load(url)
                 .into(binding.ivAiFittingResult)
         }
 
+        // 성공 메시지
         viewModel.successMessage.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
@@ -81,6 +88,7 @@ class AiStylingFragment :
             }
         }
 
+        // 에러 메시지
         viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
@@ -90,34 +98,17 @@ class AiStylingFragment :
     }
 
     private fun setupListeners() {
-        binding.btnAiVirtualfitting.setOnClickListener {
-            when (viewModel.stage.value ?: AiStylingStage.RECOMMEND) {
-                AiStylingStage.RECOMMEND -> requestAiRecommendation()
-
-                AiStylingStage.FITTING_READY -> {
-                    binding.layoutAiFitting.visibility = View.VISIBLE
-                    binding.progressAiFitting.visibility = View.VISIBLE
-                    viewModel.requestAiFitting()
-                }
-
-                AiStylingStage.FITTING_DONE -> {
-                    Toast.makeText(requireContext(), "이미 가상피팅이 완료되었습니다.", Toast.LENGTH_SHORT).show()
-                }
-            }
+        //  메인 버튼 (단계별 동작)
+        binding.btnRegister.setOnClickListener {
+            handleMainButtonClick()
         }
 
+        // 직접 만들기 버튼
         binding.btnMakeoutfit.setOnClickListener {
             findNavController().navigate(R.id.navigation_styling)
         }
 
-        binding.btnRegister.setOnClickListener {
-            if (viewModel.stage.value != AiStylingStage.FITTING_DONE) {
-                Toast.makeText(requireContext(), "가상피팅 완료 후 등록할 수 있습니다.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            viewModel.saveCurrentLook()
-        }
-
+        // 초기화 버튼
         binding.btnAiStylingReset.setOnClickListener {
             binding.layoutAiFitting.visibility = View.GONE
             viewModel.resetAll()
@@ -125,10 +116,12 @@ class AiStylingFragment :
             Toast.makeText(requireContext(), "초기화되었습니다.", Toast.LENGTH_SHORT).show()
         }
 
+        // 가상피팅 팝업 닫기
         binding.btnCloseAiFitting.setOnClickListener {
             binding.layoutAiFitting.visibility = View.GONE
         }
 
+        // 스위치 리스너
         binding.switchStyleMode.setOnCheckedChangeListener { _, isChecked ->
             binding.tvStyleMode.text = if (isChecked) "추구" else "어울림"
         }
@@ -138,35 +131,124 @@ class AiStylingFragment :
         }
     }
 
-    private fun applyStageUi(stage: AiStylingStage) {
-        val loading = viewModel.isLoading.value == true
+    /**
+     * ⭐ 메인 버튼 클릭 처리 (단계별)
+     */
+    private fun handleMainButtonClick() {
+        val stage = viewModel.stage.value ?: AiStylingStage.RECOMMEND
+        val isLoading = viewModel.isLoading.value == true
+
+        // 로딩 중이면 무시
+        if (isLoading) {
+            return
+        }
 
         when (stage) {
+            // 1단계: AI 코디추천 실행
             AiStylingStage.RECOMMEND -> {
-                binding.btnAiVirtualfitting.text = if (loading) "생성 중..." else "✨AI\n코디생성"
-                binding.btnRegister.isEnabled = false
-                binding.btnRegister.alpha = 0.4f
-                binding.layoutAiFitting.visibility = View.GONE
+                val isPersonalized = binding.switchStyleMode.isChecked
+                val onlyMine = binding.switchSwitchOwnedOnly.isChecked
+                viewModel.requestAiRecommendation(isPersonalized, onlyMine)
             }
 
+            // 2단계: AI 가상피팅 실행
             AiStylingStage.FITTING_READY -> {
-                binding.btnAiVirtualfitting.text = if (loading) "생성 중..." else "✨AI\n가상생성"
-                binding.btnRegister.isEnabled = false
-                binding.btnRegister.alpha = 0.4f
+                binding.layoutAiFitting.visibility = View.VISIBLE
+                binding.vvAiFitting.visibility = View.VISIBLE
+                viewModel.requestAiFitting()
             }
 
+            // 3단계: 등록
             AiStylingStage.FITTING_DONE -> {
-                binding.btnAiVirtualfitting.text = "✨AI\n가상생성"
-                binding.btnRegister.isEnabled = !loading
-                binding.btnRegister.alpha = if (loading) 0.4f else 1.0f
+                viewModel.saveCurrentLook()
             }
         }
     }
 
-    private fun requestAiRecommendation() {
-        val isPersonalized = binding.switchStyleMode.isChecked
-        val onlyMine = binding.switchSwitchOwnedOnly.isChecked
-        viewModel.requestAiRecommendation(isPersonalized, onlyMine)
+    /**
+     * ⭐ 메인 버튼 UI 업데이트
+     */
+    private fun updateMainButton() {
+        val stage = viewModel.stage.value ?: AiStylingStage.RECOMMEND
+        val isLoading = viewModel.isLoading.value == true
+
+        when (stage) {
+            AiStylingStage.RECOMMEND -> {
+                if (isLoading) {
+                    // AI 코디추천 로딩 중
+                    binding.btnRegister.text = ""
+                    binding.btnRegister.isEnabled = false
+                } else {
+                    // 초기 상태
+                    binding.btnRegister.text = "✨AI 코디추천"
+                    binding.btnRegister.isEnabled = true
+                }
+            }
+
+            AiStylingStage.FITTING_READY -> {
+                if (isLoading) {
+                    // AI 가상피팅 로딩 중
+                    binding.btnRegister.text = ""
+                    binding.btnRegister.isEnabled = false
+                } else {
+                    // 추천 완료, 가상피팅 대기
+                    binding.btnRegister.text = "✨AI 가상피팅"
+                    binding.btnRegister.isEnabled = true
+                }
+            }
+
+            AiStylingStage.FITTING_DONE -> {
+                if (isLoading) {
+                    // 등록 중
+                    binding.btnRegister.text = ""
+                    binding.btnRegister.isEnabled = false
+                } else {
+                    // 가상피팅 완료, 등록 대기
+                    binding.btnRegister.text = "등록"
+                    binding.btnRegister.isEnabled = true
+                }
+            }
+        }
+    }
+
+    /**
+     * ⭐ VideoView 초기화 (슬롯 영역 중앙)
+     */
+    private fun setupVideoLoading() {
+        val videoUri = Uri.parse(
+            "android.resource://${requireContext().packageName}/${R.raw.vv_ai_fitting_progress}"
+        )
+
+        binding.vvAiLoading.apply {
+            setVideoURI(videoUri)
+
+            setOnPreparedListener { mediaPlayer ->
+                mediaPlayer.isLooping = true
+                mediaPlayer.setVolume(0f, 0f) // 음소거
+            }
+
+            setOnErrorListener { _, what, extra ->
+                Log.e("AiStyling", "Video error: what=$what, extra=$extra")
+                false
+            }
+        }
+    }
+
+    /**
+     * ⭐ VideoView 애니메이션 제어 (슬롯 영역 중앙)
+     */
+    private fun updateVideoAnimation(isLoading: Boolean) {
+        if (isLoading) {
+            // 로딩 시작: 슬롯 중앙에 비디오 표시
+            binding.vvAiLoading.visibility = View.VISIBLE
+            binding.vvAiLoading.start()
+            Log.d("AiStyling", "Video animation started at center")
+        } else {
+            // 로딩 종료: 비디오 숨김
+            binding.vvAiLoading.visibility = View.GONE
+            binding.vvAiLoading.stopPlayback()
+            Log.d("AiStyling", "Video animation stopped")
+        }
     }
 
     private fun fillSlots(coordination: com.ssafy.closetory.dto.AiCoordinationResponse) {
@@ -176,7 +258,7 @@ class AiStylingFragment :
         setSlot(binding.ivSlotBottom, map["BOTTOM"]?.photoUrl)
         setSlot(binding.ivSlotShoes, map["SHOES"]?.photoUrl)
         setSlot(binding.ivSlotOuter, map["OUTER"]?.photoUrl)
-        setSlot(binding.ivSlotAcc, map["ACCESSORIES"]?.photoUrl)
+        setSlot(binding.ivSlotAcc, map["ACCESSORY"]?.photoUrl)
         setSlot(binding.ivSlotBag, map["BAG"]?.photoUrl)
     }
 
@@ -229,5 +311,10 @@ class AiStylingFragment :
             v.parent.requestDisallowInterceptTouchEvent(true)
             false
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.vvAiLoading.stopPlayback()
     }
 }
