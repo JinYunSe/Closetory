@@ -36,9 +36,9 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:text="✨ AI가상 생성"
-            android:textColor="#A6DAF4"
-
-            app:backgroundTint="@android:color/white"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_aicodybutton"
+            app:backgroundTint="@null"
             app:strokeWidth="0.8dp"
             app:strokeColor="#A6DAF4"
             app:cornerRadius="12dp"
