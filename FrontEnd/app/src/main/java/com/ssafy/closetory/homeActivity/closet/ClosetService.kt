@@ -6,6 +6,7 @@ import com.ssafy.closetory.dto.ClothesItemDto
 import retrofit2.Response
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -27,4 +28,10 @@ interface ClosetService {
 
     @GET("clothes/{clothesId}/recommend")
     suspend fun getRecommendedClothes(@Path("clothesId") clothesId: Int): Response<ApiResponse<List<ClothesItemDto>>>
+
+    @POST("clothes/{clothesId}/save")
+    suspend fun postClothesRental(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
+
+    @DELETE("clothes/{clothesId}/save")
+    suspend fun deleteClothesRental(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
 }
