@@ -4,10 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.closetory.dto.common.ApiResponse;
 import com.ssafy.closetory.dto.user.*;
+import com.ssafy.closetory.service.user.StatsService;
 import com.ssafy.closetory.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
   private final UserService userService;
+  private final StatsService statsService;
   private final ObjectMapper objectMapper;
 
   @PatchMapping(
@@ -90,5 +93,15 @@ public class UserController {
     UserDetailResponse response = userService.getUserDetail(authUserId, userId);
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "회원정보 조회 성공", response));
+  }
+
+  @GetMapping("/{userId}/stats/top3")
+  @Operation(summary = "이번 달에 가장 자주 입은 옷 Top3")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<List<Top3Item>>> getTop3(
+      @PathVariable Integer userId, @AuthenticationPrincipal Integer authUserId) {
+    List<Top3Item> response = statsService.getTop3(userId, authUserId);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.ok(200, "이번 달에 가장 자주 입은 옷 Top3 조회 성공", response));
   }
 }
