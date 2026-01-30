@@ -1,6 +1,7 @@
 package com.ssafy.closetory.homeActivity.post
 
 import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostEditRequest
 import com.ssafy.closetory.dto.PostEditResponse
 import com.ssafy.closetory.dto.PostItemResponse
@@ -25,6 +26,10 @@ interface PostService {
         @Query("keyword") keyword: String? = null,
         @Query("filter") filter: PostQueryFilter? = null
     ): Response<ApiResponse<List<PostItemResponse>>>
+
+    // 게시글 상세 페이지 조회
+    @GET("posts/{postId}")
+    suspend fun getPostDetail(@Path("postId") postId: Int): Response<ApiResponse<PostDetailResponse>>
 
     // 프로필 수정
     @Multipart

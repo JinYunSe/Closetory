@@ -109,6 +109,9 @@
             android:id="@+id/action_post_list_to_post_create"
             app:destination="@id/navigation_post_create" />
         <action
+            android:id="@+id/action_post_list_to_post_detail"
+            app:destination="@id/navigation_post_detail" />
+        <action
             android:id="@+id/action_post_list_to_post_edit"
             app:destination="@id/navigation_post_edit" />
     </fragment>
@@ -118,6 +121,22 @@
         android:name="com.ssafy.closetory.homeActivity.post.create.PostCreateFragment"
         android:label="PostCreate"
         tools:layout="@layout/fragment_post_create" />
+
+    <fragment
+        android:id="@+id/navigation_post_detail"
+        android:name="com.ssafy.closetory.homeActivity.post.detail.PostDetailFragment"
+        android:label="PostDetail"
+        tools:layout="@layout/fragment_post_detail">
+
+        <argument
+            android:name="postId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+
+        <action
+            android:id="@+id/action_post_detail_to_post_edit"
+            app:destination="@id/navigation_post_create" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_post_edit"

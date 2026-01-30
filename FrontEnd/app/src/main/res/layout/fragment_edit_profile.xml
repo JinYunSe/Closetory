@@ -52,19 +52,11 @@
                     android:id="@+id/imgProfile"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
+                    android:scaleType="fitXY"
                     android:background="#E0E0E0"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.Circle"
                     android:contentDescription="프로필 사진" />
 
-
-                <TextView
-                    android:id="@+id/tvProfilePlaceholder"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="프사"
-                    android:gravity="center"
-                    android:textColor="#000000" />
             </FrameLayout>
 
             <!-- 전신 사진 -->
@@ -77,17 +69,9 @@
                     android:id="@+id/imgBody"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
+                    android:scaleType="fitCenter"
                     android:background="#E0E0E0"
                     android:contentDescription="전신 사진" />
-
-                <TextView
-                    android:id="@+id/tvBodyPlaceholder"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="전신 사진\n(앞면 전신)"
-                    android:gravity="center"
-                    android:textColor="#000000" />
             </FrameLayout>
         </LinearLayout>
 
