@@ -4,14 +4,15 @@ import com.ssafy.closetory.dto.clothes.ClosetClothesItem;
 import com.ssafy.closetory.dto.clothes.GetClosetResponse;
 import com.ssafy.closetory.dto.looks.*;
 import com.ssafy.closetory.entity.clothes.Clothes;
+import com.ssafy.closetory.entity.looks.ClothesLooks;
+import com.ssafy.closetory.entity.looks.ClothesLooksId;
+import com.ssafy.closetory.entity.looks.Look;
 import com.ssafy.closetory.entity.post.Post;
 import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.enums.ClothesType;
 import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.NotFoundException;
-import com.ssafy.closetory.repository.ClothesRepository;
-import com.ssafy.closetory.repository.PostRepository;
-import com.ssafy.closetory.repository.UserRepository;
+import com.ssafy.closetory.repository.*;
 import com.ssafy.closetory.service.clothes.ClothesService;
 import com.ssafy.closetory.service.s3.S3ImageService;
 import java.io.IOException;
@@ -43,7 +44,9 @@ public class LookServiceImpl implements LookService {
   private final WebClient fastApiWebClient;
   private final S3ImageService s3ImageService;
   private final PostRepository postRepository;
+  private final LookRepository lookRepository;
   private final ClothesService clothesService;
+  private final ClothesLooksRepository clothesLooksRepository;
 
   private static final String[] clothesType = {
     "top_image", "bottom_image", "shoes_image",
@@ -156,7 +159,7 @@ public class LookServiceImpl implements LookService {
       Integer userId, AiRecommendationRequest request) {
 
     Pageable limit = PageRequest.of(0, 10);
-    List<Post> posts = new ArrayList<>();
+    List<Post> posts;
 
     // true, false에 따라 참고하는 게시글이 달라짐
     // true : 내가 원하는 코디, false : 나에게 어울리는 코디
@@ -278,5 +281,35 @@ public class LookServiceImpl implements LookService {
               type, // 여기서 전달받은 타입을 사용
               item.photoUrl()));
     }
+  }
+
+  @Override
+  @Transactional
+  public void lookRegistration(LookRegistrationRequest request, Integer userId) {
+    Look look =
+        Look.builder()
+            .userId(userId)
+            .photoUrl(request.aiImageUrl())
+            .reason(request.aiReason())
+            .build();
+
+    Look saved = lookRepository.save(look);
+
+    List<Clothes> clothesList = clothesRepository.findAllById(request.clothesIdList());
+
+    if (clothesList.size() != request.clothesIdList().size()) {
+      throw new BadRequestException("존재하지 않는 옷 ID가 포함되어 있습니다.");
+    }
+
+    List<ClothesLooks> clothesLooksList = new ArrayList<>();
+
+    for (Clothes c : clothesList) {
+      ClothesLooksId id = new ClothesLooksId(c.getId(), saved.getId());
+      ClothesLooks clothesLooks = ClothesLooks.builder().id(id).clothes(c).look(saved).build();
+
+      clothesLooksList.add(clothesLooks);
+    }
+
+    clothesLooksRepository.saveAll(clothesLooksList);
   }
 }
