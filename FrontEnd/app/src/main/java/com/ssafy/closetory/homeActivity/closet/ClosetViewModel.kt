@@ -8,10 +8,17 @@ import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.dto.ClosetResponse
 import com.ssafy.closetory.dto.ClothesItemDto
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 private const val TAG = "ClosetViewModel_싸피"
+
+data class ClothesDetailUiState(
+    val isBookmarked: Boolean? = null, // null = 아직 상세응답 안옴(미정)
+    val isBookmarkSyncing: Boolean = false
+)
 
 class ClosetViewModel : ViewModel() {
 
@@ -32,8 +39,8 @@ class ClosetViewModel : ViewModel() {
     private val _recommendedClothes = MutableLiveData<List<ClothesItemDto>>()
     val recommendedClothes: LiveData<List<ClothesItemDto>> = _recommendedClothes
 
-    private val _clothesRental = MutableLiveData<Boolean>()
-    val clothesRental: LiveData<Boolean> = _clothesRental
+    private val _clothesRental = MutableSharedFlow<Boolean>(replay = 0)
+    val clothesRental: SharedFlow<Boolean> = _clothesRental
 
     fun getClothesList(tags: List<Int>?, color: String?, seasons: List<Int>?, onlyMine: Boolean?) {
         viewModelScope.launch {
@@ -140,7 +147,7 @@ class ClosetViewModel : ViewModel() {
 
                 if (res.isSuccessful) {
                     // false를 제공
-                    _clothesRental.value = !res.isSuccessful
+                    _clothesRental.emit(!res.isSuccessful)
                     val message = res.body()?.responseMessage ?: "저장된 옷이 삭제 됐습니다."
                     _message.emit(message)
                 } else {
@@ -161,7 +168,7 @@ class ClosetViewModel : ViewModel() {
 
                 if (res.isSuccessful) {
                     // true를 제공
-                    _clothesRental.value = res.isSuccessful
+                    _clothesRental.emit(res.isSuccessful)
                     val message = res.body()?.responseMessage ?: "다른 사람 옷 저장 성공"
                     _message.emit(message)
                 } else {

@@ -174,13 +174,14 @@ class ClothesDetailFragment :
             recommendAdapter.submitList(list)
         }
 
-        closetViewModel.clothesRental.observe(viewLifecycleOwner) { check ->
-            // isRental이 true이면 대여, false이면 대여 취소
-            isRental = check
-            if (check) {
-                binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
-            } else {
-                binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_border_24)
+        viewLifecycleOwner.lifecycleScope.launch {
+            closetViewModel.clothesRental.collect { check ->
+                isRental = check
+                if (check) {
+                    binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
+                } else {
+                    binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_border_24)
+                }
             }
         }
     }
