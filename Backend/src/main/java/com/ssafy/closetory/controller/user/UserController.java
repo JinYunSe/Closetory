@@ -3,10 +3,7 @@ package com.ssafy.closetory.controller.user;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.closetory.dto.common.ApiResponse;
-import com.ssafy.closetory.dto.user.AddStyleRequest;
-import com.ssafy.closetory.dto.user.PasswordChangeRequest;
-import com.ssafy.closetory.dto.user.PasswordVerifyRequest;
-import com.ssafy.closetory.dto.user.UpdateUserRequest;
+import com.ssafy.closetory.dto.user.*;
 import com.ssafy.closetory.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -83,5 +80,15 @@ public class UserController {
     userService.addStyle(userId, authUserId, request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.ok(201, "사용자 선호 태그 등록 완료", null));
+  }
+
+  @GetMapping("/{userId}")
+  @Operation(summary = "회원 정보 조회")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<UserDetailResponse>> getUser(
+      @PathVariable Integer userId, @AuthenticationPrincipal Integer authUserId) {
+    UserDetailResponse response = userService.getUserDetail(authUserId, userId);
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "회원정보 조회 성공", response));
   }
 }

@@ -2,6 +2,7 @@ package com.ssafy.closetory.service.user;
 
 import com.ssafy.closetory.dto.user.AddStyleRequest;
 import com.ssafy.closetory.dto.user.UpdateUserRequest;
+import com.ssafy.closetory.dto.user.UserDetailResponse;
 import com.ssafy.closetory.entity.clothes.Tag;
 import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.entity.user.UserFavoriteTag;
@@ -150,5 +151,18 @@ public class UserServiceImpl implements UserService {
     return userRepository
         .findById(tokenUserId)
         .orElseThrow(() -> new UnauthorizedException("유효하지 않은 사용자입니다"));
+  }
+
+  @Override
+  public UserDetailResponse getUserDetail(Integer authUserId, Integer userId) {
+
+    if (!authUserId.equals(userId)) {
+      throw new ForbiddenException("회원정보 조회 권한이 없습니다.");
+    }
+
+    User user =
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
+
+    return UserDetailResponse.from(user);
   }
 }
