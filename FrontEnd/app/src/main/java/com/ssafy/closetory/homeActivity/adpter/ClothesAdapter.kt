@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
-import com.ssafy.closetory.databinding.ItemClothBinding
+import com.ssafy.closetory.databinding.ItemClothesBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 
 private const val TAG = "ClothAdapter_싸피"
@@ -28,7 +28,7 @@ class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.ViewHodler>(di
         }
     }
 
-    inner class ViewHodler(private val binding: ItemClothBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHodler(private val binding: ItemClothesBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: ClothesItemDto) = with(binding) {
             Log.d(TAG, "SERVER URL : ${ApplicationClass.API_BASE_URL}")
@@ -50,7 +50,7 @@ class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.ViewHodler>(di
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHodler {
-        val binding = ItemClothBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemClothesBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHodler(binding)
     }
 
