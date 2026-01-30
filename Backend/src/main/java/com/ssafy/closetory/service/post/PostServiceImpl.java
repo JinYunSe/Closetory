@@ -2,10 +2,12 @@ package com.ssafy.closetory.service.post;
 
 import com.ssafy.closetory.dto.post.*;
 import com.ssafy.closetory.entity.post.Post;
+import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.repository.ClothesRepository;
 import com.ssafy.closetory.repository.PostRepository;
 import com.ssafy.closetory.repository.SaveRepository;
+import com.ssafy.closetory.repository.UserRepository;
 import com.ssafy.closetory.service.s3.S3ImageService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +24,7 @@ public class PostServiceImpl implements PostService {
   private final ClothesRepository clothesRepository;
   private final S3ImageService s3ImageService;
   private final SaveRepository saveRepository;
+  private final UserRepository userRepository;
 
   @Override
   public PostCreateResponse createPost(
@@ -118,6 +121,11 @@ public class PostServiceImpl implements PostService {
             .findById(postId)
             .orElseThrow(() -> new BadRequestException("존재하지 않는 게시글입니다."));
 
+    User user =
+        userRepository
+            .findById(post.getUserId())
+            .orElseThrow(() -> new BadRequestException("작성자 정보가 존재하지 않습니다."));
+
     post.increaseViews();
 
     List<PostItemResponse> items =
@@ -140,7 +148,9 @@ public class PostServiceImpl implements PostService {
         post.getCreatedAt(),
         post.getViews(),
         0, // 좋아요 개수
-        false // 좋아요 유무
-        );
+        false, // 좋아요 유무
+        user.getId(),
+        user.getNickname(),
+        user.getProfilePhotoUrl());
   }
 }
