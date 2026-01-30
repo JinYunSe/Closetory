@@ -249,7 +249,7 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="18dp"
                 android:layout_marginEnd="16dp"
-                android:text="태그 기반 추천"
+                android:text="함께 입기 좋은 옷"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
