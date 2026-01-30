@@ -11,11 +11,10 @@ import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.ItemClothesBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 
-private const val TAG = "ClothAdapter_싸피"
 class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.VH>(DIFF) {
 
     var onItemClick: ((ClothesItemDto) -> Unit)? = null
-    var onBookmarkClick: ((ClothesItemDto) -> Unit)? = null // 필요하면
+    var onBookmarkClick: ((ClothesItemDto) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val binding = ItemClothesBinding.inflate(
@@ -27,7 +26,8 @@ class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.VH>(DIFF) {
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.bind(getItem(position), onItemClick, onBookmarkClick)
+        val item = getItem(position)
+        holder.bind(item, onItemClick, onBookmarkClick)
     }
 
     class VH(private val binding: ItemClothesBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -37,7 +37,6 @@ class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.VH>(DIFF) {
             onItemClick: ((ClothesItemDto) -> Unit)?,
             onBookmarkClick: ((ClothesItemDto) -> Unit)?
         ) {
-            // 이미지 바인딩
             Glide.with(binding.ivPhoto)
                 .load(item.photoUrl)
                 .placeholder(R.drawable.placeholder)
@@ -56,17 +55,19 @@ class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.VH>(DIFF) {
                 binding.ivBookmark.setOnClickListener(null)
             }
 
-            // 아이템 클릭
-            binding.root.setOnClickListener { onItemClick?.invoke(item) }
+            binding.imgBtn.setOnClickListener {
+                onItemClick?.invoke(item)
+            }
         }
     }
 
     companion object {
         private val DIFF = object : DiffUtil.ItemCallback<ClothesItemDto>() {
-            override fun areItemsTheSame(oldItem: ClothesItemDto, newItem: ClothesItemDto) =
+            override fun areItemsTheSame(oldItem: ClothesItemDto, newItem: ClothesItemDto): Boolean =
                 oldItem.clothesId == newItem.clothesId
 
-            override fun areContentsTheSame(oldItem: ClothesItemDto, newItem: ClothesItemDto) = oldItem == newItem
+            override fun areContentsTheSame(oldItem: ClothesItemDto, newItem: ClothesItemDto): Boolean =
+                oldItem == newItem
         }
     }
 }
