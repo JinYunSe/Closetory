@@ -102,4 +102,8 @@ public class User {
   public void updateBodyPhotoUrl(String bodyPhotoUrl) {
     this.bodyPhotoUrl = bodyPhotoUrl;
   }
+
+  public void setDeletedAt(LocalDateTime deletedAt) {
+    this.deletedAt = deletedAt;
+  }
 }

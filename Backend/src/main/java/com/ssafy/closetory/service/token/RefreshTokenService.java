@@ -16,4 +16,6 @@ public interface RefreshTokenService {
 
   // 토큰 재발급
   void rotate(String oldRefreshToken, String newRefreshToken, Integer userId);
+
+  void deleteByUserId(Integer userId);
 }
