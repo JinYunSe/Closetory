@@ -95,6 +95,9 @@
             android:name="clothesId"
             app:argType="integer"
             android:defaultValue="-1" />
+        <action
+            android:id="@+id/action_navigation_clothes_detail_self"
+            app:destination="@id/navigation_clothes_detail" />
     </fragment>
 
     <fragment

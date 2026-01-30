@@ -89,4 +89,10 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
     private fun init() {
         homeInitViewModel.getTagsList()
     }
+
+    fun registerObserve() {
+        homeInitViewModel.tagsList.observe(this) {
+            TagOptions.setTags(it)
+        }
+    }
 }

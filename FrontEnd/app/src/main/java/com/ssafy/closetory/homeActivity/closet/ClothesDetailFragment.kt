@@ -15,6 +15,11 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentClothesDetailBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.homeActivity.HomeActivity
+import com.ssafy.closetory.homeActivity.adpter.RecommendClothesAdapter
+import com.ssafy.closetory.homeActivity.post.create.dialog.ClothesPickerDialogFragment.Companion.KEY_CLOTHES_ID
+import com.ssafy.closetory.homeActivity.post.create.dialog.ClothesPickerDialogFragment.Companion.KEY_PHOTO_URL
+import com.ssafy.closetory.homeActivity.post.create.dialog.ClothesPickerDialogFragment.Companion.REQUEST_KEY
+import com.ssafy.closetory.util.ChipUtils
 import com.ssafy.closetory.util.ClothTypeOptions
 import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.SeasonOptions
@@ -42,6 +47,9 @@ class ClothesDetailFragment :
     // 수정 화면으로 넘길 “현재 상세 아이템” 보관
     private var currentItem: ClothesItemDto? = null // 네 프로젝트 모델명에 맞춰라
 
+    // 추천 목록 어댑터
+    private val recommendAdapter = RecommendClothesAdapter()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -51,18 +59,24 @@ class ClothesDetailFragment :
             findNavController().popBackStack(R.id.navigation_closet, false)
         }
 
-        binding.rvRecommend.layoutManager =
-            LinearLayoutManager(homeActivity, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvRecommend.apply {
+            layoutManager = LinearLayoutManager(homeActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = recommendAdapter
+            setHasFixedSize(true)
+        }
 
         registerObserve()
+        setupPickListener()
 
         Log.d(TAG, "옷 상세 정보 조회 clothesId: $clothesId")
         closetViewModel.getClothesDetail(clothesId)
+        closetViewModel.getRecommendedClothes(clothesId)
 
         binding.ibtnBookmark.setOnClickListener {
             if (isRental) {
                 isRental = false
                 binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_border_24)
+//                closetViewModel.
             } else {
                 isRental = true
                 binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
@@ -120,24 +134,14 @@ class ClothesDetailFragment :
             } else {
                 binding.cgTags.visibility = View.VISIBLE
                 tags.forEach { tag ->
-                    val chip = com.google.android.material.chip.Chip(homeActivity).apply {
-                        text = "#$tag"
-                        isCheckable = true
-                        isChecked = true
-                        isClickable = false
-                        isFocusable = false
-                        setEnsureMinTouchTargetSize(false)
-                        setChipDrawable(
-                            com.google.android.material.chip.ChipDrawable.createFromAttributes(
-                                homeActivity,
-                                null,
-                                0,
-                                com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
-                            )
-                        )
-                        chipBackgroundColor = homeActivity.getColorStateList(R.color.chip_bg_selector)
-                        setTextColor(homeActivity.getColorStateList(R.color.chip_text_selector))
-                    }
+                    val chip = ChipUtils.createChoiceChip(
+                        context = homeActivity,
+                        text = "#$tag",
+                        checkable = true,
+                        checked = true,
+                        clickable = false,
+                        focusable = false
+                    )
                     binding.cgTags.addView(chip)
                 }
             }
@@ -149,6 +153,7 @@ class ClothesDetailFragment :
             } else {
                 isRental = true
                 binding.editLinearLayout.visibility = View.GONE
+                binding.tvRecommendTitle.visibility = View.GONE
                 binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
             }
         }
@@ -163,6 +168,19 @@ class ClothesDetailFragment :
                 // 뒤로가기
                 findNavController().popBackStack(R.id.navigation_closet, false)
             }
+        }
+
+        closetViewModel.recommendedClothes.observe(viewLifecycleOwner) { list ->
+            recommendAdapter.submitList(list)
+        }
+    }
+
+    private fun setupPickListener() {
+        recommendAdapter.onItemClickListener = { item ->
+            findNavController().navigate(
+                R.id.action_navigation_clothes_detail_self,
+                Bundle().apply { putInt("clothesId", item.clothesId) }
+            )
         }
     }
 
