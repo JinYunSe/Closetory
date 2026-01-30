@@ -70,4 +70,34 @@ class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.VH>(DIFF) {
                 oldItem == newItem
         }
     }
+
+    inner class ViewHodler(private val binding: ItemClothesBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(item: ClothesItemDto) = with(binding) {
+            Log.d(TAG, "SERVER URL : ${ApplicationClass.API_BASE_URL}")
+            Log.d(TAG, "clothesId : ${item.clothesId}")
+            Log.d(TAG, "photoUrl : ${item.photoUrl}")
+
+            Glide.with(binding.ivPhoto)
+                .load(item.photoUrl)
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.error)
+                .into(binding.ivPhoto)
+
+            // 클릭 시 프래그먼트에 알림
+            imgBtn.setOnClickListener {
+                Log.d(TAG, "아이템 클릭됨: ${item.clothesId}")
+                onItemClickListener?.invoke(item)
+            }
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHodler {
+        val binding = ItemClothesBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHodler(binding)
+    }
+
+    override fun onBindViewHolder(holder: ViewHodler, position: Int) {
+        holder.bind(getItem(position))
+    }
 }
