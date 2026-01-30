@@ -1,9 +1,7 @@
 package com.ssafy.closetory.service.looks;
 
-import com.ssafy.closetory.dto.looks.AiRecommendationRequest;
-import com.ssafy.closetory.dto.looks.AiRecommendationResponse;
-import com.ssafy.closetory.dto.looks.LookRegistrationRequest;
-import com.ssafy.closetory.dto.looks.VirtualFittingRequest;
+import com.ssafy.closetory.dto.looks.*;
+import java.util.List;
 
 public interface LookService {
   String requestFitting(Integer userId, VirtualFittingRequest request);
@@ -11,4 +9,6 @@ public interface LookService {
   AiRecommendationResponse requestAiRecommendation(Integer userId, AiRecommendationRequest request);
 
   void lookRegistration(LookRegistrationRequest request, Integer userId);
+
+  List<GetAllLooksResponse> getAllLooks(Integer userId);
 }
