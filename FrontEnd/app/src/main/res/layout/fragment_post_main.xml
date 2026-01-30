@@ -67,6 +67,40 @@
             android:src="@android:drawable/ic_menu_search" />
 
     </LinearLayout>
+    <!-- 디버그: 특정 postId로 강제 접근 -->
+    <LinearLayout
+        android:id="@+id/layoutDebugQuickJump"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal"
+        tools:layout_editor_absoluteX="7dp"
+        tools:layout_editor_absoluteY="140dp">
+        <Button
+            android:id="@+id/btnGoPost29"
+            android:layout_width="100dp"
+            android:layout_height="32dp"
+            android:minHeight="32dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="post 29"
+            android:textSize="12sp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="182dp" />
+
+        <Button
+            android:id="@+id/btnGoPost10"
+            android:layout_width="100dp"
+            android:layout_height="32dp"
+            android:minHeight="32dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="post 10"
+            android:textSize="12sp"
+            tools:layout_editor_absoluteX="66dp"
+            tools:layout_editor_absoluteY="92dp" />
+
+    </LinearLayout>
 
     <!-- 정렬/필터: 4개 중 1개만 선택 (2x2, 기본 최신순) -->
     <RadioGroup

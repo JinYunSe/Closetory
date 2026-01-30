@@ -1,73 +1,60 @@
 package com.ssafy.closetory.homeActivity.adpter
 
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.ItemClothesBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 
-class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.VH>(DIFF) {
+private const val TAG = "ClothAdapter_싸피"
+class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.ViewHodler>(diffCallback) {
 
-    var onItemClick: ((ClothesItemDto) -> Unit)? = null
-    var onBookmarkClick: ((ClothesItemDto) -> Unit)? = null
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding = ItemClothesBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return VH(binding)
-    }
-
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        val item = getItem(position)
-        holder.bind(item, onItemClick, onBookmarkClick)
-    }
-
-    class VH(private val binding: ItemClothesBinding) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(
-            item: ClothesItemDto,
-            onItemClick: ((ClothesItemDto) -> Unit)?,
-            onBookmarkClick: ((ClothesItemDto) -> Unit)?
-        ) {
-            Glide.with(binding.ivPhoto)
-                .load(item.photoUrl)
-                .placeholder(R.drawable.placeholder)
-                .error(R.drawable.error)
-                .into(binding.ivPhoto)
-
-            val showBookmark = (item.isMine == false)
-
-            binding.ivBookmark.visibility = if (showBookmark) View.VISIBLE else View.GONE
-
-            binding.ivBookmark.setImageResource(R.drawable.baseline_bookmark_24)
-
-            if (showBookmark) {
-                binding.ivBookmark.setOnClickListener { onBookmarkClick?.invoke(item) }
-            } else {
-                binding.ivBookmark.setOnClickListener(null)
-            }
-
-            binding.imgBtn.setOnClickListener {
-                onItemClick?.invoke(item)
-            }
-        }
-    }
+    // 클릭 이벤트를 StylingFragment로 전달하기 위한 람다 함수
+    var onItemClickListener: ((ClothesItemDto) -> Unit)? = null
 
     companion object {
-        private val DIFF = object : DiffUtil.ItemCallback<ClothesItemDto>() {
+        private val diffCallback = object : DiffUtil.ItemCallback<ClothesItemDto>() {
             override fun areItemsTheSame(oldItem: ClothesItemDto, newItem: ClothesItemDto): Boolean =
                 oldItem.clothesId == newItem.clothesId
 
             override fun areContentsTheSame(oldItem: ClothesItemDto, newItem: ClothesItemDto): Boolean =
                 oldItem == newItem
         }
+    }
+
+    inner class ViewHodler(private val binding: ItemClothesBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(item: ClothesItemDto) = with(binding) {
+            Log.d(TAG, "SERVER URL : ${ApplicationClass.API_BASE_URL}")
+            Log.d(TAG, "clothesId : ${item.clothesId}")
+            Log.d(TAG, "photoUrl : ${item.photoUrl}")
+
+            Glide.with(binding.ivPhoto)
+                .load(item.photoUrl)
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.error)
+                .into(binding.ivPhoto)
+
+            // 클릭 시 프래그먼트에 알림
+            imgBtn.setOnClickListener {
+                Log.d(TAG, "아이템 클릭됨: ${item.clothesId}")
+                onItemClickListener?.invoke(item)
+            }
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHodler {
+        val binding = ItemClothesBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHodler(binding)
+    }
+
+    override fun onBindViewHolder(holder: ViewHodler, position: Int) {
+        holder.bind(getItem(position))
     }
 }

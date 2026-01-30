@@ -3,17 +3,22 @@ package com.ssafy.closetory.homeActivity.post.create.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.ssafy.closetory.ApplicationClass
+import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.ItemPostDetailItemBinding
-import com.ssafy.closetory.dto.ItemDto
+import com.ssafy.closetory.dto.PostDetailItemDto
+
+private const val TAG = "PostDetailItemAdapter_싸피"
 
 // 게시글 상세 페이지의 옷 요소(items)를 가로 리스트로 보여주는 어댑터
-class PostDetailItemAdapter(private val onItemClick: (ItemDto) -> Unit) :
+class PostDetailItemAdapter(private val onItemClick: (PostDetailItemDto) -> Unit) :
     RecyclerView.Adapter<PostDetailItemAdapter.ViewHolder>() {
 
-    private val items = mutableListOf<ItemDto>()
+    private val items = mutableListOf<PostDetailItemDto>()
 
     // items 리스트 갱신
-    fun submitList(newItems: List<ItemDto>) {
+    fun submitList(newItems: List<PostDetailItemDto>) {
         items.clear()
         items.addAll(newItems)
         notifyDataSetChanged()
@@ -22,9 +27,19 @@ class PostDetailItemAdapter(private val onItemClick: (ItemDto) -> Unit) :
     inner class ViewHolder(private val binding: ItemPostDetailItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         // item 1개 바인딩
-        fun bind(item: ItemDto) {
-            // 옷 요소 이미지 표시
-            // Glide.with(binding.root).load(item.photoUrl).into(binding.ivItem)
+        fun bind(item: PostDetailItemDto) {
+            val rawUrl = item.photoUrl
+            val finalUrl = if (rawUrl.startsWith("http")) {
+                rawUrl
+            } else {
+                "${ApplicationClass.API_BASE_URL}${item.photoUrl}"
+            }
+
+            Glide.with(binding.root)
+                .load(finalUrl)
+                .placeholder(R.drawable.bg_gray_box) // 없으면 placeholder로 교체
+                .error(R.drawable.bg_gray_box)
+                .into(binding.ivItem)
 
             // 옷 요소 클릭 이벤트 처리
             binding.root.setOnClickListener {

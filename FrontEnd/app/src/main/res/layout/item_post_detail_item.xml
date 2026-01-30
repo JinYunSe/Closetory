@@ -13,4 +13,16 @@
         android:contentDescription="옷요소 이미지"
         android:scaleType="centerCrop" />
 
+    <!-- 우상단 저장 버튼 -->
+    <ImageView
+        android:id="@+id/ivSave"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="6dp"
+        android:contentDescription="저장 버튼"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/baseline_bookmark_border_24" />
+
 </FrameLayout>

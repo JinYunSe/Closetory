@@ -38,7 +38,7 @@
                 android:id="@+id/layoutMeta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp">
+                android:layout_marginTop="6dp">
 
                 <ImageView
                     android:id="@+id/ivProfile"
@@ -61,101 +61,103 @@
                     app:layout_constraintTop_toTopOf="@id/ivProfile"
                     app:layout_constraintBottom_toBottomOf="@id/ivProfile"/>
 
-                <TextView
-                    android:id="@+id/tvViewsLabel"
+                <!-- 우측: 조회수/좋아요 -->
+                <LinearLayout
+                    android:id="@+id/layoutStats"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:text="조회수"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toEndOf="@id/tvAuthor"
-                    app:layout_constraintTop_toTopOf="@id/tvAuthor"
-                    app:layout_constraintBottom_toBottomOf="@id/tvAuthor"/>
-
-                <TextView
-                    android:id="@+id/tvViews"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="0"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toEndOf="@id/tvViewsLabel"
-                    app:layout_constraintTop_toTopOf="@id/tvViewsLabel"
-                    app:layout_constraintBottom_toBottomOf="@id/tvViewsLabel"/>
-
-                <TextView
-                    android:id="@+id/tvLikesLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:text="좋아요 수"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toEndOf="@id/tvViews"
-                    app:layout_constraintTop_toTopOf="@id/tvViews"
-                    app:layout_constraintBottom_toBottomOf="@id/tvViews"/>
-
-                <TextView
-                    android:id="@+id/tvLikes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="0"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toEndOf="@id/tvLikesLabel"
-                    app:layout_constraintTop_toTopOf="@id/tvLikesLabel"
-                    app:layout_constraintBottom_toBottomOf="@id/tvLikesLabel"/>
-
-                <TextView
-                    android:id="@+id/tvCreatedAt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:text="등록 시간"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toEndOf="@id/tvLikes"
-                    app:layout_constraintTop_toTopOf="@id/tvLikes"
-                    app:layout_constraintBottom_toBottomOf="@id/tvLikes"/>
-
-                <ImageButton
-                    android:id="@+id/btnLike"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@null"
-                    android:contentDescription="좋아요"
-                    android:src="@drawable/ic_thumb_up"
+                    android:orientation="horizontal"
+                    android:gravity="end"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/ivProfile"
-                    app:layout_constraintBottom_toBottomOf="@id/ivProfile"/>
+                    app:layout_constraintBottom_toBottomOf="@id/ivProfile">
+
+                    <!-- 조회수 -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="6dp"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/ivViewsIcon"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:contentDescription="조회수 아이콘"
+                            android:src="@drawable/ic_eye" />
+
+                        <TextView
+                            android:id="@+id/tvViews"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="0"
+                            style="@style/TextPostSmallInfoLabel" />
+
+
+                    </LinearLayout>
+
+                    <!-- 좋아요 -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="6dp"
+                        android:gravity="center">
+
+
+                        <ImageView
+                            android:id="@+id/ivLikeIcon"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:contentDescription="좋아요 아이콘"
+                            android:src="@drawable/heart_empty" />
+
+                        <TextView
+                            android:id="@+id/tvLikes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="0"
+                            style="@style/TextPostSmallInfoLabel" />
+                    </LinearLayout>
+                </LinearLayout>
+
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
             <ImageView
                 android:id="@+id/ivPostPhoto"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="6dp"
                 android:background="#D9D9D9"
                 android:contentDescription="게시글 사진"
                 android:scaleType="centerCrop"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="옷 정보" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvClothes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="6dp"
                 android:nestedScrollingEnabled="false"
                 android:orientation="horizontal"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="게시글" />
 
             <TextView
                 android:id="@+id/tvContent"
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="6dp"
                 android:background="#D9D9D9"
                 android:gravity="center"
                 android:text="게시글"
@@ -166,7 +168,7 @@
                 android:id="@+id/layoutCommentInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
+                android:layout_marginTop="12dp">
 
                 <EditText
                     android:id="@+id/etComment"
@@ -176,6 +178,7 @@
                     android:background="#E0E0E0"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
+                    android:layout_marginEnd="6dp"
                     android:inputType="textMultiLine"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/btnCommentSubmit"
@@ -186,11 +189,12 @@
                     android:id="@+id/btnCommentSubmit"
                     android:layout_width="96dp"
                     android:layout_height="48dp"
-                    android:layout_marginStart="12dp"
+                    android:backgroundTint="@color/main_color"
                     android:text="댓글 등록"
+                    app:layout_constraintBottom_toBottomOf="@id/etComment"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/etComment"
-                    app:layout_constraintBottom_toBottomOf="@id/etComment"/>
+                    app:layout_constraintVertical_bias="0.0" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -198,7 +202,7 @@
                 android:id="@+id/rvComments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="6dp"
                 android:nestedScrollingEnabled="false"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -206,13 +210,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/btnUpdate"
                     android:layout_width="0dp"
                     android:layout_height="56dp"
                     android:text="수정"
+                    android:backgroundTint="@color/main_color"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/btnDelete"
                     app:layout_constraintTop_toTopOf="parent"
@@ -225,6 +231,7 @@
                     android:layout_height="56dp"
                     android:layout_marginStart="16dp"
                     android:text="삭제"
+                    android:backgroundTint="@color/gray_500"
                     app:layout_constraintStart_toEndOf="@id/btnUpdate"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/btnUpdate"
