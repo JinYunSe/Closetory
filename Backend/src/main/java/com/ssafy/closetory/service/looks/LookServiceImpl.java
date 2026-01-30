@@ -312,4 +312,46 @@ public class LookServiceImpl implements LookService {
 
     clothesLooksRepository.saveAll(clothesLooksList);
   }
+
+  public List<GetAllLooksResponse> getAllLooks(Integer userId) {
+    List<Look> lookList = lookRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+
+    if (lookList.isEmpty()) {
+      return new ArrayList<>();
+    }
+
+    List<Integer> lookIds = lookList.stream().map(Look::getId).toList();
+
+    List<ClothesLooks> allLookItems = clothesLooksRepository.findByIdLookIdIn(lookIds);
+
+    Map<Integer, List<ClothesLooks>> clothesMap =
+        allLookItems.stream().collect(Collectors.groupingBy(cl -> cl.getLook().getId()));
+
+    List<GetAllLooksResponse> result = new ArrayList<>();
+
+    for (Look look : lookList) {
+      List<ClothesLooks> items = clothesMap.get(look.getId());
+      boolean onlyMine = true;
+
+      for (ClothesLooks item : items) {
+        if (!item.getClothes().getUserId().equals(userId)) {
+          onlyMine = false;
+          break;
+        }
+      }
+
+      GetAllLooksResponse lookResponse =
+          GetAllLooksResponse.builder()
+              .lookId(look.getId())
+              .photoUrl(look.getPhotoUrl())
+              .date(look.getDate())
+              .aiReason(look.getReason())
+              .onlyMine(onlyMine)
+              .build();
+
+      result.add(lookResponse);
+    }
+
+    return result;
+  }
 }
