@@ -73,13 +73,13 @@ class ClothesDetailFragment :
         closetViewModel.getRecommendedClothes(clothesId)
 
         binding.ibtnBookmark.setOnClickListener {
+            // isRental이 true이면 대여, false이면 대여 취소
             if (isRental) {
-                isRental = false
-                binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_border_24)
-//                closetViewModel.
+                // 대여 취소 요청
+                closetViewModel.deleteClothesRental(clothesId)
             } else {
-                isRental = true
-                binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
+                // 다시 대여 요청
+                closetViewModel.postClothesRental(clothesId)
             }
         }
 
@@ -172,6 +172,16 @@ class ClothesDetailFragment :
 
         closetViewModel.recommendedClothes.observe(viewLifecycleOwner) { list ->
             recommendAdapter.submitList(list)
+        }
+
+        closetViewModel.clothesRental.observe(viewLifecycleOwner) { check ->
+            // isRental이 true이면 대여, false이면 대여 취소
+            isRental = check
+            if (check) {
+                binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
+            } else {
+                binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_border_24)
+            }
         }
     }
 

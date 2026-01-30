@@ -31,4 +31,8 @@ class ClosetRepository {
     )
 
     suspend fun deleteClothes(clothesId: Int): Response<ApiResponse<Unit>> = service.deleteClothes(clothesId)
+
+    suspend fun deleteClothesRental(clothesId: Int): Response<ApiResponse<Unit>> =
+        service.deleteClothesRental(clothesId)
+    suspend fun postClothesRental(clothesId: Int): Response<ApiResponse<Unit>> = service.postClothesRental(clothesId)
 }

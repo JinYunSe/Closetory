@@ -32,6 +32,9 @@ class ClosetViewModel : ViewModel() {
     private val _recommendedClothes = MutableLiveData<List<ClothesItemDto>>()
     val recommendedClothes: LiveData<List<ClothesItemDto>> = _recommendedClothes
 
+    private val _clothesRental = MutableLiveData<Boolean>()
+    val clothesRental: LiveData<Boolean> = _clothesRental
+
     fun getClothesList(tags: List<Int>?, color: String?, seasons: List<Int>?, onlyMine: Boolean?) {
         viewModelScope.launch {
             try {
@@ -126,6 +129,48 @@ class ClosetViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _message.emit(e.message ?: "네트워크 오류")
+            }
+        }
+    }
+
+    fun deleteClothesRental(clothesId: Int) {
+        viewModelScope.launch {
+            try {
+                val res = repository.deleteClothesRental(clothesId)
+
+                if (res.isSuccessful) {
+                    // false를 제공
+                    _clothesRental.value = !res.isSuccessful
+                    val message = res.body()?.responseMessage ?: "저장된 옷이 삭제 됐습니다."
+                    _message.emit(message)
+                } else {
+                    val message = res.body()?.errorMessage!!
+                    _message.emit(message)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "옷 대여 취소 예외 발생 : ${e.message}")
+                _message.emit(e.message ?: "네트워크 오류 발생")
+            }
+        }
+    }
+
+    fun postClothesRental(clothesId: Int) {
+        viewModelScope.launch {
+            try {
+                val res = repository.postClothesRental(clothesId)
+
+                if (res.isSuccessful) {
+                    // true를 제공
+                    _clothesRental.value = res.isSuccessful
+                    val message = res.body()?.responseMessage ?: "다른 사람 옷 저장 성공"
+                    _message.emit(message)
+                } else {
+                    val message = res.body()?.errorMessage!!
+                    _message.emit(message)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "옷 대여 예외 발생 : ${e.message}")
+                _message.emit(e.message ?: "네트워크 오류 발생")
             }
         }
     }
