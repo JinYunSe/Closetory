@@ -3,6 +3,7 @@ package com.ssafy.closetory.controller.looks;
 import com.ssafy.closetory.dto.common.ApiResponse;
 import com.ssafy.closetory.dto.looks.AiRecommendationRequest;
 import com.ssafy.closetory.dto.looks.AiRecommendationResponse;
+import com.ssafy.closetory.dto.looks.LookRegistrationRequest;
 import com.ssafy.closetory.dto.looks.VirtualFittingRequest;
 import com.ssafy.closetory.service.looks.LookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,5 +39,14 @@ public class LooksController {
     AiRecommendationResponse response = lookService.requestAiRecommendation(userId, request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.ok(201, "ai 코디 추천 성공", response));
+  }
+
+  @PostMapping
+  @Operation(summary = "룩 등록(저장소)")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Void>> lookRegistration(
+      @RequestBody LookRegistrationRequest request, @AuthenticationPrincipal Integer userId) {
+    lookService.lookRegistration(request, userId);
+    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201, "룩 등록 성공", null));
   }
 }

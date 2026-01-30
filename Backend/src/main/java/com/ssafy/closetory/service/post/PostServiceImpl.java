@@ -4,6 +4,7 @@ import com.ssafy.closetory.dto.post.*;
 import com.ssafy.closetory.entity.post.Post;
 import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.exception.common.BadRequestException;
+import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.ClothesRepository;
 import com.ssafy.closetory.repository.PostRepository;
 import com.ssafy.closetory.repository.SaveRepository;
@@ -66,7 +67,7 @@ public class PostServiceImpl implements PostService {
           .ifPresentOrElse(
             post.getClothes()::add,
             () -> {
-              throw new BadRequestException("삭제된 옷이 포함되어 있습니다.");
+              throw new NotFoundException("존재하지 않은 옷이 포함되어 있습니다.");
             });
       }
     }
@@ -118,7 +119,7 @@ public class PostServiceImpl implements PostService {
           .ifPresentOrElse(
             post.getClothes()::add,
             () -> {
-              throw new BadRequestException("삭제된 옷이 포함되어 있습니다.");
+              throw new NotFoundException("존재하지 않은 옷이 포함되어 있습니다.");
             });
       }
     }
