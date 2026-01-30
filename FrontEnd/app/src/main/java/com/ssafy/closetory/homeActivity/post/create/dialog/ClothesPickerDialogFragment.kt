@@ -74,7 +74,7 @@ class ClothesPickerDialogFragment : DialogFragment() {
 
     // 옷 클릭 시 결과 전달 + 다이얼로그 닫기
     private fun setupPickListener() {
-        clothAdapter.onItemClickListener = { item ->
+        clothAdapter.onItemClick = { item ->
             parentFragmentManager.setFragmentResult(
                 REQUEST_KEY,
                 Bundle().apply {

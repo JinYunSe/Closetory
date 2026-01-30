@@ -11,6 +11,9 @@ class ClosetRepository {
     private val service: ClosetService =
         ApplicationClass.retrofit.create(ClosetService::class.java)
 
+    suspend fun getRecommendedClothes(clothesId: Int): Response<ApiResponse<List<ClothesItemDto>>> =
+        service.getRecommendedClothes(clothesId)
+
     suspend fun getClothesList(
         tags: List<Int>?,
         color: String?,

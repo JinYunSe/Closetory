@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.post.create
+package com.ssafy.closetory.homeActivity.post.edit
 
 import android.Manifest
 import android.net.Uri
@@ -26,10 +26,11 @@ import com.ssafy.closetory.util.image.ImageMultipartUtil
 import java.io.File
 import kotlin.math.abs
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
 
-private const val TAG = "PostCreateFragment_싸피"
+private const val TAG = "PostEditFragment_싸피"
 
-class PostCreateFragment :
+class PostEditFragment :
     BaseFragment<FragmentPostCreateBinding>(FragmentPostCreateBinding::bind, R.layout.fragment_post_create) {
 
     private lateinit var homeActivity: HomeActivity
@@ -38,9 +39,18 @@ class PostCreateFragment :
     private lateinit var itemAdapter: PostItemAdapter
     private val selectedItems = mutableListOf<PostCreateSelectedItem>()
 
+    // 기본값으로 기존 사진 Uri
     private var selectedMainPhotoUri: Uri? = null
 
-    private val viewModel: PostCreateViewModel by viewModels()
+    private val viewModel: PostEditViewModel by viewModels()
+
+    // 사진 변경 여부 확인
+    private var photoChanged = false
+
+    // ※※※※※※※※※※※※※※※※※ postId는 arguments로 받는다고 가정 (SafeArgs면 여기만 교체)
+    private val postId: Int by lazy {
+        requireArguments().getInt("postId")
+    }
 
     // 카메라 촬영 결과 Uri를 받아 메인 사진으로 반영
     private val takePicture =
@@ -72,7 +82,6 @@ class PostCreateFragment :
 
         // 옷 선택 리스트 RecyclerView 초기화
         setupItemsRecyclerView()
-
         // 대표 사진 선택(카메라/갤러리) 클릭 이벤트 세팅
         setupMainPhotoClick()
 
@@ -88,14 +97,17 @@ class PostCreateFragment :
         // 옷 선택 다이얼로그 결과 수신 세팅
         setupClothesPickResultListener()
 
-        // 등록 버튼(멀티파트 전송) 세팅
-        setupCreatePostButton()
+        // ✅ Edit 버튼으로 동작 (Create 버튼 리스너 대신)
+        setupEditPostButton()
 
         // ViewModel 상태/메시지 관찰
         observeViewModel()
+
+        // (선택) 버튼 텍스트만 바꾸고 싶으면
+        // binding.btnRegistrationPost.text = "수정"
     }
 
-    // 대표 사진 클릭 시 카메라/갤러리 선택 다이얼로그 표시
+    // 대표 사진 클릭 (카메라/갤러리)
     private fun setupMainPhotoClick() {
         binding.ivMainPhoto.setOnClickListener {
             AlertDialog.Builder(homeActivity)
@@ -115,11 +127,12 @@ class PostCreateFragment :
         binding.tvMainPhotoHint.visibility = if (isPhotoSelected) View.GONE else View.VISIBLE
     }
 
-    // 대표 사진 Uri 저장 + ImageView에 미리보기 반영
+    // 사진 선택 시 Uri를 저장하고 미리보기 반영
     private fun onMainPhotoSelected(uri: Uri) {
         selectedMainPhotoUri = uri
         binding.ivMainPhoto.setImageURI(uri)
         updateMainPhotoPlaceholder(true)
+        photoChanged = true
     }
 
     // 갤러리(포토피커) 실행
@@ -157,7 +170,7 @@ class PostCreateFragment :
         null
     }
 
-    // 옷 선택 리스트 RecyclerView 세팅 + 삭제(X) 처리
+    // 옷 선택 리스트 RecyclerView
     private fun setupItemsRecyclerView() {
         itemAdapter = PostItemAdapter().apply {
             onRemoveClickListener = { item ->
@@ -197,7 +210,7 @@ class PostCreateFragment :
         }
     }
 
-    // EditText 스크롤 시 부모(NestedScrollView) 터치 가로채기 방지
+    // EditText 스크롤 충돌 방지
     private fun setupContentInnerScroll() {
         val et = binding.etContent
         val touchSlop = ViewConfiguration.get(requireContext()).scaledTouchSlop
@@ -212,8 +225,6 @@ class PostCreateFragment :
                     startX = event.rawX
                     startY = event.rawY
                     moved = false
-
-                    // 기본은 내부 스크롤 우선
                     v.parent?.requestDisallowInterceptTouchEvent(true)
                     false
                 }
@@ -226,23 +237,15 @@ class PostCreateFragment :
                         moved = true
                     }
 
-                    // 손가락이 위로 이동(dy<0)하면 내용은 아래로 스크롤 가능해야 함(direction=1)
-                    // 손가락이 아래로 이동(dy>0)하면 내용은 위로 스크롤 가능해야 함(direction=-1)
                     val direction = if (dy < 0) 1 else -1
-
                     val canInnerScroll = v.canScrollVertically(direction)
 
-                    // 내부에서 더 스크롤 가능하면 부모 가로채기 금지, 끝이면 부모에게 넘김
                     v.parent?.requestDisallowInterceptTouchEvent(canInnerScroll)
-
                     false
                 }
 
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    // 이동이 거의 없으면 탭으로 처리 -> 포커스/키보드
                     if (!moved) v.performClick()
-
-                    // 다음 터치를 위해 원복
                     v.parent?.requestDisallowInterceptTouchEvent(false)
                     false
                 }
@@ -252,72 +255,78 @@ class PostCreateFragment :
         }
     }
 
-    // 등록 버튼 클릭 시 입력 검증 후 멀티파트로 ViewModel 호출
-    private fun setupCreatePostButton() {
+    // 수정 버튼 클릭 -> "현재 입력값 수집 + 전송" 함수로 이동
+    private fun setupEditPostButton() {
         binding.btnRegistrationPost.setOnClickListener {
-            val uri: Uri = selectedMainPhotoUri ?: run {
-                showToast("대표 사진을 등록해주세요.")
-                return@setOnClickListener
-            }
-
-            val titleText = binding.etTitle.text?.toString()?.trim().orEmpty()
-            val contentText = binding.etContent.text?.toString()?.trim().orEmpty()
-            val itemIds: List<Int> = selectedItems.map { it.clothesId }
-
-            when {
-                titleText.isBlank() -> {
-                    showToast("제목을 입력해주세요.")
-                    return@setOnClickListener
-                }
-
-                contentText.isBlank() -> {
-                    showToast("내용을 입력해주세요.")
-                    return@setOnClickListener
-                }
-            }
-
-            Log.d("POST_CREATE_REQ", "title=$titleText")
-            Log.d("POST_CREATE_REQ", "content=$contentText")
-            Log.d("POST_CREATE_REQ", "itemIds=$itemIds")
-            Log.d("POST_CREATE_REQ", "photoUrl=$uri")
-
-            val photo = ImageMultipartUtil.uriToCompressedMultipart(
-                context = requireContext(),
-                uri = uri,
-                partName = "photo", // 서버에서 받는 키
-                maxBytes = 600 * 1024, // 600KB 제한
-                maxDimension = 1280 // 최대 해상도
-            )
-            // 파일 파트 name/filename 확인 로그
-            Log.d("POST_CREATE_REQ", "fileHeaders=${photo.headers}")
-
-            val title = binding.etTitle.text.toString()
-            val content = binding.etContent.text.toString()
-
-            val items = mutableListOf<Int>()
-            for (item in selectedItems) {
-                items.add(item.clothesId)
-            }
-
-            viewModel.createPost(
-                photo = photo,
-                title = title,
-                content = content,
-                items = items
-            )
+            submitEditPost() // [MOVED] 기존 클릭 로직을 함수로 이동
         }
     }
 
-    // ViewModel Flow를 수신해 토스트/성공 후처리 수행
+    // ----------------------------
+    // "현재 입력값 수집 + 멀티파트 생성 + ViewModel 호출" (기존 코드 그대로 이동)
+    // ----------------------------
+    private fun submitEditPost() {
+        val uri: Uri? = selectedMainPhotoUri
+        val titleText = binding.etTitle.text?.toString()?.trim().orEmpty()
+        val contentText = binding.etContent.text?.toString()?.trim().orEmpty()
+        val itemIds: List<Int> = selectedItems.map { it.clothesId }
+
+        when {
+            titleText.isBlank() -> {
+                showToast("제목을 입력해주세요.")
+                return
+            }
+
+            contentText.isBlank() -> {
+                showToast("내용을 입력해주세요.")
+                return
+            }
+        }
+
+        Log.d(TAG, "POST_EDIT_REQ postId=$postId")
+        Log.d(TAG, "POST_EDIT_REQ title=$titleText")
+        Log.d(TAG, "POST_EDIT_REQ content=$contentText")
+        Log.d(TAG, "POST_EDIT_REQ itemIds=$itemIds")
+        Log.d(TAG, "POST_EDIT_REQ photoUri=$uri")
+
+        val photo: MultipartBody.Part? =
+            if (photoChanged && selectedMainPhotoUri != null) {
+                ImageMultipartUtil.uriToCompressedMultipart(
+                    context = requireContext(),
+                    uri = selectedMainPhotoUri!!,
+                    partName = "photo",
+                    maxBytes = 600 * 1024,
+                    maxDimension = 1280
+                )
+            } else {
+                null
+            }
+
+        Log.d(TAG, "POST_EDIT_REQ fileHeaders=${photo?.headers}")
+
+        viewModel.editPost(
+            postId = postId,
+            photo = photo,
+            title = titleText,
+            content = contentText,
+            items = itemIds
+        )
+    }
+
+    // ----------------------------
+    // ✅ ViewModel observe + 프리필
+    // ----------------------------
     private fun observeViewModel() {
+        // 메시지 토스트
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.message.collect { msg ->
                 if (!msg.isNullOrBlank()) showToast(msg)
             }
         }
 
+        // 수정 성공 처리
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.createResult.collect { data ->
+            viewModel.editResult.collect { data ->
                 if (data != null) {
                     parentFragmentManager.popBackStack()
                 }
