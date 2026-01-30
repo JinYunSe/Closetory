@@ -3,6 +3,7 @@ package com.ssafy.closetory.homeActivity.adpter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,49 +17,40 @@ class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.VH>(DIFF) {
     var onItemClick: ((ClothesItemDto) -> Unit)? = null
     var onBookmarkClick: ((ClothesItemDto) -> Unit)? = null
 
+    inner class VH(private val binding: ItemClothesBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(item: ClothesItemDto) = with(binding) {
+            // 이미지 로드
+            Glide.with(ivPhoto)
+                .load(item.photoUrl)
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.error)
+                .into(ivPhoto)
+
+            // 북마크 표시 여부: isMine == false 일 때만 표시
+            val showBookmark = (item.isMine == false)
+            ivBookmark.visibility = if (showBookmark) View.VISIBLE else View.GONE
+            ivBookmark.setImageResource(R.drawable.baseline_bookmark_24)
+
+            // 북마크 클릭
+            if (showBookmark) {
+                ivBookmark.setOnClickListener { onBookmarkClick?.invoke(item) }
+            } else {
+                ivBookmark.setOnClickListener(null)
+            }
+
+            // 아이템 클릭 (현재 레이아웃 기준 imgBtn이 전체 클릭영역)
+            imgBtn.setOnClickListener { onItemClick?.invoke(item) }
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding = ItemClothesBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
+        val binding = ItemClothesBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return VH(binding)
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        val item = getItem(position)
-        holder.bind(item, onItemClick, onBookmarkClick)
-    }
-
-    class VH(private val binding: ItemClothesBinding) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(
-            item: ClothesItemDto,
-            onItemClick: ((ClothesItemDto) -> Unit)?,
-            onBookmarkClick: ((ClothesItemDto) -> Unit)?
-        ) {
-            Glide.with(binding.ivPhoto)
-                .load(item.photoUrl)
-                .placeholder(R.drawable.placeholder)
-                .error(R.drawable.error)
-                .into(binding.ivPhoto)
-
-            val showBookmark = (item.isMine == false)
-
-            binding.ivBookmark.visibility = if (showBookmark) View.VISIBLE else View.GONE
-
-            binding.ivBookmark.setImageResource(R.drawable.baseline_bookmark_24)
-
-            if (showBookmark) {
-                binding.ivBookmark.setOnClickListener { onBookmarkClick?.invoke(item) }
-            } else {
-                binding.ivBookmark.setOnClickListener(null)
-            }
-
-            binding.imgBtn.setOnClickListener {
-                onItemClick?.invoke(item)
-            }
-        }
+        holder.bind(getItem(position))
     }
 
     companion object {
@@ -69,35 +61,5 @@ class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.VH>(DIFF) {
             override fun areContentsTheSame(oldItem: ClothesItemDto, newItem: ClothesItemDto): Boolean =
                 oldItem == newItem
         }
-    }
-
-    inner class ViewHodler(private val binding: ItemClothesBinding) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(item: ClothesItemDto) = with(binding) {
-            Log.d(TAG, "SERVER URL : ${ApplicationClass.API_BASE_URL}")
-            Log.d(TAG, "clothesId : ${item.clothesId}")
-            Log.d(TAG, "photoUrl : ${item.photoUrl}")
-
-            Glide.with(binding.ivPhoto)
-                .load(item.photoUrl)
-                .placeholder(R.drawable.placeholder)
-                .error(R.drawable.error)
-                .into(binding.ivPhoto)
-
-            // 클릭 시 프래그먼트에 알림
-            imgBtn.setOnClickListener {
-                Log.d(TAG, "아이템 클릭됨: ${item.clothesId}")
-                onItemClickListener?.invoke(item)
-            }
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHodler {
-        val binding = ItemClothesBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHodler(binding)
-    }
-
-    override fun onBindViewHolder(holder: ViewHodler, position: Int) {
-        holder.bind(getItem(position))
     }
 }
