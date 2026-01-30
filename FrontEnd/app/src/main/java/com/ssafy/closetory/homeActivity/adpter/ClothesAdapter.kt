@@ -1,6 +1,5 @@
 package com.ssafy.closetory.homeActivity.adpter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,60 +7,66 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.ItemClothesBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 
 private const val TAG = "ClothAdapter_싸피"
-class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.ViewHodler>(diffCallback) {
+class ClothesAdapter : ListAdapter<ClothesItemDto, ClothesAdapter.VH>(DIFF) {
 
-    // 클릭 이벤트를 StylingFragment로 전달하기 위한 람다 함수
-    var onItemClickListener: ((ClothesItemDto) -> Unit)? = null
+    var onItemClick: ((ClothesItemDto) -> Unit)? = null
+    var onBookmarkClick: ((ClothesItemDto) -> Unit)? = null // 필요하면
 
-    companion object {
-        private val diffCallback = object : DiffUtil.ItemCallback<ClothesItemDto>() {
-            override fun areItemsTheSame(oldItem: ClothesItemDto, newItem: ClothesItemDto): Boolean =
-                oldItem.clothesId == newItem.clothesId
-
-            override fun areContentsTheSame(oldItem: ClothesItemDto, newItem: ClothesItemDto): Boolean =
-                oldItem == newItem
-        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val binding = ItemClothesBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return VH(binding)
     }
 
-    inner class ViewHodler(private val binding: ItemClothesBinding) : RecyclerView.ViewHolder(binding.root) {
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        holder.bind(getItem(position), onItemClick, onBookmarkClick)
+    }
 
-        fun bind(item: ClothesItemDto) = with(binding) {
-            Log.d(TAG, "SERVER URL : ${ApplicationClass.API_BASE_URL}")
-            Log.d(TAG, "clothesId : ${item.clothesId}")
-            Log.d(TAG, "photoUrl : ${item.photoUrl}")
+    class VH(private val binding: ItemClothesBinding) : RecyclerView.ViewHolder(binding.root) {
 
-            // 남의 옷 가져온 경우
-            if (item.isMine == false) {
-                binding.ivBookmark.setImageResource(R.drawable.baseline_bookmark_24)
-                binding.ivBookmark.visibility = View.VISIBLE
-            }
-
+        fun bind(
+            item: ClothesItemDto,
+            onItemClick: ((ClothesItemDto) -> Unit)?,
+            onBookmarkClick: ((ClothesItemDto) -> Unit)?
+        ) {
+            // 이미지 바인딩
             Glide.with(binding.ivPhoto)
                 .load(item.photoUrl)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.error)
                 .into(binding.ivPhoto)
 
-            // 클릭 시 프래그먼트에 알림
-            imgBtn.setOnClickListener {
-                Log.d(TAG, "아이템 클릭됨: ${item.clothesId}")
-                onItemClickListener?.invoke(item)
+            val showBookmark = (item.isMine == false)
+
+            binding.ivBookmark.visibility = if (showBookmark) View.VISIBLE else View.GONE
+
+            binding.ivBookmark.setImageResource(R.drawable.baseline_bookmark_24)
+
+            if (showBookmark) {
+                binding.ivBookmark.setOnClickListener { onBookmarkClick?.invoke(item) }
+            } else {
+                binding.ivBookmark.setOnClickListener(null)
             }
+
+            // 아이템 클릭
+            binding.root.setOnClickListener { onItemClick?.invoke(item) }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHodler {
-        val binding = ItemClothesBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHodler(binding)
-    }
+    companion object {
+        private val DIFF = object : DiffUtil.ItemCallback<ClothesItemDto>() {
+            override fun areItemsTheSame(oldItem: ClothesItemDto, newItem: ClothesItemDto) =
+                oldItem.clothesId == newItem.clothesId
 
-    override fun onBindViewHolder(holder: ViewHodler, position: Int) {
-        holder.bind(getItem(position))
+            override fun areContentsTheSame(oldItem: ClothesItemDto, newItem: ClothesItemDto) = oldItem == newItem
+        }
     }
 }
