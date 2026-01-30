@@ -38,16 +38,6 @@ class PostListFragment :
 
         // 기본 진입 시: 최신(latest)으로 전체 목록 호출
         requestPosts(keyword = null)
-
-        // 디버깅 위해서 강제 postID 주입
-        setupQuickJumpButtons()
-    }
-
-    // !!!!!!!!!!!!!!!!!!!!! 디버깅 위해서 강제 postID 주입!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    private fun setupQuickJumpButtons() {
-        binding.btnGoPost29.setOnClickListener { goToPostDetail(29) }
-        binding.btnGoPost10.setOnClickListener { goToPostDetail(10) }
-        binding.btnGoPost32.setOnClickListener { goToPostDetail(32) }
     }
 
     private fun goToPostDetail(targetPostId: Int) {
