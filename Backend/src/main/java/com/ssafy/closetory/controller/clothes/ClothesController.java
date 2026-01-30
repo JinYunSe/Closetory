@@ -108,4 +108,13 @@ public class ClothesController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.ok(201, "다른 사람 옷 저장 성공", null));
   }
+
+  @DeleteMapping("/{clothesId}/save")
+  @Operation(summary = "다른 사람 옷 저장 취소")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Void>> unsaveClothes(
+      @PathVariable Integer clothesId, @AuthenticationPrincipal Integer userId) {
+    clothesService.unsaveClothes(clothesId, userId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "다른 사람 옷 저장 취소 성공", null));
+  }
 }

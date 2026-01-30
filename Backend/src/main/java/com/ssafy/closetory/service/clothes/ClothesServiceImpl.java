@@ -303,4 +303,14 @@ public class ClothesServiceImpl implements ClothesService {
 
     saveRepository.save(save);
   }
+
+  @Transactional
+  @Override
+  public void unsaveClothes(Integer clothesId, Integer userId) {
+    SaveId saveId = new SaveId(clothesId, userId);
+    if (!saveRepository.existsById(saveId)) {
+      throw new ConflictException("저장되지 않은 옷입니다.");
+    }
+    saveRepository.deleteById(saveId);
+  }
 }

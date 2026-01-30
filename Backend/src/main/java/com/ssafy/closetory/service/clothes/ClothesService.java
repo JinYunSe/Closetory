@@ -22,4 +22,6 @@ public interface ClothesService {
   List<ClothesRecommendItem> getClothesRecommend(Integer clothedId, Integer userId);
 
   void saveClothes(Integer clothesId, Integer userId);
+
+  void unsaveClothes(Integer clothesId, Integer userId);
 }
