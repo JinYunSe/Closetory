@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface LookRepository extends JpaRepository<Look, Integer> {
+  List<Look> findAllByUserIdOrderByCreatedAtDesc(Integer userId);
+
   @Query(
       value =
           """

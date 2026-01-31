@@ -24,4 +24,6 @@ public interface UserService {
   void addStyle(Integer userId, Integer authUserId, AddStyleRequest request);
 
   UserDetailResponse getUserDetail(Integer authUserId, Integer userId);
+
+  void deleteUser(Integer authUserId, Integer userId, String password);
 }

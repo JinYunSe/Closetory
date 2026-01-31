@@ -95,6 +95,17 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "회원정보 조회 성공", response));
   }
 
+  @DeleteMapping("/{userId}")
+  @Operation(summary = "회원 탈퇴")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Void>> deleteUser(
+      @PathVariable Integer userId,
+      @AuthenticationPrincipal Integer authUserId,
+      @Valid @RequestBody UserDeleteRequest request) {
+    userService.deleteUser(authUserId, userId, request.password());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "회원탈퇴가 완료 되었습니다.", null));
+  }
+
   @GetMapping("/{userId}/stats/top3")
   @Operation(summary = "이번 달에 가장 자주 입은 옷 Top3")
   @SecurityRequirement(name = "bearerAuth")

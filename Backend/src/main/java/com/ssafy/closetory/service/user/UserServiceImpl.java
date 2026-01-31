@@ -11,6 +11,8 @@ import com.ssafy.closetory.repository.TagRepository;
 import com.ssafy.closetory.repository.UserFavoriteTagRepository;
 import com.ssafy.closetory.repository.UserRepository;
 import com.ssafy.closetory.service.s3.S3ImageService;
+import com.ssafy.closetory.service.token.RefreshTokenService;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
   private final UserFavoriteTagRepository userFavoriteTagRepository;
   private final S3ImageService s3ImageService;
   private final PasswordEncoder passwordEncoder;
+  private final RefreshTokenService refreshTokenService;
 
   // 비밀번호 검증
   @Override
@@ -164,5 +167,23 @@ public class UserServiceImpl implements UserService {
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
 
     return UserDetailResponse.from(user);
+  }
+
+  @Override
+  public void deleteUser(Integer authUserId, Integer userId, String password) {
+    if (!authUserId.equals(userId)) {
+      throw new ForbiddenException("본인계정은 본인만 탈퇴할 수 있습니다.");
+    }
+
+    User user =
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
+
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+      throw new BadRequestException("비밀번호가 올바르지 않습니다.");
+    }
+
+    user.setDeletedAt(LocalDateTime.now());
+
+    refreshTokenService.deleteByUserId(userId);
   }
 }

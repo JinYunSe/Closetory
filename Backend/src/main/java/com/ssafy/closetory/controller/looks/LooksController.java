@@ -1,13 +1,11 @@
 package com.ssafy.closetory.controller.looks;
 
 import com.ssafy.closetory.dto.common.ApiResponse;
-import com.ssafy.closetory.dto.looks.AiRecommendationRequest;
-import com.ssafy.closetory.dto.looks.AiRecommendationResponse;
-import com.ssafy.closetory.dto.looks.LookRegistrationRequest;
-import com.ssafy.closetory.dto.looks.VirtualFittingRequest;
+import com.ssafy.closetory.dto.looks.*;
 import com.ssafy.closetory.service.looks.LookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,5 +46,14 @@ public class LooksController {
       @RequestBody LookRegistrationRequest request, @AuthenticationPrincipal Integer userId) {
     lookService.lookRegistration(request, userId);
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(201, "룩 등록 성공", null));
+  }
+
+  @GetMapping
+  @Operation(summary = "모든 룩 조회")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<List<GetAllLooksResponse>>> getAllLooks(
+      @AuthenticationPrincipal Integer userId) {
+    List<GetAllLooksResponse> response = lookService.getAllLooks(userId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "룩 조회 성공", response));
   }
 }
