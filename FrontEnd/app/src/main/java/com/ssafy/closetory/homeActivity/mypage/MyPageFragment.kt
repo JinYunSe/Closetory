@@ -44,8 +44,10 @@ class MyPageFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 회정 정보 성공 여부 관찰
         observeUserProfile()
 
+        // 서버에 기존 유저 정보 요청
         loadUserProfile()
 
         // 로그아웃 버튼 클릭 이벤트 등록
@@ -68,7 +70,48 @@ class MyPageFragment :
         observePasswordCheck()
     }
 
-    // 서버에 기존 유저 정보 요청
+    // 회원정보를 화면에 바인딩
+    private fun bindUserProfile(user: EditProfileInfoResponse) {
+        binding.tvNickname.text = user.nickname ?: "닉네임"
+        binding.tvHeight.text = "${user.height ?: 0}cm"
+        binding.tvWeight.text = "${user.weight ?: 0}kg"
+
+        // 프로필/전신 사진 URL이 있다면 Glide로 로드 (없으면 기본 이미지 유지)
+        bindProfileImage(user.profilePhotoUrl)
+        bindBodyImage(user.bodyPhotoUrl)
+    }
+
+    // 프로필 이미지 바인딩
+    private fun bindProfileImage(url: String?) {
+        if (url.isNullOrBlank()) {
+            binding.ivProfile.setImageResource(R.drawable.ic_profile_default)
+            return
+        }
+
+        com.bumptech.glide.Glide.with(this)
+            .load(url)
+            .placeholder(R.drawable.ic_profile_default)
+            .error(R.drawable.ic_profile_default)
+            .centerCrop()
+            .into(binding.ivProfile)
+    }
+
+    // 전신 이미지 바인딩
+    private fun bindBodyImage(url: String?) {
+        if (url.isNullOrBlank()) {
+            binding.ivBodyPhoto.setImageResource(R.drawable.ic_body_default)
+            return
+        }
+
+        com.bumptech.glide.Glide.with(this)
+            .load(url)
+            .placeholder(R.drawable.ic_body_default)
+            .error(R.drawable.ic_body_default)
+            .centerCrop()
+            .into(binding.ivBodyPhoto)
+    }
+
+    // 회원 정보 수정 전 서버에 기존 유저 정보 요청
     private fun loadUserProfile() {
         Log.d(TAG, "loadUserProfile: loadUserProfile 실행")
         val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: return
@@ -81,6 +124,7 @@ class MyPageFragment :
         viewLifecycleOwner.lifecycleScope.launch {
             myPageViewModel.userProfile.collect { user ->
                 editProfileInfoResponse = user
+                bindUserProfile(user)
                 Log.d(TAG, "userProfile = $user")
             }
         }
