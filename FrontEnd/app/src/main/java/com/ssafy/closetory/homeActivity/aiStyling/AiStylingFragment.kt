@@ -24,7 +24,7 @@ class AiStylingFragment :
         R.layout.fragment_ai_styling
     ) {
 
-    // ⭐ Activity 스코프로 ViewModel 공유
+    // Activity 스코프로 ViewModel 공유
     private val viewModel: AiStylingViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,13 +45,18 @@ class AiStylingFragment :
     }
 
     private fun setupObservers() {
-        // ⭐ 로딩 상태 관찰
+        // 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             updateMainButton()
             updateVideoAnimation(isLoading)
         }
 
-        // ⭐ 단계 상태 관찰
+        // 로딩 타입 관찰 (어떤 작업이 로딩 중인지)
+        viewModel.loadingType.observe(viewLifecycleOwner) { loadingType ->
+            updateVideoAnimation(viewModel.isLoading.value == true)
+        }
+
+        // 단계 상태 관찰
         viewModel.stage.observe(viewLifecycleOwner) { stage ->
             updateMainButton()
         }
@@ -78,6 +83,7 @@ class AiStylingFragment :
 
             binding.layoutAiFitting.visibility = View.VISIBLE
             binding.vvAiFitting.visibility = View.GONE
+            binding.ivAiFittingResult.visibility = View.VISIBLE
 
             Glide.with(requireContext())
                 .load(url)
@@ -102,7 +108,6 @@ class AiStylingFragment :
     }
 
     private fun setupListeners() {
-        // ⭐ 메인 버튼 (단계별 동작)
         binding.btnRegister.setOnClickListener {
             handleMainButtonClick()
         }
@@ -132,12 +137,20 @@ class AiStylingFragment :
         }
     }
 
-    /**
-     * ⭐ 뒤로가기 버튼 처리
-     */
+    // 뒤로가기 버튼 처리
     private fun setupBackPressHandler() {
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                val stage = viewModel.stage.value ?: AiStylingStage.RECOMMEND
+
+                // 가상피팅 완료 후 이미지가 표시된 상태
+                if (stage == AiStylingStage.FITTING_DONE) {
+                    viewModel.resetAll()
+                    isEnabled = false
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                    return
+                }
+
                 // 로딩 중이면 경고
                 if (viewModel.isAnyJobRunning()) {
                     showLoadingWarningDialog()
@@ -150,9 +163,8 @@ class AiStylingFragment :
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
     }
 
-    /**
-     * ⭐ 로딩 중 경고 다이얼로그
-     */
+    // 로딩 중 경고 다이얼로그
+
     private fun showLoadingWarningDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("작업 진행 중")
@@ -165,9 +177,7 @@ class AiStylingFragment :
             .show()
     }
 
-    /**
-     * ⭐ 초기화 확인 다이얼로그
-     */
+    // 초기화 확인 다이얼로그
     private fun showResetConfirmDialog() {
         val stage = viewModel.stage.value ?: AiStylingStage.RECOMMEND
         val isLoading = viewModel.isLoading.value == true
@@ -225,6 +235,7 @@ class AiStylingFragment :
             AiStylingStage.FITTING_READY -> {
                 binding.layoutAiFitting.visibility = View.VISIBLE
                 binding.vvAiFitting.visibility = View.VISIBLE
+                binding.ivAiFittingResult.visibility = View.GONE
                 viewModel.requestAiFitting()
             }
 
@@ -276,6 +287,7 @@ class AiStylingFragment :
             "android.resource://${requireContext().packageName}/${R.raw.vv_ai_fitting_progress}"
         )
 
+        // AI 추천용 VideoView 설정
         binding.vvAiLoading.apply {
             setVideoURI(videoUri)
 
@@ -285,19 +297,65 @@ class AiStylingFragment :
             }
 
             setOnErrorListener { _, what, extra ->
-                Log.e("AiStyling", "Video error: what=$what, extra=$extra")
+                Log.e("AiStyling", "Video error (vvAiLoading): what=$what, extra=$extra")
+                false
+            }
+        }
+
+        // AI 가상피팅용 VideoView 설정
+        binding.vvAiFitting.apply {
+            setVideoURI(videoUri)
+
+            setOnPreparedListener { mediaPlayer ->
+                mediaPlayer.isLooping = true
+                mediaPlayer.setVolume(0f, 0f)
+            }
+
+            setOnErrorListener { _, what, extra ->
+                Log.e("AiStyling", "Video error (vvAiFitting): what=$what, extra=$extra")
                 false
             }
         }
     }
 
     private fun updateVideoAnimation(isLoading: Boolean) {
-        if (isLoading) {
-            binding.vvAiLoading.visibility = View.VISIBLE
-            binding.vvAiLoading.start()
-        } else {
-            binding.vvAiLoading.visibility = View.GONE
-            binding.vvAiLoading.stopPlayback()
+        val loadingType = viewModel.loadingType.value
+
+        when (loadingType) {
+            AiStylingViewModel.LoadingType.RECOMMEND -> {
+                // AI 추천 중: 메인 화면의 vvAiLoading 표시
+                if (isLoading) {
+                    binding.vvAiLoading.visibility = View.VISIBLE
+                    binding.vvAiLoading.start()
+                } else {
+                    binding.vvAiLoading.visibility = View.GONE
+                    binding.vvAiLoading.stopPlayback()
+                }
+            }
+
+            AiStylingViewModel.LoadingType.FITTING -> {
+                // AI 가상피팅 중: 팝업 내부의 vvAiFitting 표시
+                if (isLoading) {
+                    binding.vvAiFitting.visibility = View.VISIBLE
+                    binding.vvAiFitting.start()
+                    binding.ivAiFittingResult.visibility = View.GONE
+                } else {
+                    binding.vvAiFitting.visibility = View.GONE
+                    binding.vvAiFitting.stopPlayback()
+                }
+            }
+
+            AiStylingViewModel.LoadingType.SAVING -> {
+                // 저장 중: 특별한 애니메이션 없음 (버튼 텍스트만 변경됨)
+            }
+
+            else -> {
+                // 로딩이 아닌 경우 모든 비디오 정지
+                binding.vvAiLoading.visibility = View.GONE
+                binding.vvAiLoading.stopPlayback()
+                binding.vvAiFitting.visibility = View.GONE
+                binding.vvAiFitting.stopPlayback()
+            }
         }
     }
 
@@ -366,5 +424,12 @@ class AiStylingFragment :
     override fun onPause() {
         super.onPause()
         binding.vvAiLoading.stopPlayback()
+        binding.vvAiFitting.stopPlayback()
+
+        // 가상피팅 완료 후 다른 곳으로 이동 시 초기화
+        val stage = viewModel.stage.value ?: AiStylingStage.RECOMMEND
+        if (stage == AiStylingStage.FITTING_DONE) {
+            viewModel.resetAll()
+        }
     }
 }

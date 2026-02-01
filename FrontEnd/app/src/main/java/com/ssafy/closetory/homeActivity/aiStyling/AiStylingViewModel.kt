@@ -113,7 +113,6 @@ class AiStylingViewModel : ViewModel() {
     }
 
     //  AI 가상피팅 요청
-
     fun requestAiFitting() {
         val coordination = _aiCoordination.value
         if (coordination == null) {
@@ -130,6 +129,11 @@ class AiStylingViewModel : ViewModel() {
         fittingJob = viewModelScope.launch {
             _isLoading.value = true
             _loadingType.value = LoadingType.FITTING
+
+            val orderedIds = buildFittingIdList(coordination)
+            val request = AiFittingRequest(clothesIdList = orderedIds)
+
+            val response = repository.requestAiFitting(request)
 
             try {
                 Log.d(TAG, "가상피팅 시작")

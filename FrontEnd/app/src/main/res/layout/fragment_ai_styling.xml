@@ -268,7 +268,7 @@
             </FrameLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- ⭐ AI 추천 로딩 애니메이션 (슬롯 영역 중앙) -->
+        <!-- AI 추천 로딩 애니메이션 (슬롯 영역 중앙) -->
         <VideoView
             android:id="@+id/vv_ai_loading"
             android:layout_width="150dp"
@@ -301,21 +301,13 @@
                 android:contentDescription="닫기"
                 android:src="@drawable/ic_cancel" />
 
-            <FrameLayout
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+            <!-- AI 가상피팅 로딩 애니메이션 -->
+            <VideoView
+                android:id="@+id/vv_ai_fitting"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
                 android:layout_gravity="center"
-                android:background="@drawable/bg_circle_fill"
-                android:visibility="gone"
-                android:id="@+id/layout_ai_loading_circle">
-
-                <ProgressBar
-                    android:id="@+id/vv_ai_fitting"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_gravity="center"
-                    android:indeterminate="true" />
-            </FrameLayout>
+                android:visibility="gone" />
 
         </FrameLayout>
     </FrameLayout>
