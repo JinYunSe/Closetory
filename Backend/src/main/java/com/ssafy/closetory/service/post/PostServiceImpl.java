@@ -214,4 +214,15 @@ public class PostServiceImpl implements PostService {
 
     likesRepository.save(likeInstance);
   }
+
+  @Override
+  public void deleteLikes(Integer postId, Integer userId) {
+    LikesId id = new LikesId(userId, postId);
+
+    if (!likesRepository.existsById(id)) {
+      throw new BadRequestException("좋아요를 누른 적이 없는 게시글입니다.");
+    }
+
+    likesRepository.deleteById(id);
+  }
 }

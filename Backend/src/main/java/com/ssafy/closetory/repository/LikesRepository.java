@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LikesRepository extends JpaRepository<Likes, LikesId> {
   Integer countByPostId(Integer postId);
+
   boolean existsByUserIdAndPostId(Integer userId, Integer postId);
 }
