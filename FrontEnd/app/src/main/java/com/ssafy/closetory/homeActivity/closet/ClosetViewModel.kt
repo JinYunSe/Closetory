@@ -15,11 +15,6 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "ClosetViewModel_싸피"
 
-data class ClothesDetailUiState(
-    val isBookmarked: Boolean? = null, // null = 아직 상세응답 안옴(미정)
-    val isBookmarkSyncing: Boolean = false
-)
-
 class ClosetViewModel : ViewModel() {
 
     private val repository = ClosetRepository()

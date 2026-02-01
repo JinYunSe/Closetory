@@ -10,4 +10,6 @@ data class Day(
     val isToday: Boolean,
     val topColor: Int? = null,
     val bottomColor: Int? = null
-)
+) {
+    val hasStyling: Boolean get() = topColor != null || bottomColor != null
+}
