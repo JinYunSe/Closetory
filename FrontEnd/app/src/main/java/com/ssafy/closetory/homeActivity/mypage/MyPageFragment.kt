@@ -1,4 +1,3 @@
-// MyPageFragment
 package com.ssafy.closetory.homeActivity.myPage
 
 import android.content.Intent
@@ -9,6 +8,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -22,6 +22,7 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.homeActivity.mypage.MyPageViewModel
+import com.ssafy.closetory.homeActivity.mypage.signout.SignoutViewModel
 import com.ssafy.closetory.util.auth.AuthManager
 import kotlinx.coroutines.launch
 
@@ -42,9 +43,13 @@ class MyPageFragment :
 
     private lateinit var editProfileInfoResponse: EditProfileInfoResponse
 
+    private val homeViewModel: MyPageViewModel by viewModels()
+    private val signoutViewModel: SignoutViewModel by viewModels()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 로그아웃
         observeUserProfile()
 
         loadUserProfile()
@@ -52,6 +57,12 @@ class MyPageFragment :
         // 로그아웃 버튼 클릭 이벤트 등록
         binding.btnLogout.setOnClickListener {
             showLogoutDialog()
+        }
+
+        // 회원 탈퇴
+        binding.btnSignout.setOnClickListener {
+            Log.d(TAG, "회원 탈퇴 버튼 클릭")
+            showSignoutDialog()
         }
 
         // 회원정보 수정 진입 전 비밀번호 확인 이벤트 등록
@@ -64,6 +75,7 @@ class MyPageFragment :
 
         // 공통 메시지 관찰 (토스트 출력)
         observeMessage()
+        collectSignout()
 
         // 비밀번호 검증 결과 관찰
         observePasswordCheck()
@@ -75,6 +87,8 @@ class MyPageFragment :
         val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: return
         myPageViewModel.loadUserProfile(userId)
     }
+
+    /* -------------------- 로그아웃 -------------------- */
 
     // 회정 정보 성공 여부 관찰
     private fun observeUserProfile() {
@@ -98,11 +112,10 @@ class MyPageFragment :
             .setNegativeButton("취소", null)
             .show()
 
-        // 확인 버튼 색상 설정
+        // 버튼 색상 변경
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             .setTextColor(requireContext().getColor(R.color.main_color))
 
-        // 취소 버튼 색상 설정
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
             .setTextColor(requireContext().getColor(R.color.gray_500))
     }
@@ -235,5 +248,99 @@ class MyPageFragment :
         // 커서 위치 유지
         editText.setSelection(editText.text.length)
         return !isVisible
+    }
+
+/* -------------------- 회원 탈퇴 -------------------- */
+
+    private fun collectSignout() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            signoutViewModel.signoutSuccess.collect {
+                Toast.makeText(requireContext(), "회원 탈퇴에 성공했습니다.", Toast.LENGTH_SHORT).show()
+
+                ApplicationClass.authManager.clearToken()
+                ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+
+                moveToLogin()
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            signoutViewModel.message.collect { msg ->
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // 회원 탈퇴 다이얼로그 띄우기
+    private fun showSignoutDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_signout, null)
+
+        val etPassword = dialogView.findViewById<EditText>(R.id.etSignoutPassword)
+        val btnConfirm = dialogView.findViewById<Button>(R.id.btnSignoutConfirm)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnSignoutCancel)
+        val btnToggle = dialogView.findViewById<ImageButton>(R.id.btnToggleSignoutPassword)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        var isPasswordVisible = false
+
+        // 비밀번호 보기 / 숨기기
+        btnToggle.setOnClickListener {
+            isPasswordVisible = !isPasswordVisible
+            etPassword.inputType =
+                if (isPasswordVisible) {
+                    InputType.TYPE_CLASS_TEXT or
+                        InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                } else {
+                    InputType.TYPE_CLASS_TEXT or
+                        InputType.TYPE_TEXT_VARIATION_PASSWORD
+                }
+
+            etPassword.setSelection(etPassword.text.length)
+        }
+
+        // 탈퇴 확인
+        btnConfirm.setOnClickListener {
+            val password = etPassword.text.toString()
+
+            if (password.isBlank()) {
+                Toast.makeText(requireContext(), "비밀번호를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            Log.d(
+                TAG,
+                "USERID key = '${ApplicationClass.USERID}', PREF_NAME='${ApplicationClass.SHARED_PREFERENCES_NAME}'"
+            )
+
+            Log.d(TAG, "userId value = ${ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)}")
+
+            // SharedPreferencesUtil 수정 안 하므로 null 체크가 아니라 -1 체크해야 함
+            val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
+            Log.d(TAG, "userID : $userId")
+            if (userId == -1) {
+                Toast.makeText(requireContext(), "유저 정보가 없습니다. 다시 로그인 해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            signoutViewModel.signout(userId, password)
+            dialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    /* -------------------- 공통 -------------------- */
+
+    private fun moveToLogin() {
+        val intent = Intent(requireContext(), AuthActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
     }
 }
