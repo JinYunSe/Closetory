@@ -130,4 +130,6 @@ dependencies {
 
     // 사진 리사이즈/압축
     implementation("androidx.exifinterface:exifinterface:1.3.7")
+
+    implementation("io.getstream:photoview:1.0.3")
 }
