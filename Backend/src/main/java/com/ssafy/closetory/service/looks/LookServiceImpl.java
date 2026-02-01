@@ -358,11 +358,10 @@ public class LookServiceImpl implements LookService {
 
   @Override
   public List<GetLooksByMonthResponse> getLooksByMonthResponse(boolean isMain, Integer userId) {
-    LocalDate startDate = LocalDate.now();
-    LocalDate endDate = startDate.plusMonths(2).with(TemporalAdjusters.lastDayOfMonth());
+    LocalDate endDate = LocalDate.now().plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 
     List<Look> looksByMonth =
-        lookRepository.findAllByUserIdAndDateBetweenOrderByDateAsc(userId, startDate, endDate);
+        lookRepository.findAllByUserIdAndDateLessThanEqualOrderByDateAsc(userId, endDate);
 
     if (looksByMonth.isEmpty()) {
       return new ArrayList<>();
