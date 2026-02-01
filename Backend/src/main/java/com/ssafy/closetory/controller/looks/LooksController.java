@@ -56,4 +56,13 @@ public class LooksController {
     List<GetAllLooksResponse> response = lookService.getAllLooks(userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "룩 조회 성공", response));
   }
+
+  @GetMapping("/monthly")
+  @Operation(summary = "월별 코디 조회")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<List<GetLooksByMonthResponse>>> getLooksByMonthResponse(
+      @RequestParam boolean isMain, @AuthenticationPrincipal Integer userId) {
+    List<GetLooksByMonthResponse> result = lookService.getLooksByMonthResponse(isMain, userId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "월별 룩 정보 조회 성공", result));
+  }
 }
