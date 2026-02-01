@@ -54,7 +54,7 @@
                     android:layout_height="match_parent"
                     android:background="#E0E0E0"
                     android:contentDescription="프로필 사진"
-                    android:scaleType="fitXY"
+                    android:scaleType="centerCrop"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.Circle" />
 
             </FrameLayout>
@@ -62,7 +62,7 @@
             <!-- 전신 사진 -->
             <FrameLayout
                 android:id="@+id/layoutBodyImage"
-                android:layout_width="120dp"
+                android:layout_width="140dp"
                 android:layout_height="120dp"
                 android:layout_marginStart="14dp">
 

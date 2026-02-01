@@ -100,7 +100,6 @@ class MyPageFragment :
             .load(url)
             .placeholder(R.drawable.ic_profile_default)
             .error(R.drawable.ic_profile_default)
-            .centerCrop()
             .into(binding.ivProfile)
     }
 
@@ -115,7 +114,6 @@ class MyPageFragment :
             .load(url)
             .placeholder(R.drawable.ic_body_default)
             .error(R.drawable.ic_body_default)
-            .centerCrop()
             .into(binding.ivBodyPhoto)
     }
 
