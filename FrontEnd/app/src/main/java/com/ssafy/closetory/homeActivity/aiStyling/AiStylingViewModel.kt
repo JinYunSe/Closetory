@@ -8,19 +8,25 @@ import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.dto.AiCoordinationResponse
 import com.ssafy.closetory.dto.AiFittingRequest
 import com.ssafy.closetory.dto.SaveLookRequest
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-private const val TAG = "AiStylingViewModel_싸피"
+private const val TAG = "AiStylingViewModel"
 
 enum class AiStylingStage {
     RECOMMEND, // "AI 코디생성" 단계
-    FITTING_READY, // 추천 슬롯 채워짐 → "AI 가상생성" 가능
-    FITTING_DONE // 가상피팅 이미지 생성됨 → 등록 가능
+    FITTING_READY, // 추천 완료 → "AI 가상생성" 가능
+    FITTING_DONE // 가상피팅 완료 → 등록 가능
 }
 
 class AiStylingViewModel : ViewModel() {
 
     private val repository = AiStylingRepository()
+
+    // 현재 실행 중인 Job 추적
+    private var recommendJob: Job? = null
+    private var fittingJob: Job? = null
+    private var saveJob: Job? = null
 
     private val _stage = MutableLiveData(AiStylingStage.RECOMMEND)
     val stage: LiveData<AiStylingStage> = _stage
@@ -43,41 +49,70 @@ class AiStylingViewModel : ViewModel() {
     private val _successMessage = MutableLiveData<String?>()
     val successMessage: LiveData<String?> = _successMessage
 
+    // 로딩 타입 추적 (어떤 작업이 로딩 중인지)
+    private val _loadingType = MutableLiveData<LoadingType?>()
+    val loadingType: LiveData<LoadingType?> = _loadingType
+
+    enum class LoadingType {
+        RECOMMEND, // AI 추천 중
+        FITTING, // 가상피팅 중
+        SAVING // 저장 중
+    }
+
+    // AI 추천 요청
+
     fun requestAiRecommendation(isPersonalized: Boolean, onlyMine: Boolean) {
-        viewModelScope.launch {
+        // 이미 실행 중이면 무시
+        if (recommendJob?.isActive == true) {
+            Log.d(TAG, "AI 추천이 이미 실행 중입니다")
+            return
+        }
+
+        recommendJob = viewModelScope.launch {
             _isLoading.value = true
+            _loadingType.value = LoadingType.RECOMMEND
+
             try {
+                Log.d(TAG, "AI 추천 시작: personalized=$isPersonalized, onlyMine=$onlyMine")
+
                 val response = repository.getAiRecommendation(isPersonalized, onlyMine)
+
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null && body.httpStatusCode == 201 && body.data != null) {
                         _aiCoordination.value = body.data
                         _aiReason.value = body.data.aiReason
                         _successMessage.value = body.responseMessage ?: "AI 코디가 완성 됐습니다"
-
-                        // 추천 성공 → 가상피팅 준비 상태
                         _stage.value = AiStylingStage.FITTING_READY
-                        Log.d(TAG, "AI 추천 성공 / stage=FITTING_READY")
+
+                        Log.d(TAG, " AI 추천 성공 / stage=FITTING_READY")
                     } else {
                         _errorMessage.value = body?.errorMessage ?: "추천 결과가 비어있습니다."
+                        Log.e(TAG, " AI 추천 실패: Body 또는 데이터 null")
                     }
                 } else {
-                    _errorMessage.value = when (response.code()) {
+                    val errorMsg = when (response.code()) {
                         400 -> "요청 값이 올바르지 않습니다."
                         401 -> "인증 실패 (토큰 만료 등)"
                         403 -> "AI코디에 대한 권한이 없습니다."
                         else -> "AI 추천에 실패했습니다. (${response.code()})"
                     }
+                    _errorMessage.value = errorMsg
+                    Log.e(TAG, " AI 추천 실패: $errorMsg")
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "네트워크 오류가 발생했습니다: ${e.message}"
-                Log.e(TAG, "AI 추천 예외", e)
+                Log.e(TAG, " AI 추천 예외", e)
             } finally {
                 _isLoading.value = false
+                _loadingType.value = null
+                recommendJob = null
+                Log.d(TAG, "AI 추천 종료")
             }
         }
     }
 
+    //  AI 가상피팅 요청
     fun requestAiFitting() {
         val coordination = _aiCoordination.value
         if (coordination == null) {
@@ -85,47 +120,63 @@ class AiStylingViewModel : ViewModel() {
             return
         }
 
-        viewModelScope.launch {
+        // 이미 실행 중이면 무시
+        if (fittingJob?.isActive == true) {
+            Log.d(TAG, "가상피팅이 이미 실행 중입니다")
+            return
+        }
+
+        fittingJob = viewModelScope.launch {
             _isLoading.value = true
+            _loadingType.value = LoadingType.FITTING
+
+            val orderedIds = buildFittingIdList(coordination)
+            val request = AiFittingRequest(clothesIdList = orderedIds)
+
+            val response = repository.requestAiFitting(request)
+
             try {
+                Log.d(TAG, "가상피팅 시작")
+
                 val orderedIds = buildFittingIdList(coordination)
                 val request = AiFittingRequest(clothesIdList = orderedIds)
 
                 val response = repository.requestAiFitting(request)
+
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null && body.httpStatusCode == 201 && body.data != null) {
                         _aiImageUrl.value = body.data.aiImageUrl
                         _successMessage.value = body.responseMessage ?: "가상 피팅 성공"
                         _stage.value = AiStylingStage.FITTING_DONE
-                        Log.d(TAG, "가상피팅 성공 / stage=FITTING_DONE / url=${body.data.aiImageUrl}")
+
+                        Log.d(TAG, " 가상피팅 성공 / url=${body.data.aiImageUrl}")
                     } else {
                         _errorMessage.value = body?.errorMessage ?: "가상피팅 결과가 비어있습니다."
+                        Log.e(TAG, " 가상피팅 실패: Body 또는 데이터 null")
                     }
                 } else {
-                    _errorMessage.value = when (response.code()) {
+                    val errorMsg = when (response.code()) {
                         400 -> "유효하지 않는 사용자입니다."
                         401 -> "인증 실패 (토큰 만료 등)"
                         else -> "가상피팅에 실패했습니다. (${response.code()})"
                     }
+                    _errorMessage.value = errorMsg
+                    Log.e(TAG, " 가상피팅 실패: $errorMsg")
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "네트워크 오류: ${e.message}"
-                Log.e(TAG, "가상피팅 예외", e)
+                Log.e(TAG, " 가상피팅 예외", e)
             } finally {
                 _isLoading.value = false
+                _loadingType.value = null
+                fittingJob = null
+                Log.d(TAG, "가상피팅 종료")
             }
         }
     }
 
-    // Top, Bottom, Shoes, Outer, Accessory, Bag 순서로 clothIdList 만들기
-    // 없으면 -1
-    private fun buildFittingIdList(coordination: AiCoordinationResponse): List<Int> {
-        val map = coordination.clothesIdList.associateBy { it.clothesType.uppercase() }
-        val order = listOf("TOP", "BOTTOM", "SHOES", "OUTER", "ACCESSORIES", "BAG")
-        return order.map { type -> map[type]?.clothesId ?: -1 }
-    }
-
+    // 룩 저장
     fun saveCurrentLook() {
         val coordination = _aiCoordination.value
         if (coordination == null) {
@@ -139,38 +190,78 @@ class AiStylingViewModel : ViewModel() {
             return
         }
 
-        viewModelScope.launch {
+        // 이미 실행 중이면 무시
+        if (saveJob?.isActive == true) {
+            Log.d(TAG, "저장이 이미 실행 중입니다")
+            return
+        }
+
+        saveJob = viewModelScope.launch {
             _isLoading.value = true
+            _loadingType.value = LoadingType.SAVING
+
             try {
+                Log.d(TAG, "룩 저장 시작")
+
                 val clothesIds = coordination.clothesIdList.map { it.clothesId }
                 val request = SaveLookRequest(
                     clothesIdList = clothesIds,
-                    aiImageUrl = aiImageUrl
+                    aiImageUrl = aiImageUrl,
+                    aiReason = _aiReason.value
                 )
 
                 val response = repository.saveLook(request)
+
                 if (response.isSuccessful) {
                     val body = response.body()
                     _successMessage.value = body?.responseMessage ?: "룩이 저장되었습니다!"
+
+                    Log.d(TAG, "룩 저장 성공")
+
+                    // 저장 성공 후 초기화
                     resetAll()
                 } else {
                     _errorMessage.value = "룩 저장에 실패했습니다. (${response.code()})"
+                    Log.e(TAG, " 룩 저장 실패: ${response.code()}")
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "네트워크 오류: ${e.message}"
                 Log.e(TAG, "룩 저장 예외", e)
             } finally {
                 _isLoading.value = false
+                _loadingType.value = null
+                saveJob = null
+                Log.d(TAG, "룩 저장 종료")
             }
         }
     }
 
+    // 전체초기화
     fun resetAll() {
+        // 실행 중인 Job 취소
+        recommendJob?.cancel()
+        fittingJob?.cancel()
+        saveJob?.cancel()
+
         _aiCoordination.value = null
         _aiReason.value = null
         _aiImageUrl.value = null
         _stage.value = AiStylingStage.RECOMMEND
-        Log.d(TAG, "전체 초기화 / stage=RECOMMEND")
+        _isLoading.value = false
+        _loadingType.value = null
+
+        Log.d(TAG, "전체 초기화 완료")
+    }
+
+    // 작업이 진행 중인지 확인
+    fun isAnyJobRunning(): Boolean = recommendJob?.isActive == true ||
+        fittingJob?.isActive == true ||
+        saveJob?.isActive == true
+
+    private fun buildFittingIdList(coordination: AiCoordinationResponse): List<Int> {
+        val map = coordination.clothesIdList.associateBy { it.clothesType.uppercase() }
+        val order = listOf("TOP", "BOTTOM", "SHOES", "OUTER", "ACCESSORY", "BAG")
+        return order.map { type -> map[type]?.clothesId ?: -1 }
     }
 
     fun clearErrorMessage() {
@@ -179,5 +270,14 @@ class AiStylingViewModel : ViewModel() {
 
     fun clearSuccessMessage() {
         _successMessage.value = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // ViewModel이 파괴될 때 모든 Job 취소
+        recommendJob?.cancel()
+        fittingJob?.cancel()
+        saveJob?.cancel()
+        Log.d(TAG, "ViewModel cleared - 모든 Job 취소")
     }
 }
