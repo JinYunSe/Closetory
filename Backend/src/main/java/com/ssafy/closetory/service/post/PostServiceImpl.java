@@ -1,24 +1,22 @@
 package com.ssafy.closetory.service.post;
 
 import com.ssafy.closetory.dto.post.*;
+import com.ssafy.closetory.entity.post.Likes;
+import com.ssafy.closetory.entity.post.LikesId;
 import com.ssafy.closetory.entity.post.Post;
 import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.ConflictException;
 import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
-import com.ssafy.closetory.repository.ClothesRepository;
-import com.ssafy.closetory.repository.PostRepository;
-import com.ssafy.closetory.repository.SaveRepository;
-import com.ssafy.closetory.repository.UserRepository;
+import com.ssafy.closetory.repository.*;
 import com.ssafy.closetory.service.s3.S3ImageService;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +27,7 @@ public class PostServiceImpl implements PostService {
   private final S3ImageService s3ImageService;
   private final SaveRepository saveRepository;
   private final UserRepository userRepository;
+  private final LikesRepository likesRepository;
 
   @Override
   public PostCreateResponse createPost(
@@ -148,6 +147,9 @@ public class PostServiceImpl implements PostService {
 
     post.increaseViews();
 
+    Integer likeCount = likesRepository.countByPostId(postId);
+    boolean isLiked = likesRepository.existsByUserIdAndPostId(userId, postId);
+
     List<PostItemResponse> items =
         post.getClothes().stream()
             .map(
@@ -167,8 +169,8 @@ public class PostServiceImpl implements PostService {
         items,
         post.getCreatedAt(),
         post.getViews(),
-        0, // 좋아요 개수
-        false, // 좋아요 유무
+        likeCount,
+        isLiked,
         user.getId(),
         user.getNickname(),
         user.getProfilePhotoUrl());
@@ -190,5 +192,26 @@ public class PostServiceImpl implements PostService {
     }
 
     post.setDeletedAt(LocalDateTime.now());
+  }
+
+  @Override
+  public void createLikes(Integer postId, Integer userId) {
+    Post post =
+        postRepository
+            .findById(postId)
+            .orElseThrow(() -> new BadRequestException("없는 게시판 번호입니다. 다시 확인해주세요!"));
+
+    User user =
+        userRepository.findById(userId).orElseThrow(() -> new BadRequestException("회원가입이 필요합니다!"));
+
+    LikesId id = new LikesId(userId, postId);
+
+    if (likesRepository.existsById(id)) {
+      throw new ConflictException("이미 좋아요를 누른 게시글입니다.");
+    }
+
+    Likes likeInstance = Likes.builder().id(id).user(user).post(post).build();
+
+    likesRepository.save(likeInstance);
   }
 }

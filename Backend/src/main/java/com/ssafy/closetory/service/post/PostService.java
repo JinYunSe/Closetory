@@ -15,4 +15,6 @@ public interface PostService {
   PostDetailResponse getPostDetail(Integer postId, Integer userId);
 
   void deletePost(Integer userId, Integer postId);
+
+  void createLikes(Integer postId, Integer userId);
 }
