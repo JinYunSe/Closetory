@@ -1,13 +1,14 @@
 package com.ssafy.closetory.homeActivity.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.ssafy.closetory.R
 import com.ssafy.closetory.homeActivity.aiStyling.Day
+import com.ssafy.closetory.util.StrokeTextView
 
 class HomeCalendarAdapter(
     private var items: List<Day>,
@@ -15,76 +16,68 @@ class HomeCalendarAdapter(
     private val colorProvider: (Day) -> Pair<Int?, Int?>
 ) : RecyclerView.Adapter<HomeCalendarAdapter.VH>() {
 
-    private var selectedKey: String? = null // "yyyy-MM-dd"
+    private var selectedKey: String? = null
 
     inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tv: TextView = itemView.findViewById(R.id.tv_date)
+        private val tv: StrokeTextView = itemView.findViewById(R.id.tv_date)
         private val vTop: View = itemView.findViewById(R.id.v_top)
         private val vBottom: View = itemView.findViewById(R.id.v_bottom)
         private val bg: View = itemView.findViewById(R.id.v_bg)
 
         fun bind(item: Day) {
             tv.text = item.dayText
+            tv.strokeColor = Color.WHITE
+            tv.strokeWidthPx = 7f // 여기서 더 키우면 숫자 테두리 더 두꺼워짐
 
-            // 기본 투명도(이번달 아니면 흐리게)
             itemView.alpha = if (item.inMonth) 1.0f else 0.35f
 
-            // 텍스트 색: 일요일/토요일
-            val colorRes = when (item.dayOfWeek) {
+            val textColorRes = when (item.dayOfWeek) {
                 1 -> R.color.sunColor
                 7 -> R.color.satColor
                 else -> R.color.textColor
             }
-            tv.setTextColor(ContextCompat.getColor(itemView.context, colorRes))
+            tv.setTextColor(ContextCompat.getColor(itemView.context, textColorRes))
 
-            // 상/하 색상 반영(이번달만)
             if (item.inMonth) {
                 val (top, bottom) = colorProvider(item)
 
-                if (top != null) {
-                    vTop.visibility = View.VISIBLE
-                    vTop.setBackgroundColor(top)
+                if (top == null && bottom == null) {
+                    vTop.visibility = View.GONE
+                    vBottom.visibility = View.GONE
                 } else {
-                    vTop.visibility = View.INVISIBLE
-                }
+                    if (top != null) {
+                        vTop.visibility = View.VISIBLE
+                        vTop.setBackgroundColor(top)
+                    } else {
+                        vTop.visibility = View.INVISIBLE
+                        vTop.setBackgroundColor(Color.TRANSPARENT)
+                    }
 
-                if (bottom != null) {
-                    vBottom.visibility = View.VISIBLE
-                    vBottom.setBackgroundColor(bottom)
-                } else {
-                    vBottom.visibility = View.INVISIBLE
+                    if (bottom != null) {
+                        vBottom.visibility = View.VISIBLE
+                        vBottom.setBackgroundColor(bottom)
+                    } else {
+                        vBottom.visibility = View.INVISIBLE
+                        vBottom.setBackgroundColor(Color.TRANSPARENT)
+                    }
                 }
             } else {
-                vTop.visibility = View.INVISIBLE
-                vBottom.visibility = View.INVISIBLE
+                vTop.visibility = View.GONE
+                vBottom.visibility = View.GONE
             }
 
-            // 배경 우선순위: 선택 > 오늘 > 기본
             val key = keyOf(item)
             when {
-                selectedKey == key -> {
-                    bg.setBackgroundResource(R.drawable.bg_calendar_selected)
-                    tv.setTextColor(ContextCompat.getColor(itemView.context, android.R.color.white))
-                }
-
-                item.isToday -> {
-                    bg.setBackgroundResource(R.drawable.bg_calendar_today)
-                }
-
-                else -> {
-                    bg.setBackgroundResource(R.drawable.bg_calendar_border)
-                }
+                selectedKey == key -> bg.setBackgroundResource(R.drawable.bg_calendar_home_fragment_border_selected)
+                item.isToday -> bg.setBackgroundResource(R.drawable.bg_calendar_home_fragment_border_today)
+                else -> bg.setBackgroundResource(R.drawable.bg_calendar_border)
             }
 
             itemView.setOnClickListener {
                 if (!item.inMonth) return@setOnClickListener
-
-                // 같은 날짜 재클릭도 동작시키려면(원하면) 아래 주석 해제
-                // val isSame = selectedKey == key
-
                 selectedKey = key
                 notifyDataSetChanged()
-                onClick(item) // 재클릭 포함 매번 호출
+                onClick(item)
             }
         }
     }
@@ -95,15 +88,11 @@ class HomeCalendarAdapter(
         return VH(view)
     }
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.bind(items[position])
-    }
-
+    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
     override fun getItemCount(): Int = items.size
 
     fun submitList(newItems: List<Day>) {
         items = newItems
-        // 월 바뀌면 선택 초기화(원하면 유지도 가능)
         selectedKey = null
         notifyDataSetChanged()
     }
@@ -113,8 +102,5 @@ class HomeCalendarAdapter(
         notifyDataSetChanged()
     }
 
-    private fun keyOf(d: Day): String {
-        val m = d.month0 + 1
-        return "%04d-%02d-%02d".format(d.year, m, d.dayOfMonth)
-    }
+    private fun keyOf(d: Day): String = "%04d-%02d-%02d".format(d.year, d.month0 + 1, d.dayOfMonth)
 }

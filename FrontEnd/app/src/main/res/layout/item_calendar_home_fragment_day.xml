@@ -1,44 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="48dp"
-    android:layout_margin="2dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/gridWidth"
+    android:layout_height="@dimen/gridWidth"
+    android:layout_margin="@dimen/gridMargin">
 
-    <!-- 위/아래 반반 색 -->
-    <LinearLayout
+    <!-- ✅ 1) 색칠/내용(클리핑 영역) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        app:cardCornerRadius="18dp"
+        app:cardUseCompatPadding="false"
+        app:cardPreventCornerOverlap="false"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="@android:color/transparent">
 
-        <View
-            android:id="@+id/v_top"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:visibility="invisible" />
+            android:layout_height="match_parent"
+            android:clipToOutline="true">
 
-        <View
-            android:id="@+id/v_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:visibility="invisible" />
-    </LinearLayout>
+            <!-- 상/하 절반 채움 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-    <!-- 선택/오늘/기본 테두리 오버레이 -->
+                <View
+                    android:id="@+id/v_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:visibility="gone" />
+
+                <View
+                    android:id="@+id/v_bottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 날짜 텍스트(좌상단) -->
+            <com.ssafy.closetory.util.StrokeTextView
+                android:id="@+id/tv_date"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="start|top"
+                android:paddingStart="8dp"
+                android:paddingTop="6dp"
+                android:includeFontPadding="false"
+                android:textSize="@dimen/textSize"
+                android:textColor="@color/textColor"
+                android:textStyle="bold" />
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ✅ 2) 테두리 레이어(바깥으로 확장) -->
     <View
         android:id="@+id/v_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="-8dp"
         android:background="@drawable/bg_calendar_border" />
 
-    <!-- 날짜 텍스트 -->
-    <TextView
-        android:id="@+id/tv_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:padding="6dp"
-        android:textColor="@color/textColor"
-        android:textSize="12sp" />
 </FrameLayout>
