@@ -1,7 +1,5 @@
-package com.ssafy.closetory.homeActivity.adpter
+package com.ssafy.closetory.homeActivity.adapter
 
-import android.util.Log
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
