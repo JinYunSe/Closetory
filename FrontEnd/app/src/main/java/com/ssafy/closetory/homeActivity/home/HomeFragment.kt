@@ -1,25 +1,24 @@
 package com.ssafy.closetory.homeActivity.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.snackbar.Snackbar
+import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.DialogCalendarPickerBinding
 import com.ssafy.closetory.databinding.FragmentHomeBinding
 import com.ssafy.closetory.dto.StylingResponse
 import com.ssafy.closetory.homeActivity.HomeActivity
+import com.ssafy.closetory.homeActivity.home.ImagePreviewActivity
 import com.ssafy.closetory.homeActivity.adapter.HomeCalendarAdapter
 import com.ssafy.closetory.homeActivity.aiStyling.Day
 import com.ssafy.closetory.homeActivity.aiStyling.WeekAdapter
@@ -28,6 +27,10 @@ import java.util.Calendar
 import kotlinx.coroutines.launch
 
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind, R.layout.fragment_home) {
+
+    companion object {
+        private const val TAG = "HomeFragment"
+    }
 
     private val calendar: Calendar = Calendar.getInstance()
     private val today: Calendar = Calendar.getInstance()
@@ -38,16 +41,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
 
     private val homeViewModel: HomeViewModel by viewModels()
 
+    // yyyy-MM-dd
     private var dayColorMap: Map<String, Pair<Int?, Int?>> = emptyMap()
     private var dayImageMap: Map<String, String> = emptyMap()
 
-    private var selectedDateDialog: AlertDialog? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         homeActivity = requireContext() as HomeActivity
-
         homeViewModel.getStylingList(true)
 
         setupClickPostBtn()
@@ -97,15 +99,19 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
             onClick = { day ->
                 if (!day.inMonth) return@HomeCalendarAdapter
 
-                val (top, bottom) = dayColorMap[keyOf(day)] ?: (null to null)
-                val hasLook = (top != null || bottom != null)
-                if (!hasLook) {
-                    Toast.makeText(requireContext(), "등록된 룩이 없습니다.", Toast.LENGTH_SHORT).show()
+                val dateKey = keyOf(day)
+                val imageUrl = dayImageMap[dateKey] // 서버에서 받은 url(있을 수도/없을 수도)
+                Log.d(TAG, "selected date=$dateKey, imageUrl=$imageUrl")
+
+                homeCalendarAdapter.setSelected(day)
+
+                if (imageUrl.isNullOrBlank()) {
+                    showNoLookMessage()
                     return@HomeCalendarAdapter
                 }
 
-                homeCalendarAdapter.setSelected(day)
-                showSelectedDateDialog(day)
+                // url이 있는 경우만 화면 이동
+                openImagePreview(imageUrl)
             },
             colorProvider = { day ->
                 dayColorMap[keyOf(day)] ?: (null to null)
@@ -113,6 +119,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         )
 
         calBinding.rvCalendar.adapter = homeCalendarAdapter
+    }
+
+    private fun showNoLookMessage() {
+        Toast.makeText(requireContext(), "등록된 룩이 없습니다.", Toast.LENGTH_SHORT).show()
     }
 
     private fun moveMonthAndRender(deltaMonth: Int) {
@@ -144,8 +154,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
     private fun renderMonth() {
         val year = calendar.get(Calendar.YEAR)
         val month0 = calendar.get(Calendar.MONTH)
-
-        calBinding.tvMonth.text = "%04d년 %02d월".format(year, month0 + 1)
+        calBinding.tvMonth.text = "%04d년%02d월".format(year, month0 + 1)
 
         val days = build42Days(year, month0)
         homeCalendarAdapter.submitList(days)
@@ -231,52 +240,27 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         )
     }
 
-    private fun showSelectedDateDialog(day: Day) {
-        selectedDateDialog?.dismiss()
-        selectedDateDialog = null
-
-        val dialogView = layoutInflater.inflate(R.layout.dialog_main_calendar_selected_date, null)
-        val ivClose = dialogView.findViewById<ImageView>(R.id.iv_home_fragment_close)
-        val ivCoord = dialogView.findViewById<ImageView>(R.id.iv_home_fragment_coordination)
-
-        val url = dayImageMap[keyOf(day)]
-        bindCoordinationImage(ivCoord, url)
-
-        val dialog = AlertDialog.Builder(homeActivity)
-            .setView(dialogView)
-            .create()
-
-        ivClose.setOnClickListener { dialog.dismiss() }
-
-        dialog.setOnDismissListener {
-            if (selectedDateDialog === dialog) selectedDateDialog = null
-        }
-
-        selectedDateDialog = dialog
-        dialog.show()
-    }
-
-    private fun bindCoordinationImage(target: ImageView, imageUrl: String?) {
-        if (imageUrl.isNullOrBlank()) {
-            target.setImageResource(R.drawable.iron_man)
-            return
-        }
-
-        Glide.with(this@HomeFragment)
-            .load(imageUrl)
-            .placeholder(R.drawable.iron_man)
-            .error(R.drawable.iron_man)
-            .transition(DrawableTransitionOptions.withCrossFade())
-            .into(target)
+    private fun openImagePreview(imageUrl: String) {
+        val intent = android.content.Intent(requireContext(), ImagePreviewActivity::class.java)
+        intent.putExtra(ImagePreviewActivity.EXTRA_IMAGE_URL, imageUrl)
+        startActivity(intent)
     }
 
     private fun buildDayImageMap(list: List<StylingResponse>): Map<String, String> = list.asSequence()
         .mapNotNull { item ->
             val key = normalizeDateKey(item.date) ?: return@mapNotNull null
-            val url = item.photoUrl?.trim()
-            if (url.isNullOrBlank()) null else key to url
+            val raw = item.photoUrl.trim()
+            if (raw.isBlank()) return@mapNotNull null
+            val url = resolveImageUrl(raw)
+            key to url
         }
         .toMap()
+
+    private fun resolveImageUrl(raw: String): String {
+        if (raw.startsWith("http")) return raw
+        val clean = raw.removePrefix("/")
+        return "${ApplicationClass.API_BASE_URL}$clean"
+    }
 
     private fun buildDayColorMap(list: List<StylingResponse>): Map<String, Pair<Int?, Int?>> = list.asSequence()
         .mapNotNull { item ->
@@ -315,9 +299,4 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         }
     }
 
-    override fun onDestroyView() {
-        selectedDateDialog?.dismiss()
-        selectedDateDialog = null
-        super.onDestroyView()
-    }
 }
