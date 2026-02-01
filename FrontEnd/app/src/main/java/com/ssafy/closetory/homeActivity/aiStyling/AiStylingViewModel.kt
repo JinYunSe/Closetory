@@ -121,8 +121,8 @@ class AiStylingViewModel : ViewModel() {
     // Top, Bottom, Shoes, Outer, Accessory, Bag 순서로 clothIdList 만들기
     // 없으면 -1
     private fun buildFittingIdList(coordination: AiCoordinationResponse): List<Int> {
-        val map = coordination.clothIdList.associateBy { it.clothesType.uppercase() }
-        val order = listOf("TOP", "BOTTOM", "SHOES", "OUTER", "ACCESSORY", "BAG")
+        val map = coordination.clothesIdList.associateBy { it.clothesType.uppercase() }
+        val order = listOf("TOP", "BOTTOM", "SHOES", "OUTER", "ACCESSORIES", "BAG")
         return order.map { type -> map[type]?.clothesId ?: -1 }
     }
 
@@ -133,11 +133,20 @@ class AiStylingViewModel : ViewModel() {
             return
         }
 
+        val aiImageUrl = _aiImageUrl.value
+        if (aiImageUrl.isNullOrBlank()) {
+            _errorMessage.value = "AI 이미지가 아직 생성되지 않았습니다. 먼저 가상 피팅을 진행해 주세요."
+            return
+        }
+
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val clothIds = coordination.clothIdList.map { it.clothesId }
-                val request = SaveLookRequest(clothesIdList = clothIds)
+                val clothesIds = coordination.clothesIdList.map { it.clothesId }
+                val request = SaveLookRequest(
+                    clothesIdList = clothesIds,
+                    aiImageUrl = aiImageUrl
+                )
 
                 val response = repository.saveLook(request)
                 if (response.isSuccessful) {

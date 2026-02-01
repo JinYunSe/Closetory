@@ -48,7 +48,7 @@ class RegistrationClothesFragment :
     private lateinit var colorSection: View
 
     private var selectedImageUri: Uri? = null
-    private val viewModel: RegistrationClothViewModel by viewModels()
+    private val viewModel: RegistrationClothesViewModel by viewModels()
 
     private var isMaskingInProgress: Boolean = false
 

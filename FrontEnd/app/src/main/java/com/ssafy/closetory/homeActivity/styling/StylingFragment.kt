@@ -70,7 +70,7 @@ class StylingFragment :
     private fun setupRecyclerViews() {
         // 상의 어댑터
         topAdapter = ClothesAdapter().apply {
-            onItemClickListener = { item ->
+            onItemClick = { item ->
                 Log.d(TAG, "상의 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("TOP", item, binding.ivSlotTop, binding.btnRemoveTop)
             }
@@ -79,7 +79,7 @@ class StylingFragment :
 
         // 하의 어댑터
         bottomAdapter = ClothesAdapter().apply {
-            onItemClickListener = { item ->
+            onItemClick = { item ->
                 Log.d(TAG, "하의 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("BOTTOM", item, binding.ivSlotBottom, binding.btnRemoveBottom)
             }
@@ -88,7 +88,7 @@ class StylingFragment :
 
         // 아우터 어댑터
         outerAdapter = ClothesAdapter().apply {
-            onItemClickListener = { item ->
+            onItemClick = { item ->
                 Log.d(TAG, "아우터 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("OUTER", item, binding.ivSlotOuter, binding.btnRemoveOuter)
             }
@@ -97,7 +97,7 @@ class StylingFragment :
 
         // 액세서리 어댑터
         accAdapter = ClothesAdapter().apply {
-            onItemClickListener = { item ->
+            onItemClick = { item ->
                 Log.d(TAG, "액세서리 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("ACC", item, binding.ivSlotAcc, binding.btnRemoveAcc)
             }
@@ -106,7 +106,7 @@ class StylingFragment :
 
         // 가방 어댑터
         bagAdapter = ClothesAdapter().apply {
-            onItemClickListener = { item ->
+            onItemClick = { item ->
                 Log.d(TAG, "가방 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("BAG", item, binding.ivSlotBag, binding.btnRemoveBag)
             }
@@ -115,7 +115,7 @@ class StylingFragment :
 
         // 신발 어댑터
         shoeAdapter = ClothesAdapter().apply {
-            onItemClickListener = { item ->
+            onItemClick = { item ->
                 Log.d(TAG, "신발 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("SHOES", item, binding.ivSlotShoes, binding.btnRemoveShoes)
             }
@@ -196,6 +196,9 @@ class StylingFragment :
         binding.btnRemoveShoes.setOnClickListener {
             removeItemFromSlot("SHOES", binding.ivSlotShoes, binding.btnRemoveShoes)
         }
+        binding.btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 
     /**
@@ -263,33 +266,6 @@ class StylingFragment :
             }
         }
     }
-
-    /**
-     * 슬롯에 아이템 추가 (클릭 시 올라가기)
-     */
-//    private fun addItemToSlot(slotType: String, item: ClothItemDto, imageView: ImageView, removeButton: View) {
-// //        Log.d(TAG, "addItemToSlot - slotType: $slotType, itemId: ${item.clothesId}")
-// //
-// //        // 슬롯에 저장
-// //        selectedSlots[slotType] = item
-// //
-// //        // 이미지 로드
-// //        val imageUrl = "${ApplicationClass.SERVER_URL}${item.photoUrl}"
-// //        Glide.with(this)
-// //            .load(imageUrl)
-// //            .placeholder(R.drawable.bg_slot_empty)
-// //            .error(R.drawable.bg_slot_empty)
-// //            .centerInside()
-// //            .into(imageView)
-// //
-// //        // 배경 제거 (이미지만 보이게)
-// //        imageView.background = null
-// //
-// //        // 삭제 버튼 표시
-// //        removeButton.visibility = View.VISIBLE
-// //
-// //        Log.d(TAG, "슬롯 업데이트 완료: $slotType")
-// //    }
     private fun addItemToSlot(slotType: String, item: ClothesItemDto, imageView: ImageView, removeButton: View) {
         Log.d(TAG, "=== addItemToSlot 호출 ===")
         Log.d(TAG, "slotType: $slotType")

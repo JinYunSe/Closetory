@@ -1,18 +1,23 @@
 package com.ssafy.closetory.homeActivity
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.navigation.findNavController
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseActivity
 import com.ssafy.closetory.databinding.ActivityHomeBinding
-import com.ssafy.closetory.util.PermissionChecker
+import com.ssafy.closetory.util.TagOptions
 
 class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::inflate) {
 
     private data class NavItem(val destinationId: Int, val containerId: Int, val iconId: Int, val textId: Int)
 
+    private val homeInitViewModel: HomeInitViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        init()
 
         // 하단바 아이템과 네비게이션 목적지를 연결한다.
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
@@ -59,6 +64,8 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
         }
         // 앱 시작 시 기본 선택 상태를 적용한다.
         updateSelection(items, items.first())
+
+        registerObserve()
     }
 
     private fun updateSelection(items: List<NavItem>, active: NavItem?) {
@@ -80,5 +87,15 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
             return
         }
         navController.navigate(destinationId)
+    }
+
+    private fun init() {
+        homeInitViewModel.getTagsList()
+    }
+
+    fun registerObserve() {
+        homeInitViewModel.tagsList.observe(this) {
+            TagOptions.setTags(it)
+        }
     }
 }

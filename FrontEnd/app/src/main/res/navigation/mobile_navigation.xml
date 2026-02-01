@@ -9,7 +9,12 @@
         android:id="@+id/navigation_home"
         android:name="com.ssafy.closetory.homeActivity.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_home_to_post_list"
+            app:destination="@id/navigation_post_list" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_closet"
@@ -46,11 +51,26 @@
         android:id="@+id/navigation_my_page"
         android:name="com.ssafy.closetory.homeActivity.mypage.MyPageFragment"
         android:label="@string/title_my_page"
-        tools:layout="@layout/fragment_my_page" >
+        tools:layout="@layout/fragment_my_page">
+
+        <!-- 회원정보 수정으로 이동 -->
         <action
-            android:id="@+id/action_navigation_my_page_to_navigation_cody_repository"
-            app:destination="@id/navigation_cody_repository" />
+            android:id="@+id/action_navigation_my_page_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+
+        <!-- 코디 저장소로 이동 -->
+        <action
+            android:id="@+id/action_navigation_my_page_to_codyRepositoryFragment"
+            app:destination="@id/codyRepositoryFragment" />
+
     </fragment>
+
+    <!-- EditProfileFragment -->
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.ssafy.closetory.homeActivity.mypage.edit.EditProfileFragment"
+        android:label="회원정보 수정"
+        tools:layout="@layout/fragment_edit_profile" />
 
     <fragment
         android:id="@+id/navigation_registration_clothes"
@@ -73,18 +93,73 @@
 
         <action
             android:id="@+id/action_clothes_detail_to_registration"
-            app:destination="@+id/navigation_registration_clothes" />
+            app:destination="@+id/navigation_registration_clothes"
+            />
 
         <argument
             android:name="clothesId"
             app:argType="integer"
             android:defaultValue="-1" />
+        <action
+            android:id="@+id/action_navigation_clothes_detail_self"
+            app:destination="@id/navigation_clothes_detail" />
     </fragment>
 
     <fragment
-        android:id="@+id/navigation_cody_repository"
+        android:id="@+id/navigation_post_list"
+        android:name="com.ssafy.closetory.homeActivity.post.PostListFragment"
+        android:label="PostList"
+        tools:layout="@layout/fragment_post_main">
+        <action
+            android:id="@+id/action_post_list_to_post_create"
+            app:destination="@id/navigation_post_create" />
+        <action
+            android:id="@+id/action_post_list_to_post_detail"
+            app:destination="@id/navigation_post_detail" />
+        <action
+            android:id="@+id/action_post_list_to_post_edit"
+            app:destination="@id/navigation_post_edit" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_post_create"
+        android:name="com.ssafy.closetory.homeActivity.post.create.PostCreateFragment"
+        android:label="PostCreate"
+        tools:layout="@layout/fragment_post_create" />
+
+    <fragment
+        android:id="@+id/navigation_post_detail"
+        android:name="com.ssafy.closetory.homeActivity.post.detail.PostDetailFragment"
+        android:label="PostDetail"
+        tools:layout="@layout/fragment_post_detail">
+
+        <argument
+            android:name="postId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+
+        <action
+            android:id="@+id/action_post_detail_to_post_edit"
+            app:destination="@id/navigation_post_create" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_post_edit"
+        android:name="com.ssafy.closetory.homeActivity.post.edit.PostEditFragment"
+        android:label="PostEdit"
+        tools:layout="@layout/fragment_post_create">
+
+        <argument
+            android:name="postId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+
+    <!-- CodyRepositoryFragment (코디 저장소) -->
+    <fragment
+        android:id="@+id/codyRepositoryFragment"
         android:name="com.ssafy.closetory.homeActivity.codyRepository.CodyRepositoryFragment"
-        android:label="CodyRepository"
+        android:label="코디 저장소"
         tools:layout="@layout/fragment_cody_repository" />
 
 </navigation>
