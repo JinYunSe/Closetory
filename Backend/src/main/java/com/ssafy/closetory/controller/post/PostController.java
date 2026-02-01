@@ -3,10 +3,8 @@ package com.ssafy.closetory.controller.post;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.closetory.dto.common.ApiResponse;
-import com.ssafy.closetory.dto.post.PostCreateRequest;
-import com.ssafy.closetory.dto.post.PostCreateResponse;
-import com.ssafy.closetory.dto.post.PostDetailResponse;
-import com.ssafy.closetory.dto.post.PostUpdateRequest;
+import com.ssafy.closetory.dto.post.*;
+import com.ssafy.closetory.enums.SearchFilter;
 import com.ssafy.closetory.service.post.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -100,5 +100,18 @@ public class PostController {
       @PathVariable Integer postId, @AuthenticationPrincipal Integer userId) {
     postService.deleteLikes(postId, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "게시글 좋아요 취소 완료", null));
+  }
+
+  @GetMapping()
+  @Operation(summary = "게시글 검색 목록 조회")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<List<PostSearchResponse>>> searchPosts(
+      @AuthenticationPrincipal Integer userId,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(defaultValue = "LATEST") SearchFilter searchfilter) {
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(
+            ApiResponse.ok(
+                200, "게시글 검색 결과 조회 성공", postService.searchPosts(userId, keyword, searchfilter)));
   }
 }

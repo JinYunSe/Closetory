@@ -5,18 +5,20 @@ import com.ssafy.closetory.entity.post.Likes;
 import com.ssafy.closetory.entity.post.LikesId;
 import com.ssafy.closetory.entity.post.Post;
 import com.ssafy.closetory.entity.user.User;
+import com.ssafy.closetory.enums.SearchFilter;
 import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.ConflictException;
 import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
 import com.ssafy.closetory.service.s3.S3ImageService;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class PostServiceImpl implements PostService {
   private final SaveRepository saveRepository;
   private final UserRepository userRepository;
   private final LikesRepository likesRepository;
+  private final CommentRepository commentRepository;
 
   @Override
   public PostCreateResponse createPost(
@@ -224,5 +227,82 @@ public class PostServiceImpl implements PostService {
     }
 
     likesRepository.deleteById(id);
+  }
+
+  @Override
+  public List<PostSearchResponse> searchPosts(Integer userId, String keyword, SearchFilter filter) {
+    return switch (filter) {
+      case LIKED -> searchLikedPosts(userId, keyword);
+      case WRITTEN -> searchWrittenPosts(userId, keyword);
+      case POPULAR -> searchPopularPosts(keyword);
+      case LATEST -> searchLatestPosts(keyword);
+    };
+  }
+
+  private List<PostSearchResponse> searchLatestPosts(String keyword) {
+    List<Post> posts = postRepository.findLatestPosts(keyword);
+
+    return posts.stream()
+      .map(
+        post ->
+          PostSearchResponse.builder()
+            .postId(post.getId())
+            .title(post.getTitle())
+            .photoUrl(post.getPhotoUrl())
+            .views(post.getViews())
+            .likes(likesRepository.countByPostId(post.getId()))
+            .comments(commentRepository.countByPostId(post.getId()))
+            .build())
+      .toList();
+  }
+
+  private List<PostSearchResponse> searchLikedPosts(Integer userId, String keyword) {
+    List<Post> posts = postRepository.findLikedPosts(userId, keyword);
+
+    return posts.stream()
+      .map(
+        post ->
+          PostSearchResponse.builder()
+            .postId(post.getId())
+            .title(post.getTitle())
+            .photoUrl(post.getPhotoUrl())
+            .views(post.getViews())
+            .likes(likesRepository.countByPostId(post.getId()))
+            .comments(commentRepository.countByPostId(post.getId()))
+            .build())
+      .toList();
+  }
+  private List<PostSearchResponse> searchWrittenPosts(Integer userId, String keyword) {
+    List<Post> posts = postRepository.findWrittenPosts(userId, keyword);
+
+    return posts.stream()
+      .map(
+        post ->
+          PostSearchResponse.builder()
+            .postId(post.getId())
+            .title(post.getTitle())
+            .photoUrl(post.getPhotoUrl())
+            .views(post.getViews())
+            .likes(likesRepository.countByPostId(post.getId()))
+            .comments(commentRepository.countByPostId(post.getId()))
+            .build())
+      .toList();
+  }
+
+  private List<PostSearchResponse> searchPopularPosts(String keyword) {
+    List<Post> posts = postRepository.findPopularPosts(keyword);
+
+    return posts.stream()
+      .map(
+        post ->
+          PostSearchResponse.builder()
+            .postId(post.getId())
+            .title(post.getTitle())
+            .photoUrl(post.getPhotoUrl())
+            .views(post.getViews())
+            .likes(likesRepository.countByPostId(post.getId()))
+            .comments(commentRepository.countByPostId(post.getId()))
+            .build())
+      .toList();
   }
 }
