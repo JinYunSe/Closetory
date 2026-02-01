@@ -1,0 +1,36 @@
+package com.ssafy.closetory.service.user;
+
+import com.ssafy.closetory.dto.user.Top3Item;
+import com.ssafy.closetory.exception.common.ForbiddenException;
+import com.ssafy.closetory.repository.LookRepository;
+import com.ssafy.closetory.repository.projection.Top3Row;
+import java.time.LocalDate;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class StatsServiceImpl implements StatsService {
+
+  private final LookRepository lookRepository;
+
+  @Override
+  public List<Top3Item> getTop3(Integer userId, Integer authUserId) {
+    if (!userId.equals(authUserId)) {
+      throw new ForbiddenException("자신의 통계만 볼 수 있습니다.");
+    }
+
+    LocalDate start = LocalDate.now().withDayOfMonth(1);
+    LocalDate end = start.plusMonths(1);
+
+    List<Top3Row> rows = lookRepository.findTop3ThisMonth(userId, start, end);
+
+    int[] rank = {1};
+    return rows.stream()
+        .map(r -> new Top3Item(r.getClothesId(), r.getPhotoUrl(), rank[0]++, r.getUsageCount()))
+        .toList();
+  }
+}

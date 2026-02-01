@@ -72,6 +72,7 @@ public class PostController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "게시글 수정 완료", response));
   }
 
+<<<<<<< HEAD
   @PostMapping("/{postId}/like")
   @Operation(summary = "좋아요 생성")
   @SecurityRequirement(name = "bearerAuth")
@@ -79,5 +80,16 @@ public class PostController {
       @PathVariable Integer postId, @AuthenticationPrincipal Integer userId) {
     postService.createLikes(postId, userId);
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(200, "게시글 좋아요 생성 완료", null));
+=======
+  @DeleteMapping("/{postId}")
+  @Operation(summary = "게시글 삭제")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Void>> deletePost(
+      @AuthenticationPrincipal Integer userId, @PathVariable Integer postId) {
+    postService.deletePost(userId, postId);
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.ok(200, "게시글이 성공적으로 삭제되었습니다", null));
+>>>>>>> back/dev
   }
 }

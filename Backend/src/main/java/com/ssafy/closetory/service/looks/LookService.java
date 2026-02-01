@@ -11,4 +11,6 @@ public interface LookService {
   void lookRegistration(LookRegistrationRequest request, Integer userId);
 
   List<GetAllLooksResponse> getAllLooks(Integer userId);
+
+  List<GetLooksByMonthResponse> getLooksByMonthResponse(boolean isMain, Integer userId);
 }
