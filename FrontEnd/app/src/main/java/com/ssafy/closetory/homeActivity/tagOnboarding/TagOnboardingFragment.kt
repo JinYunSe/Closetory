@@ -1,9 +1,11 @@
 package com.ssafy.closetory.homeActivity.tagOnboarding
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -52,32 +54,7 @@ class TagOnboardingFragment : Fragment(R.layout.fragment_tag_onboarding) {
             }
         )
 
-        val options = listOf(
-            TagOption(1, "캐주얼"),
-            TagOption(2, "스트릿"),
-            TagOption(3, "댄디"),
-            TagOption(4, "모던"),
-            TagOption(5, "빈티지"),
-            TagOption(6, "페미닌"),
-            TagOption(7, "놈코어"),
-            TagOption(8, "미니멀리즘"),
-            TagOption(9, "맥시멀리즘"),
-            TagOption(10, "아메리칸캐주얼"),
-            TagOption(11, "레이어드"),
-            TagOption(12, "클래식"),
-            TagOption(13, "스포티"),
-            TagOption(14, "에스닉"),
-            TagOption(15, "아방가르드")
-        )
-
-        adapter = TagOnboardingAdapter(options) { selectedIds ->
-            selected = selectedIds
-            // 예: 최소 3개 이상 선택해야 활성화
-            binding.btnFinish.isEnabled = selected.size >= 3
-        }
-
         binding.rvTags.layoutManager = GridLayoutManager(requireContext(), 3)
-        binding.rvTags.adapter = adapter
 
         binding.btnFinish.isEnabled = false
         binding.btnFinish.setOnClickListener {
@@ -94,7 +71,42 @@ class TagOnboardingFragment : Fragment(R.layout.fragment_tag_onboarding) {
             viewModel.postTagOnboarding(userId, selected)
         }
 
-        // 성공 시
+        // 서버에서 태그 목록 로드
+        viewModel.loadTags()
+
+        // 태그 목록 수신
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.tagOptions.collect { options ->
+                    if (options.isEmpty()) return@collect
+
+                    // 태그 목록이 다시 들어오면 선택 상태 초기화
+                    selected = emptyList()
+                    binding.btnFinish.isEnabled = false
+
+                    adapter = TagOnboardingAdapter(options) { selectedIds ->
+                        selected = selectedIds
+                        binding.btnFinish.isEnabled = selected.size >= 3
+
+                        val color = if (selected.size >= 3) R.color.main_color else R.color.gray_500
+                        binding.btnFinish.backgroundTintList =
+                            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), color))
+                    }
+                    binding.rvTags.adapter = adapter
+                }
+            }
+        }
+
+        // 태그 목록 로드 실패
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.tagLoadFailMessage.collect { msg ->
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        // 성공 시 : 온보딩 완료 처리 + 홈 이동
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.submitSuccess.collect {
@@ -115,11 +127,12 @@ class TagOnboardingFragment : Fragment(R.layout.fragment_tag_onboarding) {
                 }
             }
         }
-        // 실패 시
+
+        // 실패 시 : 버튼 다시 활성화(선택 조건 유지)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.submitFailMessage.collect { msg ->
-                    binding.btnFinish.isEnabled = true // 실패하면 다시 활성화
+                    binding.btnFinish.isEnabled = selected.size >= 3
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                 }
             }
