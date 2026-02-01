@@ -307,9 +307,9 @@ public class PostServiceImpl implements PostService {
                     .build())
         .toList();
   }
-
+  @Override
   public CreateCommentResponse createComment(
-      Integer postId, CreateCommentRequest request, Integer userId) {
+    Integer postId, CommentRequest request, Integer userId) {
     Post post =
         postRepository
             .findById(postId)
@@ -327,5 +327,19 @@ public class PostServiceImpl implements PostService {
         .content(saved.getContent())
         .createdAt(saved.getCreatedAt())
         .build();
+  }
+
+  @Override
+  public UpdateCommentResponse updateComment(Integer postId, Integer commentId, CommentRequest request, Integer userId) {
+    Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("댓글을 찾을 수 없습니다."));
+
+    if (!comment.getPost().getId().equals(postId)) {
+      throw new BadRequestException("댓글을 찾을 수 없습니다.");
+    } else if (!comment.getUser().getId().equals(userId)) {
+      throw new ForbiddenException("댓글 수정 권한이 없습니다.");
+    }
+
+    comment.setContent(request.content());
+    return new UpdateCommentResponse(comment.getId(), comment.getContent(), LocalDateTime.now());
   }
 }

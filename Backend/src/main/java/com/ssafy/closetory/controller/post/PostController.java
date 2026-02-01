@@ -121,10 +121,24 @@ public class PostController {
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<CreateCommentResponse>> createComment(
       @PathVariable Integer postId,
-      @Valid @RequestBody CreateCommentRequest request,
+      @Valid @RequestBody CommentRequest request,
       @AuthenticationPrincipal Integer userId) {
     CreateCommentResponse response = postService.createComment(postId, request, userId);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.ok(201, "댓글이 성공적으로 생성되었습니다.", response));
+  }
+
+  @PatchMapping("/{postId}/comments/{commentId}")
+  @Operation(summary = "댓글 수정")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<UpdateCommentResponse>> updateComment(
+    @PathVariable Integer postId,
+    @PathVariable Integer commentId,
+    @Valid @RequestBody CommentRequest request,
+    @AuthenticationPrincipal Integer userId
+  ) {
+    UpdateCommentResponse response = postService.updateComment(postId,commentId,request,userId);
+    return ResponseEntity.status(HttpStatus.OK)
+      .body(ApiResponse.ok(200,"댓글이 성공적으로 수정되었습니다.", response));
   }
 }
