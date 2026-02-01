@@ -13,4 +13,6 @@ public interface LookService {
   List<GetAllLooksResponse> getAllLooks(Integer userId);
 
   List<GetLooksByMonthResponse> getLooksByMonthResponse(boolean isMain, Integer userId);
+
+  void updateLook(Integer lookId, UpdateLookRequest request, Integer userId);
 }

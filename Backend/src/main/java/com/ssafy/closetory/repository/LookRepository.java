@@ -5,6 +5,7 @@ import com.ssafy.closetory.repository.projection.TagStatsRow;
 import com.ssafy.closetory.repository.projection.Top3Row;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -58,4 +59,6 @@ public interface LookRepository extends JpaRepository<Look, Integer> {
       @Param("userId") Integer userId,
       @Param("startDate") LocalDate startDate,
       @Param("endDate") LocalDate endDate);
+
+  Optional<Look> findByUserIdAndDate(Integer userId, LocalDate date);
 }

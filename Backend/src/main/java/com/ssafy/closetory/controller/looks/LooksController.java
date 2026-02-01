@@ -65,4 +65,15 @@ public class LooksController {
     List<GetLooksByMonthResponse> result = lookService.getLooksByMonthResponse(isMain, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "월별 룩 정보 조회 성공", result));
   }
+
+  @PatchMapping("/{lookId}")
+  @Operation(summary = "룩 수정")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Void>> updateLook(
+      @PathVariable Integer lookId,
+      @RequestBody UpdateLookRequest request,
+      @AuthenticationPrincipal Integer userId) {
+    lookService.updateLook(lookId, request, userId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "룩 정보 수정 성공", null));
+  }
 }

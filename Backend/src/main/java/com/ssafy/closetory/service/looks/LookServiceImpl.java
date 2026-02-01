@@ -12,6 +12,7 @@ import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.enums.ClothesColor;
 import com.ssafy.closetory.enums.ClothesType;
 import com.ssafy.closetory.exception.common.BadRequestException;
+import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
 import com.ssafy.closetory.service.clothes.ClothesService;
@@ -403,5 +404,32 @@ public class LookServiceImpl implements LookService {
         .findFirst()
         .map(Clothes::getColor)
         .orElse(null);
+  }
+
+  @Override
+  @Transactional
+  public void updateLook(Integer lookId, UpdateLookRequest request, Integer userId) {
+    Look look =
+        lookRepository.findById(lookId).orElseThrow(() -> new NotFoundException("존재하지 않는 룩입니다."));
+
+    if (!look.getUserId().equals(userId)) {
+      throw new ForbiddenException("자신의 룩만 수정할 수 있습니다.");
+    }
+
+    lookRepository
+        .findByUserIdAndDate(userId, request.date())
+        .ifPresent(lookOnSameDate -> lookOnSameDate.setDate(null));
+
+    List<ClothesLooks> allLookItems =
+        clothesLooksRepository.findByIdLookIdIn(List.of(look.getId()));
+
+    boolean hasOthersClothes =
+        allLookItems.stream().anyMatch(cl -> !cl.getClothes().getUserId().equals(userId));
+
+    if (hasOthersClothes) {
+      throw new ForbiddenException("자신의 옷으로 구성된 룩만 수정할 수 있습니다.");
+    }
+
+    look.setDate(request.date());
   }
 }
