@@ -3,16 +3,19 @@ package com.ssafy.closetory.repository;
 import com.ssafy.closetory.entity.looks.Look;
 import com.ssafy.closetory.repository.projection.StatsRow;
 import com.ssafy.closetory.repository.projection.Top3Row;
-import java.time.LocalDate;
-import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.util.List;
+
+
 public interface LookRepository extends JpaRepository<Look, Integer> {
   List<Look> findAllByUserIdOrderByCreatedAtDesc(Integer userId);
 
-  List<Look> findAllByUserIdAndDateLessThanEqualOrderByDateAsc(Integer userId, LocalDate endDate);
+  List<Look> findAllByUserIdAndDateLessThanEqualOrderByDateAsc(
+      Integer userId, LocalDate endDate);
 
   @Query(
       value =

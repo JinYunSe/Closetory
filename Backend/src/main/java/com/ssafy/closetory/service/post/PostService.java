@@ -1,9 +1,8 @@
 package com.ssafy.closetory.service.post;
 
-import com.ssafy.closetory.dto.post.PostCreateRequest;
-import com.ssafy.closetory.dto.post.PostCreateResponse;
-import com.ssafy.closetory.dto.post.PostDetailResponse;
-import com.ssafy.closetory.dto.post.PostUpdateRequest;
+import com.ssafy.closetory.dto.post.*;
+import com.ssafy.closetory.enums.SearchFilter;
+import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface PostService {
@@ -19,4 +18,7 @@ public interface PostService {
   void createLikes(Integer postId, Integer userId);
 
   void deleteLikes(Integer postId, Integer userId);
+
+  List<PostSearchResponse> searchPosts(Integer userId, String keyword, SearchFilter filter);
+
 }
