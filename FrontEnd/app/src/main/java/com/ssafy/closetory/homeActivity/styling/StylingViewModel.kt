@@ -8,33 +8,52 @@ import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.dto.AiFittingRequest
 import com.ssafy.closetory.dto.ClosetResponse
 import com.ssafy.closetory.dto.SaveLookRequest
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-private const val TAG = "StylingViewModel_싸피"
+private const val TAG = "StylingViewModel"
+
+enum class StylingStage {
+    SELECTING, // 옷 선택 중
+    FITTING_READY, // 옷 선택 완료 → "AI 가상피팅" 가능
+    FITTING_DONE // 가상피팅 완료 → "등록" 가능
+}
 
 class StylingViewModel : ViewModel() {
+
+    private val repository = StylingRepository()
+
+    // ⭐ 현재 실행 중인 Job 추적
+    private var fittingJob: Job? = null
+    private var saveJob: Job? = null
+
+    // ⭐ 단계 관리
+    private val _stage = MutableLiveData(StylingStage.SELECTING)
+    val stage: LiveData<StylingStage> = _stage
 
     private val _aiImageUrl = MutableLiveData<String?>()
     val aiImageUrl: LiveData<String?> = _aiImageUrl
 
-    private val repository = StylingRepository()
-
-    // 의류 데이터
     private val _closetData = MutableLiveData<ClosetResponse?>()
     val closetData: LiveData<ClosetResponse?> = _closetData
 
-    // 로딩 상태
-    private val _isLoading = MutableLiveData<Boolean>()
+    private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    // 에러 메시지
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    // 성공 메시지
     private val _successMessage = MutableLiveData<String?>()
     val successMessage: LiveData<String?> = _successMessage
+
+    // ⭐ 로딩 타입 추적
+    private val _loadingType = MutableLiveData<LoadingType?>()
+    val loadingType: LiveData<LoadingType?> = _loadingType
+
+    enum class LoadingType {
+        FITTING, // 가상피팅 중
+        SAVING // 저장 중
+    }
 
     /**
      * 의류 리스트 조회
@@ -42,7 +61,6 @@ class StylingViewModel : ViewModel() {
     fun loadClothItems(onlyMine: Boolean = false) {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
                 _errorMessage.value = null
 
                 val response = repository.getClothesList(
@@ -66,90 +84,183 @@ class StylingViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e(TAG, "loadClothItems 예외 발생", e)
                 _errorMessage.value = "네트워크 오류: ${e.message}"
-            } finally {
-                _isLoading.value = false
             }
         }
     }
 
     /**
-     * 룩 저장
-     * 순서: Top, Bottom, Shoes, Outer, Accessory, Bag
+     * ⭐ AI 가상피팅 요청
+     */
+    fun requestAiFitting(clothesIdList: List<Int>) {
+        if (clothesIdList.all { it == -1 }) {
+            _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요."
+            return
+        }
+
+        // 이미 실행 중이면 무시
+        if (fittingJob?.isActive == true) {
+            Log.d(TAG, "가상피팅이 이미 실행 중입니다")
+            return
+        }
+
+        fittingJob = viewModelScope.launch {
+            _isLoading.value = true
+            _loadingType.value = LoadingType.FITTING
+            _aiImageUrl.value = null
+
+            try {
+                Log.d(TAG, "가상피팅 시작")
+
+                val request = AiFittingRequest(clothesIdList)
+                val response = repository.requestAiFitting(request)
+
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body != null && body.httpStatusCode == 201 && body.data != null) {
+                        _aiImageUrl.value = body.data.aiImageUrl
+                        _successMessage.value = body.responseMessage ?: "가상 피팅 성공!"
+                        _stage.value = StylingStage.FITTING_DONE
+
+                        Log.d(TAG, "✅ 가상피팅 성공 / url=${body.data.aiImageUrl}")
+                    } else {
+                        _errorMessage.value = body?.errorMessage ?: "가상피팅 결과가 비어있습니다."
+                        Log.e(TAG, "❌ 가상피팅 실패: Body 또는 데이터 null")
+                    }
+                } else {
+                    val errorMsg = when (response.code()) {
+                        400 -> "유효하지 않는 사용자입니다."
+                        401 -> "인증 실패 (토큰 만료 등)"
+                        else -> "가상피팅에 실패했습니다. (${response.code()})"
+                    }
+                    _errorMessage.value = errorMsg
+                    Log.e(TAG, "❌ 가상피팅 실패: $errorMsg")
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "네트워크 오류: ${e.message}"
+                Log.e(TAG, "❌ 가상피팅 예외", e)
+            } finally {
+                _isLoading.value = false
+                _loadingType.value = null
+                fittingJob = null
+                Log.d(TAG, "가상피팅 종료")
+            }
+        }
+    }
+
+    /**
+     * ⭐ 룩 저장
      */
     fun saveLook(clothesIdList: List<Int>) {
-        val aiImageUrl = _aiImageUrl.value // ViewModel이 가지고 있는 값 사용
+        if (clothesIdList.all { it == -1 }) {
+            _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요"
+            return
+        }
 
-        viewModelScope.launch {
+        val aiImageUrl = _aiImageUrl.value
+        if (aiImageUrl.isNullOrBlank()) {
+            _errorMessage.value = "AI 이미지가 없습니다. 먼저 가상 피팅을 진행해 주세요."
+            return
+        }
+
+        // 이미 실행 중이면 무시
+        if (saveJob?.isActive == true) {
+            Log.d(TAG, "저장이 이미 실행 중입니다")
+            return
+        }
+
+        saveJob = viewModelScope.launch {
+            _isLoading.value = true
+            _loadingType.value = LoadingType.SAVING
+
             try {
-                _isLoading.value = true
-                _errorMessage.value = null
-
-                if (clothesIdList.all { it == -1 }) {
-                    _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요"
-                    return@launch
-                }
-
-                if (aiImageUrl.isNullOrBlank()) {
-                    _errorMessage.value = "AI 이미지가 없습니다. 먼저 가상 피팅을 진행해 주세요."
-                    return@launch
-                }
+                Log.d(TAG, "룩 저장 시작")
 
                 val request = SaveLookRequest(
                     clothesIdList = clothesIdList.filter { it != -1 },
-                    aiImageUrl = aiImageUrl
+                    aiImageUrl = aiImageUrl,
+                    aiReason = null // 직접 코디는 AI 이유 없음
                 )
+
+                Log.d(TAG, "saveLook 요청: $request")
 
                 val response = repository.saveLook(request)
 
                 if (response.isSuccessful) {
-                    _successMessage.value = "코디가 저장되었습니다!"
+                    val body = response.body()
+                    Log.d(TAG, "✅ 룩 저장 성공: ${body?.data}")
+                    _successMessage.value = body?.responseMessage ?: "코디가 저장되었습니다!"
+
+                    // ⭐ 저장 성공 후 초기화
+                    resetAll()
                 } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e(TAG, "❌ 룩 저장 실패 - 코드: ${response.code()}, 메시지: $errorBody")
                     _errorMessage.value = "코디 저장에 실패했습니다"
                 }
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    // AI 가상피팅 결과 URL
-
-    fun requestAiFitting(clothesIdList: List<Int>) { // List<Long> → List<Int>
-
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                _errorMessage.value = null
-                _aiImageUrl.value = null
-
-                if (clothesIdList.all { it == -1 }) { // .toInt() 제거
-
-                    _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요."
-                    return@launch
-                }
-
-                val request = AiFittingRequest(clothesIdList)
-
-                val response = repository.requestAiFitting(request)
-
-                if (response.isSuccessful) {
-                    val url = response.body()?.data?.aiImageUrl
-                    _aiImageUrl.value = url
-                    _successMessage.value = "가상 피팅 성공!"
-                } else {
-                    _errorMessage.value = "가상피팅에 실패했습니다."
-                }
             } catch (e: Exception) {
+                Log.e(TAG, "❌ 룩 저장 예외", e)
                 _errorMessage.value = "네트워크 오류: ${e.message}"
             } finally {
                 _isLoading.value = false
+                _loadingType.value = null
+                saveJob = null
+                Log.d(TAG, "룩 저장 종료")
             }
         }
     }
 
-    // 가상생성페이지도 모두 내리는 코드
+    /**
+     * ⭐ 전체 초기화
+     */
+    fun resetAll() {
+        // 실행 중인 Job 취소
+        fittingJob?.cancel()
+        saveJob?.cancel()
+
+        _aiImageUrl.value = null
+        _stage.value = StylingStage.SELECTING
+        _isLoading.value = false
+        _loadingType.value = null
+
+        Log.d(TAG, "전체 초기화 완료")
+    }
+
+    /**
+     * ⭐ 옷 선택 시 단계 업데이트
+     */
+    fun updateStageAfterSelection(hasSelection: Boolean) {
+        if (hasSelection && _stage.value == StylingStage.SELECTING) {
+            _stage.value = StylingStage.FITTING_READY
+            Log.d(TAG, "단계 변경: FITTING_READY")
+        } else if (!hasSelection) {
+            _stage.value = StylingStage.SELECTING
+            Log.d(TAG, "단계 변경: SELECTING")
+        }
+    }
+
+    /**
+     * ⭐ 작업이 진행 중인지 확인
+     */
+    fun isAnyJobRunning(): Boolean = fittingJob?.isActive == true || saveJob?.isActive == true
+
     fun clearAiFittingResult() {
         _aiImageUrl.value = null
+        _stage.value = StylingStage.FITTING_READY
         Log.d(TAG, "AI 가상 피팅 결과 초기화")
+    }
+
+    fun clearErrorMessage() {
+        _errorMessage.value = null
+    }
+
+    fun clearSuccessMessage() {
+        _successMessage.value = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        fittingJob?.cancel()
+        saveJob?.cancel()
+        Log.d(TAG, "ViewModel cleared - 모든 Job 취소")
     }
 }
