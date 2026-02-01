@@ -7,9 +7,11 @@ import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
-import androidx.fragment.app.viewModels
+import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
@@ -22,7 +24,8 @@ class AiStylingFragment :
         R.layout.fragment_ai_styling
     ) {
 
-    private val viewModel: AiStylingViewModel by viewModels()
+    // ⭐ Activity 스코프로 ViewModel 공유
+    private val viewModel: AiStylingViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,6 +34,7 @@ class AiStylingFragment :
         setupObservers()
         setupListeners()
         setupVideoLoading()
+        setupBackPressHandler()
     }
 
     private fun setupUI() {
@@ -98,7 +102,7 @@ class AiStylingFragment :
     }
 
     private fun setupListeners() {
-        //  메인 버튼 (단계별 동작)
+        // ⭐ 메인 버튼 (단계별 동작)
         binding.btnRegister.setOnClickListener {
             handleMainButtonClick()
         }
@@ -110,10 +114,7 @@ class AiStylingFragment :
 
         // 초기화 버튼
         binding.btnAiStylingReset.setOnClickListener {
-            binding.layoutAiFitting.visibility = View.GONE
-            viewModel.resetAll()
-            binding.tvAiMessage.text = "AI가 여기에 답변을 해줍니다."
-            Toast.makeText(requireContext(), "초기화되었습니다.", Toast.LENGTH_SHORT).show()
+            showResetConfirmDialog()
         }
 
         // 가상피팅 팝업 닫기
@@ -132,42 +133,107 @@ class AiStylingFragment :
     }
 
     /**
-     * ⭐ 메인 버튼 클릭 처리 (단계별)
+     * ⭐ 뒤로가기 버튼 처리
      */
+    private fun setupBackPressHandler() {
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // 로딩 중이면 경고
+                if (viewModel.isAnyJobRunning()) {
+                    showLoadingWarningDialog()
+                } else {
+                    isEnabled = false
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
+    }
+
+    /**
+     * ⭐ 로딩 중 경고 다이얼로그
+     */
+    private fun showLoadingWarningDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("작업 진행 중")
+            .setMessage("AI 작업이 진행 중입니다.\n나가시면 작업이 취소됩니다.\n\n정말 나가시겠습니까?")
+            .setPositiveButton("나가기") { _, _ ->
+                viewModel.resetAll()
+                findNavController().popBackStack()
+            }
+            .setNegativeButton("계속 진행", null)
+            .show()
+    }
+
+    /**
+     * ⭐ 초기화 확인 다이얼로그
+     */
+    private fun showResetConfirmDialog() {
+        val stage = viewModel.stage.value ?: AiStylingStage.RECOMMEND
+        val isLoading = viewModel.isLoading.value == true
+
+        // 로딩 중이면 경고
+        if (isLoading) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("작업 진행 중")
+                .setMessage("AI 작업이 진행 중입니다.\n초기화하시면 작업이 취소됩니다.")
+                .setPositiveButton("초기화") { _, _ ->
+                    binding.layoutAiFitting.visibility = View.GONE
+                    viewModel.resetAll()
+                    binding.tvAiMessage.text = "AI가 여기에 답변을 해줍니다."
+                    Toast.makeText(requireContext(), "초기화되었습니다.", Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton("취소", null)
+                .show()
+            return
+        }
+
+        // 결과가 있으면 확인
+        if (stage != AiStylingStage.RECOMMEND) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("초기화 확인")
+                .setMessage("현재 작업 내용이 초기화됩니다.\n계속하시겠습니까?")
+                .setPositiveButton("초기화") { _, _ ->
+                    binding.layoutAiFitting.visibility = View.GONE
+                    viewModel.resetAll()
+                    binding.tvAiMessage.text = "AI가 여기에 답변을 해줍니다."
+                    Toast.makeText(requireContext(), "초기화되었습니다.", Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton("취소", null)
+                .show()
+        } else {
+            // 초기 상태면 바로 초기화
+            Toast.makeText(requireContext(), "이미 초기 상태입니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun handleMainButtonClick() {
         val stage = viewModel.stage.value ?: AiStylingStage.RECOMMEND
         val isLoading = viewModel.isLoading.value == true
 
-        // 로딩 중이면 무시
         if (isLoading) {
             return
         }
 
         when (stage) {
-            // 1단계: AI 코디추천 실행
             AiStylingStage.RECOMMEND -> {
                 val isPersonalized = binding.switchStyleMode.isChecked
                 val onlyMine = binding.switchSwitchOwnedOnly.isChecked
                 viewModel.requestAiRecommendation(isPersonalized, onlyMine)
             }
 
-            // 2단계: AI 가상피팅 실행
             AiStylingStage.FITTING_READY -> {
                 binding.layoutAiFitting.visibility = View.VISIBLE
                 binding.vvAiFitting.visibility = View.VISIBLE
                 viewModel.requestAiFitting()
             }
 
-            // 3단계: 등록
             AiStylingStage.FITTING_DONE -> {
                 viewModel.saveCurrentLook()
             }
         }
     }
 
-    /**
-     * ⭐ 메인 버튼 UI 업데이트
-     */
     private fun updateMainButton() {
         val stage = viewModel.stage.value ?: AiStylingStage.RECOMMEND
         val isLoading = viewModel.isLoading.value == true
@@ -175,11 +241,9 @@ class AiStylingFragment :
         when (stage) {
             AiStylingStage.RECOMMEND -> {
                 if (isLoading) {
-                    // AI 코디추천 로딩 중
-                    binding.btnRegister.text = ""
+                    binding.btnRegister.text = "AI 코디 추천 중..."
                     binding.btnRegister.isEnabled = false
                 } else {
-                    // 초기 상태
                     binding.btnRegister.text = "✨AI 코디추천"
                     binding.btnRegister.isEnabled = true
                 }
@@ -187,11 +251,9 @@ class AiStylingFragment :
 
             AiStylingStage.FITTING_READY -> {
                 if (isLoading) {
-                    // AI 가상피팅 로딩 중
-                    binding.btnRegister.text = ""
+                    binding.btnRegister.text = "AI 가상피팅 생성 중..."
                     binding.btnRegister.isEnabled = false
                 } else {
-                    // 추천 완료, 가상피팅 대기
                     binding.btnRegister.text = "✨AI 가상피팅"
                     binding.btnRegister.isEnabled = true
                 }
@@ -199,11 +261,9 @@ class AiStylingFragment :
 
             AiStylingStage.FITTING_DONE -> {
                 if (isLoading) {
-                    // 등록 중
-                    binding.btnRegister.text = ""
+                    binding.btnRegister.text = "저장 중..."
                     binding.btnRegister.isEnabled = false
                 } else {
-                    // 가상피팅 완료, 등록 대기
                     binding.btnRegister.text = "등록"
                     binding.btnRegister.isEnabled = true
                 }
@@ -211,9 +271,6 @@ class AiStylingFragment :
         }
     }
 
-    /**
-     * ⭐ VideoView 초기화 (슬롯 영역 중앙)
-     */
     private fun setupVideoLoading() {
         val videoUri = Uri.parse(
             "android.resource://${requireContext().packageName}/${R.raw.vv_ai_fitting_progress}"
@@ -224,7 +281,7 @@ class AiStylingFragment :
 
             setOnPreparedListener { mediaPlayer ->
                 mediaPlayer.isLooping = true
-                mediaPlayer.setVolume(0f, 0f) // 음소거
+                mediaPlayer.setVolume(0f, 0f)
             }
 
             setOnErrorListener { _, what, extra ->
@@ -234,20 +291,13 @@ class AiStylingFragment :
         }
     }
 
-    /**
-     * ⭐ VideoView 애니메이션 제어 (슬롯 영역 중앙)
-     */
     private fun updateVideoAnimation(isLoading: Boolean) {
         if (isLoading) {
-            // 로딩 시작: 슬롯 중앙에 비디오 표시
             binding.vvAiLoading.visibility = View.VISIBLE
             binding.vvAiLoading.start()
-            Log.d("AiStyling", "Video animation started at center")
         } else {
-            // 로딩 종료: 비디오 숨김
             binding.vvAiLoading.visibility = View.GONE
             binding.vvAiLoading.stopPlayback()
-            Log.d("AiStyling", "Video animation stopped")
         }
     }
 
