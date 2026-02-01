@@ -4,6 +4,7 @@ import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.PostEditRequest
 import com.ssafy.closetory.dto.PostEditResponse
+import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostItemResponse
 import com.ssafy.closetory.dto.PostQueryFilter
 import okhttp3.MultipartBody
@@ -23,7 +24,7 @@ class PostRepository {
         )
 
         if (res.isSuccessful) {
-            // 성공 응답
+            // 성공 응답 (ApiResponse<List<PostItemResponse>>)
             res.body() ?: ApiResponse(
                 httpStatusCode = res.code(),
                 responseMessage = null,
@@ -31,7 +32,7 @@ class PostRepository {
                 data = null
             )
         } else {
-            // 실패 응답
+            // 실패 응답 (서버가 errorBody를 ApiResponse 형태로 안 줄 수도 있어서 raw로 저장)
             val rawError = res.errorBody()?.string()
             ApiResponse(
                 httpStatusCode = res.code(),
@@ -48,6 +49,19 @@ class PostRepository {
             errorMessage = e.message ?: "네트워크 오류가 발생했습니다.",
             data = null
         )
+    }
+
+    // 게시글 상세 조회
+    suspend fun getPostDetail(postId: Int): ApiResponse<PostDetailResponse> = try {
+        val res = postService.getPostDetail(postId)
+        if (res.isSuccessful) {
+            res.body() ?: ApiResponse(res.code(), null, "응답 바디가 비어있습니다.", null)
+        } else {
+            val rawError = res.errorBody()?.string()
+            ApiResponse(res.code(), null, rawError ?: "서버 오류가 발생했습니다.", null)
+        }
+    } catch (e: Exception) {
+        ApiResponse(-1, null, e.message ?: "네트워크 오류가 발생했습니다.", null)
     }
 
     // 게시글 수정

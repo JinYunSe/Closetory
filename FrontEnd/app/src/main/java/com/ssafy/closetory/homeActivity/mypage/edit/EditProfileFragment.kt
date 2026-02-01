@@ -163,9 +163,7 @@ class EditProfileFragment :
 
         if (user.profilePhotoUrl.isNullOrBlank()) {
             binding.imgProfile.setImageResource(R.drawable.ic_profile_default)
-            binding.tvProfilePlaceholder.visibility = View.VISIBLE
         } else {
-            binding.tvProfilePlaceholder.visibility = View.GONE
             Glide.with(this)
                 .load(user.profilePhotoUrl)
                 .placeholder(R.drawable.ic_profile_default)
@@ -175,9 +173,7 @@ class EditProfileFragment :
 
         if (user.bodyPhotoUrl.isNullOrBlank()) {
             binding.imgBody.setImageResource(R.drawable.ic_body_default)
-            binding.tvBodyPlaceholder.visibility = View.VISIBLE
         } else {
-            binding.tvBodyPlaceholder.visibility = View.GONE
             Glide.with(this)
                 .load(user.bodyPhotoUrl)
                 .placeholder(R.drawable.ic_body_default)
@@ -255,13 +251,11 @@ class EditProfileFragment :
     // 프로필 사진 미리보기 반영 처리임
     private fun onProfileSelected(uri: Uri) {
         binding.imgProfile.setImageURI(uri)
-        binding.tvProfilePlaceholder.visibility = View.GONE
     }
 
     // 바디 사진 미리보기 반영 처리임
     private fun onBodySelected(uri: Uri) {
         binding.imgBody.setImageURI(uri)
-        binding.tvBodyPlaceholder.visibility = View.GONE
     }
 
     // 버튼 클릭 이벤트 및 입력 검증 처리임

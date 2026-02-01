@@ -88,6 +88,9 @@ class PostCreateFragment :
         // 옷 선택 다이얼로그 결과 수신 세팅
         setupClothesPickResultListener()
 
+        // 선택된 옷 없으면 안내 텍스트 띄우기
+        updateItemsEmptyUi()
+
         // 등록 버튼(멀티파트 전송) 세팅
         setupCreatePostButton()
 
@@ -163,6 +166,8 @@ class PostCreateFragment :
             onRemoveClickListener = { item ->
                 selectedItems.remove(item)
                 submitList(selectedItems.toList())
+                // 옷이 없으면 안내 TEXT
+                updateItemsEmptyUi()
             }
         }
 
@@ -194,6 +199,9 @@ class PostCreateFragment :
 
             selectedItems.add(PostCreateSelectedItem(clothesId, photoUrl))
             itemAdapter.submitList(selectedItems.toList())
+
+            // 옷이 없으면 안내 TEXT
+            updateItemsEmptyUi()
         }
     }
 
@@ -250,6 +258,13 @@ class PostCreateFragment :
                 else -> false
             }
         }
+    }
+
+    // 옷 선택 유무에 따라 RecyclerView / 안내 텍스트 토글
+    private fun updateItemsEmptyUi() {
+        val hasItems = selectedItems.isNotEmpty()
+        binding.rvItems.visibility = if (hasItems) View.VISIBLE else View.GONE
+        binding.tvNoClothes.visibility = if (hasItems) View.GONE else View.VISIBLE
     }
 
     // 등록 버튼 클릭 시 입력 검증 후 멀티파트로 ViewModel 호출

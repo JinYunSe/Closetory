@@ -40,6 +40,13 @@ class PostListFragment :
         requestPosts(keyword = null)
     }
 
+    private fun goToPostDetail(targetPostId: Int) {
+        val bundle = Bundle().apply {
+            putInt("postId", targetPostId)
+        }
+        findNavController().navigate(R.id.action_post_list_to_post_detail, bundle)
+    }
+
     // RecyclerView(게시글 카드 목록) 초기 세팅
     private fun setupRecyclerView() {
         postListAdapter = PostListAdapter { item ->

@@ -43,4 +43,49 @@
         android:layout_gravity="center_horizontal"
         android:text="로그아웃"
         android:backgroundTint="@color/main_color" />
+
+    <!-- 코디 저장소 헤더 + 더보기 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="코디 저장소"
+            android:textStyle="bold"
+            android:gravity="center_vertical|start"/>
+
+        <TextView
+            android:id="@+id/btn_cody_repository"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical|end"
+            android:text="더보기"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- 회원 탈퇴 버튼 -->
+    <Button
+        android:id="@+id/btnSignout"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:layout_marginTop="32dp"
+        android:layout_gravity="center_horizontal"
+        android:text="회원 탈퇴"
+        android:backgroundTint="@color/main_color" />
+
+    <!-- 아래쪽 여백 -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2" />
+
 </LinearLayout>
