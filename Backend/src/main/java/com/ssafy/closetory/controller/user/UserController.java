@@ -115,4 +115,14 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK)
         .body(ApiResponse.ok(200, "이번 달에 가장 자주 입은 옷 Top3 조회 성공", response));
   }
+
+  @GetMapping("/{userId}/stats/tag")
+  @Operation(summary = "이번 달 태그별 비중 통계 조회")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<List<StatsItem>>> getTagStats(
+      @PathVariable Integer userId, @AuthenticationPrincipal Integer authUserId) {
+    List<StatsItem> response = statsService.getTagStats(userId, authUserId);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.ok(200, "이번 달 태그별 비중 통계 조회 성공", response));
+  }
 }
