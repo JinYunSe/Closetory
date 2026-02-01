@@ -90,6 +90,15 @@ public class PostController {
       @PathVariable Integer postId, @AuthenticationPrincipal Integer userId) {
     postService.createLikes(postId, userId);
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponse.ok(200, "게시글 좋아요 생성 완료", null));
+        .body(ApiResponse.ok(201, "게시글 좋아요 생성 완료", null));
+  }
+
+  @DeleteMapping("/{postId}/like")
+  @Operation(summary = "좋아요 취소")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Void>> deleteLikes(
+      @PathVariable Integer postId, @AuthenticationPrincipal Integer userId) {
+    postService.deleteLikes(postId, userId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "게시글 좋아요 취소 완료", null));
   }
 }
