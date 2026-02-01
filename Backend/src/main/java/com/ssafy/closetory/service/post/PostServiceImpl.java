@@ -193,11 +193,13 @@ public class PostServiceImpl implements PostService {
 
   @Override
   public void createLikes(Integer postId, Integer userId) {
-    Post post = postRepository.findById(postId)
-      .orElseThrow(() -> new BadRequestException("없는 게시판 번호입니다. 다시 확인해주세요!"));
+    Post post =
+        postRepository
+            .findById(postId)
+            .orElseThrow(() -> new BadRequestException("없는 게시판 번호입니다. 다시 확인해주세요!"));
 
-    User user = userRepository.findById(userId)
-      .orElseThrow(() -> new BadRequestException("회원가입이 필요합니다!"));
+    User user =
+        userRepository.findById(userId).orElseThrow(() -> new BadRequestException("회원가입이 필요합니다!"));
 
     LikesId id = new LikesId(userId, postId);
 

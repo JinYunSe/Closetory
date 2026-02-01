@@ -87,8 +87,9 @@ public class PostController {
   @Operation(summary = "좋아요 생성")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<Void>> createLikes(
-    @PathVariable Integer postId, @AuthenticationPrincipal Integer userId) {
+      @PathVariable Integer postId, @AuthenticationPrincipal Integer userId) {
     postService.createLikes(postId, userId);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(200, "게시글 좋아요 생성 완료", null));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.ok(200, "게시글 좋아요 생성 완료", null));
   }
 }
