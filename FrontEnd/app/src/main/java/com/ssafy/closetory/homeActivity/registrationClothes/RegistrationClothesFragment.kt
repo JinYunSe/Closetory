@@ -2,6 +2,9 @@ package com.ssafy.closetory.homeActivity.registrationClothes
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +18,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.label.ImageLabel
+import com.google.mlkit.vision.label.ImageLabeling
+import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
@@ -22,6 +35,7 @@ import com.ssafy.closetory.databinding.FragmentRegistrationClothesBinding
 import com.ssafy.closetory.homeActivity.HomeActivity
 import com.ssafy.closetory.util.ClothTypeOptions
 import com.ssafy.closetory.util.ColorOptions
+import com.ssafy.closetory.util.OptionItem
 import com.ssafy.closetory.util.PermissionChecker
 import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
@@ -29,7 +43,7 @@ import com.ssafy.closetory.util.image.ImageMultipartUtil
 import java.io.File
 import kotlinx.coroutines.launch
 
-private const val TAG = "RegistrationClothesFragment"
+private const val TAG = "RegistrationClothesFragment_싸피"
 
 class RegistrationClothesFragment :
     BaseFragment<FragmentRegistrationClothesBinding>(
@@ -60,6 +74,13 @@ class RegistrationClothesFragment :
     private var originalSeasons: ArrayList<Int> = arrayListOf()
     private var originalColor: String? = null
     private var isPhotoChanged: Boolean = false
+    private var autoSelectApplied: Boolean = false
+    private var lastAutoSelectUrl: String? = null
+    private var pendingTagCodes: List<Int> = emptyList()
+
+    private val imageLabeler by lazy {
+        ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
+    }
 
     private val takePicture =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -200,6 +221,8 @@ class RegistrationClothesFragment :
 
     private fun onPhotoSelected(uri: Uri) {
         isPhotoChanged = true
+        autoSelectApplied = false
+        lastAutoSelectUrl = null
 
         Glide.with(binding.imbtnRegistrationClothes).clear(binding.imbtnRegistrationClothes)
         binding.imbtnRegistrationClothes.setImageDrawable(null)
@@ -227,6 +250,11 @@ class RegistrationClothesFragment :
         SeasonOptions.render(seasonSection, homeActivity)
         ClothTypeOptions.render(clothTypeSection, homeActivity)
         colorAdapter = ColorOptions.setup(colorSection)
+
+        if (pendingTagCodes.isNotEmpty() && TagOptions.isReady()) {
+            TagOptions.setSelectedTag(tagsSection, pendingTagCodes)
+            pendingTagCodes = emptyList()
+        }
     }
 
     private fun showPhotoPlaceholder(text: String) {
@@ -281,12 +309,38 @@ class RegistrationClothesFragment :
 
             Glide.with(binding.imbtnRegistrationClothes)
                 .load(url)
+                .listener(object : RequestListener<Drawable> {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Drawable>,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        isMaskingInProgress = false
+                        binding.btnRegistrationClothes.isEnabled = false
+                        showPhotoPlaceholder("사진 등록")
+                        showToast("이미지 로드에 실패했습니다.")
+                        return false
+                    }
+
+                    override fun onResourceReady(
+                        resource: Drawable,
+                        model: Any,
+                        target: Target<Drawable>?,
+                        dataSource: DataSource,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        isMaskingInProgress = false
+                        binding.btnRegistrationClothes.isEnabled = true
+                        hidePhotoPlaceholder()
+
+                        if (shouldAutoSelect(url)) {
+                            autoSelectFromImageUrl(url)
+                        }
+                        return false
+                    }
+                })
                 .into(binding.imbtnRegistrationClothes)
-
-            isMaskingInProgress = false
-            binding.btnRegistrationClothes.isEnabled = true
-            hidePhotoPlaceholder()
-
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -323,5 +377,184 @@ class RegistrationClothesFragment :
 
         const val MODE_CREATE = "create"
         const val MODE_EDIT = "edit"
+    }
+
+    private fun shouldAutoSelect(url: String): Boolean {
+        if (mode == MODE_EDIT && !isPhotoChanged) return false
+        if (autoSelectApplied && lastAutoSelectUrl == url) return false
+        return true
+    }
+
+    private fun autoSelectFromImageUrl(url: String) {
+        autoSelectApplied = true
+        lastAutoSelectUrl = url
+
+        Glide.with(this)
+            .asBitmap()
+            .load(url)
+            .into(object : CustomTarget<Bitmap>() {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    runAutoSelect(resource)
+                }
+
+                override fun onLoadCleared(placeholder: Drawable?) = Unit
+            })
+    }
+
+    private fun runAutoSelect(bitmap: Bitmap) {
+        val inputImage = InputImage.fromBitmap(bitmap, 0)
+        imageLabeler.process(inputImage)
+            .addOnSuccessListener { labels ->
+                val clothType = mapLabelsToClothType(labels)
+                val seasons = mapLabelsToSeasons(labels)
+                val color = detectDominantColorCode(bitmap)
+                val tagCodes = mapLabelsToTags(labels, TagOptions.items)
+
+                applyAutoSelectResult(
+                    clothType = clothType,
+                    seasons = seasons,
+                    color = color,
+                    tagCodes = tagCodes
+                )
+            }
+            .addOnFailureListener { e ->
+                Log.d(TAG, "auto select failed: ${e.message}")
+            }
+    }
+
+    private fun applyAutoSelectResult(clothType: String?, seasons: List<Int>, color: String?, tagCodes: List<Int>) {
+        Log.d(
+            TAG,
+            "autoSelect result: clothType=$clothType seasons=$seasons color=$color tagCodes=$tagCodes ready=${TagOptions.isReady()}"
+        )
+        clothType?.let { ClothTypeOptions.setClothTypeByEnglish(clothTypeSection, it) }
+        if (seasons.isNotEmpty()) SeasonOptions.setSelectedSeason(seasonSection, seasons)
+        color?.let { colorAdapter.setSelectedColor(it) }
+        if (tagCodes.isNotEmpty()) {
+            if (TagOptions.isReady()) {
+                TagOptions.setSelectedTag(tagsSection, tagCodes)
+            } else {
+                pendingTagCodes = tagCodes
+            }
+        }
+    }
+
+    private fun mapLabelsToClothType(labels: List<ImageLabel>): String? {
+        val text = labels.joinToString(" ") { it.text.lowercase() }
+        return when {
+            listOf("shoe", "sneaker", "boot", "heel", "sandal").any { text.contains(it) } -> "SHOES"
+            listOf("bag", "backpack", "handbag", "tote").any { text.contains(it) } -> "BAG"
+            listOf("hat", "cap", "beanie", "scarf", "belt", "accessory").any { text.contains(it) } -> "ACCESSORY"
+            listOf("coat", "jacket", "outerwear", "parka", "cardigan", "hoodie").any { text.contains(it) } -> "OUTER"
+            listOf("pants", "jeans", "trousers", "skirt", "shorts").any { text.contains(it) } -> "BOTTOM"
+            listOf("shirt", "t-shirt", "tee", "blouse", "top", "sweater").any { text.contains(it) } -> "TOP"
+            else -> null
+        }
+    }
+
+    private fun mapLabelsToSeasons(labels: List<ImageLabel>): List<Int> {
+        val text = labels.joinToString(" ") { it.text.lowercase() }
+        val seasons = mutableSetOf<Int>()
+        if (listOf("coat", "jacket", "parka", "sweater", "hoodie", "wool").any { text.contains(it) }) {
+            seasons.add(SeasonOptions.toCode("WINTER") ?: 4)
+            seasons.add(SeasonOptions.toCode("FALL") ?: 3)
+        }
+        if (listOf("t-shirt", "tee", "shorts", "sleeveless", "tank", "swim").any { text.contains(it) }) {
+            seasons.add(SeasonOptions.toCode("SUMMER") ?: 2)
+        }
+        if (seasons.isEmpty()) {
+            seasons.add(SeasonOptions.toCode("SPRING") ?: 1)
+            seasons.add(SeasonOptions.toCode("FALL") ?: 3)
+        }
+        return seasons.toList()
+    }
+
+    private fun mapLabelsToTags(labels: List<ImageLabel>, items: List<OptionItem>): List<Int> {
+        if (items.isEmpty()) return emptyList()
+
+        val labelText = labels.joinToString(" ") { it.text.lowercase() }
+        Log.d(TAG, "tag labelText=$labelText items=${items.map { it.codeKorean }}")
+        val tagKeywordMap = mapOf(
+            "일상" to listOf("daily", "everyday", "casual"),
+            "캐주얼" to listOf("casual", "relaxed"),
+            "출근" to listOf("office", "business", "formal", "suit"),
+            "트렌디" to listOf("trendy", "fashion", "stylish"),
+            "밝음" to listOf("bright", "light", "colorful"),
+            "남성스러움" to listOf("male", "man", "masculine"),
+            "여성스러움" to listOf("female", "woman", "feminine", "dress", "skirt"),
+            "데이트" to listOf("date", "romantic"),
+            "운동" to listOf("sport", "sports", "athletic", "running", "fitness", "gym"),
+            "시크" to listOf("chic", "sleek", "minimal"),
+            "빈티지" to listOf("vintage", "retro"),
+            "격식있는" to listOf("formal", "suit", "business"),
+            "유니크" to listOf("unique", "quirky", "distinct"),
+            "귀여움" to listOf("cute", "kawaii", "adorable"),
+            "여행" to listOf("travel", "vacation", "outdoor"),
+            "화려함" to listOf("glam", "glamorous", "flashy", "luxury")
+        )
+
+        val matches = items.filter { item ->
+            val keywords = tagKeywordMap[item.codeKorean.trim()] ?: return@filter false
+            keywords.any { key -> labelText.contains(key) }
+        }.map { it.code }.distinct().toMutableList()
+
+        // 기본 의류 라벨에 대한 보정 매핑
+        if (matches.isEmpty()) {
+            val fallbackMap = mapOf(
+                "캐주얼" to listOf("denim", "jeans", "shorts", "t-shirt", "tee"),
+                "일상" to listOf("jacket", "shirt", "top", "pants"),
+                "시크" to listOf("jacket", "coat", "leather"),
+                "운동" to listOf("shorts", "sports", "athletic", "running", "gym")
+            )
+
+            fallbackMap.forEach { (tagName, keys) ->
+                if (keys.any { key -> labelText.contains(key) }) {
+                    items.firstOrNull { it.codeKorean == tagName }?.let { matches.add(it.code) }
+                }
+            }
+        }
+
+        return matches.distinct()
+    }
+
+    private fun detectDominantColorCode(bitmap: Bitmap): String? {
+        val scaled = Bitmap.createScaledBitmap(bitmap, 64, 64, true)
+        var sumR = 0L
+        var sumG = 0L
+        var sumB = 0L
+        var count = 0L
+
+        for (y in 0 until scaled.height) {
+            for (x in 0 until scaled.width) {
+                val pixel = scaled.getPixel(x, y)
+                val alpha = Color.alpha(pixel)
+                if (alpha < 128) continue
+                sumR += Color.red(pixel)
+                sumG += Color.green(pixel)
+                sumB += Color.blue(pixel)
+                count++
+            }
+        }
+        if (count == 0L) return null
+
+        val avgR = (sumR / count).toInt()
+        val avgG = (sumG / count).toInt()
+        val avgB = (sumB / count).toInt()
+
+        val candidates = ColorOptions.items.filter { it.codeEnglish != "OTHER" }
+        var best: String? = null
+        var bestDist = Int.MAX_VALUE
+
+        for (c in candidates) {
+            val cr = Color.red(c.argb)
+            val cg = Color.green(c.argb)
+            val cb = Color.blue(c.argb)
+            val dist = (avgR - cr) * (avgR - cr) + (avgG - cg) * (avgG - cg) + (avgB - cb) * (avgB - cb)
+            if (dist < bestDist) {
+                bestDist = dist
+                best = c.codeEnglish
+            }
+        }
+        return best
     }
 }

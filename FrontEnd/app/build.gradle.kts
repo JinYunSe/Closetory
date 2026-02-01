@@ -100,6 +100,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.fragment)
+    implementation(libs.image.labeling.default.common)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -130,4 +131,7 @@ dependencies {
 
     // 사진 리사이즈/압축
     implementation("androidx.exifinterface:exifinterface:1.3.7")
+
+    // On-device image labeling (ML Kit)
+    implementation("com.google.mlkit:image-labeling:17.0.8")
 }
