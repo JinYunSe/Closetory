@@ -37,6 +37,7 @@ class MyPageFragment :
 
     // 마이페이지 ViewModel
     private val myPageViewModel: MyPageViewModel by viewModels()
+    private val signoutViewModel: SignoutViewModel by viewModels()
 
     // 비밀번호 확인 다이얼로그 변수
     private var passwordDialog: AlertDialog? = null
@@ -133,6 +134,7 @@ class MyPageFragment :
         viewLifecycleOwner.lifecycleScope.launch {
             myPageViewModel.userProfile.collect { user ->
                 editProfileInfoResponse = user
+                bindUserProfile(user)
                 Log.d(TAG, "userProfile = $user")
             }
         }

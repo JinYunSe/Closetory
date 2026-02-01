@@ -36,15 +36,19 @@
                 />
 
             <!-- 프로필 동그라미 -->
-            <FrameLayout
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/profileCircle"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginStart="16dp"
-                android:background="@drawable/bg_circle_gray"
                 app:layout_constraintTop_toBottomOf="@id/tvMyPageTitle"
-                app:layout_constraintStart_toStartOf="parent">
+                app:layout_constraintStart_toStartOf="parent"
+                app:cardCornerRadius="60dp"
+                app:cardUseCompatPadding="false"
+                app:cardPreventCornerOverlap="true"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:strokeWidth="0dp">
 
                 <ImageView
                     android:id="@+id/ivProfile"
@@ -53,7 +57,7 @@
                     android:src="@drawable/ic_profile_default"
                     android:scaleType="centerCrop" />
 
-            </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- 전신 사진 -->
             <FrameLayout
@@ -323,7 +327,7 @@
 
             <!-- 하단 버튼 -->
             <Button
-                android:id="@+id/btnWithdraw"
+                android:id="@+id/btnSignout"
                 android:layout_width="0dp"
                 android:layout_height="52dp"
                 android:layout_marginTop="16dp"
@@ -345,7 +349,7 @@
                 android:text="로그아웃"
                 android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/chartColorContainer"
-                app:layout_constraintStart_toEndOf="@id/btnWithdraw"
+                app:layout_constraintStart_toEndOf="@id/btnSignout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"/>
 
