@@ -1,6 +1,7 @@
 package com.ssafy.closetory.repository;
 
 import com.ssafy.closetory.entity.looks.Look;
+import com.ssafy.closetory.repository.projection.TagStatsRow;
 import com.ssafy.closetory.repository.projection.Top3Row;
 import java.time.LocalDate;
 import java.util.List;
@@ -30,6 +31,28 @@ public interface LookRepository extends JpaRepository<Look, Integer> {
   """,
       nativeQuery = true)
   List<Top3Row> findTop3ThisMonth(
+      @Param("userId") Integer userId,
+      @Param("startDate") LocalDate startDate,
+      @Param("endDate") LocalDate endDate);
+
+  @Query(
+      value =
+          """
+    SELECT
+      t.tag_name AS tagName,
+      ROUND(COUNT(*) / SUM(COUNT(*)) OVER () * 100, 1) AS percentage
+    FROM looks l
+    JOIN clothes_looks cl ON cl.look_id = l.id
+    JOIN tags_clothes tc  ON tc.clothes_id = cl.clothes_id
+    JOIN tags t           ON t.id = tc.tag_id
+    WHERE l.user_id = :userId
+      AND l.date >= :startDate
+      AND l.date <  :endDate
+    GROUP BY t.id, t.tag_name
+    ORDER BY COUNT(*) DESC, t.id
+    """,
+      nativeQuery = true)
+  List<TagStatsRow> findTagStatsThisMonth(
       @Param("userId") Integer userId,
       @Param("startDate") LocalDate startDate,
       @Param("endDate") LocalDate endDate);

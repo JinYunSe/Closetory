@@ -1,8 +1,10 @@
 package com.ssafy.closetory.service.user;
 
+import com.ssafy.closetory.dto.user.StatsItem;
 import com.ssafy.closetory.dto.user.Top3Item;
 import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.repository.LookRepository;
+import com.ssafy.closetory.repository.projection.TagStatsRow;
 import com.ssafy.closetory.repository.projection.Top3Row;
 import java.time.LocalDate;
 import java.util.List;
@@ -32,5 +34,19 @@ public class StatsServiceImpl implements StatsService {
     return rows.stream()
         .map(r -> new Top3Item(r.getClothesId(), r.getPhotoUrl(), rank[0]++, r.getUsageCount()))
         .toList();
+  }
+
+  @Override
+  public List<StatsItem> getTagStats(Integer userId, Integer authUserId) {
+    if (!userId.equals(authUserId)) {
+      throw new ForbiddenException("자신의 통계만 볼 수 있습니다.");
+    }
+
+    LocalDate start = LocalDate.now().withDayOfMonth(1);
+    LocalDate end = start.plusMonths(1);
+
+    List<TagStatsRow> rows = lookRepository.findTagStatsThisMonth(userId, start, end);
+
+    return rows.stream().map(r -> new StatsItem(r.getTagName(), r.getPercentage())).toList();
   }
 }
