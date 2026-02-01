@@ -1,5 +1,6 @@
 package com.ssafy.closetory.service.user;
 
+import com.ssafy.closetory.dto.user.StatsItem;
 import com.ssafy.closetory.dto.user.ColorStatsItem;
 import com.ssafy.closetory.dto.user.TagStatsItem;
 import com.ssafy.closetory.dto.user.Top3Item;
