@@ -29,7 +29,7 @@ import com.ssafy.closetory.util.image.ImageMultipartUtil
 import java.io.File
 import kotlinx.coroutines.launch
 
-private const val TAG = "RegistrationClothFragme_싸피"
+private const val TAG = "RegistrationClothesFragment"
 
 class RegistrationClothesFragment :
     BaseFragment<FragmentRegistrationClothesBinding>(
@@ -52,7 +52,6 @@ class RegistrationClothesFragment :
 
     private var isMaskingInProgress: Boolean = false
 
-    // 옷 수정을 위해 필요한 자료
     private var mode: String = MODE_CREATE
     private var clothesId: Int = -1
     private var originalPhotoUrl: String? = null
@@ -94,8 +93,15 @@ class RegistrationClothesFragment :
 
         setupOptionSection()
 
-        // 최초 진입: 사진 등록 안내 + 가이드 표시
-        showPhotoPlaceholder("사진 등록", showGuide = true)
+        binding.btnPhotoGuide.setOnClickListener {
+            AlertDialog.Builder(homeActivity)
+                .setTitle("촬영 도움말")
+                .setMessage("옷이 잘 나오도록 주변을 정리한 뒤 촬영해주세요.")
+                .setPositiveButton("확인", null)
+                .show()
+        }
+
+        showPhotoPlaceholder("사진 등록")
         binding.btnRegistrationClothes.isEnabled = false
 
         if (mode == MODE_EDIT) {
@@ -128,7 +134,7 @@ class RegistrationClothesFragment :
                 if (mode == MODE_EDIT && !isPhotoChanged) originalPhotoUrl else maskedUrl
 
             if (finalPhotoUrl.isNullOrBlank()) {
-                showToast("사진이 필요 합니다.")
+                showToast("사진이 필요합니다.")
                 return@setOnClickListener
             }
             if (tags.isEmpty()) {
@@ -149,10 +155,10 @@ class RegistrationClothesFragment :
             }
 
             if (mode == MODE_EDIT) {
-                Log.d(TAG, "옷 등록 동작")
+                Log.d(TAG, "수정 동작")
                 viewModel.patchCloth(clothesId, finalPhotoUrl, tags, clothesType, seasons, color)
             } else {
-                Log.d(TAG, "옷 등록 동작")
+                Log.d(TAG, "등록 동작")
                 viewModel.registrationCloth(finalPhotoUrl, tags, clothesType, seasons, color)
             }
         }
@@ -181,12 +187,8 @@ class RegistrationClothesFragment :
 
             hidePhotoPlaceholder()
             binding.btnRegistrationClothes.isEnabled = true
-
-            // 수정 모드에서 기존 사진이 있으면 가이드는 기본 숨김 처리
-            binding.tvTagsGuide.visibility = View.GONE
         } else {
-            // 사진이 없으면 안내 + 가이드 표시
-            showPhotoPlaceholder("사진 등록", showGuide = true)
+            showPhotoPlaceholder("사진 등록")
             binding.btnRegistrationClothes.isEnabled = false
         }
 
@@ -199,17 +201,15 @@ class RegistrationClothesFragment :
     private fun onPhotoSelected(uri: Uri) {
         isPhotoChanged = true
 
-        // 이전 표시 이미지 제거
         Glide.with(binding.imbtnRegistrationClothes).clear(binding.imbtnRegistrationClothes)
         binding.imbtnRegistrationClothes.setImageDrawable(null)
 
-        // 배경 제거 중 상태로 전환
         isMaskingInProgress = true
         binding.btnRegistrationClothes.isEnabled = false
 
         viewModel.clearMaskedUrl()
 
-        showPhotoPlaceholder("배경 제거 중...", showGuide = false)
+        showPhotoPlaceholder("배경 제거 중...")
 
         val clothesPhoto = ImageMultipartUtil.uriToCompressedMultipart(
             context = homeActivity,
@@ -229,10 +229,9 @@ class RegistrationClothesFragment :
         colorAdapter = ColorOptions.setup(colorSection)
     }
 
-    private fun showPhotoPlaceholder(text: String, showGuide: Boolean = true) {
+    private fun showPhotoPlaceholder(text: String) {
         binding.tvPhotoPlaceholder.text = text
         binding.tvPhotoPlaceholder.visibility = View.VISIBLE
-        binding.tvTagsGuide.visibility = if (showGuide) View.VISIBLE else View.GONE
     }
 
     private fun hidePhotoPlaceholder() {
@@ -277,7 +276,6 @@ class RegistrationClothesFragment :
 
     @SuppressLint("CheckResult")
     private fun registerObserve() {
-        // 마스킹 URL 수신
         viewModel.maskedImageUrl.observe(viewLifecycleOwner) { url ->
             if (url.isNullOrBlank()) return@observe
 
@@ -289,18 +287,13 @@ class RegistrationClothesFragment :
             binding.btnRegistrationClothes.isEnabled = true
             hidePhotoPlaceholder()
 
-            // 마스킹 완료 후 가이드는 숨김 유지(원하면 여기서 VISIBLE로 바꿔도 됨)
-            binding.tvTagsGuide.visibility = View.GONE
         }
 
-        // 토스트
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.message.collect { msg ->
                 if (!msg.isNullOrBlank()) showToast(msg)
             }
         }
-
-        // 등록/수정 성공 시 상세 화면으로 이동
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.navigateToDetail.collect { id ->
                 navigateToClothesDetail(id)
