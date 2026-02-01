@@ -220,18 +220,16 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
     }
 
     // 서버 리스트 → 날짜별 (상의색, 하의색) 변환
-//    private fun buildDayColorMap(list: List<StylingResponse>): Map<String, Pair<Int?, Int?>> {
-//        return list
-//            .asSequence()
-//            .filter { !it.date.isNullOrBlank() }     // ✅ null/blank 제거
-//            .groupBy { it.date!! }                   // ✅ 키를 String으로 확정
-//            .mapValues { (_, items) ->
-//                val item = items.lastOrNull()
-//                val top = ColorOptions.englishToArgb(item?.topColor)
-//                val bottom = ColorOptions.englishToArgb(item?.bottomColor)
-//                top to bottom
-//            }
-//    }
+    private fun buildDayColorMap(list: List<StylingResponse>): Map<String, Pair<Int?, Int?>> = list
+        .asSequence()
+        .filter { !it.date.isNullOrBlank() }
+        .groupBy { it.date!! }
+        .mapValues { (_, items) ->
+            val item = items.lastOrNull()
+            val top = ColorOptions.englishToArgb(item?.topColor)
+            val bottom = ColorOptions.englishToArgb(item?.bottomColor)
+            top to bottom
+        }
 
     private fun keyOf(d: Day): String {
         val m = d.month0 + 1
