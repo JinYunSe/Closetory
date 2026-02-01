@@ -21,4 +21,5 @@ public interface PostService {
 
   List<PostSearchResponse> searchPosts(Integer userId, String keyword, SearchFilter filter);
 
+  CreateCommentResponse createComment(Integer postId, CreateCommentRequest request, Integer userId);
 }

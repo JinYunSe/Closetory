@@ -1,8 +1,19 @@
 package com.ssafy.closetory.entity.post;
 
+import com.ssafy.closetory.entity.user.User;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+@Getter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "comments")
 public class Comment {
 
@@ -10,12 +21,21 @@ public class Comment {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @Column(nullable = false)
+  @Column(name = "content", nullable = false)
   private String content;
 
-  @Column(name = "post_id", nullable = false)
-  private Integer postId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "post_id", nullable = false)
+  private Post post;
 
-  @Column(name = "user_id", nullable = false)
-  private Integer userId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
+
+  @CreationTimestamp
+  @Column(name = "created_at")
+  private LocalDateTime createdAt;
+
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
 }

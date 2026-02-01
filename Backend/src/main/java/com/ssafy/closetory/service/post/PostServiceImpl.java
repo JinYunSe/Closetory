@@ -1,6 +1,7 @@
 package com.ssafy.closetory.service.post;
 
 import com.ssafy.closetory.dto.post.*;
+import com.ssafy.closetory.entity.post.Comment;
 import com.ssafy.closetory.entity.post.Likes;
 import com.ssafy.closetory.entity.post.LikesId;
 import com.ssafy.closetory.entity.post.Post;
@@ -243,66 +244,88 @@ public class PostServiceImpl implements PostService {
     List<Post> posts = postRepository.findLatestPosts(keyword);
 
     return posts.stream()
-      .map(
-        post ->
-          PostSearchResponse.builder()
-            .postId(post.getId())
-            .title(post.getTitle())
-            .photoUrl(post.getPhotoUrl())
-            .views(post.getViews())
-            .likes(likesRepository.countByPostId(post.getId()))
-            .comments(commentRepository.countByPostId(post.getId()))
-            .build())
-      .toList();
+        .map(
+            post ->
+                PostSearchResponse.builder()
+                    .postId(post.getId())
+                    .title(post.getTitle())
+                    .photoUrl(post.getPhotoUrl())
+                    .views(post.getViews())
+                    .likes(likesRepository.countByPostId(post.getId()))
+                    .comments(commentRepository.countByPostId(post.getId()))
+                    .build())
+        .toList();
   }
 
   private List<PostSearchResponse> searchLikedPosts(Integer userId, String keyword) {
     List<Post> posts = postRepository.findLikedPosts(userId, keyword);
 
     return posts.stream()
-      .map(
-        post ->
-          PostSearchResponse.builder()
-            .postId(post.getId())
-            .title(post.getTitle())
-            .photoUrl(post.getPhotoUrl())
-            .views(post.getViews())
-            .likes(likesRepository.countByPostId(post.getId()))
-            .comments(commentRepository.countByPostId(post.getId()))
-            .build())
-      .toList();
+        .map(
+            post ->
+                PostSearchResponse.builder()
+                    .postId(post.getId())
+                    .title(post.getTitle())
+                    .photoUrl(post.getPhotoUrl())
+                    .views(post.getViews())
+                    .likes(likesRepository.countByPostId(post.getId()))
+                    .comments(commentRepository.countByPostId(post.getId()))
+                    .build())
+        .toList();
   }
+
   private List<PostSearchResponse> searchWrittenPosts(Integer userId, String keyword) {
     List<Post> posts = postRepository.findWrittenPosts(userId, keyword);
 
     return posts.stream()
-      .map(
-        post ->
-          PostSearchResponse.builder()
-            .postId(post.getId())
-            .title(post.getTitle())
-            .photoUrl(post.getPhotoUrl())
-            .views(post.getViews())
-            .likes(likesRepository.countByPostId(post.getId()))
-            .comments(commentRepository.countByPostId(post.getId()))
-            .build())
-      .toList();
+        .map(
+            post ->
+                PostSearchResponse.builder()
+                    .postId(post.getId())
+                    .title(post.getTitle())
+                    .photoUrl(post.getPhotoUrl())
+                    .views(post.getViews())
+                    .likes(likesRepository.countByPostId(post.getId()))
+                    .comments(commentRepository.countByPostId(post.getId()))
+                    .build())
+        .toList();
   }
 
   private List<PostSearchResponse> searchPopularPosts(String keyword) {
     List<Post> posts = postRepository.findPopularPosts(keyword);
 
     return posts.stream()
-      .map(
-        post ->
-          PostSearchResponse.builder()
-            .postId(post.getId())
-            .title(post.getTitle())
-            .photoUrl(post.getPhotoUrl())
-            .views(post.getViews())
-            .likes(likesRepository.countByPostId(post.getId()))
-            .comments(commentRepository.countByPostId(post.getId()))
-            .build())
-      .toList();
+        .map(
+            post ->
+                PostSearchResponse.builder()
+                    .postId(post.getId())
+                    .title(post.getTitle())
+                    .photoUrl(post.getPhotoUrl())
+                    .views(post.getViews())
+                    .likes(likesRepository.countByPostId(post.getId()))
+                    .comments(commentRepository.countByPostId(post.getId()))
+                    .build())
+        .toList();
+  }
+
+  public CreateCommentResponse createComment(
+      Integer postId, CreateCommentRequest request, Integer userId) {
+    Post post =
+        postRepository
+            .findById(postId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+
+    User user =
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("회원가입이 필요합니다!"));
+
+    Comment newComment = Comment.builder().content(request.content()).post(post).user(user).build();
+
+    Comment saved = commentRepository.save(newComment);
+
+    return CreateCommentResponse.builder()
+        .commentId(saved.getId())
+        .content(saved.getContent())
+        .createdAt(saved.getCreatedAt())
+        .build();
   }
 }

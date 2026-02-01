@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -113,5 +114,17 @@ public class PostController {
         .body(
             ApiResponse.ok(
                 200, "게시글 검색 결과 조회 성공", postService.searchPosts(userId, keyword, searchfilter)));
+  }
+
+  @PostMapping("/{postId}/comments")
+  @Operation(summary = "댓글 생성")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<CreateCommentResponse>> createComment(
+      @PathVariable Integer postId,
+      @Valid @RequestBody CreateCommentRequest request,
+      @AuthenticationPrincipal Integer userId) {
+    CreateCommentResponse response = postService.createComment(postId, request, userId);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.ok(201, "댓글이 성공적으로 생성되었습니다.", response));
   }
 }
