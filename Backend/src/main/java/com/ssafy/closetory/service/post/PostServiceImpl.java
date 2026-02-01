@@ -4,18 +4,21 @@ import com.ssafy.closetory.dto.post.*;
 import com.ssafy.closetory.entity.post.Post;
 import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.exception.common.BadRequestException;
+import com.ssafy.closetory.exception.common.ConflictException;
+import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.ClothesRepository;
 import com.ssafy.closetory.repository.PostRepository;
 import com.ssafy.closetory.repository.SaveRepository;
 import com.ssafy.closetory.repository.UserRepository;
 import com.ssafy.closetory.service.s3.S3ImageService;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -169,5 +172,23 @@ public class PostServiceImpl implements PostService {
         user.getId(),
         user.getNickname(),
         user.getProfilePhotoUrl());
+  }
+
+  @Override
+  @Transactional
+  public void deletePost(Integer userId, Integer postId) {
+
+    Post post =
+        postRepository.findById(postId).orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+
+    if (!post.getUserId().equals(userId)) {
+      throw new ForbiddenException("해당 게시글에 대한 권한이 없습니다.");
+    }
+
+    if (post.getDeletedAt() != null) {
+      throw new ConflictException("이미 삭제된 게시글입니다.");
+    }
+
+    post.setDeletedAt(LocalDateTime.now());
   }
 }
