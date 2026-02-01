@@ -25,12 +25,13 @@
             android:gravity="end"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
+            android:paddingTop="16dp"
             >
 
             <ImageButton
                 android:id="@+id/ibtn_edit"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_marginEnd="4dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="수정"
@@ -39,8 +40,8 @@
 
             <ImageButton
                 android:id="@+id/ibtn_delete"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="16dp"
                 android:background="@android:color/transparent"
@@ -248,7 +249,7 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="18dp"
                 android:layout_marginEnd="16dp"
-                android:text="태그 기반 추천"
+                android:text="함께 입기 좋은 옷"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 

@@ -1,13 +1,15 @@
 package com.ssafy.closetory.homeActivity.aiStyling
 
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.RelativeSizeSpan
+import android.util.Log
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentAiStylingBinding
@@ -19,26 +21,188 @@ class AiStylingFragment :
         R.layout.fragment_ai_styling
     ) {
 
+    private val viewModel: AiStylingViewModel by viewModels()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 직접 코디 생성 버튼 클릭 시 StylingFragment로 이동
-        // HomeActivity에서 이미 R.id.navigation_styling를 StylingFragment와 연결해두었기 때문에 이 코드를 사용합니다.
+        setupUI()
+        setupObservers()
+        setupListeners()
+        applyStageUi(AiStylingStage.RECOMMEND)
+    }
+
+    private fun setupUI() {
+        binding.tvStyleMode.text = if (binding.switchStyleMode.isChecked) "추구" else "어울림"
+        binding.tvSwitchOwnedOnly.text = if (binding.switchSwitchOwnedOnly.isChecked) "내 옷만" else "모든 옷"
+        binding.tvAiMessage.text = "AI가 여기에 답변을 해줍니다."
+        setupMouseWheelScroll()
+    }
+
+    private fun setupObservers() {
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.btnAiVirtualfitting.isEnabled = !isLoading
+            binding.btnRegister.isEnabled = !isLoading && viewModel.stage.value == AiStylingStage.FITTING_DONE
+        }
+
+        viewModel.stage.observe(viewLifecycleOwner) { stage ->
+            applyStageUi(stage)
+        }
+
+        viewModel.aiReason.observe(viewLifecycleOwner) { reason ->
+            reason?.let { binding.tvAiMessage.text = it }
+        }
+
+        viewModel.aiCoordination.observe(viewLifecycleOwner) { coordination ->
+            if (coordination == null) {
+                clearSlots()
+                return@observe
+            }
+
+            Log.d("AiStyling", "AI 추천 수신: ${coordination.clothesIdList.size}개")
+            fillSlots(coordination)
+        }
+
+        viewModel.aiImageUrl.observe(viewLifecycleOwner) { url ->
+            if (url.isNullOrBlank()) return@observe
+
+            binding.layoutAiFitting.visibility = View.VISIBLE
+            binding.progressAiFitting.visibility = View.GONE
+
+            Glide.with(requireContext())
+                .load(url)
+                .into(binding.ivAiFittingResult)
+        }
+
+        viewModel.successMessage.observe(viewLifecycleOwner) { message ->
+            message?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.clearSuccessMessage()
+            }
+        }
+
+        viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let {
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                viewModel.clearErrorMessage()
+            }
+        }
+    }
+
+    private fun setupListeners() {
+        binding.btnAiVirtualfitting.setOnClickListener {
+            when (viewModel.stage.value ?: AiStylingStage.RECOMMEND) {
+                AiStylingStage.RECOMMEND -> requestAiRecommendation()
+
+                AiStylingStage.FITTING_READY -> {
+                    binding.layoutAiFitting.visibility = View.VISIBLE
+                    binding.progressAiFitting.visibility = View.VISIBLE
+                    viewModel.requestAiFitting()
+                }
+
+                AiStylingStage.FITTING_DONE -> {
+                    Toast.makeText(requireContext(), "이미 가상피팅이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
         binding.btnMakeoutfit.setOnClickListener {
             findNavController().navigate(R.id.navigation_styling)
         }
-        val text = SpannableString("AI 룩 생성 ")
 
-        text.setSpan(
-            RelativeSizeSpan(1.6f), // ↺만 크게
-            text.length - 1,
-            text.length,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+        binding.btnRegister.setOnClickListener {
+            if (viewModel.stage.value != AiStylingStage.FITTING_DONE) {
+                Toast.makeText(requireContext(), "가상피팅 완료 후 등록할 수 있습니다.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            viewModel.saveCurrentLook()
+        }
 
-        binding.btnAiMakeoutfit.text = text
+        binding.btnAiStylingReset.setOnClickListener {
+            binding.layoutAiFitting.visibility = View.GONE
+            viewModel.resetAll()
+            binding.tvAiMessage.text = "AI가 여기에 답변을 해줍니다."
+            Toast.makeText(requireContext(), "초기화되었습니다.", Toast.LENGTH_SHORT).show()
+        }
 
-        // --- 기존 마우스 휠 스크롤 로직 유지 ---
+        binding.btnCloseAiFitting.setOnClickListener {
+            binding.layoutAiFitting.visibility = View.GONE
+        }
+
+        binding.switchStyleMode.setOnCheckedChangeListener { _, isChecked ->
+            binding.tvStyleMode.text = if (isChecked) "추구" else "어울림"
+        }
+
+        binding.switchSwitchOwnedOnly.setOnCheckedChangeListener { _, isChecked ->
+            binding.tvSwitchOwnedOnly.text = if (isChecked) "내 옷만" else "모든 옷"
+        }
+    }
+
+    private fun applyStageUi(stage: AiStylingStage) {
+        val loading = viewModel.isLoading.value == true
+
+        when (stage) {
+            AiStylingStage.RECOMMEND -> {
+                binding.btnAiVirtualfitting.text = if (loading) "생성 중..." else "✨AI\n코디생성"
+                binding.btnRegister.isEnabled = false
+                binding.btnRegister.alpha = 0.4f
+                binding.layoutAiFitting.visibility = View.GONE
+            }
+
+            AiStylingStage.FITTING_READY -> {
+                binding.btnAiVirtualfitting.text = if (loading) "생성 중..." else "✨AI\n가상생성"
+                binding.btnRegister.isEnabled = false
+                binding.btnRegister.alpha = 0.4f
+            }
+
+            AiStylingStage.FITTING_DONE -> {
+                binding.btnAiVirtualfitting.text = "✨AI\n가상생성"
+                binding.btnRegister.isEnabled = !loading
+                binding.btnRegister.alpha = if (loading) 0.4f else 1.0f
+            }
+        }
+    }
+
+    private fun requestAiRecommendation() {
+        val isPersonalized = binding.switchStyleMode.isChecked
+        val onlyMine = binding.switchSwitchOwnedOnly.isChecked
+        viewModel.requestAiRecommendation(isPersonalized, onlyMine)
+    }
+
+    private fun fillSlots(coordination: com.ssafy.closetory.dto.AiCoordinationResponse) {
+        val map = coordination.clothesIdList.associateBy { it.clothesType.uppercase() }
+
+        setSlot(binding.ivSlotTop, map["TOP"]?.photoUrl)
+        setSlot(binding.ivSlotBottom, map["BOTTOM"]?.photoUrl)
+        setSlot(binding.ivSlotShoes, map["SHOES"]?.photoUrl)
+        setSlot(binding.ivSlotOuter, map["OUTER"]?.photoUrl)
+        setSlot(binding.ivSlotAcc, map["ACCESSORIES"]?.photoUrl)
+        setSlot(binding.ivSlotBag, map["BAG"]?.photoUrl)
+    }
+
+    private fun setSlot(imageView: android.widget.ImageView, url: String?) {
+        if (url.isNullOrBlank()) {
+            imageView.setImageDrawable(null)
+            imageView.setBackgroundResource(R.drawable.bg_slot_empty)
+            return
+        }
+
+        imageView.background = null
+        Glide.with(requireContext())
+            .load(url)
+            .into(imageView)
+    }
+
+    private fun clearSlots() {
+        setSlot(binding.ivSlotTop, null)
+        setSlot(binding.ivSlotBottom, null)
+        setSlot(binding.ivSlotShoes, null)
+        setSlot(binding.ivSlotOuter, null)
+        setSlot(binding.ivSlotAcc, null)
+        setSlot(binding.ivSlotBag, null)
+    }
+
+    private fun setupMouseWheelScroll() {
         binding.root.isFocusableInTouchMode = true
         binding.root.requestFocus()
 
@@ -65,38 +229,5 @@ class AiStylingFragment :
             v.parent.requestDisallowInterceptTouchEvent(true)
             false
         }
-
-        parentFragmentManager.setFragmentResultListener(
-            CalendarPickerDialogFragment.REQ_KEY,
-            viewLifecycleOwner
-        ) { _, bundle ->
-            val date =
-                bundle.getString(CalendarPickerDialogFragment.BUNDLE_KEY_DATE) ?: return@setFragmentResultListener
-            binding.btnSelectDate.text = date // 예: 2026-01-19
-        }
-
-        binding.btnSelectDate.setOnClickListener {
-            CalendarPickerDialogFragment().show(parentFragmentManager, "CalendarPickerDialog")
-        }
-
-        // 초기 라벨 세팅(스위치 기본값에 맞춰)
-        binding.tvStyleMode.text = if (binding.switchStyleMode.isChecked) "추구" else "어울림"
-
-        // 토글될 때 라벨만 변경
-        binding.switchStyleMode.setOnCheckedChangeListener { _, isChecked ->
-            binding.tvStyleMode.text = if (isChecked) "추구" else "어울림"
-        }
-
-        binding.tvSwitchOwnedOnly.text = if (binding.switchSwitchOwnedOnly.isChecked) "내 옷만" else "모든 옷"
-
-        binding.switchSwitchOwnedOnly.setOnCheckedChangeListener { _, isChecked ->
-            binding.tvSwitchOwnedOnly.text = if (isChecked) "내 옷만" else "모든 옷"
-        }
-
-        // 보유한 옷만 보기 스위치
-//        binding.switchSwitchOwnedOnly.setOnCheckedChangeListener { _, isChecked ->
-//            updateSwitchText(isChecked)
-//            viewModel.loadClothItems(onlyMine = isChecked)
-//        }
     }
 }

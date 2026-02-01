@@ -36,9 +36,9 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:text="✨ AI가상 생성"
-            android:textColor="#A6DAF4"
-
-            app:backgroundTint="@android:color/white"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_aicodybutton"
+            app:backgroundTint="@null"
             app:strokeWidth="0.8dp"
             app:strokeColor="#A6DAF4"
             app:cornerRadius="12dp"
@@ -315,7 +315,7 @@
                 android:nestedScrollingEnabled="false"
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_cloth" />
+                tools:listitem="@layout/item_clothes" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -332,7 +332,7 @@
                 android:nestedScrollingEnabled="false"
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_cloth" />
+                tools:listitem="@layout/item_clothes" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -349,13 +349,13 @@
                 android:nestedScrollingEnabled="false"
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_cloth" />
+                tools:listitem="@layout/item_clothes" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="악세사리"
+                android:text="소품류"
                 android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -366,7 +366,7 @@
                 android:nestedScrollingEnabled="false"
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_cloth" />
+                tools:listitem="@layout/item_clothes" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -383,7 +383,7 @@
                 android:nestedScrollingEnabled="false"
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_cloth" />
+                tools:listitem="@layout/item_clothes" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -401,7 +401,7 @@
                 android:nestedScrollingEnabled="false"
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_cloth" />
+                tools:listitem="@layout/item_clothes" />
 
         </LinearLayout>
     </ScrollView>
