@@ -12,7 +12,7 @@ data class SignUpRequest(
     val passwordConfirm: String,
     val nickname: String,
     val gender: String, // "Male" or "Female"
-    val height: Int, // cm
-    val weight: Int, // kg
+    val height: Short, // cm
+    val weight: Short, // kg
     val alarmEnabled: Boolean
 )

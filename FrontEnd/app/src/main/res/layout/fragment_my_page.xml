@@ -28,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="마이페이지"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -36,28 +36,23 @@
                 />
 
             <!-- 프로필 동그라미 -->
-            <com.google.android.material.card.MaterialCardView
+            <FrameLayout
                 android:id="@+id/profileCircle"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginStart="16dp"
+                android:background="@drawable/bg_circle_gray"
                 app:layout_constraintTop_toBottomOf="@id/tvMyPageTitle"
-                app:layout_constraintStart_toStartOf="parent"
-                app:cardCornerRadius="60dp"
-                app:cardUseCompatPadding="false"
-                app:cardPreventCornerOverlap="true"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:strokeWidth="0dp">
+                app:layout_constraintStart_toStartOf="parent">
 
                 <ImageView
                     android:id="@+id/ivProfile"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/ic_profile_default"
                     android:scaleType="centerCrop" />
 
-            </com.google.android.material.card.MaterialCardView>
+            </FrameLayout>
 
             <!-- 전신 사진 -->
             <FrameLayout
@@ -74,7 +69,6 @@
                     android:id="@+id/ivBodyPhoto"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/ic_body_default"
                     android:scaleType="centerCrop"/>
             </FrameLayout>
 
@@ -85,7 +79,7 @@
                 android:layout_height="44dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_calendar_confirm"
+                android:background="@drawable/bg_profile_border"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 android:paddingTop="6dp"
@@ -126,7 +120,7 @@
                 android:layout_height="44dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_calendar_confirm"
+                android:background="@drawable/bg_profile_border"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 android:paddingTop="6dp"
@@ -166,7 +160,7 @@
                 android:layout_width="0dp"
                 android:layout_height="44dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_calendar_confirm"
+                android:background="@drawable/bg_profile_border"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 android:paddingTop="6dp"
@@ -207,10 +201,11 @@
                 android:layout_width="0dp"
                 android:layout_height="54dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_calendar_confirm"
+                android:background="@color/main_color"
                 android:gravity="center"
                 android:text="회원정보 수정"
                 android:textSize="16sp"
+                android:textColor="#000000"
                 android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/boxNickname"
                 app:layout_constraintStart_toStartOf="parent"

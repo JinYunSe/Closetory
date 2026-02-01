@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- fragment_edit_profile.xml -->
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scrollContainer"
@@ -10,9 +11,8 @@
     android:fillViewport="true"
     android:overScrollMode="never"
     tools:context=".homeActivity.mypage.edit.EditProfileFragment">
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    <LinearLayout
         android:id="@+id/layoutContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="회원 정보 수정"
-            android:textSize="36sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <!-- 사진 영역 -->
@@ -37,44 +37,44 @@
             android:id="@+id/layoutPhotos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:orientation="horizontal">
 
             <!-- 프로필 사진 (원형) -->
             <FrameLayout
                 android:id="@+id/layoutProfileImage"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:layout_marginEnd="16dp">
+                android:layout_marginEnd="14dp">
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/imgProfile"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="fitXY"
                     android:background="#E0E0E0"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Circle"
-                    android:contentDescription="프로필 사진" />
+                    android:contentDescription="프로필 사진"
+                    android:scaleType="fitXY"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Circle" />
 
             </FrameLayout>
 
             <!-- 전신 사진 -->
             <FrameLayout
                 android:id="@+id/layoutBodyImage"
-                android:layout_width="180dp"
-                android:layout_height="180dp">
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginStart="14dp">
 
                 <ImageView
                     android:id="@+id/imgBody"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="fitCenter"
                     android:background="#E0E0E0"
-                    android:contentDescription="전신 사진" />
+                    android:contentDescription="전신 사진"
+                    android:scaleType="fitCenter" />
             </FrameLayout>
         </LinearLayout>
-
 
         <TextView
             android:id="@+id/tvChangePassword"
@@ -84,56 +84,138 @@
             android:background="#E0E0E0"
             android:gravity="center"
             android:text="비밀번호 변경"
+            android:backgroundTint="@color/main_color"
             android:textColor="#000000"
             android:textSize="16sp" />
 
-        <EditText
-            android:id="@+id/etNickname"
+        <!-- 닉네임 (라벨 박스 스타일) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/boxNicknameEdit"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="16dp"
-            android:background="#E0E0E0"
-            android:singleLine="true"
-            android:maxLines="1"
-            android:hint="닉네임"
-            android:padding="16dp"
-            android:imeOptions="actionNext"
-            android:nextFocusDown="@id/etHeight"
-            />
+            android:background="@drawable/bg_profile_border"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp">
 
+            <TextView
+                android:id="@+id/tvNicknameLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="닉네임"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <EditText
+                android:id="@+id/etNickname"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:hint="닉네임 입력"
+                android:maxLength="10"
+                android:singleLine="true"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:padding="0dp"
+                android:imeOptions="actionNext"
+                app:layout_constraintTop_toBottomOf="@id/tvNicknameLabel"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- 키 / 몸무게 (라벨 박스 스타일) -->
         <LinearLayout
             android:id="@+id/layoutSize"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/etHeight"
+            <!-- 키 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/boxHeightEdit"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginEnd="12dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="#E0E0E0"
-                android:hint="키(cm)"
-                android:inputType="number"
-                android:padding="16dp"
-                android:imeOptions="actionNext"
-                android:nextFocusDown="@id/etWeight"/>
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_profile_border"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
 
-            <EditText
-                android:id="@+id/etWeight"
+                <TextView
+                    android:id="@+id/tvHeightLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="키"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <EditText
+                    android:id="@+id/etHeight"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@android:color/transparent"
+                    android:hint="cm"
+                    android:inputType="number"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:padding="0dp"
+                    android:imeOptions="actionNext"
+                    app:layout_constraintTop_toBottomOf="@id/tvHeightLabel"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- 몸무게 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/boxWeightEdit"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginStart="12dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="#E0E0E0"
-                android:hint="몸무게(kg)"
-                android:inputType="number"
-                android:padding="16dp"
-                android:imeOptions="actionNext"
-                android:nextFocusDown="@id/btnFemale"/>
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_profile_border"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:id="@+id/tvWeightLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="몸무게"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <EditText
+                    android:id="@+id/etWeight"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@android:color/transparent"
+                    android:hint="kg"
+                    android:inputType="number"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:padding="0dp"
+                    android:imeOptions="actionNext"
+                    app:layout_constraintTop_toBottomOf="@id/tvWeightLabel"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
         </LinearLayout>
 
         <LinearLayout
