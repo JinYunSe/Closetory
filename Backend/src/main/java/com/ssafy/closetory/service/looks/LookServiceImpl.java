@@ -9,6 +9,7 @@ import com.ssafy.closetory.entity.looks.ClothesLooksId;
 import com.ssafy.closetory.entity.looks.Look;
 import com.ssafy.closetory.entity.post.Post;
 import com.ssafy.closetory.entity.user.User;
+import com.ssafy.closetory.enums.ClothesColor;
 import com.ssafy.closetory.enums.ClothesType;
 import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.NotFoundException;
@@ -18,10 +19,9 @@ import com.ssafy.closetory.service.s3.S3ImageService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -313,6 +313,7 @@ public class LookServiceImpl implements LookService {
     clothesLooksRepository.saveAll(clothesLooksList);
   }
 
+  @Override
   public List<GetAllLooksResponse> getAllLooks(Integer userId) {
     List<Look> lookList = lookRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
 
@@ -353,5 +354,55 @@ public class LookServiceImpl implements LookService {
     }
 
     return result;
+  }
+
+  @Override
+  public List<GetLooksByMonthResponse> getLooksByMonthResponse(boolean isMain, Integer userId) {
+    LocalDate startDate = LocalDate.now();
+    LocalDate endDate = startDate.plusMonths(2).with(TemporalAdjusters.lastDayOfMonth());
+
+    List<Look> looksByMonth =
+        lookRepository.findAllByUserIdAndDateBetweenOrderByDateAsc(userId, startDate, endDate);
+
+    if (looksByMonth.isEmpty()) {
+      return new ArrayList<>();
+    }
+
+    List<Integer> lookIds = looksByMonth.stream().map(Look::getId).toList();
+
+    List<ClothesType> targetTypes = List.of(ClothesType.TOP, ClothesType.BOTTOM);
+    List<ClothesLooks> allLookItems =
+        clothesLooksRepository.findTopBottomByIdLookIdIn(lookIds, targetTypes);
+
+    Map<Integer, List<ClothesLooks>> clothesMap =
+        allLookItems.stream().collect(Collectors.groupingBy(cl -> cl.getLook().getId()));
+
+    List<GetLooksByMonthResponse> result = new ArrayList<>();
+
+    for (Look look : looksByMonth) {
+      var builder = GetLooksByMonthResponse.builder().lookId(look.getId()).date(look.getDate());
+
+      if (isMain) {
+        List<ClothesLooks> items = clothesMap.getOrDefault(look.getId(), Collections.emptyList());
+
+        ClothesColor topColor = findColorByType(items, ClothesType.TOP);
+        ClothesColor bottomColor = findColorByType(items, ClothesType.BOTTOM);
+
+        builder.photoUrl(look.getPhotoUrl()).topColor(topColor).bottomColor(bottomColor);
+      }
+
+      result.add(builder.build());
+    }
+
+    return result;
+  }
+
+  private ClothesColor findColorByType(List<ClothesLooks> items, ClothesType type) {
+    return items.stream()
+        .map(ClothesLooks::getClothes)
+        .filter(c -> ((Clothes) c).getClothesType() == type)
+        .findFirst()
+        .map(Clothes::getColor)
+        .orElse(null);
   }
 }
