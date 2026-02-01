@@ -51,7 +51,7 @@ class PostListFragment :
     // RecyclerView(게시글 카드 목록) 초기 세팅
     private fun setupRecyclerView() {
         postListAdapter = PostListAdapter { item ->
-            // TODO: 게시글 상세로 이동 처리
+            goToPostDetail(item.postId)
         }
 
         binding.rvPostList.apply {
@@ -97,7 +97,7 @@ class PostListFragment :
     private fun requestPosts(keyword: String?) {
         viewModel.loadPosts(
             keyword = keyword,
-            filter = getSelectedFilter()
+            searchfilter = getSelectedFilter()
         )
     }
 

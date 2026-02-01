@@ -31,6 +31,9 @@ class PostDetailFragment :
 
     private lateinit var itemAdapter: PostDetailItemAdapter
 
+    // 대표 이미지 URL을 저장
+    private var currentPhotoUrl: String? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -157,7 +160,6 @@ class PostDetailFragment :
                         }
                         // 내 게시글인지 확인 후 숨기기.
                         itemAdapter.setIsMinePost(isMine)
-                        itemAdapter.submitList(detail.items)
                     }
                 }
             }
