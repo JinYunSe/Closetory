@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.bumptech.glide.load.engine.GlideException
 import com.google.android.material.snackbar.Snackbar
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R

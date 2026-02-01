@@ -21,13 +21,11 @@ class ImagePreviewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_image_preview)
 
         val ivPreview = findViewById<ImageView>(R.id.iv_image_preview)
-        val ivClose = findViewById<ImageView>(R.id.iv_image_preview_close)
-
-        ivClose.setOnClickListener { finish() }
+        ivPreview.setOnClickListener { finish() }
 
         val url = intent.getStringExtra(EXTRA_IMAGE_URL)
         if (url.isNullOrBlank()) {
-            Toast.makeText(this, "??? URL? ????.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "이미지가 없습니다.", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -50,7 +48,7 @@ class ImagePreviewActivity : AppCompatActivity() {
                     target: Target<Drawable>,
                     isFirstResource: Boolean
                 ): Boolean {
-                    Toast.makeText(this@ImagePreviewActivity, "??? ??? ??????.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ImagePreviewActivity, "이미지 로드 실패.", Toast.LENGTH_SHORT).show()
                     return false
                 }
             })
