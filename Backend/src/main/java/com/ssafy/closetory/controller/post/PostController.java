@@ -71,4 +71,15 @@ public class PostController {
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "게시글 수정 완료", response));
   }
+
+  @DeleteMapping("/{postId}")
+  @Operation(summary = "게시글 삭제")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Void>> deletePost(
+      @AuthenticationPrincipal Integer userId, @PathVariable Integer postId) {
+    postService.deletePost(userId, postId);
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.ok(200, "게시글이 성공적으로 삭제되었습니다", null));
+  }
 }
