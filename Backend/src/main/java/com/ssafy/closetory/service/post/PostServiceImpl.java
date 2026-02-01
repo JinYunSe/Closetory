@@ -4,6 +4,7 @@ import com.ssafy.closetory.dto.post.*;
 import com.ssafy.closetory.entity.post.Post;
 import com.ssafy.closetory.entity.user.User;
 import com.ssafy.closetory.exception.common.BadRequestException;
+import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.ClothesRepository;
 import com.ssafy.closetory.repository.PostRepository;
@@ -169,5 +170,19 @@ public class PostServiceImpl implements PostService {
         user.getId(),
         user.getNickname(),
         user.getProfilePhotoUrl());
+  }
+
+  @Override
+  @Transactional
+  public void deletePost(Integer userId, Integer postId) {
+
+    Post post =
+        postRepository.findById(postId).orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+
+    if (!post.getUserId().equals(userId)) {
+      throw new ForbiddenException("해당 게시글에 대한 권한이 없습니다.");
+    }
+
+    post.setDeletedAt(LocalDateTime.now());
   }
 }

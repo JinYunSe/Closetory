@@ -13,4 +13,6 @@ public interface PostService {
       Integer userId, Integer postId, PostUpdateRequest request, MultipartFile photo);
 
   PostDetailResponse getPostDetail(Integer postId, Integer userId);
+
+  void deletePost(Integer userId, Integer postId);
 }

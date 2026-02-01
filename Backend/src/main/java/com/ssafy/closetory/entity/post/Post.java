@@ -5,10 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "posts")
@@ -40,6 +37,7 @@ public class Post {
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;
 
+  @Setter
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
@@ -63,5 +61,9 @@ public class Post {
 
   public void increaseViews() {
     this.views++;
+  }
+
+  public void delete() {
+    this.deletedAt = LocalDateTime.now();
   }
 }
