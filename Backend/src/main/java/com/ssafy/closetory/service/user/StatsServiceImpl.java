@@ -1,10 +1,11 @@
 package com.ssafy.closetory.service.user;
 
-import com.ssafy.closetory.dto.user.StatsItem;
+import com.ssafy.closetory.dto.user.ColorStatsItem;
+import com.ssafy.closetory.dto.user.TagStatsItem;
 import com.ssafy.closetory.dto.user.Top3Item;
 import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.repository.LookRepository;
-import com.ssafy.closetory.repository.projection.TagStatsRow;
+import com.ssafy.closetory.repository.projection.StatsRow;
 import com.ssafy.closetory.repository.projection.Top3Row;
 import java.time.LocalDate;
 import java.util.List;
@@ -37,7 +38,7 @@ public class StatsServiceImpl implements StatsService {
   }
 
   @Override
-  public List<StatsItem> getTagStats(Integer userId, Integer authUserId) {
+  public List<TagStatsItem> getTagStats(Integer userId, Integer authUserId) {
     if (!userId.equals(authUserId)) {
       throw new ForbiddenException("자신의 통계만 볼 수 있습니다.");
     }
@@ -45,8 +46,22 @@ public class StatsServiceImpl implements StatsService {
     LocalDate start = LocalDate.now().withDayOfMonth(1);
     LocalDate end = start.plusMonths(1);
 
-    List<TagStatsRow> rows = lookRepository.findTagStatsThisMonth(userId, start, end);
+    List<StatsRow> rows = lookRepository.findTagStatsThisMonth(userId, start, end);
 
-    return rows.stream().map(r -> new StatsItem(r.getTagName(), r.getPercentage())).toList();
+    return rows.stream().map(r -> new TagStatsItem(r.getName(), r.getPercentage())).toList();
+  }
+
+  @Override
+  public List<ColorStatsItem> getColorStats(Integer userId, Integer authUserId) {
+    if (!userId.equals(authUserId)) {
+      throw new ForbiddenException("자신의 통계만 볼 수 있습니다.");
+    }
+
+    LocalDate start = LocalDate.now().withDayOfMonth(1);
+    LocalDate end = start.plusMonths(1);
+
+    List<StatsRow> rows = lookRepository.findColorStatsThisMonth(userId, start, end);
+
+    return rows.stream().map(r -> new ColorStatsItem(r.getName(), r.getPercentage())).toList();
   }
 }
