@@ -13,29 +13,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_ai_virtualfitting"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_aicodybutton"
-            android:elevation="4dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:lineSpacingExtra="2dp"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            android:paddingVertical="0dp"
-            android:text="✨AI\n코디생성"
-            android:textColor="#FFFFFF"
-            app:backgroundTint="@null"
-            app:cornerRadius="24dp"
-            app:strokeWidth="0dp" />
-
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_weight="1.1"
+            android:layout_weight="1"
             android:background="@drawable/bg_switch_group"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -67,7 +48,7 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_weight="1.1"
+            android:layout_weight="1"
             android:background="@drawable/bg_switch_group"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -100,14 +81,14 @@
             android:id="@+id/btn_makeoutfit"
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_weight="0.7"
+            android:layout_weight="1"
             android:backgroundTint="#FFFFFF"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:minWidth="0dp"
             android:minHeight="0dp"
             android:paddingVertical="0dp"
-            android:text="직접\n코디"
+            android:text="직접코디\n생성"
             android:textColor="#A6DAF4"
             app:backgroundTint="@android:color/white"
             app:cornerRadius="12dp"
@@ -115,16 +96,19 @@
             app:strokeWidth="0.8dp" />
     </LinearLayout>
 
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="350dp"
         android:background="#e9ecef">
 
+        <!-- 기존 슬롯 레이아웃 -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layout_slots"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <!-- 상의 슬롯 -->
             <FrameLayout
                 android:id="@+id/slot_top"
                 android:layout_width="100dp"
@@ -151,6 +135,7 @@
                     android:visibility="gone" />
             </FrameLayout>
 
+            <!-- 아우터 슬롯 -->
             <FrameLayout
                 android:id="@+id/slot_outer"
                 android:layout_width="90dp"
@@ -176,6 +161,7 @@
                     android:visibility="gone" />
             </FrameLayout>
 
+            <!-- 악세서리 슬롯 -->
             <FrameLayout
                 android:id="@+id/slot_acc"
                 android:layout_width="60dp"
@@ -201,6 +187,7 @@
                     android:visibility="gone" />
             </FrameLayout>
 
+            <!-- 하의 슬롯 -->
             <FrameLayout
                 android:id="@+id/slot_bottom"
                 android:layout_width="100dp"
@@ -227,6 +214,7 @@
                     android:visibility="gone" />
             </FrameLayout>
 
+            <!-- 가방 슬롯 -->
             <FrameLayout
                 android:id="@+id/slot_bag"
                 android:layout_width="80dp"
@@ -252,6 +240,7 @@
                     android:visibility="gone" />
             </FrameLayout>
 
+            <!-- 신발 슬롯 -->
             <FrameLayout
                 android:id="@+id/slot_shoes"
                 android:layout_width="80dp"
@@ -279,6 +268,15 @@
             </FrameLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- AI 추천 로딩 애니메이션 (슬롯 영역 중앙) -->
+        <VideoView
+            android:id="@+id/vv_ai_loading"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <!-- 가상피팅 결과 팝업 -->
         <FrameLayout
             android:id="@+id/layout_ai_fitting"
             android:layout_width="match_parent"
@@ -292,7 +290,7 @@
                 android:layout_height="match_parent"
                 android:contentDescription="AI 가상 피팅 결과"
                 android:scaleType="centerInside" />
-            <!--  AI 이미지 닫기 버튼  -->
+
             <ImageButton
                 android:id="@+id/btn_close_ai_fitting"
                 android:layout_width="40dp"
@@ -302,13 +300,15 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="닫기"
                 android:src="@drawable/ic_cancel" />
-            <!--  로딩 인디케이터  -->
-            <ProgressBar
-                android:id="@+id/progress_ai_fitting"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+
+            <!-- AI 가상피팅 로딩 애니메이션 -->
+            <VideoView
+                android:id="@+id/vv_ai_fitting"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
                 android:layout_gravity="center"
                 android:visibility="gone" />
+
         </FrameLayout>
     </FrameLayout>
 
@@ -363,15 +363,22 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
         <!--  등록 버튼  -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_register"
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:backgroundTint="@color/main_color"
-            android:text="등록"
-            android:textColor="#FFFFFF"
-            app:cornerRadius="12dp" />
+            android:layout_weight="1">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_register"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="✨AI 코디추천"
+                android:background="@drawable/bg_aicodybutton"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@null"
+                app:cornerRadius="12dp" />
+
+        </FrameLayout>
 
         <View
             android:layout_width="12dp"
@@ -382,9 +389,11 @@
             android:layout_width="0dp"
             android:layout_height="55dp"
             android:layout_weight="1"
-            android:backgroundTint="#A6DAF4"
+            android:backgroundTint="#FFFFFF"
             android:text="초기화"
-            android:textColor="#FFFFFF"
-            app:cornerRadius="12dp" />
+            android:textColor="@color/main_color"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/main_color"
+            app:strokeWidth="1dp"/>
     </LinearLayout>
 </LinearLayout>
