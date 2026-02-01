@@ -19,13 +19,15 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentPostCreateBinding
 import com.ssafy.closetory.dto.PostCreateSelectedItem
 import com.ssafy.closetory.homeActivity.HomeActivity
-import com.ssafy.closetory.homeActivity.post.create.adapter.PostItemAdapter
+import com.ssafy.closetory.homeActivity.adapter.PostItemAdapter
 import com.ssafy.closetory.homeActivity.post.create.dialog.ClothesPickerDialogFragment
 import com.ssafy.closetory.util.PermissionChecker
 import com.ssafy.closetory.util.image.ImageMultipartUtil
 import java.io.File
 import kotlin.math.abs
 import kotlinx.coroutines.launch
+
+private const val TAG = "PostCreateFragment_싸피"
 
 class PostCreateFragment :
     BaseFragment<FragmentPostCreateBinding>(FragmentPostCreateBinding::bind, R.layout.fragment_post_create) {
@@ -74,7 +76,7 @@ class PostCreateFragment :
         // 대표 사진 선택(카메라/갤러리) 클릭 이벤트 세팅
         setupMainPhotoClick()
 
-        // 사진 텍스트 보이기 숨기기
+        // 사진 텍스트 숨기기
         updateMainPhotoPlaceholder(false)
 
         // EditText 스크롤 충돌 방지(부모 스크롤 가로채기 방지)
@@ -85,6 +87,9 @@ class PostCreateFragment :
 
         // 옷 선택 다이얼로그 결과 수신 세팅
         setupClothesPickResultListener()
+
+        // 선택된 옷 없으면 안내 텍스트 띄우기
+        updateItemsEmptyUi()
 
         // 등록 버튼(멀티파트 전송) 세팅
         setupCreatePostButton()
@@ -108,7 +113,7 @@ class PostCreateFragment :
         }
     }
 
-    // "사진" placeholder 보이기/숨기기
+    // "사진" placeholder 숨기기
     private fun updateMainPhotoPlaceholder(isPhotoSelected: Boolean) {
         binding.tvMainPhotoHint.visibility = if (isPhotoSelected) View.GONE else View.VISIBLE
     }
@@ -161,6 +166,8 @@ class PostCreateFragment :
             onRemoveClickListener = { item ->
                 selectedItems.remove(item)
                 submitList(selectedItems.toList())
+                // 옷이 없으면 안내 TEXT
+                updateItemsEmptyUi()
             }
         }
 
@@ -192,6 +199,9 @@ class PostCreateFragment :
 
             selectedItems.add(PostCreateSelectedItem(clothesId, photoUrl))
             itemAdapter.submitList(selectedItems.toList())
+
+            // 옷이 없으면 안내 TEXT
+            updateItemsEmptyUi()
         }
     }
 
@@ -248,6 +258,13 @@ class PostCreateFragment :
                 else -> false
             }
         }
+    }
+
+    // 옷 선택 유무에 따라 RecyclerView / 안내 텍스트 토글
+    private fun updateItemsEmptyUi() {
+        val hasItems = selectedItems.isNotEmpty()
+        binding.rvItems.visibility = if (hasItems) View.VISIBLE else View.GONE
+        binding.tvNoClothes.visibility = if (hasItems) View.GONE else View.VISIBLE
     }
 
     // 등록 버튼 클릭 시 입력 검증 후 멀티파트로 ViewModel 호출
@@ -317,7 +334,7 @@ class PostCreateFragment :
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.createResult.collect { data ->
                 if (data != null) {
-//                    parentFragmentManager.popBackStack()
+                    parentFragmentManager.popBackStack()
                 }
             }
         }

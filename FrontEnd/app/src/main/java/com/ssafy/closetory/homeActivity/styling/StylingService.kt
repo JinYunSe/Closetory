@@ -13,7 +13,7 @@ interface StylingService {
     // 룩 저장 (직접 코디)
     // POST /api/v1/looks
     @POST("looks")
-    suspend fun saveLook(@Body request: SaveLookRequest): Response<ApiResponse<SaveLookResponse>>
+    suspend fun saveLook(@Body request: SaveLookRequest): Response<ApiResponse<Unit>>
 
     @POST("looks/ai/fitting")
     suspend fun requestAiFitting(@Body request: AiFittingRequest): Response<ApiResponse<AiFittingResponse>>

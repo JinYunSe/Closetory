@@ -3,67 +3,115 @@ package com.ssafy.closetory.homeActivity.closet
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.addCallback
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentClothesDetailBinding
+import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.homeActivity.HomeActivity
+import com.ssafy.closetory.homeActivity.adapter.RecommendClothesAdapter
+import com.ssafy.closetory.util.ChipUtils
 import com.ssafy.closetory.util.ClothTypeOptions
 import com.ssafy.closetory.util.ColorOptions
+import com.ssafy.closetory.util.SeasonOptions
+import com.ssafy.closetory.util.TagOptions
+import kotlinx.coroutines.launch
 
 private const val TAG = "ClothesDetailFragment_싸피"
+
 class ClothesDetailFragment :
-    BaseFragment<FragmentClothesDetailBinding>(FragmentClothesDetailBinding::bind, R.layout.fragment_clothes_detail) {
+    BaseFragment<FragmentClothesDetailBinding>(
+        FragmentClothesDetailBinding::bind,
+        R.layout.fragment_clothes_detail
+    ) {
 
     private val clothesId: Int by lazy {
-        requireArguments().getInt("clothesId")
+        requireArguments().getInt("clothesId", -1)
     }
 
-    private val viewModel: ClosetViewModel by viewModels()
-
+    private val closetViewModel: ClosetViewModel by viewModels()
     private lateinit var homeActivity: HomeActivity
 
     private var isRental = false
+
+    // 수정 화면으로 넘길 “현재 상세 아이템” 보관
+    private var currentItem: ClothesItemDto? = null // 네 프로젝트 모델명에 맞춰라
+
+    // 추천 목록 어댑터
+    private val recommendAdapter = RecommendClothesAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         homeActivity = requireContext() as HomeActivity
 
-        Log.d(TAG, "옷 상세 정보 조회 clothesId: $clothesId")
-        viewModel.getClothesDetail(clothesId)
+        homeActivity.onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            findNavController().popBackStack(R.id.navigation_closet, false)
+        }
 
-        binding.rvRecommend.layoutManager = LinearLayoutManager(homeActivity, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvRecommend.apply {
+            layoutManager = LinearLayoutManager(homeActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = recommendAdapter
+            setHasFixedSize(true)
+        }
 
         registerObserve()
+        setupPickListener()
 
-        // 본인 옷인 경우는  View.Gone이라 UI에서 조작 불가능
-        // 가져온 옷만 조작 가능
+        Log.d(TAG, "옷 상세 정보 조회 clothesId: $clothesId")
+        closetViewModel.getClothesDetail(clothesId)
+        closetViewModel.getRecommendedClothes(clothesId)
+
         binding.ibtnBookmark.setOnClickListener {
-            // isRental이 true에서 클릭하면 가져오기 취소가 된다.
+            // isRental이 true이면 대여, false이면 대여 취소
             if (isRental) {
-                isRental = false
-                binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_border_24)
+                // 대여 취소 요청
+                closetViewModel.deleteClothesRental(clothesId)
             } else {
-                // 다시 가져오기 상황으로 설정한 경우
-                isRental = true
-                binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
+                // 다시 대여 요청
+                closetViewModel.postClothesRental(clothesId)
             }
+        }
+
+        binding.ibtnEdit.setOnClickListener {
+            MaterialAlertDialogBuilder(homeActivity)
+                .setTitle("옷 정보 수정")
+                .setMessage("옷의 정보를 수정하시겠습니까?")
+                .setPositiveButton("취소", null)
+                .setNegativeButton("수정") { _, _ ->
+                    val item = currentItem ?: return@setNegativeButton
+                    navigateToEdit(item)
+                }
+                .show()
+        }
+
+        binding.ibtnDelete.setOnClickListener {
+            MaterialAlertDialogBuilder(homeActivity)
+                .setTitle("옷 삭제")
+                .setMessage("옷을 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.")
+                .setPositiveButton("취소", null)
+                .setNegativeButton("삭제") { _, _ ->
+                    closetViewModel.deleteClothes(clothesId)
+                }
+                .show()
         }
     }
 
-    fun registerObserve() {
-        viewModel.clothesData.observe(viewLifecycleOwner) { item ->
+    private fun registerObserve() {
+        closetViewModel.clothesData.observe(viewLifecycleOwner) { item ->
+            if (item == null) return@observe
 
-            Log.d(TAG, "옷 상세 정보 조회 통신 결과  clothesId : ${item.clothesId}")
-            Log.d(TAG, "옷 상세 정보 조회 통신 결과  photoUrl : ${item.photoUrl}")
-            Log.d(TAG, "옷 상세 정보 조회 통신 결과  tags : ${item.tags}")
-            Log.d(TAG, "옷 상세 정보 조회 통신 결과  clothesType : ${item.clothesType}")
-            Log.d(TAG, "옷 상세 정보 조회 통신 결과  color : ${item.color}")
-            Log.d(TAG, "옷 상세 정보 조회 통신 결과  isMine : ${item.isMine}")
-            Log.d(TAG, "옷 상세 정보 조회 통신 결과  seasons : ${item.seasons}")
+            // 수정 이동을 위해 보관
+            currentItem = item
+
+            Log.d(TAG, "옷 상세 정보 조회 통신 결과 clothesId : ${item.clothesId}")
+
             Glide.with(binding.ivPhoto)
                 .load(item.photoUrl)
                 .placeholder(R.drawable.placeholder)
@@ -74,53 +122,93 @@ class ClothesDetailFragment :
             binding.tvSeasons.text = item.seasons?.joinToString(" · ")
             binding.tvColor.text = ColorOptions.englishToKorean(item.color)
 
+            // tags chip
             binding.cgTags.removeAllViews()
             val tags = item.tags.orEmpty()
             if (tags.isEmpty()) {
                 binding.cgTags.visibility = View.GONE
             } else {
                 binding.cgTags.visibility = View.VISIBLE
-
-                // 칩 선택 대상 아님을 지정
                 tags.forEach { tag ->
-                    val chip = com.google.android.material.chip.Chip(homeActivity).apply {
-                        text = "#$tag"
-                        // 체크 상태 UI를 쓰려면 checkable 이어야 함
-                        isCheckable = true
-                        isChecked = true
-
-                        // 사용자 터치는 막기
-                        isClickable = false
-                        isFocusable = false
-
-                        setEnsureMinTouchTargetSize(false)
-
-                        // 1) 기본 스타일 먼저
-                        setChipDrawable(
-                            com.google.android.material.chip.ChipDrawable.createFromAttributes(
-                                homeActivity,
-                                null,
-                                0,
-                                com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
-                            )
-                        )
-
-                        // 2) 체크 상태 selector 적용 (main_color 등)
-                        chipBackgroundColor = homeActivity.getColorStateList(R.color.chip_bg_selector)
-                        setTextColor(homeActivity.getColorStateList(R.color.chip_text_selector))
-                    }
-
+                    val chip = ChipUtils.createChoiceChip(
+                        context = homeActivity,
+                        text = "#$tag",
+                        checkable = true,
+                        checked = true,
+                        clickable = false,
+                        focusable = false
+                    )
                     binding.cgTags.addView(chip)
                 }
             }
-            // 본인 옷이면 북마크 안 보이게 설정
+
+            // 본인 옷이면 수정/삭제 보이기, 남의 옷이면 북마크만
             if (item.isMine == true) {
-                binding.ibtnBookmark.visibility = View.GONE
+                binding.editLinearLayout.visibility = View.VISIBLE
+                binding.ibtnEdit.visibility = View.VISIBLE
             } else {
-                // 본인 옷이 아니면 남의 옷 가져온 상황
                 isRental = true
+                binding.editLinearLayout.visibility = View.GONE
+                binding.tvRecommendTitle.visibility = View.GONE
                 binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            closetViewModel.deleteSuccess.collect { success ->
+                if (success != true) return@collect
+
+                // "새로고침"신호 제공 => 이걸로 옷 장 목록 조회가 다시 이뤄져야 한다고 알림
+                findNavController().previousBackStackEntry?.savedStateHandle?.set("refreshCloset", true)
+
+                // 뒤로가기
+                findNavController().popBackStack(R.id.navigation_closet, false)
+            }
+        }
+
+        closetViewModel.recommendedClothes.observe(viewLifecycleOwner) { list ->
+            recommendAdapter.submitList(list)
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            closetViewModel.clothesRental.collect { check ->
+                isRental = check
+                if (check) {
+                    binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
+                } else {
+                    binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_border_24)
+                }
+            }
+        }
+    }
+
+    private fun setupPickListener() {
+        recommendAdapter.onItemClickListener = { item ->
+            findNavController().navigate(
+                R.id.action_navigation_clothes_detail_self,
+                Bundle().apply { putInt("clothesId", item.clothesId) }
+            )
+        }
+    }
+
+    private fun navigateToEdit(item: ClothesItemDto) {
+        val tagsInt = ArrayList(item.tags.orEmpty().mapNotNull { TagOptions.toCode(it) })
+        val seasonsInt = ArrayList(item.seasons.orEmpty().map { SeasonOptions.toCode(it) })
+
+        val bundle = Bundle().apply {
+            putString("mode", "edit")
+            putInt("clothesId", item.clothesId)
+            putString("photoUrl", item.photoUrl)
+
+            putIntegerArrayList("tags", tagsInt)
+            putString("clothesType", item.clothesType)
+            putIntegerArrayList("seasons", seasonsInt)
+            putString("color", item.color)
+        }
+
+        findNavController().navigate(
+            R.id.action_clothes_detail_to_registration,
+            bundle
+        )
     }
 }

@@ -2,8 +2,12 @@ package com.ssafy.closetory.homeActivity.post
 
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.PostEditRequest
+import com.ssafy.closetory.dto.PostEditResponse
+import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostItemResponse
 import com.ssafy.closetory.dto.PostQueryFilter
+import okhttp3.MultipartBody
 
 // 게시글 관련 Repository (목록/상세/작성 등에서 재사용 가능한 형태)
 class PostRepository {
@@ -39,6 +43,56 @@ class PostRepository {
         }
     } catch (e: Exception) {
         // 네트워크 예외 등
+        ApiResponse(
+            httpStatusCode = -1,
+            responseMessage = null,
+            errorMessage = e.message ?: "네트워크 오류가 발생했습니다.",
+            data = null
+        )
+    }
+
+    // 게시글 상세 조회
+    suspend fun getPostDetail(postId: Int): ApiResponse<PostDetailResponse> = try {
+        val res = postService.getPostDetail(postId)
+        if (res.isSuccessful) {
+            res.body() ?: ApiResponse(res.code(), null, "응답 바디가 비어있습니다.", null)
+        } else {
+            val rawError = res.errorBody()?.string()
+            ApiResponse(res.code(), null, rawError ?: "서버 오류가 발생했습니다.", null)
+        }
+    } catch (e: Exception) {
+        ApiResponse(-1, null, e.message ?: "네트워크 오류가 발생했습니다.", null)
+    }
+
+    // 게시글 수정
+    suspend fun editPost(
+        postId: Int,
+        photo: MultipartBody.Part?,
+        request: PostEditRequest
+    ): ApiResponse<PostEditResponse> = try {
+        val res = postService.editPost(
+            postId = postId,
+            photo = photo,
+            request = request
+        )
+
+        if (res.isSuccessful) {
+            res.body() ?: ApiResponse(
+                httpStatusCode = res.code(),
+                responseMessage = null,
+                errorMessage = "응답 바디가 비어있습니다.",
+                data = null
+            )
+        } else {
+            val rawError = res.errorBody()?.string()
+            ApiResponse(
+                httpStatusCode = res.code(),
+                responseMessage = null,
+                errorMessage = rawError ?: "서버 오류가 발생했습니다.",
+                data = null
+            )
+        }
+    } catch (e: Exception) {
         ApiResponse(
             httpStatusCode = -1,
             responseMessage = null,

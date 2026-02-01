@@ -15,9 +15,22 @@
         <item name="android:textSize">10sp</item>
     </style>
 
+    <!-- 원형 프로필 이미지용 ShapeAppearance -->
+    <style name="ShapeAppearance.Circle"
+        parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
     <!-- 달력 -->
     <style name="CalendarDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <!-- 게시글 상세 메타 라벨(조회수, 좋아요 수 같은 텍스트) -->
+    <style name="TextPostSmallInfoLabel">
+        <item name="android:textSize">8sp</item>
+        <item name="android:textColor">#666666</item>
     </style>
 </resources>

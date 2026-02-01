@@ -1,4 +1,5 @@
 package com.ssafy.closetory.homeActivity.post
+//
 
 import android.os.Bundle
 import android.view.View
@@ -14,7 +15,7 @@ import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentPostMainBinding
 import com.ssafy.closetory.dto.PostQueryFilter
-import com.ssafy.closetory.homeActivity.adpter.PostListAdapter
+import com.ssafy.closetory.homeActivity.adapter.PostListAdapter
 import kotlinx.coroutines.launch
 
 private const val TAG = "PostListFragment_싸피"
@@ -38,6 +39,13 @@ class PostListFragment :
 
         // 기본 진입 시: 최신(latest)으로 전체 목록 호출
         requestPosts(keyword = null)
+    }
+
+    private fun goToPostDetail(targetPostId: Int) {
+        val bundle = Bundle().apply {
+            putInt("postId", targetPostId)
+        }
+        findNavController().navigate(R.id.action_post_list_to_post_detail, bundle)
     }
 
     // RecyclerView(게시글 카드 목록) 초기 세팅
