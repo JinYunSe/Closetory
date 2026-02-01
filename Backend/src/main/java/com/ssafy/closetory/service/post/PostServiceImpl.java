@@ -147,6 +147,9 @@ public class PostServiceImpl implements PostService {
 
     post.increaseViews();
 
+    Integer likeCount = likesRepository.countByPostId(postId);
+    boolean isLiked = likesRepository.existsByUserIdAndPostId(userId, postId);
+
     List<PostItemResponse> items =
         post.getClothes().stream()
             .map(
@@ -166,8 +169,8 @@ public class PostServiceImpl implements PostService {
         items,
         post.getCreatedAt(),
         post.getViews(),
-        0, // 좋아요 개수
-        false, // 좋아요 유무
+        likeCount,
+        isLiked,
         user.getId(),
         user.getNickname(),
         user.getProfilePhotoUrl());
