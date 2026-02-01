@@ -19,7 +19,7 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentPostCreateBinding
 import com.ssafy.closetory.dto.PostCreateSelectedItem
 import com.ssafy.closetory.homeActivity.HomeActivity
-import com.ssafy.closetory.homeActivity.post.create.adapter.PostItemAdapter
+import com.ssafy.closetory.homeActivity.adapter.PostItemAdapter
 import com.ssafy.closetory.homeActivity.post.create.dialog.ClothesPickerDialogFragment
 import com.ssafy.closetory.util.PermissionChecker
 import com.ssafy.closetory.util.image.ImageMultipartUtil

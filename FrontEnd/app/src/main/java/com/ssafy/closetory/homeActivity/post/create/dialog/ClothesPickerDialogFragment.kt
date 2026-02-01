@@ -15,7 +15,7 @@ import com.google.android.material.tabs.TabLayout
 import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.FragmentClosetBinding
 import com.ssafy.closetory.dto.ClosetResponse
-import com.ssafy.closetory.homeActivity.adpter.ClothesAdapter
+import com.ssafy.closetory.homeActivity.adapter.ClothesAdapter
 import com.ssafy.closetory.homeActivity.closet.ClosetViewModel
 import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.SeasonOptions

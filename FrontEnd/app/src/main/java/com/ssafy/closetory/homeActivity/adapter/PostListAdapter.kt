@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.adpter
+package com.ssafy.closetory.homeActivity.adapter
 
 import android.view.LayoutInflater
 import android.view.View

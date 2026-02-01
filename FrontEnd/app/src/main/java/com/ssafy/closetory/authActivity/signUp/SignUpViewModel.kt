@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
+private const val TAG = "SignUpViewModel_싸피"
+
 class SignUpViewModel : ViewModel() {
 
     private val repository = SignUpRepository()
@@ -25,8 +27,8 @@ class SignUpViewModel : ViewModel() {
         passwordConfirm: String,
         nickname: String,
         gender: String,
-        height: Int,
-        weight: Int,
+        height: Short,
+        weight: Short,
         alarmEnabled: Boolean
     ) {
         viewModelScope.launch {
@@ -41,7 +43,7 @@ class SignUpViewModel : ViewModel() {
                     weight = weight,
                     alarmEnabled = alarmEnabled
                 )
-
+                Log.d(TAG, "signUp Request : $request ")
                 val res = repository.signUp(request)
                 val body = res.body()
 

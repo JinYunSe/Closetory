@@ -1,91 +1,364 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootMyPage"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".homeActivity.mypage.MyPageFragment">
+    android:padding="16dp">
 
-    <!-- 위쪽 빈 공간 -->
-    <Space
-        android:layout_width="match_parent"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nsvMyPage"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="2" />
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- 중앙 텍스트 -->
-    <TextView
-        android:id="@+id/text_my_page"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="8dp"
-        android:text="MyPageFragment"
-        android:textAlignment="center"
-        android:textColor="@color/black"
-        android:textSize="20sp" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/containerMyPage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <!-- 회원정보 수정 버튼 (추가) -->
-    <Button
-        android:id="@+id/tvEditProfile"
-        android:layout_width="wrap_content"
-        android:layout_height="56dp"
-        android:layout_marginTop="24dp"
-        android:layout_gravity="center_horizontal"
-        android:text="회원정보 수정"
-        android:backgroundTint="@color/main_color"
-        android:textColor="@color/black" />
+            <!-- 상단 제목 -->
+            <TextView
+                android:id="@+id/tvMyPageTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="마이페이지"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                />
 
-    <!-- 로그아웃 버튼 -->
-    <Button
-        android:id="@+id/btnLogout"
-        android:layout_width="wrap_content"
-        android:layout_height="56dp"
-        android:layout_marginTop="32dp"
-        android:layout_gravity="center_horizontal"
-        android:text="로그아웃"
-        android:backgroundTint="@color/main_color" />
+            <!-- 프로필 동그라미 -->
+            <FrameLayout
+                android:id="@+id/profileCircle"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:background="@drawable/bg_circle_gray"
+                app:layout_constraintTop_toBottomOf="@id/tvMyPageTitle"
+                app:layout_constraintStart_toStartOf="parent">
 
-    <!-- 코디 저장소 헤더 + 더보기 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_marginTop="16dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Circle" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="코디 저장소"
-            android:textStyle="bold"
-            android:gravity="center_vertical|start"/>
+            </FrameLayout>
 
-        <TextView
-            android:id="@+id/btn_cody_repository"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center_vertical|end"
-            android:text="더보기"
-            android:textColor="#000000"
-            android:textSize="12sp" />
-    </LinearLayout>
+            <!-- 전신 사진 -->
+            <FrameLayout
+                android:id="@+id/bodyPhotoBox"
+                android:layout_width="140dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_square_gray"
+                app:layout_constraintTop_toBottomOf="@id/tvMyPageTitle"
+                app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- 회원 탈퇴 버튼 -->
-    <Button
-        android:id="@+id/btnSignout"
-        android:layout_width="wrap_content"
-        android:layout_height="56dp"
-        android:layout_marginTop="32dp"
-        android:layout_gravity="center_horizontal"
-        android:text="회원 탈퇴"
-        android:backgroundTint="@color/main_color" />
+                <ImageView
+                    android:id="@+id/ivBodyPhoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter"/>
+            </FrameLayout>
 
-    <!-- 아래쪽 여백 -->
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2" />
+            <!-- 닉네임 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/boxNickname"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_profile_border"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                app:layout_constraintTop_toBottomOf="@id/profileCircle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/boxHeight"
+                app:layout_constraintHorizontal_weight="2">
 
-</LinearLayout>
+                <TextView
+                    android:id="@+id/tvNicknameLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="닉네임"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvNickname"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@id/tvNicknameLabel"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- 키 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/boxHeight"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_profile_border"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                app:layout_constraintTop_toBottomOf="@id/profileCircle"
+                app:layout_constraintStart_toEndOf="@id/boxNickname"
+                app:layout_constraintEnd_toStartOf="@id/boxWeight"
+                app:layout_constraintHorizontal_weight="1">
+
+                <TextView
+                    android:id="@+id/tvHeightLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="키"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvHeight"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@id/tvHeightLabel"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- 몸무게 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/boxWeight"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_profile_border"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                app:layout_constraintTop_toBottomOf="@id/profileCircle"
+                app:layout_constraintStart_toEndOf="@id/boxHeight"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1">
+
+                <TextView
+                    android:id="@+id/tvWeightLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="몸무게"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvWeight"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@id/tvWeightLabel"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <!-- 회원정보 수정 버튼 (너 코드에서 tvEditProfile 사용 중) -->
+            <TextView
+                android:id="@+id/tvEditProfile"
+                android:layout_width="0dp"
+                android:layout_height="54dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/main_color"
+                android:gravity="center"
+                android:text="회원정보 수정"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/boxNickname"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- 코디 히스토리 헤더 -->
+            <TextView
+                android:id="@+id/tvHistoryTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="코디 히스토리"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/tvEditProfile"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <TextView
+                android:id="@+id/tvHistoryMore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="더보기"
+                android:textSize="14sp"
+                app:layout_constraintTop_toTopOf="@id/tvHistoryTitle"
+                app:layout_constraintBottom_toBottomOf="@id/tvHistoryTitle"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- 코디 히스토리 리스트 -->
+            <!-- 통계 -->
+            <TextView
+                android:id="@+id/rvHistory"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="12dp"
+                android:overScrollMode="never"
+                android:background="#E0E0E0"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvHistoryTitle" />
+
+            <TextView
+                android:id="@+id/tvStatsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="통계"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/rvHistory"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <TextView
+                android:id="@+id/tvStatsSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="달에 가장 자주 입은 옷 Top 3"
+                android:textSize="12sp"
+                app:layout_constraintTop_toBottomOf="@id/tvStatsTitle"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <!-- Top3 -->
+            <TextView
+                android:id="@+id/rvTop3"
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_marginTop="12dp"
+                android:overScrollMode="never"
+                android:background="#E0E0E0"
+                app:layout_constraintTop_toBottomOf="@id/tvStatsSubtitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- 원형 차트 자리 (태그/색상 비중) -->
+            <FrameLayout
+                android:id="@+id/chartTagContainer"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_circle_gray"
+                app:layout_constraintTop_toBottomOf="@id/rvTop3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/chartColorContainer"
+                app:layout_constraintHorizontal_weight="1"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="태그별 비중"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/chartColorContainer"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_circle_gray"
+                app:layout_constraintTop_toBottomOf="@id/rvTop3"
+                app:layout_constraintStart_toEndOf="@id/chartTagContainer"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="색상 비중"
+                    android:textStyle="bold"/>
+            </FrameLayout>
+
+            <!-- 하단 버튼 -->
+            <Button
+                android:id="@+id/btnSignout"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/main_color"
+                android:text="회원탈퇴"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/chartTagContainer"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnLogout"
+                app:layout_constraintHorizontal_weight="1"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/main_color"
+                android:text="로그아웃"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/chartColorContainer"
+                app:layout_constraintStart_toEndOf="@id/btnSignout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1"/>
+
+            <!-- 스크롤 여유 -->
+            <View
+                android:id="@+id/bottomSpacer"
+                android:layout_width="0dp"
+                android:layout_height="24dp"
+                app:layout_constraintTop_toBottomOf="@id/btnLogout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

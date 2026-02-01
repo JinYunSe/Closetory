@@ -16,7 +16,7 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentClosetBinding
 import com.ssafy.closetory.dto.ClosetResponse
 import com.ssafy.closetory.homeActivity.HomeActivity
-import com.ssafy.closetory.homeActivity.adpter.ClothesAdapter
+import com.ssafy.closetory.homeActivity.adapter.ClothesAdapter
 import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
