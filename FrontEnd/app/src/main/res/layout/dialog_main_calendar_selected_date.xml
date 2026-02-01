@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_home_fragment_coordination"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/iron_man" />
 
     <ImageView
         android:id="@+id/iv_home_fragment_close"
@@ -12,12 +17,5 @@
         android:layout_gravity="end|top"
         android:layout_margin="12dp"
         android:src="@drawable/img_cancel" />
-
-    <ImageView
-        android:id="@+id/iv_home_fragment_coordination"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/iron_man"
-        />
 
 </FrameLayout>

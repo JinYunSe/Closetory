@@ -31,8 +31,10 @@ class HomeViewModel : ViewModel() {
                 if (res.isSuccessful) {
                     val list = res.body()?.data!!
                     _stylingList.value = list
+                    Log.d(TAG, "홈 캘린더 옷 조회 성공 : $list")
                 } else {
                     val errorMessage = res.body()?.errorMessage
+                    Log.d(TAG, "홈 캘린더 옷 조회 실패 : $errorMessage")
                     _message.emit(errorMessage)
                 }
             } catch (e: Exception) {
