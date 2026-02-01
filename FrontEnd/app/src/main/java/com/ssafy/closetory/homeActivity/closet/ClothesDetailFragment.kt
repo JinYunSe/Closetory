@@ -15,16 +15,12 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentClothesDetailBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.homeActivity.HomeActivity
-import com.ssafy.closetory.homeActivity.adpter.RecommendClothesAdapter
-import com.ssafy.closetory.homeActivity.post.create.dialog.ClothesPickerDialogFragment.Companion.KEY_CLOTHES_ID
-import com.ssafy.closetory.homeActivity.post.create.dialog.ClothesPickerDialogFragment.Companion.KEY_PHOTO_URL
-import com.ssafy.closetory.homeActivity.post.create.dialog.ClothesPickerDialogFragment.Companion.REQUEST_KEY
+import com.ssafy.closetory.homeActivity.adapter.RecommendClothesAdapter
 import com.ssafy.closetory.util.ChipUtils
 import com.ssafy.closetory.util.ClothTypeOptions
 import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 private const val TAG = "ClothesDetailFragment_싸피"

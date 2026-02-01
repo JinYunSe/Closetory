@@ -1,5 +1,5 @@
 // MyPageFragment
-package com.ssafy.closetory.homeActivity.mypage
+package com.ssafy.closetory.homeActivity.myPage
 
 import android.content.Intent
 import android.os.Bundle
@@ -21,6 +21,7 @@ import com.ssafy.closetory.authActivity.AuthActivity
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
 import com.ssafy.closetory.dto.EditProfileInfoResponse
+import com.ssafy.closetory.homeActivity.mypage.MyPageViewModel
 import com.ssafy.closetory.util.auth.AuthManager
 import kotlinx.coroutines.launch
 

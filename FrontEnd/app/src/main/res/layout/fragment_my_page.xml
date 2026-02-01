@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".homeActivity.mypage.MyPageFragment">
+    tools:context=".homeActivity.myPage.MyPageFragment">
 
     <!-- 위쪽 빈 공간 -->
     <Space

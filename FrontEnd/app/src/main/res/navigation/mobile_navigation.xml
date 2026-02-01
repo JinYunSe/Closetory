@@ -49,7 +49,7 @@
 
     <fragment
         android:id="@+id/navigation_my_page"
-        android:name="com.ssafy.closetory.homeActivity.mypage.MyPageFragment"
+        android:name="com.ssafy.closetory.homeActivity.myPage.MyPageFragment"
         android:label="@string/title_my_page"
         tools:layout="@layout/fragment_my_page">
 
