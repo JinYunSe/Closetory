@@ -107,6 +107,8 @@ class MyPageFragment :
     private fun collectSignout() {
         viewLifecycleOwner.lifecycleScope.launch {
             signoutViewModel.signoutSuccess.collect {
+                Toast.makeText(requireContext(), "회원 탈퇴에 성공했습니다.", Toast.LENGTH_SHORT).show()
+
                 ApplicationClass.authManager.clearToken()
                 ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
 

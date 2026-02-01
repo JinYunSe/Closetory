@@ -10,6 +10,6 @@ import retrofit2.http.Path
 
 // 회원 탈퇴 관련 API 정의
 interface SignoutService {
-    @HTTP(method = "DELETE", path = "user/{userId}", hasBody = true)
+    @HTTP(method = "DELETE", path = "users/{userId}", hasBody = true)
     suspend fun signout(@Path("userId") userId: Int, @Body request: SignoutRequest): Response<ApiResponse<Unit>>
 }
