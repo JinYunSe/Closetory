@@ -81,8 +81,8 @@ class AiStylingFragment :
         viewModel.aiImageUrl.observe(viewLifecycleOwner) { url ->
             if (url.isNullOrBlank()) return@observe
 
+            // 가상피팅 완료 시 팝업 열기
             binding.layoutAiFitting.visibility = View.VISIBLE
-            binding.vvAiFitting.visibility = View.GONE
             binding.ivAiFittingResult.visibility = View.VISIBLE
 
             Glide.with(requireContext())
@@ -233,9 +233,7 @@ class AiStylingFragment :
             }
 
             AiStylingStage.FITTING_READY -> {
-                binding.layoutAiFitting.visibility = View.VISIBLE
-                binding.vvAiFitting.visibility = View.VISIBLE
-                binding.ivAiFittingResult.visibility = View.GONE
+                // 가상피팅만 요청 (팝업은 결과가 나왔을 때 열림)
                 viewModel.requestAiFitting()
             }
 
@@ -287,7 +285,7 @@ class AiStylingFragment :
             "android.resource://${requireContext().packageName}/${R.raw.vv_ai_fitting_progress}"
         )
 
-        // AI 추천용 VideoView 설정
+        // AI 추천 & 가상피팅용 VideoView 설정
         binding.vvAiLoading.apply {
             setVideoURI(videoUri)
 
@@ -297,22 +295,7 @@ class AiStylingFragment :
             }
 
             setOnErrorListener { _, what, extra ->
-                Log.e("AiStyling", "Video error (vvAiLoading): what=$what, extra=$extra")
-                false
-            }
-        }
-
-        // AI 가상피팅용 VideoView 설정
-        binding.vvAiFitting.apply {
-            setVideoURI(videoUri)
-
-            setOnPreparedListener { mediaPlayer ->
-                mediaPlayer.isLooping = true
-                mediaPlayer.setVolume(0f, 0f)
-            }
-
-            setOnErrorListener { _, what, extra ->
-                Log.e("AiStyling", "Video error (vvAiFitting): what=$what, extra=$extra")
+                Log.e("AiStyling", "Video error: what=$what, extra=$extra")
                 false
             }
         }
@@ -334,14 +317,13 @@ class AiStylingFragment :
             }
 
             AiStylingViewModel.LoadingType.FITTING -> {
-                // AI 가상피팅 중: 팝업 내부의 vvAiFitting 표시
+                // AI 가상피팅 중: 메인 화면의 vvAiLoading 표시 (팝업은 결과 나올 때 열림)
                 if (isLoading) {
-                    binding.vvAiFitting.visibility = View.VISIBLE
-                    binding.vvAiFitting.start()
-                    binding.ivAiFittingResult.visibility = View.GONE
+                    binding.vvAiLoading.visibility = View.VISIBLE
+                    binding.vvAiLoading.start()
                 } else {
-                    binding.vvAiFitting.visibility = View.GONE
-                    binding.vvAiFitting.stopPlayback()
+                    binding.vvAiLoading.visibility = View.GONE
+                    binding.vvAiLoading.stopPlayback()
                 }
             }
 
@@ -353,8 +335,6 @@ class AiStylingFragment :
                 // 로딩이 아닌 경우 모든 비디오 정지
                 binding.vvAiLoading.visibility = View.GONE
                 binding.vvAiLoading.stopPlayback()
-                binding.vvAiFitting.visibility = View.GONE
-                binding.vvAiFitting.stopPlayback()
             }
         }
     }
@@ -424,7 +404,6 @@ class AiStylingFragment :
     override fun onPause() {
         super.onPause()
         binding.vvAiLoading.stopPlayback()
-        binding.vvAiFitting.stopPlayback()
 
         // 가상피팅 완료 후 다른 곳으로 이동 시 초기화
         val stage = viewModel.stage.value ?: AiStylingStage.RECOMMEND
