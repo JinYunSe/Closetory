@@ -8,9 +8,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
@@ -18,7 +15,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.AuthActivity
@@ -67,7 +63,6 @@ class MyPageFragment :
             Log.d(TAG, "회원 탈퇴 버튼 클릭")
             showSignoutDialog()
         }
-
 
         // 회원정보 수정 진입 전 비밀번호 확인 이벤트 등록
         binding.tvEditProfile.setOnClickListener {
