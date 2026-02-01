@@ -68,92 +68,66 @@
 
     </LinearLayout>
 
-    <!-- 정렬/필터: 4개 중 1개만 선택 (2x2, 기본 최신순) -->
+    <!-- 정렬/필터: 4개 중 1개만 선택 (1x4, 기본 최신순) -->
     <RadioGroup
         android:id="@+id/rgPostOption"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:layout_marginStart="150dp"
-        android:orientation="vertical"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@+id/llSearch"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- 1행 -->
-        <LinearLayout
-            android:id="@+id/llOptionRow1"
-            android:layout_width="match_parent"
+        <RadioButton
+            android:id="@+id/rbLatest"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_weight="0.6"
+            android:checked="true"
+            android:text="최신순"
+            android:textSize="10sp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp" />
 
-            <RadioButton
-                android:id="@+id/rbLatest"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                android:layout_weight="1"
-                android:checked="true"
-                android:text="최신순"
-                android:textSize="10sp"
-                android:paddingStart="6dp"/>
-
-            <RadioButton
-                android:id="@+id/rbPopular"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                android:text="추천순"
-                android:textSize="10sp"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp" />
-
-        </LinearLayout>
-
-        <!-- 2행 -->
-        <LinearLayout
-            android:id="@+id/llOptionRow2"
-            android:layout_width="match_parent"
+        <RadioButton
+            android:id="@+id/rbPopular"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp">
+            android:layout_weight="0.6"
+            android:text="추천순"
+            android:textSize="10sp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"/>
 
-            <RadioButton
-                android:id="@+id/rbWritten"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                android:text="내가 쓴 게시글 보기"
-                android:textSize="10sp"
-                android:paddingStart="6dp" />
+        <RadioButton
+            android:id="@+id/rbWritten"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:text="나의 게시글"
+            android:textSize="10sp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp" />
 
-            <RadioButton
-                android:id="@+id/rbLiked"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                android:text="좋아요한 게시글 보기"
-                android:textSize="10sp"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp" />
-
-        </LinearLayout>
+        <RadioButton
+            android:id="@+id/rbLiked"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="좋아요한 게시글"
+            android:textSize="10sp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"/>
 
     </RadioGroup>
 
