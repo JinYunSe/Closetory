@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.ssafy.closetory.R
@@ -18,7 +19,7 @@ import com.ssafy.closetory.homeActivity.aiStyling.Day
 import com.ssafy.closetory.homeActivity.aiStyling.WeekAdapter
 import com.ssafy.closetory.util.ColorOptions
 import java.util.Calendar
-import java.util.Date
+import kotlinx.coroutines.launch
 
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind, R.layout.fragment_home) {
 
@@ -30,12 +31,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
     private var selectedDay: Day? = null
 
     private lateinit var homeActivity: HomeActivity
+
+    // 네 프로젝트가 Factory/Hilt로 ViewModel 주입하는 구조가 아니라면 이 부분은 기존 방식에 맞춰야 함
     private val homeViewModel: HomeViewModel by viewModels()
 
-    // ✅ 날짜별 (상의색, 하의색) 캐시
     private var dayColorMap: Map<String, Pair<Int?, Int?>> = emptyMap()
-
-    // ✅ 날짜 다이얼로그 중복 방지(선택)
     private var selectedDateDialog: AlertDialog? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -47,7 +47,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         setupEmbeddedCalendar(view)
 
         observeStylingList()
-        requestCurrentMonthStyling()
+
+        homeViewModel.getStylingList(isMain = true)
     }
 
     private fun setupClickPostBtn() {
@@ -66,17 +67,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
 
         setupMonthNavButtons()
 
-        // 현재 버튼은 GONE이지만 남겨도 됨
-        setupEmbeddedActionButtons()
+        calBinding.btnConfirm.visibility = View.GONE
+        calBinding.btnCancel.visibility = View.GONE
+        calBinding.tvTitle.visibility = View.GONE
     }
 
     private fun bindCalendarInclude(root: View) {
         val includeRoot = root.findViewById<View>(R.id.home_calender)
         calBinding = DialogCalendarPickerBinding.bind(includeRoot)
-
-        calBinding.tvTitle.visibility = View.GONE
-        calBinding.btnConfirm.visibility = View.GONE
-        calBinding.btnCancel.visibility = View.GONE
     }
 
     private fun setupWeekHeader() {
@@ -103,45 +101,29 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
     }
 
     private fun setupMonthNavButtons() {
-        calBinding.btnPrev.setOnClickListener { moveMonthAndFetch(-1) }
-        calBinding.btnNext.setOnClickListener { moveMonthAndFetch(1) }
+        calBinding.btnPrev.setOnClickListener { moveMonthAndRender(-1) }
+        calBinding.btnNext.setOnClickListener { moveMonthAndRender(1) }
     }
 
-    private fun moveMonthAndFetch(deltaMonth: Int) {
+    // 서버 재요청 없음 (API가 연/월을 안 받으니까)
+    private fun moveMonthAndRender(deltaMonth: Int) {
         calendar.add(Calendar.MONTH, deltaMonth)
         calendar.set(Calendar.DAY_OF_MONTH, 1)
-
-        // 월 텍스트/그리드는 즉시 갱신
-        renderMonth()
-
-        // 해당 월 데이터 요청
-        requestCurrentMonthStyling()
-    }
-
-    private fun setupEmbeddedActionButtons() {
-        calBinding.btnCancel.setOnClickListener { clearSelectionAndRender() }
-        calBinding.btnConfirm.setOnClickListener { handleConfirmSelection() }
-    }
-
-    private fun clearSelectionAndRender() {
-        selectedDay = null
         renderMonth()
     }
 
-    private fun handleConfirmSelection() {
-        val dateStr = selectedDay?.let { formatDay(it) } ?: formatToday()
-        // TODO 사용처 연결
-        // binding.tvPickedDate.text = dateStr
-    }
+    private fun observeStylingList() {
+        homeViewModel.stylingList.observe(viewLifecycleOwner) { list ->
+            dayColorMap = buildDayColorMap(list)
+            renderMonth()
+        }
 
-    private fun formatToday(): String {
-        val y = today.get(Calendar.YEAR)
-        val m0 = today.get(Calendar.MONTH)
-        val d = today.get(Calendar.DAY_OF_MONTH)
-        return "%04d-%02d-%02d".format(y, m0 + 1, d)
+        viewLifecycleOwner.lifecycleScope.launch {
+            homeViewModel.message.collect { message ->
+                showToast(message!!)
+            }
+        }
     }
-
-    private fun formatDay(day: Day): String = "%04d-%02d-%02d".format(day.year, day.month0 + 1, day.dayOfMonth)
 
     private fun renderMonth() {
         val year = calendar.get(Calendar.YEAR)
@@ -221,11 +203,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         val d = c.get(Calendar.DAY_OF_MONTH)
         val dow = c.get(Calendar.DAY_OF_WEEK)
 
-        val isToday = (
+        val isToday =
             y == today.get(Calendar.YEAR) &&
                 m0 == today.get(Calendar.MONTH) &&
                 d == today.get(Calendar.DAY_OF_MONTH)
-            )
 
         return Day(
             dayText = d.toString(),
@@ -238,38 +219,19 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         )
     }
 
-    private fun requestCurrentMonthStyling() {
-        val y = calendar.get(Calendar.YEAR)
-        val m = calendar.get(Calendar.MONTH) + 1
-        homeViewModel.getStylingList(y, m) // ✅ 너 ViewModel 함수명에 맞추기
-    }
-
-    private fun observeStylingList() {
-        homeViewModel.stylingList.observe(viewLifecycleOwner) { list ->
-            dayColorMap = buildDayColorMap(list)
-            renderMonth()
-        }
-    }
-
-    /**
-     * ✅ list -> 날짜별 (상의색, 하의색) 맵
-     * 아래 필드명은 너 StylingResponse에 맞게 수정 필요:
-     * - date: "yyyy-MM-dd"
-     * - topColor: "RED" 같은 영문 코드
-     * - bottomColor: "BLUE" 같은 영문 코드
-     */
-    private fun buildDayColorMap(list: List<StylingResponse>): Map<Date, Pair<Int?, Int?>> {
-        val byDate = list.groupBy { it.date } // TODO 필드명 맞추기
-
-        return byDate.mapValues { (_, items) ->
-            val item = items.last() // TODO 최신 기준 필요하면 정렬로 변경
-
-            val topArgb = ColorOptions.englishToArgb(item.topColor) // TODO 필드명 맞추기
-            val bottomArgb = ColorOptions.englishToArgb(item.bottomColor) // TODO 필드명 맞추기
-
-            topArgb to bottomArgb
-        }
-    }
+    // 서버 리스트 → 날짜별 (상의색, 하의색) 변환
+//    private fun buildDayColorMap(list: List<StylingResponse>): Map<String, Pair<Int?, Int?>> {
+//        return list
+//            .asSequence()
+//            .filter { !it.date.isNullOrBlank() }     // ✅ null/blank 제거
+//            .groupBy { it.date!! }                   // ✅ 키를 String으로 확정
+//            .mapValues { (_, items) ->
+//                val item = items.lastOrNull()
+//                val top = ColorOptions.englishToArgb(item?.topColor)
+//                val bottom = ColorOptions.englishToArgb(item?.bottomColor)
+//                top to bottom
+//            }
+//    }
 
     private fun keyOf(d: Day): String {
         val m = d.month0 + 1
@@ -280,11 +242,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         selectedDateDialog?.dismiss()
         selectedDateDialog = null
 
-        val v = layoutInflater.inflate(R.layout.dialog_main_calendar_selected_date, null)
-        val ivClose = v.findViewById<ImageView>(R.id.iv_home_fragment_close)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_main_calendar_selected_date, null)
+        val ivClose = dialogView.findViewById<ImageView>(R.id.iv_home_fragment_close)
 
         val dialog = AlertDialog.Builder(homeActivity)
-            .setView(v)
+            .setView(dialogView)
             .create()
 
         ivClose.setOnClickListener { dialog.dismiss() }

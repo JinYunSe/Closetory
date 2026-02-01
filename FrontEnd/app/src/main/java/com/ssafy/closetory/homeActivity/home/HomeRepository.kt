@@ -2,17 +2,15 @@ package com.ssafy.closetory.homeActivity.home
 
 import android.util.Log
 import com.ssafy.closetory.ApplicationClass
+import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.StylingResponse
 import kotlin.math.log
+import retrofit2.Response
 
 private const val TAG = "HomeRepository_싸피"
 class HomeRepository {
-    val service = ApplicationClass.retrofit.create(HomeService::class.java)
+    private val service: HomeService = ApplicationClass.retrofit.create(HomeService::class.java)
 
-    fun getStylingList() {
-        try {
-            service
-        } catch (e: Exception) {
-            Log.e(TAG, "현재 달 기준 앞 뒤 3달 룩 조회 : ${e.message}")
-        }
-    }
+    suspend fun getStylingList(isMain: Boolean): Response<ApiResponse<List<StylingResponse>>> =
+        service.getStylingList(isMain)
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.dto.StylingResponse
+import kotlin.math.log
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -22,12 +23,21 @@ class HomeViewModel : ViewModel() {
 
     private val homeRepository = HomeRepository()
 
-    fun getStylingList(month: Int) {
+    fun getStylingList(isMain: Boolean) {
         viewModelScope.launch {
             try {
-                val res = homeRepository.getStylingList()
+                val res = homeRepository.getStylingList(isMain)
+
+                if (res.isSuccessful) {
+                    val list = res.body()?.data!!
+                    _stylingList.value = list
+                } else {
+                    val errorMessage = res.body()?.errorMessage
+                    _message.emit(errorMessage)
+                }
             } catch (e: Exception) {
-                Log.d(TAG, "3개월 동안 코드 내역 : ${e.message ?: "네트워크 오류"}")
+                Log.e(TAG, "홈 룩 목록 조회 : ${e.message}")
+                _message.emit(e.message ?: "네트워크 오류 발생")
             }
         }
     }

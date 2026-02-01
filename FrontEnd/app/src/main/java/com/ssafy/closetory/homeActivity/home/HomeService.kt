@@ -8,8 +8,5 @@ import retrofit2.http.Query
 
 interface HomeService {
     @GET("looks/monthly")
-    suspend fun getStylingList(
-        @Query("date") date: String,
-        @Query("isMain") isMain: Boolean
-    ): Response<ApiResponse<List<StylingResponse>>>
+    suspend fun getStylingList(@Query("isMain") isMain: Boolean): Response<ApiResponse<List<StylingResponse>>>
 }
