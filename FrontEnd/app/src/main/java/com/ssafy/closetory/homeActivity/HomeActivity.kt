@@ -3,6 +3,7 @@ package com.ssafy.closetory.homeActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.navigation.findNavController
+import androidx.navigation.navOptions
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseActivity
 import com.ssafy.closetory.databinding.ActivityHomeBinding
@@ -56,14 +57,40 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
         }
 
         // FAB 클릭 시 AddClose 화면으로 이동한다.
-        binding.fabAdd.setOnClickListener { navigateTo(navController, R.id.navigation_registration_clothes) }
+        binding.fabAdd.setOnClickListener {
+            // 온보딩 페이지에서는 FAB 먹통
+            if (navController.currentDestination?.id == R.id.navigation_tag_onboarding) return@setOnClickListener
+            navigateTo(navController, R.id.navigation_registration_clothes)
+        }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val active = items.firstOrNull { it.destinationId == destination.id }
             updateSelection(items, active)
         }
+
         // 앱 시작 시 기본 선택 상태를 적용한다.
         updateSelection(items, items.first())
+
+        // 홈 진입 시 온보딩 자동 표시 (1회만)
+        if (savedInstanceState == null) {
+            val sp = com.ssafy.closetory.baseCode.data.local.SharedPreferencesUtil(this)
+            val userId = sp.getUserId(com.ssafy.closetory.ApplicationClass.USERID, -1) ?: -1
+
+            // 로그인 100% 보장이라고 해도, -1 방어는 해두는 게 안전
+            if (userId != -1 && !sp.isOnboardingDone(userId)) {
+                navController.navigate(
+                    R.id.navigation_tag_onboarding,
+                    null,
+                    navOptions {
+                        // 현재 그래프의 startDestination(보통 navigation_home)을 백스택에서 제거
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                )
+            }
+        }
 
         registerObserve()
     }
@@ -83,6 +110,9 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
     }
 
     private fun navigateTo(navController: androidx.navigation.NavController, destinationId: Int) {
+        // 온보딩 화면이면 하단바 탭 이동 먹통
+        if (navController.currentDestination?.id == R.id.navigation_tag_onboarding) return
+
         if (navController.currentDestination?.id == destinationId) {
             return
         }

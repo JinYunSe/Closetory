@@ -150,4 +150,9 @@
             android:defaultValue="-1" />
     </fragment>
 
+    <fragment
+        android:id="@+id/navigation_tag_onboarding"
+        android:name="com.ssafy.closetory.homeActivity.tagOnboarding.TagOnboardingFragment"
+        android:label="TagOnboardingFragment" />
+
 </navigation>
