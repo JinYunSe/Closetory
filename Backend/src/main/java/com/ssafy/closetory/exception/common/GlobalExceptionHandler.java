@@ -4,6 +4,7 @@ import com.ssafy.closetory.dto.common.ApiResponse;
 import com.ssafy.closetory.exception.s3.S3UploadException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -57,5 +58,16 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(ApiResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 오류가 발생했습니다."));
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException e) {
+    String errorMessage = "유효성 검사 실패";
+    if (e.getBindingResult().getFieldError() != null) {
+      errorMessage = e.getBindingResult().getFieldError().getDefaultMessage();
+    }
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+      .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), errorMessage));
   }
 }

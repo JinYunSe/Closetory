@@ -175,9 +175,7 @@ public class UserServiceImpl implements UserService {
     }
 
     User user =
-      userRepository
-        .findById(userId)
-        .orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
 
     if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new BadRequestException("비밀번호가 올바르지 않습니다.");
