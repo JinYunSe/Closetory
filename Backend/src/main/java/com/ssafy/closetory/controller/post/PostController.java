@@ -61,7 +61,7 @@ public class PostController {
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<PostCreateResponse>> updatePost(
       @PathVariable Integer postId,
-      @RequestPart(value = "photo") MultipartFile photo,
+      @RequestPart(value = "photo", required = false) MultipartFile photo,
       @RequestPart("request") String requestJson,
       @AuthenticationPrincipal Integer userId)
       throws JsonProcessingException {
