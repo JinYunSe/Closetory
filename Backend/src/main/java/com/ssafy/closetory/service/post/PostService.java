@@ -29,4 +29,6 @@ public interface PostService {
   void deleteComment(Integer postId, Integer commentId, Integer userId);
 
   List<GetAllCommentsResponse> getAllComments(Integer postId);
+
+  void increasePostViews(Integer postId);
 }

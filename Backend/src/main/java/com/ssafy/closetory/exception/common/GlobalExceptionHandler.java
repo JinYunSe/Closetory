@@ -61,13 +61,14 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException e) {
+  public ResponseEntity<ApiResponse<Void>> handleValidationException(
+      MethodArgumentNotValidException e) {
     String errorMessage = "유효성 검사 실패";
     if (e.getBindingResult().getFieldError() != null) {
       errorMessage = e.getBindingResult().getFieldError().getDefaultMessage();
     }
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-      .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), errorMessage));
+        .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), errorMessage));
   }
 }

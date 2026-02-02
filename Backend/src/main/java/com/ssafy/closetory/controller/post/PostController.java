@@ -9,7 +9,6 @@ import com.ssafy.closetory.service.post.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,10 +48,10 @@ public class PostController {
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<PostDetailResponse>> getPostDetail(
       @PathVariable Integer postId, @AuthenticationPrincipal Integer userId) {
-
+    postService.increasePostViews(postId);
     PostDetailResponse response = postService.getPostDetail(postId, userId);
 
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "게시글 수정 완료", response));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "게시글 상세 조회 완료", response));
   }
 
   @PatchMapping(

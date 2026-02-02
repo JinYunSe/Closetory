@@ -2,12 +2,11 @@ package com.ssafy.closetory.entity.post;
 
 import com.ssafy.closetory.entity.clothes.Clothes;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "posts")
@@ -65,5 +64,4 @@ public class Post {
   public void increaseViews() {
     this.views++;
   }
-
 }

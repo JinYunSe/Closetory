@@ -3,10 +3,9 @@ package com.ssafy.closetory.entity.user;
 import com.ssafy.closetory.enums.Gender;
 import com.ssafy.closetory.enums.Provider;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -103,5 +102,4 @@ public class User {
   public void updateBodyPhotoUrl(String bodyPhotoUrl) {
     this.bodyPhotoUrl = bodyPhotoUrl;
   }
-
 }

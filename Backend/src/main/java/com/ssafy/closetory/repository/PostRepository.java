@@ -1,12 +1,12 @@
 package com.ssafy.closetory.repository;
 
 import com.ssafy.closetory.entity.post.Post;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Integer> {
   @Query(
@@ -86,4 +86,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       ORDER BY COUNT(l) DESC, p.createdAt DESC
       """)
   List<Post> findPopularPosts(String keyword);
+
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query("update Post p set p.views = p.views + 1 where p.id = :postId")
+  void increaseViews(@Param("postId") Integer postId);
 }
