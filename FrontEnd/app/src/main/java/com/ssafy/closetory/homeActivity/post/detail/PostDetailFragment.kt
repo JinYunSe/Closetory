@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +18,7 @@ import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentPostDetailBinding
 import com.ssafy.closetory.homeActivity.adapter.PostDetailItemAdapter
+import com.ssafy.closetory.homeActivity.post.delete.PostDeleteViewModel
 import kotlinx.coroutines.launch
 
 private const val TAG = "PostDetailFragment_싸피"
@@ -25,7 +27,9 @@ private const val TAG = "PostDetailFragment_싸피"
 class PostDetailFragment :
     BaseFragment<FragmentPostDetailBinding>(FragmentPostDetailBinding::bind, R.layout.fragment_post_detail) {
 
+    // ViewModel 등록
     private val viewModel: PostDetailViewModel by viewModels()
+    private val deleteViewModel: PostDeleteViewModel by viewModels()
 
     private val postId: Int by lazy { arguments?.getInt("postId") ?: -1 }
 
@@ -56,6 +60,12 @@ class PostDetailFragment :
 
         // 수정 버튼 클릭
         setupUpdateButton()
+
+        // 삭제 버튼 클릭
+        setupDeleteButton()
+
+        // 삭제 결과 이벤트 수신
+        observeDeleteViewModel()
 
         // 사진 클릭 시 다이얼로그
         setupPhotoClickDialog()
@@ -182,6 +192,47 @@ class PostDetailFragment :
                         }
                         // 내 게시글인지 확인 후 숨기기.
                         itemAdapter.setIsMinePost(isMine)
+                    }
+                }
+            }
+        }
+    }
+
+    // 삭제 버튼 클릭
+    private fun setupDeleteButton() {
+        binding.btnDelete.setOnClickListener {
+            if (postId <= 0) {
+                Toast.makeText(requireContext(), "잘못된 게시글 번호입니다.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("게시글 삭제")
+                .setMessage("정말 삭제할까요?")
+                .setPositiveButton("삭제") { _, _ ->
+                    deleteViewModel.deletePost(postId)
+                }
+                .setNegativeButton("취소", null)
+                .show()
+        }
+    }
+
+    // 삭제 결과 이벤트 수신
+    private fun observeDeleteViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                deleteViewModel.event.collect { event ->
+                    when (event) {
+                        is PostDeleteViewModel.UiEvent.DeleteSuccess -> {
+                            Toast.makeText(requireContext(), "삭제 완료", Toast.LENGTH_SHORT).show()
+
+                            // 상세 화면 종료 -> 목록 화면으로 복귀
+                            findNavController().popBackStack()
+                        }
+
+                        is PostDeleteViewModel.UiEvent.DeleteFail -> {
+                            Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }

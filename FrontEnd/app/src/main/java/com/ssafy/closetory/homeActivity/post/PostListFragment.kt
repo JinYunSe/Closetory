@@ -40,8 +40,10 @@ class PostListFragment :
 
         observeViewModel()
 
-        // 기본 진입 시: 최신(latest)으로 전체 목록 호출
-        requestPosts(keyword = null)
+        // 최초 진입일 때만 기본 조회
+        if (savedInstanceState == null) {
+            requestPosts(keyword = null)
+        }
     }
 
     private fun goToPostDetail(targetPostId: Int) {
@@ -72,7 +74,10 @@ class PostListFragment :
         }
 
         // 기본 선택: 최신순
-        checkOnly(binding.rbLatest)
+        // 이미 체크된 상태(복원된 상태)가 있으면 그대로 둔다
+        if (!radios.any { it.isChecked }) {
+            checkOnly(binding.rbLatest)
+        }
 
         // 라디오 버튼 클릭 시: 하나만 체크되게 강제하고 즉시 재조회
         radios.forEach { rb ->
