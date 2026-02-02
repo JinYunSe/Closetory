@@ -6,7 +6,6 @@
     android:id="@+id/cardPost"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
     app:cardCornerRadius="24dp"
     app:cardElevation="2dp"
     app:cardUseCompatPadding="true">
@@ -22,7 +21,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:contentDescription="썸네일"
-            android:scaleType="centerCrop"
+            android:scaleType="fitXY"
             app:layout_constraintDimensionRatio="H,1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -35,8 +34,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="#F2F2F2"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
             app:layout_constraintTop_toBottomOf="@+id/ivThumbnail"
@@ -52,23 +51,11 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="#000000"
-                android:textSize="18sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="글 제목" />
-
-            <TextView
-                android:id="@+id/tvCommentCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:textColor="#000000"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintBaseline_toBaselineOf="@+id/tvTitle"
-                app:layout_constraintStart_toEndOf="@+id/tvTitle"
-                tools:text="(10)" />
 
             <!-- 2. 작성자(username) -->
             <TextView
@@ -77,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:textColor="#000000"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvTitle"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -90,15 +77,34 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 app:layout_constraintBottom_toBottomOf="parent">
+
+                <TextView
+                    android:id="@+id/tvCommentIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="💬"
+                    android:textSize="8sp" />
+
+                <TextView
+                    android:id="@+id/tvCommentCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:textColor="#000000"
+                    android:textSize="8sp"
+                    tools:text="10"  />
 
                 <TextView
                     android:id="@+id/tvViewsIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="👀"
-                    android:textSize="12sp" />
+                    android:textSize="8sp"
+                    android:layout_marginStart="6dp" />
 
                 <TextView
                     android:id="@+id/tvViews"
@@ -106,16 +112,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
                     android:textColor="#000000"
-                    android:textSize="12sp"
+                    android:textSize="8sp"
                     tools:text="10" />
 
                 <TextView
                     android:id="@+id/tvLikesIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="6dp"
                     android:text="👍"
-                    android:textSize="12sp" />
+                    android:textSize="8sp" />
 
                 <TextView
                     android:id="@+id/tvLikes"
@@ -123,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
                     android:textColor="#000000"
-                    android:textSize="12sp"
+                    android:textSize="8sp"
                     tools:text="10" />
 
             </LinearLayout>

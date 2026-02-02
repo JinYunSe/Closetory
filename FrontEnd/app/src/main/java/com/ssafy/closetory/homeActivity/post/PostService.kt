@@ -24,7 +24,7 @@ interface PostService {
     @GET("posts")
     suspend fun getPosts(
         @Query("keyword") keyword: String? = null,
-        @Query("filter") filter: PostQueryFilter? = null
+        @Query("searchfilter") searchfilter: PostQueryFilter? = null
     ): Response<ApiResponse<List<PostItemResponse>>>
 
     // 게시글 상세 페이지 조회

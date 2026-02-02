@@ -1,9 +1,13 @@
 package com.ssafy.closetory.homeActivity.post
+//
 
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.RadioButton
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -50,7 +54,7 @@ class PostListFragment :
     // RecyclerView(게시글 카드 목록) 초기 세팅
     private fun setupRecyclerView() {
         postListAdapter = PostListAdapter { item ->
-            // TODO: 게시글 상세로 이동 처리
+            goToPostDetail(item.postId)
         }
 
         binding.rvPostList.apply {
@@ -86,6 +90,21 @@ class PostListFragment :
             requestPosts(keyword = getKeywordOrNull())
         }
 
+        // 엔터 시 검색 기능
+        binding.etKeyword.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
+                requestPosts(keyword = getKeywordOrNull())
+
+                // 키보드 내리기
+                ViewCompat.getWindowInsetsController(binding.etKeyword)
+                    ?.hide(WindowInsetsCompat.Type.ime())
+
+                true
+            } else {
+                false
+            }
+        }
+
         // 게시글 생성 버튼 클릭 시: 게시글 생성 화면으로 이동
         binding.btnCreatePost.setOnClickListener {
             findNavController().navigate(R.id.action_post_list_to_post_create)
@@ -96,7 +115,7 @@ class PostListFragment :
     private fun requestPosts(keyword: String?) {
         viewModel.loadPosts(
             keyword = keyword,
-            filter = getSelectedFilter()
+            searchfilter = getSelectedFilter()
         )
     }
 

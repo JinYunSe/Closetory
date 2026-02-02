@@ -1,5 +1,6 @@
 package com.ssafy.closetory.homeActivity.post
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.dto.PostItemResponse
@@ -9,6 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+
+private const val TAG = "PostListViewModel_싸피"
 
 class PostListViewModel : ViewModel() {
 
@@ -27,14 +30,16 @@ class PostListViewModel : ViewModel() {
     val message: SharedFlow<String> = _message
 
     // 게시글 목록/검색 요청
-    fun loadPosts(keyword: String?, filter: PostQueryFilter) {
+    fun loadPosts(keyword: String?, searchfilter: PostQueryFilter) {
         viewModelScope.launch {
             _isLoading.value = true
 
             val apiRes = repository.getPosts(
                 keyword = keyword,
-                filter = filter
+                searchfilter = searchfilter
             )
+
+            Log.d(TAG, "Posts 응답 : $apiRes")
 
             val data = apiRes.data
             if (data != null) {
