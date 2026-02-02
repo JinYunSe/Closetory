@@ -230,8 +230,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/tvHistoryTitle" />
 
-            <!-- ✅ rvHistory 삭제 -->
-
             <!-- 통계 -->
             <TextView
                 android:id="@+id/tvStatsTitle"
@@ -253,8 +251,6 @@
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvStatsTitle" />
-
-            <!-- ✅ rvTop3 삭제 -->
 
             <!-- 태그 PieChart -->
             <com.github.mikephil.charting.charts.PieChart
