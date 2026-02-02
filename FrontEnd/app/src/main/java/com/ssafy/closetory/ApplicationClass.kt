@@ -45,13 +45,13 @@ class ApplicationClass : Application() {
         val client: OkHttpClient = OkHttpClient.Builder()
             .readTimeout(60000, TimeUnit.MILLISECONDS)
             .connectTimeout(300000, TimeUnit.MILLISECONDS)
-            // 자동으로 해더에 token 붙여 넣기
+            // 자동으로 헤더에 token을 붙여 주기
             .addInterceptor(AuthInterceptor())
             .authenticator(TokenAuthenticator(RefreshService.api))
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
             .build()
 
-        // 앱이 처음 생성되는 순간, retrofit 인스턴스를 생성
+        // 앱 시작 시 Retrofit 인스턴스를 생성
         retrofit = Retrofit.Builder()
             .baseUrl(API_BASE_URL)
             .client(client)

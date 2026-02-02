@@ -1,6 +1,4 @@
-// EditProfileService
-
-package com.ssafy.closetory.homeActivity.mypage.edit
+package com.ssafy.closetory.homeActivity.myPage.edit
 
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.EditProfileInfoResponse
