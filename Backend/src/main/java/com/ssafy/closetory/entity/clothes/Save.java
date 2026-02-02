@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "saves")
@@ -28,6 +29,7 @@ public class Save {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @Column(name = "created_at", nullable = false)
+  @CreationTimestamp
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 }

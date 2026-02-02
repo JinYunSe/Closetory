@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Getter
 @Setter
@@ -35,7 +36,8 @@ public class Clothes {
   @Column(name = "user_id", nullable = false)
   private Integer userId;
 
-  @Column(name = "created_at", nullable = false)
+  @CreationTimestamp
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
   @Column(name = "deleted_at")

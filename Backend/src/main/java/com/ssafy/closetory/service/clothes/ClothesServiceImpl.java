@@ -94,7 +94,6 @@ public class ClothesServiceImpl implements ClothesService {
             .clothesType(request.clothesType())
             .color(request.color())
             .userId(userId)
-            .createdAt(LocalDateTime.now())
             .build();
 
     if (request.tags() != null && !request.tags().isEmpty()) {
@@ -293,13 +292,7 @@ public class ClothesServiceImpl implements ClothesService {
       throw new ForbiddenException("자신의 옷은 저장할 수 없습니다.");
     }
 
-    Save save =
-        Save.builder()
-            .id(saveId)
-            .user(user)
-            .clothes(clothes)
-            .createdAt(LocalDateTime.now())
-            .build();
+    Save save = Save.builder().id(saveId).user(user).clothes(clothes).build();
 
     saveRepository.save(save);
   }
