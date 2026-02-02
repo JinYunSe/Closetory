@@ -7,5 +7,5 @@ data class EditProfileInfoResponse(
     val weight: Int,
     val alarmEnabled: Boolean,
     val profilePhotoUrl: String?, // 프로필 사진
-    val bodyPhotoUrl: String? // 전신 사진
+    val bodyPhotoUrl: String?
 )

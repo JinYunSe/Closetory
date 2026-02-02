@@ -1,5 +1,6 @@
 package com.ssafy.closetory.homeActivity.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,22 +13,19 @@ import com.ssafy.closetory.dto.PostDetailItemDto
 
 private const val TAG = "PostDetailItemAdapter_싸피"
 
-// 게시글 상세 페이지의 옷 요소(items)를 가로 리스트로 보여주는 어댑터
-class PostDetailItemAdapter(private val onItemClick: (PostDetailItemDto) -> Unit) :
-    RecyclerView.Adapter<PostDetailItemAdapter.ViewHolder>() {
+class PostDetailItemAdapter(
+    private val onItemClick: (PostDetailItemDto) -> Unit,
+    private val onSaveClick: (PostDetailItemDto) -> Unit
+) : RecyclerView.Adapter<PostDetailItemAdapter.ViewHolder>() {
 
     private val items = mutableListOf<PostDetailItemDto>()
-
-    // 내 게시글인지 확인
     private var isMinePost: Boolean = false
 
-    // Fragment에서 이용
     fun setIsMinePost(value: Boolean) {
         isMinePost = value
         notifyDataSetChanged()
     }
 
-    // items 리스트 갱신
     fun submitList(newItems: List<PostDetailItemDto>) {
         items.clear()
         items.addAll(newItems)
@@ -36,22 +34,18 @@ class PostDetailItemAdapter(private val onItemClick: (PostDetailItemDto) -> Unit
 
     inner class ViewHolder(private val binding: ItemPostDetailItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        // item 1개 바인딩
         fun bind(item: PostDetailItemDto) {
+            Log.d(TAG, "bind item: clothesId=${item.clothesId}, isSaved=${item.isSaved}, photoUrl=${item.photoUrl}")
+
             val rawUrl = item.photoUrl
-            val finalUrl = if (rawUrl.startsWith("http")) {
-                rawUrl
-            } else {
-                "${ApplicationClass.API_BASE_URL}${item.photoUrl}"
-            }
+            val finalUrl = if (rawUrl.startsWith("http")) rawUrl else "${ApplicationClass.API_BASE_URL}${item.photoUrl}"
 
             Glide.with(binding.root)
                 .load(finalUrl)
-                .placeholder(R.drawable.bg_gray_box) // 없으면 placeholder로 교체
+                .placeholder(R.drawable.bg_gray_box)
                 .error(R.drawable.bg_gray_box)
                 .into(binding.ivItem)
 
-            // 내 게시글 : 저장 버튼 숨김
             binding.ivSave.visibility = if (isMinePost) View.GONE else View.VISIBLE
 
             if (!isMinePost) {
@@ -62,19 +56,17 @@ class PostDetailItemAdapter(private val onItemClick: (PostDetailItemDto) -> Unit
                         R.drawable.baseline_bookmark_border_24
                     }
                 )
+
+                // 클릭은 그대로 Fragment로 전달 (거기서 resolve해서 처리)
+                binding.ivSave.setOnClickListener { onSaveClick(item) }
             } else {
-                // 재사용 대비: 리스너 제거
                 binding.ivSave.setOnClickListener(null)
             }
 
-            // 옷 요소 클릭 이벤트 처리
-            binding.root.setOnClickListener {
-                onItemClick(item)
-            }
+            binding.root.setOnClickListener { onItemClick(item) }
         }
     }
 
-    // ViewHolder 생성
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemPostDetailItemBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -84,11 +76,14 @@ class PostDetailItemAdapter(private val onItemClick: (PostDetailItemDto) -> Unit
         return ViewHolder(binding)
     }
 
-    // ViewHolder 바인딩
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position])
+        val item = items[position]
+        Log.d(
+            TAG,
+            "onBindViewHolder pos=$position clothesId=${item.clothesId} isSaved=${item.isSaved} url=${item.photoUrl}"
+        )
+        holder.bind(item)
     }
 
-    // 아이템 개수 반환
     override fun getItemCount(): Int = items.size
 }

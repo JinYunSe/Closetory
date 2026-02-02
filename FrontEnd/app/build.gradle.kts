@@ -138,4 +138,7 @@ dependencies {
 
     // PhotoView : 핀치 줌(확대/축소) + 드래그 이동 가능 위젯
     implementation("io.getstream:photoview:1.0.3")
+
+    // Pie / Donut Chart
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

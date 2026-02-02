@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/balloon_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- 말풍선이 아래에 뜰 때(앵커 아래) 위쪽 꼬리 -->
+    <ImageView
+        android:id="@+id/arrow_up"
+        android:layout_width="16dp"
+        android:layout_height="8dp"
+        android:layout_gravity="start"
+        android:visibility="gone"
+        android:src="@drawable/ic_balloon_arrow_up" />
+
+    <!-- 본문 -->
+    <LinearLayout
+        android:id="@+id/bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_balloon_bubble"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp">
+
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="340dp"
+            android:textSize="12sp"
+            android:maxLines="5"
+            android:singleLine="false"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            android:text="안내 문구" />
+    </LinearLayout>
+
+    <!-- 말풍선이 위에 뜰 때(앵커 위) 아래쪽 꼬리 -->
+    <ImageView
+        android:id="@+id/arrow_down"
+        android:layout_width="16dp"
+        android:layout_height="8dp"
+        android:layout_gravity="start"
+        android:visibility="gone"
+        android:src="@drawable/ic_balloon_arrow_down" />
+</LinearLayout>

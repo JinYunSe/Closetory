@@ -1,5 +1,4 @@
-// SignoutRepository
-package com.ssafy.closetory.homeActivity.mypage.signout
+package com.ssafy.closetory.homeActivity.myPage.signout
 
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse

@@ -111,9 +111,6 @@ class PostEditFragment :
 
         // ViewModel 상태/메시지 관찰
         observeViewModel()
-
-        // (선택) 버튼 텍스트만 바꾸고 싶으면
-        // binding.btnRegistrationPost.text = "수정"
     }
 
     // 대표 사진 클릭 (카메라/갤러리)

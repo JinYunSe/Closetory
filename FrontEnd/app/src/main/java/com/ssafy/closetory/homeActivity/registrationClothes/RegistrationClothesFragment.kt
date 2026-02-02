@@ -12,7 +12,6 @@ import android.view.View
 import androidx.activity.addCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -40,6 +39,7 @@ import com.ssafy.closetory.util.PermissionChecker
 import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
 import com.ssafy.closetory.util.image.ImageMultipartUtil
+import com.ssafy.closetory.util.ui.BalloonTooltip
 import java.io.File
 import kotlinx.coroutines.launch
 
@@ -78,6 +78,9 @@ class RegistrationClothesFragment :
     private var lastAutoSelectUrl: String? = null
     private var pendingTagCodes: List<Int> = emptyList()
 
+    // 말풍선(촬영 도움말)
+    private var photoGuideTooltip: BalloonTooltip? = null
+
     private val imageLabeler by lazy {
         ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
     }
@@ -102,6 +105,7 @@ class RegistrationClothesFragment :
         super.onViewCreated(view, savedInstanceState)
 
         homeActivity = requireContext() as HomeActivity
+        photoGuideTooltip = BalloonTooltip(homeActivity)
 
         homeActivity.onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             findNavController().popBackStack(R.id.navigation_closet, false)
@@ -114,12 +118,17 @@ class RegistrationClothesFragment :
 
         setupOptionSection()
 
-        binding.btnPhotoGuide.setOnClickListener {
-            AlertDialog.Builder(homeActivity)
-                .setTitle("촬영 도움말")
-                .setMessage("옷이 잘 나오도록 주변을 정리한 뒤 촬영해주세요.")
-                .setPositiveButton("확인", null)
-                .show()
+        // 촬영 도움말 (PopupWindow 말풍선)
+        binding.btnPhotoGuide.setOnClickListener { v ->
+            photoGuideTooltip?.show(
+                anchor = v,
+                message = """
+                    옷 전체가 잘 보이도록 촬영해주세요.
+                    배경에 다른 물건이 없을수록 인식이 정확해요.
+                    옷을 정돈한 뒤 촬영해 주세요.
+                """.trimIndent(),
+                autoDismissMs = 2500
+            )
         }
 
         showPhotoPlaceholder("사진 등록")
@@ -137,7 +146,7 @@ class RegistrationClothesFragment :
                 return@setOnClickListener
             }
 
-            AlertDialog.Builder(homeActivity)
+            android.app.AlertDialog.Builder(homeActivity)
                 .setItems(arrayOf("카메라 촬영", "갤러리 선택")) { _, which ->
                     if (which == 0) openCamera() else openGalleryPicker()
                 }
@@ -185,6 +194,12 @@ class RegistrationClothesFragment :
         }
 
         registerObserve()
+    }
+
+    override fun onDestroyView() {
+        photoGuideTooltip?.dismiss()
+        photoGuideTooltip = null
+        super.onDestroyView()
     }
 
     private fun readArgs() {
@@ -498,7 +513,6 @@ class RegistrationClothesFragment :
             keywords.any { key -> labelText.contains(key) }
         }.map { it.code }.distinct().toMutableList()
 
-        // 기본 의류 라벨에 대한 보정 매핑
         if (matches.isEmpty()) {
             val fallbackMap = mapOf(
                 "캐주얼" to listOf("denim", "jeans", "shorts", "t-shirt", "tee"),
@@ -549,7 +563,10 @@ class RegistrationClothesFragment :
             val cr = Color.red(c.argb)
             val cg = Color.green(c.argb)
             val cb = Color.blue(c.argb)
-            val dist = (avgR - cr) * (avgR - cr) + (avgG - cg) * (avgG - cg) + (avgB - cb) * (avgB - cb)
+            val dist =
+                (avgR - cr) * (avgR - cr) +
+                    (avgG - cg) * (avgG - cg) +
+                    (avgB - cb) * (avgB - cb)
             if (dist < bestDist) {
                 bestDist = dist
                 best = c.codeEnglish
