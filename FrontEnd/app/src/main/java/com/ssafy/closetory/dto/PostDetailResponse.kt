@@ -15,4 +15,4 @@ data class PostDetailResponse(
     val isLiked: Boolean
 )
 
-data class PostDetailItemDto(val clothId: Int, val photoUrl: String, val isSaved: Boolean)
+data class PostDetailItemDto(val clothesId: Int, val photoUrl: String, val isSaved: Boolean)

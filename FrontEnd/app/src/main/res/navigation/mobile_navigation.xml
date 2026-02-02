@@ -140,7 +140,7 @@
 
         <action
             android:id="@+id/action_post_detail_to_post_edit"
-            app:destination="@id/navigation_post_create" />
+            app:destination="@id/navigation_post_edit" />
     </fragment>
 
     <fragment

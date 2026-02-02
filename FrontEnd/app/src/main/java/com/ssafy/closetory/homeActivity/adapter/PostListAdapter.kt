@@ -1,7 +1,6 @@
 package com.ssafy.closetory.homeActivity.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -44,13 +43,12 @@ class PostListAdapter(private val onItemClick: (PostItemResponse) -> Unit) :
         fun bind(item: PostItemResponse) {
             // 1) 글 제목 + (댓글 수)
             binding.tvTitle.text = item.title
-            binding.tvCommentCount.text = "(${item.comments})"
+            binding.tvCommentCount.text = "${item.comments}"
 
             // 2) 작성자(username)
             // 현재 PostItemResponse에 username 필드가 없다면 빈 값 처리
             // TODO: 서버 응답에 username이 추가되면 PostItemResponse에 필드 추가 후 바인딩
-            binding.tvAuthor.text = "게시자 X"
-            binding.tvAuthor.visibility = View.GONE
+            binding.tvAuthor.text = "${item.nickname}"
 
             // 3) 조회수 / 좋아요 수
             binding.tvViews.text = item.views.toString()

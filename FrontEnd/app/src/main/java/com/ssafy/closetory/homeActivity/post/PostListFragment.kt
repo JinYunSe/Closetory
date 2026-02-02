@@ -2,6 +2,7 @@ package com.ssafy.closetory.homeActivity.post
 //
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.RadioButton
@@ -22,12 +23,15 @@ import com.ssafy.closetory.homeActivity.adapter.PostListAdapter
 import kotlinx.coroutines.launch
 
 private const val TAG = "PostListFragment_싸피"
+
 class PostListFragment :
     BaseFragment<FragmentPostMainBinding>(FragmentPostMainBinding::bind, R.layout.fragment_post_main) {
 
     private val viewModel: PostListViewModel by viewModels()
 
     private lateinit var postListAdapter: PostListAdapter
+
+    private var didInitialLoad = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -40,10 +44,21 @@ class PostListFragment :
 
         observeViewModel()
 
-        // 최초 진입일 때만 기본 조회
-        if (savedInstanceState == null) {
-            requestPosts(keyword = null)
-        }
+        Log.d(TAG, "onViewCreated() savedInstanceState=$savedInstanceState")
+    }
+
+    // 뷰 상태(라디오 체크 등) 복원 후 1회만 목록을 로드
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+
+        if (didInitialLoad) return
+        didInitialLoad = true
+
+        Log.d(TAG, "onViewStateRestored() savedInstanceState=$savedInstanceState, selected=${getSelectedFilter()}")
+
+        // 최초 진입(savedInstanceState == null): 최신순(기본 체크값)으로 로드
+        // 복원(savedInstanceState != null): 복원된 라디오 상태 기준으로 로드
+        requestPosts(keyword = getKeywordOrNull())
     }
 
     private fun goToPostDetail(targetPostId: Int) {

@@ -128,14 +128,23 @@
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-            <ImageView
-                android:id="@+id/ivPostPhoto"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="6dp"
-                android:background="#D9D9D9"
-                android:contentDescription="게시글 사진"
-                android:scaleType="fitCenter"/>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp">
+
+                <ImageView
+                    android:id="@+id/ivPostPhoto"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="#D9D9D9"
+                    android:contentDescription="게시글 사진"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintDimensionRatio="4:5" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -177,7 +186,11 @@
                 android:text="게시글"
                 android:textColor="@android:color/black"
                 android:textSize="12sp"
-                android:padding="12dp"/>
+                android:padding="12dp"
+                android:scrollbars="vertical"
+                android:overScrollMode="ifContentScrolls"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -204,7 +217,8 @@
                     android:paddingEnd="12dp"
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
-                    android:gravity="top|start"
+                    android:layout_marginEnd="8dp"
+                    android:gravity="center|start"
                     android:inputType="textMultiLine"
                     android:overScrollMode="ifContentScrolls"
                     android:scrollbars="vertical"
