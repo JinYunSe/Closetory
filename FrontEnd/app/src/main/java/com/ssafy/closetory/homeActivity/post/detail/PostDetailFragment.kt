@@ -16,7 +16,7 @@ import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentPostDetailBinding
-import com.ssafy.closetory.homeActivity.post.create.adapter.PostDetailItemAdapter
+import com.ssafy.closetory.homeActivity.adapter.PostDetailItemAdapter
 import kotlinx.coroutines.launch
 
 private const val TAG = "PostDetailFragment_싸피"

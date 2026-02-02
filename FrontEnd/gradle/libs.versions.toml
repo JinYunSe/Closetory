@@ -15,6 +15,7 @@ navigationUiKtx = "2.9.6"
 activity = "1.12.2"
 recyclerview = "1.4.0"
 fragment = "1.8.9"
+imageLabelingDefaultCommon = "17.0.0"
 mediapipe = "0.10.9"
 engageCore = "1.5.11"
 
@@ -35,6 +36,7 @@ androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview"
 androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 mediapipe-tasks-vision = { group = "com.google.mediapipe",name = "tasks-vision",version.ref = "mediapipe"}
 engage-core = { group = "com.google.android.engage", name = "engage-core", version.ref = "engageCore" }
+image-labeling-default-common = { group = "com.google.mlkit", name = "image-labeling-default-common", version.ref = "imageLabelingDefaultCommon" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

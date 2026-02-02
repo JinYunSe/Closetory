@@ -15,7 +15,6 @@ object TagOptions {
 
     fun setTags(tags: List<TagResponse>) {
         val mapped = tags
-            .sortedBy { it.tagId }
             .map { OptionItem(null, it.tagName, it.tagId) }
 
         items = mapped

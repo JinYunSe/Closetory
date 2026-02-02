@@ -1,5 +1,5 @@
 // MyPageRepository
-package com.ssafy.closetory.homeActivity.mypage
+package com.ssafy.closetory.homeActivity.myPage
 
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse

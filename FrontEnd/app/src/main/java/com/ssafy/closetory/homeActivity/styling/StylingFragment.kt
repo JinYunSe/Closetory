@@ -14,7 +14,7 @@ import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentStylingBinding
 import com.ssafy.closetory.dto.ClothesItemDto
-import com.ssafy.closetory.homeActivity.adpter.ClothesAdapter
+import com.ssafy.closetory.homeActivity.adapter.ClothesAdapter
 
 private const val TAG = "StylingFragment_싸피"
 
@@ -123,9 +123,7 @@ class StylingFragment :
         binding.lvShoesCloth.adapter = shoeAdapter
     }
 
-    /**
-     * 버튼 클릭 리스너 설정
-     */
+    // 버튼 클릭 리스너 설정
     private fun setupButtons() {
         // 뒤로가기 버튼
         binding.btnBack.setOnClickListener {
@@ -309,7 +307,7 @@ class StylingFragment :
                     dataSource: com.bumptech.glide.load.DataSource,
                     isFirstResource: Boolean
                 ): Boolean {
-                    Log.d(TAG, "✅ 슬롯 이미지 로딩 성공!")
+                    Log.d(TAG, "슬롯 이미지 로딩 성공!")
                     return false
                 }
             })
@@ -319,9 +317,8 @@ class StylingFragment :
         removeButton.visibility = View.VISIBLE
     }
 
-    /**
-     * 슬롯에서 아이템 제거 (X 버튼 클릭 시 내려가기)
-     */
+    // 슬롯에서 아이템 제거 (X 버튼 클릭 시 내려가기)
+
     private fun removeItemFromSlot(slotType: String, imageView: ImageView, removeButton: View) {
         Log.d(TAG, "removeItemFromSlot - slotType: $slotType")
 

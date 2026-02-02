@@ -32,4 +32,17 @@ class SharedPreferencesUtil(context: Context) {
     fun clearUserId(key: String) {
         preferences.edit().remove(key).apply()
     }
+
+    // 온보딩 완료 플래그 추가
+    private fun onboardingKey(userId: Int) = "onboarding_done_$userId"
+
+    // 저장된 적 없으면 기본값 false로 동작
+    fun isOnboardingDone(userId: Int): Boolean = preferences.getBoolean(onboardingKey(userId), false)
+
+    // 온보딩 완료(true) / 필요하면 false로 되돌릴 수도 있음
+    fun setOnboardingDone(userId: Int, done: Boolean) {
+        preferences.edit()
+            .putBoolean(onboardingKey(userId), done)
+            .apply()
+    }
 }

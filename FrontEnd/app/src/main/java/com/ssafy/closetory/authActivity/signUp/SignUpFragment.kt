@@ -87,8 +87,14 @@ class SignUpFragment :
                 password != passwordConfirm ->
                     showToast("비밀번호가 일치하지 않습니다")
 
+                password.length < 8 ->
+                    showToast("비밀번호는 8자리 이상으로 입력하세요")
+
                 nickname.isBlank() ->
                     showToast("닉네임을 입력하세요")
+
+                nickname.length > 10 ->
+                    showToast("닉네임은 10자 이하로 입력하세요")
 
                 heightText.isBlank() ->
                     showToast("키를 입력하세요")
@@ -99,11 +105,17 @@ class SignUpFragment :
                 selectedGender == null ->
                     showToast("성별을 선택하세요")
 
-                heightText.toIntOrNull() == null ->
+                heightText.toShortOrNull() == null ->
                     showToast("키를 입력하세요")
 
-                weightText.toIntOrNull() == null ->
+                (heightText.toShort() < 100 || heightText.toShort() > 250) ->
+                    showToast("키는 100~250 범위로 입력하세요")
+
+                weightText.toShortOrNull() == null ->
                     showToast("몸무게를 입력하세요")
+
+                (weightText.toShort() < 20 || weightText.toShort() > 200) ->
+                    showToast("몸무게는 20~200 범위로 입력하세요")
 
                 else -> {
                     // 검증 통과
@@ -113,8 +125,8 @@ class SignUpFragment :
                         passwordConfirm = passwordConfirm,
                         nickname = nickname,
                         gender = selectedGender!!,
-                        height = heightText.toInt(),
-                        weight = weightText.toInt(),
+                        height = heightText.toShort(),
+                        weight = weightText.toShort(),
                         alarmEnabled = alarmEnabled
                     )
                 }

@@ -15,6 +15,5 @@
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:stateListAnimator="@null"
-        android:backgroundTint="@color/gray_500"
-        android:textColor="#FFFFFF"/>
+        android:backgroundTint="@color/tag_button_tint" />
 </FrameLayout>

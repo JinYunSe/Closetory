@@ -280,6 +280,21 @@ class EditProfileFragment :
                 return@setOnClickListener
             }
 
+            if (nickname.length > 10) {
+                showToast("닉네임은 10자 이하로 입력해주세요.")
+                return@setOnClickListener
+            }
+
+            if (heightText.isBlank()) {
+                showToast("키를 입력해주세요.")
+                return@setOnClickListener
+            }
+
+            if (weightText.isBlank()) {
+                showToast("몸무게를 입력해주세요.")
+                return@setOnClickListener
+            }
+
             val height = heightText.toShortOrNull()
             val weight = weightText.toShortOrNull()
 
@@ -290,6 +305,15 @@ class EditProfileFragment :
 
             if (weight == null) {
                 showToast("몸무게는 숫자로 입력해주세요.")
+                return@setOnClickListener
+            }
+            if (height < 100 || height > 250) {
+                showToast("키는 100~250 범위로 입력해주세요.")
+                return@setOnClickListener
+            }
+
+            if (weight < 20 || weight > 200) {
+                showToast("몸무게는 20~200 범위로 입력해주세요.")
                 return@setOnClickListener
             }
 

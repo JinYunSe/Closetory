@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.EditProfileInfoResponse
+import com.ssafy.closetory.homeActivity.myPage.MyPageRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

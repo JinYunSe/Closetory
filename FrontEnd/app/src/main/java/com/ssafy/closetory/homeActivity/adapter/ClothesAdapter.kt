@@ -1,9 +1,8 @@
-package com.ssafy.closetory.homeActivity.adpter
+package com.ssafy.closetory.homeActivity.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView

@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.mypage
+package com.ssafy.closetory.homeActivity.myPage
 
 import android.content.Intent
 import android.os.Bundle
@@ -21,6 +21,7 @@ import com.ssafy.closetory.authActivity.AuthActivity
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
 import com.ssafy.closetory.dto.EditProfileInfoResponse
+import com.ssafy.closetory.homeActivity.mypage.MyPageViewModel
 import com.ssafy.closetory.homeActivity.mypage.signout.SignoutViewModel
 import com.ssafy.closetory.util.auth.AuthManager
 import kotlinx.coroutines.launch
@@ -36,19 +37,16 @@ class MyPageFragment :
 
     // 마이페이지 ViewModel
     private val myPageViewModel: MyPageViewModel by viewModels()
+    private val signoutViewModel: SignoutViewModel by viewModels()
 
     // 비밀번호 확인 다이얼로그 변수
     private var passwordDialog: AlertDialog? = null
 
     private lateinit var editProfileInfoResponse: EditProfileInfoResponse
 
-    private val homeViewModel: MyPageViewModel by viewModels()
-    private val signoutViewModel: SignoutViewModel by viewModels()
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 로그아웃
         observeUserProfile()
 
         loadUserProfile()
@@ -85,7 +83,46 @@ class MyPageFragment :
         observePasswordCheck()
     }
 
-    // 서버에 기존 유저 정보 요청
+    // 회원정보를 화면에 바인딩
+    private fun bindUserProfile(user: EditProfileInfoResponse) {
+        binding.tvNickname.text = user.nickname ?: "닉네임"
+        binding.tvHeight.text = "${user.height ?: 0}cm"
+        binding.tvWeight.text = "${user.weight ?: 0}kg"
+
+        // 프로필/전신 사진 URL이 있다면 Glide로 로드 (없으면 기본 이미지 유지)
+        bindProfileImage(user.profilePhotoUrl)
+        bindBodyImage(user.bodyPhotoUrl)
+    }
+
+    // 프로필 이미지 바인딩
+    private fun bindProfileImage(url: String?) {
+        if (url.isNullOrBlank()) {
+            binding.ivProfile.setImageResource(R.drawable.ic_profile_default)
+            return
+        }
+
+        com.bumptech.glide.Glide.with(this)
+            .load(url)
+            .placeholder(R.drawable.ic_profile_default)
+            .error(R.drawable.ic_profile_default)
+            .into(binding.ivProfile)
+    }
+
+    // 전신 이미지 바인딩
+    private fun bindBodyImage(url: String?) {
+        if (url.isNullOrBlank()) {
+            binding.ivBodyPhoto.setImageResource(R.drawable.ic_body_default)
+            return
+        }
+
+        com.bumptech.glide.Glide.with(this)
+            .load(url)
+            .placeholder(R.drawable.ic_body_default)
+            .error(R.drawable.ic_body_default)
+            .into(binding.ivBodyPhoto)
+    }
+
+    // 회원 정보 수정 전 서버에 기존 유저 정보 요청
     private fun loadUserProfile() {
         Log.d(TAG, "loadUserProfile: loadUserProfile 실행")
         val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: return
@@ -100,6 +137,7 @@ class MyPageFragment :
         viewLifecycleOwner.lifecycleScope.launch {
             myPageViewModel.userProfile.collect { user ->
                 editProfileInfoResponse = user
+                bindUserProfile(user)
                 Log.d(TAG, "userProfile = $user")
             }
         }

@@ -17,17 +17,17 @@ interface RegistrationClothesService {
 
     // 배경 제거
     @Multipart
-    @POST("/api/v1/clothes/masking")
+    @POST("clothes/masking")
     suspend fun removeImageBackground(
         @Part clothesPhoto: MultipartBody.Part
     ): Response<ApiResponse<MaskedImageResponse>>
 
     // 옷 등록
-    @POST("/api/v1/clothes")
+    @POST("clothes")
     suspend fun registrationCloth(@Body req: RegistrationClothesDto): Response<ApiResponse<ClothesIdDto>>
 
     // 옷 수정
-    @PATCH("/api/v1/clothes/{clothesId}")
+    @PATCH("clothes/{clothesId}")
     suspend fun patchCloth(
         @Path("clothesId") clothesId: Int,
         @Body req: RegistrationClothesDto

@@ -82,6 +82,9 @@ android {
 }
 
 dependencies {
+    // 비디오 의존성
+    implementation("com.airbnb.android:lottie:6.1.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -98,6 +101,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.fragment)
     implementation(libs.engage.core)
+    implementation(libs.image.labeling.default.common)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -128,4 +132,7 @@ dependencies {
 
     // 사진 리사이즈/압축
     implementation("androidx.exifinterface:exifinterface:1.3.7")
+
+    // On-device image labeling (ML Kit)
+    implementation("com.google.mlkit:image-labeling:17.0.8")
 }
