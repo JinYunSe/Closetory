@@ -76,4 +76,13 @@ public class LooksController {
     lookService.updateLook(lookId, request, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "룩 정보 수정 성공", null));
   }
+
+  @DeleteMapping("/{lookId}")
+  @Operation(summary = "룩 삭제")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Void>> deleteLook(
+      @PathVariable Integer lookId, @AuthenticationPrincipal Integer userId) {
+    lookService.deleteLook(lookId, userId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "룩 정보 삭제 성공", null));
+  }
 }

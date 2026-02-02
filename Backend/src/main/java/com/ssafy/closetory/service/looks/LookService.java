@@ -15,4 +15,6 @@ public interface LookService {
   List<GetLooksByMonthResponse> getLooksByMonthResponse(boolean isMain, Integer userId);
 
   void updateLook(Integer lookId, UpdateLookRequest request, Integer userId);
+
+  void deleteLook(Integer lookId, Integer userId);
 }
