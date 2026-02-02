@@ -23,5 +23,10 @@ public interface PostService {
 
   CreateCommentResponse createComment(Integer postId, CommentRequest request, Integer userId);
 
-  UpdateCommentResponse updateComment(Integer postId, Integer commentId, CommentRequest request, Integer userId);
+  UpdateCommentResponse updateComment(
+      Integer postId, Integer commentId, CommentRequest request, Integer userId);
+
+  void deleteComment(Integer postId, Integer commentId, Integer userId);
+
+  List<GetAllCommentsResponse> getAllComments(Integer postId);
 }

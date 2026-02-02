@@ -8,6 +8,8 @@ import com.ssafy.closetory.enums.SearchFilter;
 import com.ssafy.closetory.service.post.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,9 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import jakarta.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -132,13 +131,34 @@ public class PostController {
   @Operation(summary = "댓글 수정")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<UpdateCommentResponse>> updateComment(
-    @PathVariable Integer postId,
-    @PathVariable Integer commentId,
-    @Valid @RequestBody CommentRequest request,
-    @AuthenticationPrincipal Integer userId
-  ) {
-    UpdateCommentResponse response = postService.updateComment(postId,commentId,request,userId);
+      @PathVariable Integer postId,
+      @PathVariable Integer commentId,
+      @Valid @RequestBody CommentRequest request,
+      @AuthenticationPrincipal Integer userId) {
+    UpdateCommentResponse response = postService.updateComment(postId, commentId, request, userId);
     return ResponseEntity.status(HttpStatus.OK)
-      .body(ApiResponse.ok(200,"댓글이 성공적으로 수정되었습니다.", response));
+        .body(ApiResponse.ok(200, "댓글이 성공적으로 수정되었습니다.", response));
+  }
+
+  @DeleteMapping("/{postId}/comments/{commentId}")
+  @Operation(summary = "댓글 삭제")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Void>> deleteComment(
+      @PathVariable Integer postId,
+      @PathVariable Integer commentId,
+      @AuthenticationPrincipal Integer userId) {
+    postService.deleteComment(postId, commentId, userId);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.ok(200, "댓글이 성공적으로 삭제되었습니다.", null));
+  }
+
+  @GetMapping("/{postId}/comments")
+  @Operation(summary = "모든 댓글 조회")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<List<GetAllCommentsResponse>>> getAllComments(
+      @PathVariable Integer postId) {
+    List<GetAllCommentsResponse> response = postService.getAllComments(postId);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.ok(200, "댓글이 성공적으로 조회되었습니다.", response));
   }
 }

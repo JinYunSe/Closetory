@@ -13,13 +13,13 @@ import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
 import com.ssafy.closetory.service.s3.S3ImageService;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -307,13 +307,12 @@ public class PostServiceImpl implements PostService {
                     .build())
         .toList();
   }
+
   @Override
   public CreateCommentResponse createComment(
-    Integer postId, CommentRequest request, Integer userId) {
+      Integer postId, CommentRequest request, Integer userId) {
     Post post =
-        postRepository
-            .findById(postId)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+        postRepository.findById(postId).orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
 
     User user =
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("회원가입이 필요합니다!"));
@@ -330,16 +329,56 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
-  public UpdateCommentResponse updateComment(Integer postId, Integer commentId, CommentRequest request, Integer userId) {
-    Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("댓글을 찾을 수 없습니다."));
-
-    if (!comment.getPost().getId().equals(postId)) {
-      throw new BadRequestException("댓글을 찾을 수 없습니다.");
-    } else if (!comment.getUser().getId().equals(userId)) {
-      throw new ForbiddenException("댓글 수정 권한이 없습니다.");
-    }
+  public UpdateCommentResponse updateComment(
+      Integer postId, Integer commentId, CommentRequest request, Integer userId) {
+    Comment comment = findComment(postId, commentId, userId);
 
     comment.setContent(request.content());
-    return new UpdateCommentResponse(comment.getId(), comment.getContent(), LocalDateTime.now());
+    return new UpdateCommentResponse(comment.getId(), comment.getContent());
+  }
+
+  @Override
+  public void deleteComment(Integer postId, Integer commentId, Integer userId) {
+    Comment comment = findComment(postId, commentId, userId);
+
+    comment.setDeletedAt(LocalDateTime.now());
+  }
+
+  private Comment findComment(Integer postId, Integer commentId, Integer userId) {
+    Comment targetComment =
+        commentRepository
+            .findById(commentId)
+            .orElseThrow(() -> new NotFoundException("댓글을 찾을 수 없습니다."));
+
+    if (!targetComment.getPost().getId().equals(postId)) {
+      throw new BadRequestException("댓글을 찾을 수 없습니다.");
+    } else if (!targetComment.getUser().getId().equals(userId)) {
+      throw new ForbiddenException("해당 댓글에 대한 권한이 없습니다.");
+    }
+
+    return targetComment;
+  }
+
+  @Override
+  public List<GetAllCommentsResponse> getAllComments(Integer postId) {
+    List<Comment> allComments =
+        commentRepository.findAllByPostIdAndDeletedAtIsNullOrderByCreatedAtAsc(postId);
+
+    List<GetAllCommentsResponse> result = new ArrayList<>();
+
+    for (Comment comment : allComments) {
+      GetAllCommentsResponse commentInstance =
+          GetAllCommentsResponse.builder()
+              .commentId(comment.getId())
+              .nickname(comment.getUser().getNickname())
+              .content(comment.getContent())
+              .profileImage(comment.getUser().getProfilePhotoUrl())
+              .createdAt(comment.getCreatedAt())
+              .build();
+
+      result.add(commentInstance);
+    }
+
+    return result;
   }
 }
