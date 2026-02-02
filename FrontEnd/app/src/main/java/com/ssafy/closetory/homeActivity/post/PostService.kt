@@ -8,6 +8,7 @@ import com.ssafy.closetory.dto.PostItemResponse
 import com.ssafy.closetory.dto.PostQueryFilter
 import okhttp3.MultipartBody
 import retrofit2.Response
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.PATCH
@@ -18,9 +19,7 @@ import retrofit2.http.Query
 // 게시판 관련 API 정의
 interface PostService {
 
-    // 게시글 목록/검색 조회
-    // keyword: 검색어 (null이면 전체)
-    // filter: liked / written / latest / popular (라디오에서 1개 선택)
+    // 게시글 목록 조회
     @GET("posts")
     suspend fun getPosts(
         @Query("keyword") keyword: String? = null,
@@ -31,7 +30,7 @@ interface PostService {
     @GET("posts/{postId}")
     suspend fun getPostDetail(@Path("postId") postId: Int): Response<ApiResponse<PostDetailResponse>>
 
-    // 프로필 수정
+    // 게시글 수정
     @Multipart
     @PATCH("posts/{postId}")
     suspend fun editPost(
@@ -39,4 +38,8 @@ interface PostService {
         @Part photo: MultipartBody.Part?, // 변경 안 했으면 null
         @Part("request") request: PostEditRequest
     ): Response<ApiResponse<PostEditResponse>>
+
+    // 게시글 삭제
+    @DELETE("posts/{postId}")
+    suspend fun deletePost(@Path("postId") postId: Int): Response<ApiResponse<Unit>>
 }
