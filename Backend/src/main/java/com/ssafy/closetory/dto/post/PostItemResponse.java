@@ -1,3 +1,3 @@
 package com.ssafy.closetory.dto.post;
 
-public record PostItemResponse(Integer clothId, String photoUrl, Boolean isSaved) {}
+public record PostItemResponse(Integer clothesId, String photoUrl, Boolean isSaved) {}

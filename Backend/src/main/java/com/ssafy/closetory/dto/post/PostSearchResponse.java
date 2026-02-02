@@ -9,4 +9,5 @@ public record PostSearchResponse(
     String photoUrl,
     Integer views,
     Integer likes,
-    Integer comments) {}
+    Integer comments,
+    String nickname) {}
