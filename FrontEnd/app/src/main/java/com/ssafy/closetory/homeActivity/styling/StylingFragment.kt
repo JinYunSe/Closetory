@@ -532,6 +532,13 @@ class StylingFragment :
         binding.vvAiLoading.stopPlayback()
     }
 
+    override fun onStop() {
+        super.onStop()
+        // 핵심: 가상피팅 완료(사진 나옴/등록 버튼) 상태에서 화면 이탈하면 결과 초기화
+        // - 가상피팅 "진행 중"에는 초기화 안 함 → 비동기 계속 유지
+        viewModel.resetAfterFittingDoneIfNeeded()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         // Fragment 파괴 시에는 초기화하지 않음!

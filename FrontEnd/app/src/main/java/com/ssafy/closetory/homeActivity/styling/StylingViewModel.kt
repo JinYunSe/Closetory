@@ -218,8 +218,25 @@ class StylingViewModel : ViewModel() {
         }
     }
 
-    // 전체 초기화
+    // 완료되어 사진이 나온 뒤에 다른 탭 갔다 오면 초기화
+    fun resetAfterFittingDoneIfNeeded() {
+        // '완료 + 결과 있음' 상태일 때만 초기화
+        val isDone = _stage.value == StylingStage.FITTING_DONE
+        val hasResult = !_aiImageUrl.value.isNullOrBlank()
 
+        if (!isDone || !hasResult) return
+
+        // 완료 상태를 초기 상태로 되돌림
+        _stage.value = StylingStage.FITTING_READY // 또는 RECOMMEND/초기 단계 (프로젝트 흐름에 맞춰)
+        _aiImageUrl.value = null
+        _loadingType.value = null
+        _isLoading.value = false
+        _errorMessage.value = null
+
+        Log.d(TAG, " 가상피팅 완료 상태 → 화면 이탈로 초기화 처리")
+    }
+
+    // 전체 초기화
     fun resetAll() {
         // 실행 중인 Job 취소
         fittingJob?.cancel()
