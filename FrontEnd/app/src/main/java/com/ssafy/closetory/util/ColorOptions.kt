@@ -16,10 +16,8 @@ data class ColorItem(val codeEnglish: String, val codeKorean: String, val argb: 
 
 object ColorOptions {
 
-    private class ColorGridSpacingItemDecoration(
-        private val spanCount: Int,
-        private val spacingPx: Int
-    ) : RecyclerView.ItemDecoration() {
+    private class ColorGridSpacingItemDecoration(private val spanCount: Int, private val spacingPx: Int) :
+        RecyclerView.ItemDecoration() {
         override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
             val position = parent.getChildAdapterPosition(view)
             if (position == RecyclerView.NO_POSITION) return
@@ -46,8 +44,7 @@ object ColorOptions {
         ColorItem("RED", "레드", 0xFFE53935.toInt()),
         ColorItem("ORANGE", "오렌지", 0xFFFB8C00.toInt()),
         ColorItem("YELLOW", "옐로우", 0xFFFDD835.toInt()),
-        ColorItem("PURPLE", "퍼플", 0xFF8E24AA.toInt()),
-        ColorItem("OTHER", "기타", 0x00000000)
+        ColorItem("PURPLE", "퍼플", 0xFF8E24AA.toInt())
     )
 
     private val byCode = items.associateBy { it.codeEnglish }
@@ -71,13 +68,13 @@ object ColorOptions {
 
         tv.text = "색상"
 
-        // 4열 그리드로 세로 스크롤
-        rv.layoutManager = GridLayoutManager(sectionRoot.context, 4)
+        // 5열 그리드로 세로 스크롤
+        rv.layoutManager = GridLayoutManager(sectionRoot.context, 5)
         rv.itemAnimator = null
 
-        val spacingPx = (sectionRoot.resources.displayMetrics.density * 4).toInt()
+        val spacingPx = (sectionRoot.resources.displayMetrics.density * 5).toInt()
         if (rv.itemDecorationCount == 0) {
-            rv.addItemDecoration(ColorGridSpacingItemDecoration(4, spacingPx))
+            rv.addItemDecoration(ColorGridSpacingItemDecoration(5, spacingPx))
         }
 
         // 어댑터 연결
