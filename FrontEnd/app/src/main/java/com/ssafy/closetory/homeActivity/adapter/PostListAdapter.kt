@@ -49,7 +49,7 @@ class PostListAdapter(private val onItemClick: (PostItemResponse) -> Unit) :
             // 2) 작성자(username)
             // 현재 PostItemResponse에 username 필드가 없다면 빈 값 처리
             // TODO: 서버 응답에 username이 추가되면 PostItemResponse에 필드 추가 후 바인딩
-            binding.tvAuthor.text = ""
+            binding.tvAuthor.text = "게시자 X"
             binding.tvAuthor.visibility = View.GONE
 
             // 3) 조회수 / 좋아요 수

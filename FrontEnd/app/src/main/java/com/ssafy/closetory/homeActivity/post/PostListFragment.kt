@@ -3,8 +3,11 @@ package com.ssafy.closetory.homeActivity.post
 
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.RadioButton
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -85,6 +88,21 @@ class PostListFragment :
         // 검색 버튼 클릭 시: keyword 포함해서 요청
         binding.btnSearch.setOnClickListener {
             requestPosts(keyword = getKeywordOrNull())
+        }
+
+        // 엔터 시 검색 기능
+        binding.etKeyword.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
+                requestPosts(keyword = getKeywordOrNull())
+
+                // 키보드 내리기
+                ViewCompat.getWindowInsetsController(binding.etKeyword)
+                    ?.hide(WindowInsetsCompat.Type.ime())
+
+                true
+            } else {
+                false
+            }
         }
 
         // 게시글 생성 버튼 클릭 시: 게시글 생성 화면으로 이동
