@@ -13,8 +13,7 @@ import org.springframework.data.repository.query.Param;
 public interface LookRepository extends JpaRepository<Look, Integer> {
   List<Look> findAllByUserIdOrderByCreatedAtDesc(Integer userId);
 
-  List<Look> findAllByUserIdAndDateLessThanEqualOrderByDateAsc(
-      Integer userId, LocalDate endDate);
+  List<Look> findAllByUserIdAndDateLessThanEqualOrderByDateAsc(Integer userId, LocalDate endDate);
 
   @Query(
       value =

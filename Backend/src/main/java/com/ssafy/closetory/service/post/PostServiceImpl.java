@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PostServiceImpl implements PostService {
   private final PostRepository postRepository;
   private final ClothesRepository clothesRepository;
@@ -92,9 +91,7 @@ public class PostServiceImpl implements PostService {
       Integer userId, Integer postId, PostUpdateRequest request, MultipartFile photo) {
 
     Post post =
-        postRepository
-            .findById(postId)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+        postRepository.findById(postId).orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
 
     if (!post.getUserId().equals(userId)) {
       throw new ForbiddenException("게시글 수정 권한이 없습니다.");
@@ -137,6 +134,7 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public PostDetailResponse getPostDetail(Integer postId, Integer userId) {
 
     Post post =
@@ -148,8 +146,6 @@ public class PostServiceImpl implements PostService {
         userRepository
             .findById(post.getUserId())
             .orElseThrow(() -> new BadRequestException("작성자 정보가 존재하지 않습니다."));
-
-    post.increaseViews();
 
     Integer likeCount = likesRepository.countByPostId(postId);
     boolean isLiked = likesRepository.existsByUserIdAndPostId(userId, postId);
@@ -178,6 +174,12 @@ public class PostServiceImpl implements PostService {
         user.getId(),
         user.getNickname(),
         user.getProfilePhotoUrl());
+  }
+
+  @Override
+  @Transactional
+  public void increasePostViews(Integer postId) {
+    postRepository.increaseViews(postId);
   }
 
   @Override
