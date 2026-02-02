@@ -1,7 +1,9 @@
 package com.ssafy.closetory.homeActivity.post.detail
 
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -47,6 +49,13 @@ class PostDetailFragment :
 
         setupItemsRecyclerView()
         observeViewModel()
+        // 게시글 내용(TextView) 내부 스크롤 활성화
+        binding.tvContent.movementMethod = ScrollingMovementMethod()
+
+        // NestedScrollView와 스크롤 충돌 방지 (내용 스크롤 → 끝이면 부모로 넘김)
+        setupContentInnerScrollForTextView()
+
+        // 좋아요 버튼 클릭
         setupLikeClicks()
         setupUpdateButton()
         setupDeleteButton()
@@ -61,6 +70,39 @@ class PostDetailFragment :
         }
     }
 
+    private fun setupContentInnerScrollForTextView() {
+        val tv = binding.tvContent
+
+        tv.setOnTouchListener { v, event ->
+            // 내용이 스크롤 가능한 경우에만 부모 스크롤 막기
+            val canScroll = v.canScrollVertically(-1) || v.canScrollVertically(1)
+            if (!canScroll) {
+                v.parent?.requestDisallowInterceptTouchEvent(false)
+                return@setOnTouchListener false
+            }
+
+            v.parent?.requestDisallowInterceptTouchEvent(true)
+
+            if (event.actionMasked == MotionEvent.ACTION_MOVE) {
+                val atTop = !v.canScrollVertically(-1)
+                val atBottom = !v.canScrollVertically(1)
+
+                // 손가락 이동 방향 추정 (history 없으면 dy=0이라 전환이 덜 민감해짐)
+                val prevY = if (event.historySize > 0) event.getHistoricalY(0) else event.y
+                val dy = event.y - prevY
+
+                // 위 끝에서 더 위로(손가락 아래로 dy>0) 당기면 부모에게 넘김
+                if (atTop && dy > 0) v.parent?.requestDisallowInterceptTouchEvent(false)
+
+                // 아래 끝에서 더 아래로(손가락 위로 dy<0) 밀면 부모에게 넘김
+                if (atBottom && dy < 0) v.parent?.requestDisallowInterceptTouchEvent(false)
+            }
+
+            false
+        }
+    }
+
+    // 좋아요 버튼 클릭
     private fun setupLikeClicks() {
         binding.ivLikeIcon.setOnClickListener {
             // TODO

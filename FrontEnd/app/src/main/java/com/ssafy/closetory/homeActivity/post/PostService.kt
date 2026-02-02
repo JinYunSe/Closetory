@@ -3,11 +3,11 @@ package com.ssafy.closetory.homeActivity.post
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.dto.PostDetailResponse
-import com.ssafy.closetory.dto.PostEditRequest
 import com.ssafy.closetory.dto.PostEditResponse
 import com.ssafy.closetory.dto.PostItemResponse
 import com.ssafy.closetory.dto.PostQueryFilter
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -38,7 +38,7 @@ interface PostService {
     suspend fun editPost(
         @Path("postId") postId: Int,
         @Part photo: MultipartBody.Part?, // 변경 안 했으면 null
-        @Part("request") request: PostEditRequest
+        @Part("request") request: RequestBody
     ): Response<ApiResponse<PostEditResponse>>
 
     // 게시글 삭제

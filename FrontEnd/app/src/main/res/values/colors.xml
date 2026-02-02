@@ -18,7 +18,7 @@
     <color name="sunColor">#E53935</color>
     <color name="todayBorderColor">#4CA3FF</color>
 
-
+    <!-- 앱 메인 색상 (파스텔 블루) -->
     <color name="main_color">#A6DAF4</color>
 
     <!--chip 기본 색상-->
