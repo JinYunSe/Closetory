@@ -6,6 +6,4 @@ enum class PostQueryFilter(val value: String) {
     WRITTEN("written"), // 내가 쓴 게시글
     LATEST("latest"), // 최신 순
     POPULAR("popular"); // 추천 순
-
-    override fun toString(): String = value
 }
