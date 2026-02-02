@@ -1,13 +1,15 @@
 // MyPageViewModel
 
-package com.ssafy.closetory.homeActivity.mypage
+package com.ssafy.closetory.homeActivity.myPage
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.EditProfileInfoResponse
-import com.ssafy.closetory.homeActivity.myPage.MyPageRepository
+import com.ssafy.closetory.dto.TagsStatisticsResponse
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -35,6 +37,9 @@ class MyPageViewModel : ViewModel() {
     // 사용자에게 보여줄 메시지 Flow
     private val _message = MutableSharedFlow<String>(replay = 0)
     val message: SharedFlow<String> = _message
+
+    private val _tagsStatistics = MutableLiveData<List<TagsStatisticsResponse>>()
+    val tagsStatistics: LiveData<List<TagsStatisticsResponse>> = _tagsStatistics
 
     // ------------------- 요청 처리 -------------------
     // 회원정보 조회 요청 처리
@@ -134,6 +139,27 @@ class MyPageViewModel : ViewModel() {
 
                 _logoutSuccess.emit(false)
                 _message.emit("로그아웃 예외사항 발생")
+            }
+        }
+    }
+
+    fun getTagsStatistics(userId: Int) {
+        viewModelScope.launch {
+            try {
+                val res = repository.getTagsStatistics(userId)
+
+                if (res.isSuccessful) {
+                    val data = res.body()?.data
+                    _tagsStatistics.value = data!!
+                } else {
+                    val message = res.body()?.errorMessage
+                    _tagsStatistics.value = emptyList()
+                    _message.emit(message!!)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "테그 통계 예외 발생 : ${e.message}")
+                _message.emit(e.message ?: "네트워크 오류 발생")
+                _tagsStatistics.value = emptyList()
             }
         }
     }

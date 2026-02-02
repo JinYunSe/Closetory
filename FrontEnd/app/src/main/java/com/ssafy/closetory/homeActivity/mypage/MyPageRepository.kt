@@ -1,4 +1,3 @@
-// MyPageRepository
 package com.ssafy.closetory.homeActivity.myPage
 
 import com.ssafy.closetory.ApplicationClass
@@ -38,4 +37,6 @@ class MyPageRepository {
     }
 
     suspend fun logout() = service.logout()
+
+    suspend fun getTagsStatistics(userId: Int) = service.getTagsStatistics(userId)
 }

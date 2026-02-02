@@ -15,15 +15,20 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.github.mikephil.charting.charts.HorizontalBarChart
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.AuthActivity
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
 import com.ssafy.closetory.dto.EditProfileInfoResponse
-import com.ssafy.closetory.homeActivity.mypage.MyPageViewModel
-import com.ssafy.closetory.homeActivity.mypage.signout.SignoutViewModel
+import com.ssafy.closetory.dto.TagsStatisticsResponse
+import com.ssafy.closetory.homeActivity.HomeActivity
+import com.ssafy.closetory.homeActivity.myPage.signout.SignoutViewModel
+import com.ssafy.closetory.util.StatRatioItem
+import com.ssafy.closetory.util.TagOptions
 import com.ssafy.closetory.util.auth.AuthManager
+import com.ssafy.closetory.util.bindTopRatioToHorizontalBarChart
 import kotlinx.coroutines.launch
 
 private const val TAG = "MyPageFragment_싸피"
@@ -35,6 +40,8 @@ class MyPageFragment :
         R.layout.fragment_my_page
     ) {
 
+    private lateinit var homeActivity: HomeActivity
+
     // 마이페이지 ViewModel
     private val myPageViewModel: MyPageViewModel by viewModels()
     private val signoutViewModel: SignoutViewModel by viewModels()
@@ -42,10 +49,17 @@ class MyPageFragment :
     // 비밀번호 확인 다이얼로그 변수
     private var passwordDialog: AlertDialog? = null
 
+    private var userId: Int = -1
+
     private lateinit var editProfileInfoResponse: EditProfileInfoResponse
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        homeActivity = requireContext() as HomeActivity
+
+        val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)
+        myPageViewModel.getTagsStatistics(userId!!)
 
         observeUserProfile()
 
@@ -120,7 +134,6 @@ class MyPageFragment :
     // 회원 정보 수정 전 서버에 기존 유저 정보 요청
     private fun loadUserProfile() {
         Log.d(TAG, "loadUserProfile: loadUserProfile 실행")
-        val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: return
         myPageViewModel.loadUserProfile(userId)
     }
 
@@ -271,6 +284,23 @@ class MyPageFragment :
                 showToast(msg)
             }
         }
+
+        // 태그 통계
+        myPageViewModel.tagsStatistics.observe(viewLifecycleOwner) { res ->
+            applyTagTop5Bar(binding.barTag, res)
+        }
+    }
+
+    fun applyTagTop5Bar(chart: HorizontalBarChart, list: List<TagsStatisticsResponse>, emptyText: String = "데이터 없음") {
+        val top5 = list
+            .asSequence()
+            .filter { it.ratio > 0 && it.tag.isNotBlank() }
+            .sortedByDescending { it.ratio }
+            .take(5)
+            .map { StatRatioItem(label = it.tag, count = 0, ratio = it.ratio.toFloat()) }
+            .toList()
+
+        bindTopRatioToHorizontalBarChart(chart, top5, noDataText = emptyText)
     }
 
     // 비밀번호 입력창 표시 및 숨김 처리
