@@ -3,7 +3,7 @@ package com.ssafy.closetory.homeActivity.myPage
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.EditProfilePasswordCheckRequest
-import com.ssafy.closetory.dto.TagsStatisticsResponse
+import com.ssafy.closetory.dto.StatisticsResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -27,5 +27,8 @@ interface MyPageService {
     suspend fun logout(): Response<ApiResponse<Unit>>
 
     @GET("users/{userId}/stats/tag")
-    suspend fun getTagsStatistics(@Path("userId") userId: Int): Response<ApiResponse<List<TagsStatisticsResponse>>>
+    suspend fun getTagsStatistics(@Path("userId") userId: Int): Response<ApiResponse<List<StatisticsResponse>>>
+
+    @GET("users/{userId}/stats/color")
+    suspend fun getColorsStatistics(@Path("userId") userId: Int): Response<ApiResponse<List<StatisticsResponse>>>
 }

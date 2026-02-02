@@ -39,4 +39,6 @@ class MyPageRepository {
     suspend fun logout() = service.logout()
 
     suspend fun getTagsStatistics(userId: Int) = service.getTagsStatistics(userId)
+
+    suspend fun getColorsStatistics(userId: Int) = service.getColorsStatistics(userId)
 }

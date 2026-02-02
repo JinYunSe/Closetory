@@ -1,5 +1,3 @@
-// MyPageViewModel
-
 package com.ssafy.closetory.homeActivity.myPage
 
 import android.util.Log
@@ -9,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.EditProfileInfoResponse
-import com.ssafy.closetory.dto.TagsStatisticsResponse
+import com.ssafy.closetory.dto.StatisticsResponse
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -38,8 +36,11 @@ class MyPageViewModel : ViewModel() {
     private val _message = MutableSharedFlow<String>(replay = 0)
     val message: SharedFlow<String> = _message
 
-    private val _tagsStatistics = MutableLiveData<List<TagsStatisticsResponse>>()
-    val tagsStatistics: LiveData<List<TagsStatisticsResponse>> = _tagsStatistics
+    private val _tagsStatistics = MutableLiveData<List<StatisticsResponse>>()
+    val tagsStatistics: LiveData<List<StatisticsResponse>> = _tagsStatistics
+
+    private val _colorStatistics = MutableLiveData<List<StatisticsResponse>>()
+    val colorStatistics: LiveData<List<StatisticsResponse>> = _colorStatistics
 
     // ------------------- 요청 처리 -------------------
     // 회원정보 조회 요청 처리
@@ -160,6 +161,33 @@ class MyPageViewModel : ViewModel() {
                 Log.e(TAG, "테그 통계 예외 발생 : ${e.message}")
                 _message.emit(e.message ?: "네트워크 오류 발생")
                 _tagsStatistics.value = emptyList()
+            }
+        }
+    }
+
+    fun getColorsStatistics(userId: Int) {
+        viewModelScope.launch {
+            try {
+                val res = repository.getColorsStatistics(userId)
+
+                if (res.isSuccessful) {
+                    val data = res.body()?.data
+
+                    Log.d(TAG, "getColorsStatistics 성공 : $data")
+
+                    _colorStatistics.value = data!!
+                } else {
+                    val message = res.body()?.errorMessage
+                    _colorStatistics.value = emptyList()
+
+                    Log.d(TAG, "getColorsStatistics 실패 메시지 : $message")
+                    _message.emit(message!!)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "테그 통계 예외 발생 : ${e.message}")
+                _message.emit(e.message ?: "네트워크 오류 발생")
+                Log.d(TAG, "getColorsStatistics 예외 메시지 : ${e.message}")
+                _colorStatistics.value = emptyList()
             }
         }
     }
