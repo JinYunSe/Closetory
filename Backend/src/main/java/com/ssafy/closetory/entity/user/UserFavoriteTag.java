@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "user_favorite_tags")
@@ -17,13 +18,13 @@ public class UserFavoriteTag {
 
   @EmbeddedId private UserFavoriteTagId id;
 
-  @Column(name = "created_at", nullable = false)
+  @CreationTimestamp
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
   public static UserFavoriteTag of(Integer userId, Integer tagId) {
     UserFavoriteTag e = new UserFavoriteTag();
     e.id = new UserFavoriteTagId(userId, tagId);
-    e.createdAt = LocalDateTime.now();
     return e;
   }
 }

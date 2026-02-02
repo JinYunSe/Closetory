@@ -1,7 +1,7 @@
 package com.ssafy.closetory.controller.clothes;
 
+import com.ssafy.closetory.dto.clothes.TagItem;
 import com.ssafy.closetory.dto.common.ApiResponse;
-import com.ssafy.closetory.entity.clothes.TagItem;
 import com.ssafy.closetory.service.clothes.TagService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

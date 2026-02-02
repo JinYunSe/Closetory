@@ -1,6 +1,6 @@
 package com.ssafy.closetory.service.clothes;
 
-import com.ssafy.closetory.entity.clothes.TagItem;
+import com.ssafy.closetory.dto.clothes.TagItem;
 import java.util.List;
 
 public interface TagService {
