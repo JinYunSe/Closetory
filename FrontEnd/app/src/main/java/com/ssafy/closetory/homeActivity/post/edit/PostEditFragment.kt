@@ -14,6 +14,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentPostCreateBinding
@@ -47,7 +48,7 @@ class PostEditFragment :
     // 사진 변경 여부 확인
     private var photoChanged = false
 
-    // ※※※※※※※※※※※※※※※※※ postId는 arguments로 받는다고 가정 (SafeArgs면 여기만 교체)
+    // postId는 arguments로 받음.
     private val postId: Int by lazy {
         requireArguments().getInt("postId")
     }
@@ -80,13 +81,21 @@ class PostEditFragment :
         // Activity 참조 세팅
         homeActivity = requireContext() as HomeActivity
 
+        // 수정 진입 시 기존 게시글 데이터 불러오기
+        Log.d(TAG, "Edit enter postId=$postId")
+        viewModel.loadPostDetail(postId)
+
         // 옷 선택 리스트 RecyclerView 초기화
         setupItemsRecyclerView()
+
         // 대표 사진 선택(카메라/갤러리) 클릭 이벤트 세팅
         setupMainPhotoClick()
 
         // 사진 텍스트 숨기기
         updateMainPhotoPlaceholder(false)
+
+        // 옷 요소 비었는지 확인
+        updateClothesEmptyState()
 
         // EditText 스크롤 충돌 방지(부모 스크롤 가로채기 방지)
         setupContentInnerScroll()
@@ -97,7 +106,7 @@ class PostEditFragment :
         // 옷 선택 다이얼로그 결과 수신 세팅
         setupClothesPickResultListener()
 
-        // ✅ Edit 버튼으로 동작 (Create 버튼 리스너 대신)
+        // Edit 버튼으로 동작 (Create 버튼 리스너 대신)
         setupEditPostButton()
 
         // ViewModel 상태/메시지 관찰
@@ -176,6 +185,7 @@ class PostEditFragment :
             onRemoveClickListener = { item ->
                 selectedItems.remove(item)
                 submitList(selectedItems.toList())
+                updateClothesEmptyState()
             }
         }
 
@@ -206,15 +216,24 @@ class PostEditFragment :
             if (selectedItems.any { it.clothesId == clothesId }) return@setFragmentResultListener
 
             selectedItems.add(PostCreateSelectedItem(clothesId, photoUrl))
+            // 선택된 아이템 어뎁터에 담기
             itemAdapter.submitList(selectedItems.toList())
+            updateClothesEmptyState()
         }
+    }
+
+    // 바인딩 시 옷 요소 비었는지 여 확인
+    private fun updateClothesEmptyState() {
+        val hasItems = selectedItems.isNotEmpty()
+
+        binding.rvItems.visibility = if (hasItems) View.VISIBLE else View.GONE
+        binding.tvNoClothes.visibility = if (hasItems) View.GONE else View.VISIBLE
     }
 
     // EditText 스크롤 충돌 방지
     private fun setupContentInnerScroll() {
         val et = binding.etContent
         val touchSlop = ViewConfiguration.get(requireContext()).scaledTouchSlop
-
         var startX = 0f
         var startY = 0f
         var moved = false
@@ -269,7 +288,7 @@ class PostEditFragment :
         val uri: Uri? = selectedMainPhotoUri
         val titleText = binding.etTitle.text?.toString()?.trim().orEmpty()
         val contentText = binding.etContent.text?.toString()?.trim().orEmpty()
-        val itemIds: List<Int> = selectedItems.map { it.clothesId }
+        val items: List<Int> = selectedItems.map { it.clothesId }
 
         when {
             titleText.isBlank() -> {
@@ -286,7 +305,7 @@ class PostEditFragment :
         Log.d(TAG, "POST_EDIT_REQ postId=$postId")
         Log.d(TAG, "POST_EDIT_REQ title=$titleText")
         Log.d(TAG, "POST_EDIT_REQ content=$contentText")
-        Log.d(TAG, "POST_EDIT_REQ itemIds=$itemIds")
+        Log.d(TAG, "POST_EDIT_REQ items=$items")
         Log.d(TAG, "POST_EDIT_REQ photoUri=$uri")
 
         val photo: MultipartBody.Part? =
@@ -309,12 +328,12 @@ class PostEditFragment :
             photo = photo,
             title = titleText,
             content = contentText,
-            items = itemIds
+            items = items
         )
     }
 
     // ----------------------------
-    // ✅ ViewModel observe + 프리필
+    // ViewModel observe + 프리필
     // ----------------------------
     private fun observeViewModel() {
         // 메시지 토스트
@@ -330,6 +349,52 @@ class PostEditFragment :
                 if (data != null) {
                     parentFragmentManager.popBackStack()
                 }
+            }
+        }
+
+        // 상세 데이터 수신 시 화면 프리필
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.postDetail.collect { detail ->
+                if (detail == null) return@collect
+
+                // 제목/내용 프리필
+                binding.etTitle.setText(detail.title)
+                binding.etContent.setText(detail.content)
+
+                // 아이템 프리필
+                selectedItems.clear()
+                detail.items.forEach { item ->
+                    selectedItems.add(
+                        PostCreateSelectedItem(
+                            clothesId = item.clothesId,
+                            photoUrl = item.photoUrl
+                        )
+                    )
+                }
+
+                itemAdapter.submitList(selectedItems.toList())
+                updateClothesEmptyState()
+
+                // 대표 사진 프로필
+                val url = detail.photoUrl?.trim()
+                if (!url.isNullOrBlank()) {
+                    Glide.with(this@PostEditFragment)
+                        .load(url)
+                        .into(binding.ivMainPhoto)
+
+                    updateMainPhotoPlaceholder(true)
+                } else {
+                    updateMainPhotoPlaceholder(false)
+                }
+
+                // 기존 사진은 서버 URL이므로 Uri로 치환하지 않는다
+                selectedMainPhotoUri = null
+
+                // 사용자가 사진을 바꾼 게 아니므로 변경 플래그는 false로 유지한다
+                photoChanged = false
+
+                // 수정 화면 버튼 텍스트 변경(선택)
+                binding.btnRegistrationPost.text = "수정"
             }
         }
     }

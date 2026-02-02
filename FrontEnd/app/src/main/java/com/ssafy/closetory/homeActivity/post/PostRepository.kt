@@ -1,6 +1,7 @@
 package com.ssafy.closetory.homeActivity.post
 
 import android.util.Log
+import com.google.gson.Gson
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.PostDetailResponse
@@ -8,7 +9,9 @@ import com.ssafy.closetory.dto.PostEditRequest
 import com.ssafy.closetory.dto.PostEditResponse
 import com.ssafy.closetory.dto.PostItemResponse
 import com.ssafy.closetory.dto.PostQueryFilter
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 private const val TAG = "PostRepository_싸피"
 
@@ -74,10 +77,16 @@ class PostRepository {
         photo: MultipartBody.Part?,
         request: PostEditRequest
     ): ApiResponse<PostEditResponse> = try {
+        // request DTO를 JSON으로 변환해서 RequestBody로 만든다
+        val json = Gson().toJson(request)
+        val requestBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
+
+        Log.d(TAG, "editPost() request=$json")
+
         val res = postService.editPost(
             postId = postId,
             photo = photo,
-            request = request
+            request = requestBody
         )
 
         if (res.isSuccessful) {
@@ -89,6 +98,7 @@ class PostRepository {
             )
         } else {
             val rawError = res.errorBody()?.string()
+            Log.d(TAG, "editPost fail code=${res.code()} errorBody=$rawError")
             ApiResponse(
                 httpStatusCode = res.code(),
                 responseMessage = null,
