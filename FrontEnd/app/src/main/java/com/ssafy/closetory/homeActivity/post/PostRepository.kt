@@ -3,12 +3,14 @@ package com.ssafy.closetory.homeActivity.post
 import android.util.Log
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostEditRequest
 import com.ssafy.closetory.dto.PostEditResponse
 import com.ssafy.closetory.dto.PostItemResponse
 import com.ssafy.closetory.dto.PostQueryFilter
 import okhttp3.MultipartBody
+import retrofit2.Response
 
 private const val TAG = "PostRepository_싸피"
 
@@ -133,4 +135,9 @@ class PostRepository {
             data = null
         )
     }
+
+    suspend fun deleteClothesRental(clothesId: Int): Response<ApiResponse<Unit>> =
+        postService.deleteClothesRental(clothesId)
+    suspend fun postClothesRental(clothesId: Int): Response<ApiResponse<Unit>> =
+        postService.postClothesRental(clothesId)
 }
