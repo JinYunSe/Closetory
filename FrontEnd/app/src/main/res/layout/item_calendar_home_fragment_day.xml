@@ -5,7 +5,6 @@
     android:layout_height="@dimen/gridWidth"
     android:layout_margin="@dimen/gridMargin">
 
-    <!-- ✅ 1) 색칠/내용(클리핑 영역) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_root"
         android:layout_width="match_parent"
@@ -58,7 +57,6 @@
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- ✅ 2) 테두리 레이어(바깥으로 확장) -->
     <View
         android:id="@+id/v_bg"
         android:layout_width="match_parent"

@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostEditRequest
 import com.ssafy.closetory.dto.PostEditResponse
@@ -12,6 +13,7 @@ import com.ssafy.closetory.dto.PostQueryFilter
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Response
 
 private const val TAG = "PostRepository_싸피"
 
@@ -143,4 +145,9 @@ class PostRepository {
             data = null
         )
     }
+
+    suspend fun deleteClothesRental(clothesId: Int): Response<ApiResponse<Unit>> =
+        postService.deleteClothesRental(clothesId)
+    suspend fun postClothesRental(clothesId: Int): Response<ApiResponse<Unit>> =
+        postService.postClothesRental(clothesId)
 }

@@ -1,5 +1,7 @@
 package com.ssafy.closetory.dto
 
+import com.google.gson.annotations.SerializedName
+
 data class PostDetailResponse(
     val postId: Int,
     val userId: Int,

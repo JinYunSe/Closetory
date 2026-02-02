@@ -1,95 +1,96 @@
 package com.ssafy.closetory.homeActivity.myPage
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.toColorInt
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.PercentFormatter
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.AuthActivity
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
 import com.ssafy.closetory.dto.EditProfileInfoResponse
-import com.ssafy.closetory.homeActivity.mypage.MyPageViewModel
-import com.ssafy.closetory.homeActivity.mypage.signout.SignoutViewModel
+import com.ssafy.closetory.dto.StatisticsResponse
+import com.ssafy.closetory.homeActivity.myPage.signout.SignoutViewModel
+import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.auth.AuthManager
+import java.lang.reflect.Field
 import kotlinx.coroutines.launch
 
-private const val TAG = "MyPageFragment_싸피"
+// 태그 파이차트용(요청 팔레트 + 기타 흰색)
+private val TAG_PIE_COLORS = listOf(
+    "#0D47A1".toColorInt(), // Level 1
+    "#1976D2".toColorInt(), // Level 2
+    "#42A5F5".toColorInt(), // Level 3
+    "#90CAF9".toColorInt(), // Level 4
+    "#E3F2FD".toColorInt(), // Level 5
+    "#FFFFFF".toColorInt() // 기타
+)
 
-// 마이페이지 Fragment
 class MyPageFragment :
     BaseFragment<FragmentMyPageBinding>(
         FragmentMyPageBinding::bind,
         R.layout.fragment_my_page
     ) {
 
-    // 마이페이지 ViewModel
     private val myPageViewModel: MyPageViewModel by viewModels()
     private val signoutViewModel: SignoutViewModel by viewModels()
 
-    // 비밀번호 확인 다이얼로그 변수
     private var passwordDialog: AlertDialog? = null
-
-    private lateinit var editProfileInfoResponse: EditProfileInfoResponse
+    private var userId = -1
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        observeUserProfile()
+        userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
+        if (userId == -1) {
+            showToast("유저 정보가 없습니다. 다시 로그인 해주세요.")
+            moveToLogin()
+            return
+        }
 
+        myPageViewModel.getTagsStatistics(userId)
+        myPageViewModel.getColorsStatistics(userId)
+
+        observeUserProfile()
         loadUserProfile()
 
-        // 로그아웃 버튼 클릭 이벤트 등록
-        binding.btnLogout.setOnClickListener {
-            showLogoutDialog()
-        }
+        binding.btnLogout.setOnClickListener { showLogoutDialog() }
+        binding.btnSignout.setOnClickListener { showSignoutDialog() }
+        binding.tvEditProfile.setOnClickListener { showPasswordCheckDialog() }
 
-        // 회원 탈퇴
-        binding.btnSignout.setOnClickListener {
-            Log.d(TAG, "회원 탈퇴 버튼 클릭")
-            showSignoutDialog()
-        }
-
-        // 회원정보 수정 진입 전 비밀번호 확인 이벤트 등록
-        binding.tvEditProfile.setOnClickListener {
-            showPasswordCheckDialog()
-        }
-
-        // 로그아웃 결과 관찰
         observeLogout()
-
-        // 공통 메시지 관찰 (토스트 출력)
         observeMessage()
         collectSignout()
-
-        // 비밀번호 검증 결과 관찰
         observePasswordCheck()
     }
 
-    // 회원정보를 화면에 바인딩
     private fun bindUserProfile(user: EditProfileInfoResponse) {
         binding.tvNickname.text = user.nickname ?: "닉네임"
         binding.tvHeight.text = "${user.height ?: 0}cm"
         binding.tvWeight.text = "${user.weight ?: 0}kg"
 
-        // 프로필/전신 사진 URL이 있다면 Glide로 로드 (없으면 기본 이미지 유지)
         bindProfileImage(user.profilePhotoUrl)
         bindBodyImage(user.bodyPhotoUrl)
     }
 
-    // 프로필 이미지 바인딩
     private fun bindProfileImage(url: String?) {
         if (url.isNullOrBlank()) {
             binding.ivProfile.setImageResource(R.drawable.ic_profile_default)
@@ -103,7 +104,6 @@ class MyPageFragment :
             .into(binding.ivProfile)
     }
 
-    // 전신 이미지 바인딩
     private fun bindBodyImage(url: String?) {
         if (url.isNullOrBlank()) {
             binding.ivBodyPhoto.setImageResource(R.drawable.ic_body_default)
@@ -117,77 +117,54 @@ class MyPageFragment :
             .into(binding.ivBodyPhoto)
     }
 
-    // 회원 정보 수정 전 서버에 기존 유저 정보 요청
     private fun loadUserProfile() {
-        Log.d(TAG, "loadUserProfile: loadUserProfile 실행")
-        val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: return
         myPageViewModel.loadUserProfile(userId)
     }
 
     /* -------------------- 로그아웃 -------------------- */
 
-    // 회정 정보 성공 여부 관찰
     private fun observeUserProfile() {
-        // 회원정보 수신
         viewLifecycleOwner.lifecycleScope.launch {
             myPageViewModel.userProfile.collect { user ->
-                editProfileInfoResponse = user
                 bindUserProfile(user)
-                Log.d(TAG, "userProfile = $user")
             }
         }
     }
 
-    // 로그아웃 확인 다이얼로그 표시
     private fun showLogoutDialog() {
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle("로그아웃")
             .setMessage("정말 로그아웃 하시겠습니까?")
-            .setPositiveButton("확인") { _, _ ->
-                requestLogout()
-            }
+            .setPositiveButton("확인") { _, _ -> requestLogout() }
             .setNegativeButton("취소", null)
             .show()
 
-        // 버튼 색상 변경
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             .setTextColor(requireContext().getColor(R.color.main_color))
-
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
             .setTextColor(requireContext().getColor(R.color.gray_500))
     }
 
-    // 로그아웃 요청을 ViewModel에 전달
     private fun requestLogout() {
         myPageViewModel.logout()
     }
 
-    // 로그아웃 성공 여부 관찰
     private fun observeLogout() {
         viewLifecycleOwner.lifecycleScope.launch {
             myPageViewModel.logoutSuccess.collect { success ->
                 if (success) {
-                    // 저장된 토큰 삭제
                     val authManager = AuthManager(requireContext())
                     authManager.clearToken()
                     ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
 
-                    Log.d(
-                        TAG,
-                        "로그아웃 직후 userId : ${ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)}"
-                    )
-
-                    // 인증 화면으로 이동 및 백스택 제거
                     val intent = Intent(requireContext(), AuthActivity::class.java)
-                    intent.flags =
-                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
                 }
             }
         }
     }
 
-    // ViewModel에서 전달되는 메시지를 토스트로 출력
     private fun observeMessage() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -196,84 +173,65 @@ class MyPageFragment :
         }
     }
 
-    // 회원정보 수정 전 비밀번호 확인 다이얼로그 표시
+    /* -------------------- 비밀번호 확인 -------------------- */
+
     private fun showPasswordCheckDialog() {
-        // 커스텀 다이얼로그 레이아웃 inflate
         val dialogView = layoutInflater.inflate(R.layout.dialog_password_check, null)
 
-        // 다이얼로그 내부 뷰 참조
         val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
         val btnToggle = dialogView.findViewById<ImageButton>(R.id.btnTogglePassword)
         val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirm)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
 
-        // 비밀번호 표시 여부 상태값
         var visible = false
 
-        // 비밀번호 표시 토글 버튼 클릭 이벤트
         btnToggle.setOnClickListener {
             visible = togglePasswordVisibility(etPassword, visible)
         }
 
-        // 다이얼로그 생성
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
             .setCancelable(false)
             .create()
 
-        // 다이얼로그 참조 저장
         passwordDialog = dialog
 
-        // 취소 버튼 클릭 시 다이얼로그 종료
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
-        // 확인 버튼 클릭 시 비밀번호 검증 요청
         btnConfirm.setOnClickListener {
             val password = etPassword.text.toString()
-
-            // 입력값 검증
             if (password.isBlank()) {
                 showToast("비밀번호를 입력해주세요.")
                 return@setOnClickListener
             }
-
-            // ViewModel에 비밀번호 검증 요청
             myPageViewModel.checkPassword(password)
         }
 
-        // 다이얼로그 표시
         dialog.show()
     }
 
-    // 비밀번호 검증 결과 관찰
     private fun observePasswordCheck() {
-        // 비밀번호 검증 성공 여부 관찰
         viewLifecycleOwner.lifecycleScope.launch {
             myPageViewModel.passwordVerified.collect { success ->
-
                 if (success) {
-                    // 다이얼로그 종료
                     passwordDialog?.dismiss()
                     passwordDialog = null
-
-                    // 회원정보 수정 화면으로 이동
-                    findNavController()
-                        .navigate(R.id.action_navigation_my_page_to_editProfileFragment)
+                    findNavController().navigate(R.id.action_navigation_my_page_to_editProfileFragment)
                 }
             }
         }
 
-        // 비밀번호 검증 관련 메시지 관찰
-        viewLifecycleOwner.lifecycleScope.launch {
-            myPageViewModel.message.collect { msg ->
-                showToast(msg)
-            }
+        // 태그 통계 수신
+        myPageViewModel.tagsStatistics.observe(viewLifecycleOwner) { list ->
+            updatePieTag(list)
+        }
+
+        // 색상 통계 수신
+        myPageViewModel.colorStatistics.observe(viewLifecycleOwner) { list ->
+            updatePieColor(list)
         }
     }
 
-    // 비밀번호 입력창 표시 및 숨김 처리
     private fun togglePasswordVisibility(editText: EditText, isVisible: Boolean): Boolean {
         editText.inputType =
             if (isVisible) {
@@ -281,13 +239,11 @@ class MyPageFragment :
             } else {
                 InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
             }
-
-        // 커서 위치 유지
         editText.setSelection(editText.text.length)
         return !isVisible
     }
 
-/* -------------------- 회원 탈퇴 -------------------- */
+    /* -------------------- 회원 탈퇴 -------------------- */
 
     private fun collectSignout() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -302,13 +258,10 @@ class MyPageFragment :
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            signoutViewModel.message.collect { msg ->
-                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-            }
+            signoutViewModel.message.collect { mes -> showToast(mes) }
         }
     }
 
-    // 회원 탈퇴 다이얼로그 띄우기
     private fun showSignoutDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_signout, null)
 
@@ -324,60 +277,243 @@ class MyPageFragment :
 
         var isPasswordVisible = false
 
-        // 비밀번호 보기 / 숨기기
         btnToggle.setOnClickListener {
             isPasswordVisible = !isPasswordVisible
             etPassword.inputType =
                 if (isPasswordVisible) {
-                    InputType.TYPE_CLASS_TEXT or
-                        InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                 } else {
-                    InputType.TYPE_CLASS_TEXT or
-                        InputType.TYPE_TEXT_VARIATION_PASSWORD
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                 }
-
             etPassword.setSelection(etPassword.text.length)
         }
 
-        // 탈퇴 확인
         btnConfirm.setOnClickListener {
             val password = etPassword.text.toString()
-
             if (password.isBlank()) {
                 Toast.makeText(requireContext(), "비밀번호를 입력해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            Log.d(
-                TAG,
-                "USERID key = '${ApplicationClass.USERID}', PREF_NAME='${ApplicationClass.SHARED_PREFERENCES_NAME}'"
-            )
 
-            Log.d(TAG, "userId value = ${ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)}")
-
-            // SharedPreferencesUtil 수정 안 하므로 null 체크가 아니라 -1 체크해야 함
-            val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
-            Log.d(TAG, "userID : $userId")
-            if (userId == -1) {
+            val uid = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
+            if (uid == -1) {
                 Toast.makeText(requireContext(), "유저 정보가 없습니다. 다시 로그인 해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            signoutViewModel.signout(userId, password)
+            signoutViewModel.signout(uid, password)
             dialog.dismiss()
         }
 
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
     }
-
-    /* -------------------- 공통 -------------------- */
 
     private fun moveToLogin() {
         val intent = Intent(requireContext(), AuthActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+    }
+
+    /* -------------------- PieChart (공통) -------------------- */
+
+    private fun applyPieCommon(pieChart: PieChart) {
+        pieChart.setDrawHoleEnabled(false)
+        pieChart.setDrawCenterText(false)
+        pieChart.setDrawEntryLabels(false)
+        pieChart.description.isEnabled = false
+        pieChart.setUsePercentValues(true)
+        pieChart.legend.isEnabled = false
+
+        // 잘림 방지 + 두 그래프 동일 사이즈 체감
+        pieChart.setExtraOffsets(12f, 12f, 12f, 12f)
+        pieChart.isHighlightPerTapEnabled = true
+    }
+
+    private fun applyPieDatasetCommon(dataSet: PieDataSet) {
+        dataSet.setDrawValues(true)
+
+        dataSet.yValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
+        dataSet.valueLinePart1OffsetPercentage = 80f
+        dataSet.valueLinePart1Length = 0.30f
+        dataSet.valueLinePart2Length = 0.35f
+        dataSet.valueLineWidth = 1f
+        dataSet.isUsingSliceColorAsValueLineColor = true
+
+        dataSet.sliceSpace = 1f
+        dataSet.selectionShift = 6f
+    }
+
+    private fun buildPieData(pieChart: PieChart, dataSet: PieDataSet): PieData = PieData(dataSet).apply {
+        setValueFormatter(PercentFormatter(pieChart))
+        setValueTextSize(12f)
+        setValueTextColor(Color.BLACK)
+    }
+
+    /* -------------------- PieChart (태그) -------------------- */
+
+    private fun buildTop5WithEtcEntries(tagCounts: List<Pair<String, Float>>): List<PieEntry> {
+        val sorted = tagCounts
+            .filter { it.second > 0f }
+            .sortedByDescending { it.second }
+
+        if (sorted.isEmpty()) return emptyList()
+
+        val top5 = sorted.take(5)
+        val etcSum = sorted.drop(5).sumOf { it.second.toDouble() }.toFloat()
+
+        return buildList {
+            top5.forEach { (tag, value) ->
+                add(PieEntry(value, "").apply { data = tag })
+            }
+            if (etcSum > 0f) {
+                add(PieEntry(etcSum, "").apply { data = "기타" })
+            }
+        }
+    }
+
+    private fun renderPieTag(entries: List<PieEntry>) {
+        val pieChart = binding.pieTag
+        applyPieCommon(pieChart)
+
+        if (entries.isEmpty()) {
+            pieChart.data = null
+            pieChart.invalidate()
+            return
+        }
+
+        val dataSet = PieDataSet(entries, "").apply {
+            colors = MutableList(entries.size) { idx ->
+                if (idx < 5) TAG_PIE_COLORS[idx] else TAG_PIE_COLORS.last()
+            }
+        }
+
+        applyPieDatasetCommon(dataSet)
+        pieChart.data = buildPieData(pieChart, dataSet)
+
+        // PieMarkerView 클래스/레이아웃이 프로젝트에 있어야 함
+        pieChart.marker = PieMarkerView(requireContext(), R.layout.marker_pie)
+
+        pieChart.invalidate()
+    }
+
+    private fun updatePieTag(stats: List<StatisticsResponse>) {
+        val pairs = stats.mapNotNull { extractTagAndValue(it) }
+        renderPieTag(buildTop5WithEtcEntries(pairs))
+    }
+
+    /* -------------------- PieChart (색상) -------------------- */
+
+    private fun buildTop5WithEtcColorEntries(
+        colorCounts: List<Pair<String, Float>>
+    ): Pair<List<PieEntry>, List<String>> {
+        val sorted = colorCounts
+            .filter { it.second > 0f }
+            .sortedByDescending { it.second }
+
+        if (sorted.isEmpty()) return emptyList<PieEntry>() to emptyList()
+
+        val top5 = sorted.take(5)
+        val top5Eng = top5.map { it.first }
+
+        val etcSum = sorted.drop(5).sumOf { it.second.toDouble() }.toFloat()
+
+        val entries = mutableListOf<PieEntry>()
+        top5.forEach { (colorEng, value) ->
+            val labelKo = ColorOptions.englishToKorean(colorEng) ?: colorEng
+            entries.add(PieEntry(value, "").apply { data = labelKo })
+        }
+        if (etcSum > 0f) {
+            entries.add(PieEntry(etcSum, "").apply { data = "기타" })
+        }
+
+        return entries to top5Eng
+    }
+
+    private fun renderPieColor(entries: List<PieEntry>, top5EngInOrder: List<String>) {
+        val pieChart = binding.pieColor
+        applyPieCommon(pieChart)
+
+        if (entries.isEmpty()) {
+            pieChart.data = null
+            pieChart.invalidate()
+            return
+        }
+
+        val dataSet = PieDataSet(entries, "")
+
+        val colors = mutableListOf<Int>()
+        for (i in entries.indices) {
+            val c = if (i < top5EngInOrder.size) {
+                ColorOptions.englishToArgb(top5EngInOrder[i]) ?: 0xFFBDBDBD.toInt()
+            } else {
+                0xFFFFFFFF.toInt() // 기타 흰색
+            }
+            colors.add(c)
+        }
+        dataSet.colors = colors
+
+        applyPieDatasetCommon(dataSet)
+        pieChart.data = buildPieData(pieChart, dataSet)
+
+        pieChart.marker = PieMarkerView(requireContext(), R.layout.marker_pie)
+
+        pieChart.invalidate()
+    }
+
+    private fun updatePieColor(stats: List<StatisticsResponse>) {
+        fun extractColorAndValue(item: Any): Pair<String, Float>? {
+            val colorEng =
+                readStringField(item, listOf("color", "colorCode", "codeEnglish", "code", "name"))
+                    ?: return null
+            val value =
+                readNumberField(item, listOf("ratio", "percent", "percentage", "value", "count"))
+                    ?: return null
+            return colorEng to value
+        }
+
+        val pairs = stats.mapNotNull { extractColorAndValue(it) }
+        val (entries, top5Eng) = buildTop5WithEtcColorEntries(pairs)
+        renderPieColor(entries, top5Eng)
+    }
+
+    /* -------------------- DTO 리플렉션 (유지) -------------------- */
+
+    private fun extractTagAndValue(item: Any): Pair<String, Float>? {
+        val tag = readStringField(item, listOf("tagName", "tag", "name")) ?: return null
+        val value = readNumberField(item, listOf("ratio", "percent", "percentage", "value", "count")) ?: return null
+        return tag to value
+    }
+
+    private fun readStringField(target: Any, candidates: List<String>): String? {
+        for (name in candidates) {
+            val v = readField(target, name) ?: continue
+            if (v is String && v.isNotBlank()) return v
+        }
+        return null
+    }
+
+    private fun readNumberField(target: Any, candidates: List<String>): Float? {
+        for (name in candidates) {
+            val v = readField(target, name) ?: continue
+            return when (v) {
+                is Float -> v
+                is Double -> v.toFloat()
+                is Int -> v.toFloat()
+                is Long -> v.toFloat()
+                is Number -> v.toFloat()
+                else -> null
+            }
+        }
+        return null
+    }
+
+    private fun readField(target: Any, fieldName: String): Any? = try {
+        val f: Field = target.javaClass.getDeclaredField(fieldName)
+        f.isAccessible = true
+        f.get(target)
+    } catch (_: Exception) {
+        null
     }
 }

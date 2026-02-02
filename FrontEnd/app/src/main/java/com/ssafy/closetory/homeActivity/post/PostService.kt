@@ -1,6 +1,7 @@
 package com.ssafy.closetory.homeActivity.post
 
 import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostEditResponse
 import com.ssafy.closetory.dto.PostItemResponse
@@ -12,6 +13,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.PATCH
+import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -42,4 +44,10 @@ interface PostService {
     // 게시글 삭제
     @DELETE("posts/{postId}")
     suspend fun deletePost(@Path("postId") postId: Int): Response<ApiResponse<Unit>>
+
+    @POST("clothes/{clothesId}/save")
+    suspend fun postClothesRental(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
+
+    @DELETE("clothes/{clothesId}/save")
+    suspend fun deleteClothesRental(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
 }

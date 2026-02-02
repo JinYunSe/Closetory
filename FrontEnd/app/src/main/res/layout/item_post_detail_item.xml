@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:background="@drawable/bg_gray_box"
         android:contentDescription="옷요소 이미지"
-        android:scaleType="centerCrop" />
+        android:scaleType="fitCenter" />
 
     <!-- 우상단 저장 버튼 -->
     <ImageView

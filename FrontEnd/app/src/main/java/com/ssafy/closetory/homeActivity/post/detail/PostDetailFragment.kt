@@ -1,4 +1,3 @@
-// PostDetailFragment.kt
 package com.ssafy.closetory.homeActivity.post.detail
 
 import android.os.Bundle
@@ -19,17 +18,16 @@ import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentPostDetailBinding
+import com.ssafy.closetory.dto.PostDetailItemDto
 import com.ssafy.closetory.homeActivity.adapter.PostDetailItemAdapter
 import com.ssafy.closetory.homeActivity.post.delete.PostDeleteViewModel
 import kotlinx.coroutines.launch
 
 private const val TAG = "PostDetailFragment_싸피"
 
-// 게시글 상세 페이지 Fragment
 class PostDetailFragment :
     BaseFragment<FragmentPostDetailBinding>(FragmentPostDetailBinding::bind, R.layout.fragment_post_detail) {
 
-    // ViewModel 등록
     private val viewModel: PostDetailViewModel by viewModels()
     private val deleteViewModel: PostDeleteViewModel by viewModels()
 
@@ -37,7 +35,6 @@ class PostDetailFragment :
 
     private lateinit var itemAdapter: PostDetailItemAdapter
 
-    // 대표 이미지 URL을 저장
     private var currentPhotoUrl: String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,18 +42,13 @@ class PostDetailFragment :
 
         Log.d(TAG, "onViewCreated() 진입, postId = $postId")
 
-        // postId 입력 검증
         if (postId <= 0) {
             Toast.makeText(requireContext(), "잘못된 게시글 번호입니다.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // 옷 요소 RecyclerView 초기 세팅
         setupItemsRecyclerView()
-
-        // ViewModel 상태 관찰
         observeViewModel()
-
         // 게시글 내용(TextView) 내부 스크롤 활성화
         binding.tvContent.movementMethod = ScrollingMovementMethod()
 
@@ -65,24 +57,14 @@ class PostDetailFragment :
 
         // 좋아요 버튼 클릭
         setupLikeClicks()
-
-        // 수정 버튼 클릭
         setupUpdateButton()
-
-        // 삭제 버튼 클릭
         setupDeleteButton()
-
-        // 삭제 결과 이벤트 수신
         observeDeleteViewModel()
-
-        // 사진 클릭 시 다이얼로그
         setupPhotoClickDialog()
 
-        // 게시글 상세 조회 요청
         viewModel.loadPostDetail(postId)
 
-        // 댓글 스크롤과 NestedScrollView와 충돌 방지
-        binding.etComment.setOnTouchListener { v, event ->
+        binding.etComment.setOnTouchListener { v, _ ->
             v.parent.requestDisallowInterceptTouchEvent(true)
             false
         }
@@ -122,17 +104,14 @@ class PostDetailFragment :
 
     // 좋아요 버튼 클릭
     private fun setupLikeClicks() {
-        // 좋아요 버튼 클릭
         binding.ivLikeIcon.setOnClickListener {
-            // TODO() : 좋아요 기능 구현 필요
+            // TODO
         }
     }
 
-    // 사진 클릭 시 다이얼로그
     private fun setupPhotoClickDialog() {
         binding.ivPostPhoto.setOnClickListener {
             val url = currentPhotoUrl
-
             if (url.isNullOrBlank()) {
                 Toast.makeText(requireContext(), "이미지가 없습니다.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -144,25 +123,39 @@ class PostDetailFragment :
         }
     }
 
-    // 수정 버튼 클릭
     private fun setupUpdateButton() {
-        binding.btnUpdate.setOnClickListener {
-            navigateToEdit()
-        }
+        binding.btnUpdate.setOnClickListener { navigateToEdit() }
     }
+
     private fun navigateToEdit() {
         val bundle = Bundle().apply {
-            putInt("postId", postId) // 수정할 게시글 id 전달
-            putString("mode", "edit") // create/edit 구분
+            putInt("postId", postId)
+            putString("mode", "edit")
         }
         findNavController().navigate(R.id.action_post_detail_to_post_edit, bundle)
     }
 
-    // 옷 요소 가로 RecyclerView 초기 세팅
     private fun setupItemsRecyclerView() {
-        itemAdapter = PostDetailItemAdapter { item ->
-            // TODO: 옷 요소 터치했을 때 사용 동작
-        }
+        itemAdapter = PostDetailItemAdapter(
+            onItemClick = { _ ->
+                // TODO
+            },
+            onSaveClick = { item ->
+                val willSave = !item.isSaved
+
+                // ✅ DTO 안 건드리고도 "진짜 id"를 찾아서 사용
+                val resolvedId = resolveClothesId(item)
+
+                Log.d(TAG, "onSaveClick item=$item")
+                Log.d(TAG, "resolved clothesId=$resolvedId (original clothesId=${item.clothesId})")
+
+                viewModel.toggleClothesSave(
+                    postId = postId,
+                    clothesId = resolvedId,
+                    willSave = willSave
+                )
+            }
+        )
 
         binding.rvClothes.apply {
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -171,7 +164,6 @@ class PostDetailFragment :
         }
     }
 
-    // 게시글 상세 데이터와 메시지 상태 관찰
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -181,12 +173,10 @@ class PostDetailFragment :
                     }
                 }
 
-                // 상세 데이터 수신 후 UI 반영
                 launch {
                     viewModel.postDetail.collect { detail ->
                         if (detail == null) return@collect
 
-                        // 텍스트 바인딩
                         binding.tvTitle.text = detail.title
                         binding.tvAuthor.text = detail.nickname
                         binding.tvContent.text = detail.content
@@ -194,43 +184,29 @@ class PostDetailFragment :
                         binding.tvLikes.text = detail.likeCount.toString()
                         binding.ivLikeIcon.isSelected = detail.isLiked
 
-                        // 프로필 이미지
                         Glide.with(this@PostDetailFragment)
                             .load(detail.profilePhotoUrl)
-                            .placeholder(R.drawable.placeholder) // 너 프로젝트 placeholder로 맞춰
+                            .placeholder(R.drawable.placeholder)
                             .error(R.drawable.placeholder)
                             .into(binding.ivProfile)
 
-                        // 게시글 대표 이미지
                         Glide.with(this@PostDetailFragment)
                             .load(detail.photoUrl)
                             .placeholder(R.drawable.placeholder)
                             .error(R.drawable.placeholder)
                             .into(binding.ivPostPhoto)
 
-                        // 현재 게시글 대표 이미지 URL 변수 저장 (나중에 터치 다이얼로그 쓰기 위함)
                         currentPhotoUrl = detail.photoUrl?.trim()
 
-                        // 내 글인지 판별 → 수정/삭제 버튼 표시
                         val loginUserId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)
-                        Log.d(TAG, "현재 로그인 ID: $loginUserId ")
                         val isMine = (loginUserId == detail.userId)
-                        Log.d(TAG, "detail.userId = ${detail.userId}")
-                        Log.d(TAG, "게시글 사용자인지 판별하기 : $isMine")
                         binding.layoutPostActions.visibility = if (isMine) View.VISIBLE else View.GONE
 
                         val hasClothes = detail.items.isNotEmpty()
-
-                        // 옷 요소가 없으면 "옷 정보가 없습니다" 표시 해주기
                         binding.rvClothes.visibility = if (hasClothes) View.VISIBLE else View.GONE
                         binding.tvNoClothes.visibility = if (hasClothes) View.GONE else View.VISIBLE
 
-                        if (hasClothes) {
-                            itemAdapter.submitList(detail.items)
-                        } else {
-                            itemAdapter.submitList(emptyList())
-                        }
-                        // 내 게시글인지 확인 후 숨기기.
+                        itemAdapter.submitList(if (hasClothes) detail.items else emptyList())
                         itemAdapter.setIsMinePost(isMine)
                     }
                 }
@@ -238,7 +214,6 @@ class PostDetailFragment :
         }
     }
 
-    // 삭제 버튼 클릭
     private fun setupDeleteButton() {
         binding.btnDelete.setOnClickListener {
             if (postId <= 0) {
@@ -257,7 +232,6 @@ class PostDetailFragment :
         }
     }
 
-    // 삭제 결과 이벤트 수신
     private fun observeDeleteViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -265,8 +239,6 @@ class PostDetailFragment :
                     when (event) {
                         is PostDeleteViewModel.UiEvent.DeleteSuccess -> {
                             Toast.makeText(requireContext(), "삭제 완료", Toast.LENGTH_SHORT).show()
-
-                            // 상세 화면 종료 -> 목록 화면으로 복귀
                             findNavController().popBackStack()
                         }
 
@@ -277,5 +249,50 @@ class PostDetailFragment :
                 }
             }
         }
+    }
+
+    /**
+     * DTO를 안 건드리고도 clothesId를 찾아내기 위한 해결책.
+     *
+     * 우선순위:
+     * 1) item.clothesId
+     * 2) getter 메서드(getId / getClothingId / getClothes_id 등)
+     * 3) field(id / clothingId / clothes_id 등)
+     */
+    private fun resolveClothesId(item: PostDetailItemDto): Int {
+        // 1) 기존 clothesId가 정상이라면 그대로 사용
+        if (item.clothesId > 0) return item.clothesId
+
+        // 2) 메서드(getId 등)에서 찾기
+        val methodNames = listOf(
+            "getId",
+            "getClothingId",
+            "getClothes_id",
+            "getClothesId"
+        )
+
+        for (name in methodNames) {
+            val v = runCatching {
+                val m = item.javaClass.methods.firstOrNull { it.name == name && it.parameterTypes.isEmpty() }
+                (m?.invoke(item) as? Number)?.toInt()
+            }.getOrNull()
+
+            if (v != null && v > 0) return v
+        }
+
+        // 3) 필드(id 등)에서 찾기
+        val fieldNames = listOf("id", "clothingId", "clothes_id", "clothesId")
+        for (fname in fieldNames) {
+            val v = runCatching {
+                val f = item.javaClass.declaredFields.firstOrNull { it.name == fname } ?: return@runCatching null
+                f.isAccessible = true
+                (f.get(item) as? Number)?.toInt()
+            }.getOrNull()
+
+            if (v != null && v > 0) return v
+        }
+
+        // 못 찾으면 0 유지
+        return 0
     }
 }
