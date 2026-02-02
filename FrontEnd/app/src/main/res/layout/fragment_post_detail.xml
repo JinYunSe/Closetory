@@ -177,7 +177,11 @@
                 android:text="게시글"
                 android:textColor="@android:color/black"
                 android:textSize="12sp"
-                android:padding="12dp"/>
+                android:padding="12dp"
+                android:scrollbars="vertical"
+                android:overScrollMode="ifContentScrolls"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
 
             <TextView
                 android:layout_width="wrap_content"

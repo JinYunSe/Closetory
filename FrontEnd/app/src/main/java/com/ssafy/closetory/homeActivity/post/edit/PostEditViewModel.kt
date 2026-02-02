@@ -18,6 +18,8 @@ private const val TAG = "PostEditViewModel_싸피"
 
 class PostEditViewModel : ViewModel() {
 
+    private var loadedPostId: Int? = null
+
     private val repository = PostRepository()
 
     private val _postDetail = MutableStateFlow<PostDetailResponse?>(null)
@@ -31,6 +33,10 @@ class PostEditViewModel : ViewModel() {
 
     // 수정 화면 진입 시 기존 게시글 상세 조회
     fun loadPostDetail(postId: Int) {
+        // 네트워크 재호출 방지
+        if (loadedPostId == postId && postDetail.value != null) return
+        loadedPostId = postId
+
         viewModelScope.launch {
             try {
                 val res = repository.getPostDetail(postId)
