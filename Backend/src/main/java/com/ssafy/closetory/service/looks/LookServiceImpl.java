@@ -400,7 +400,7 @@ public class LookServiceImpl implements LookService {
   private ClothesColor findColorByType(List<ClothesLooks> items, ClothesType type) {
     return items.stream()
         .map(ClothesLooks::getClothes)
-        .filter(c -> ((Clothes) c).getClothesType() == type)
+        .filter(c -> c.getClothesType() == type)
         .findFirst()
         .map(Clothes::getColor)
         .orElse(null);
@@ -431,5 +431,22 @@ public class LookServiceImpl implements LookService {
     }
 
     look.setDate(request.date());
+  }
+
+  @Override
+  @Transactional
+  public void deleteLook(Integer lookId, Integer userId) {
+    Look look =
+        lookRepository.findById(lookId).orElseThrow(() -> new NotFoundException("존재하지 않는 룩입니다."));
+
+    if (!look.getUserId().equals(userId)) {
+      throw new ForbiddenException("자신의 룩만 삭제할 수 있습니다.");
+    }
+
+    List<ClothesLooks> lookItems = clothesLooksRepository.findByIdLookIdIn(List.of(lookId));
+
+    clothesLooksRepository.deleteAll(lookItems);
+
+    lookRepository.delete(look);
   }
 }
