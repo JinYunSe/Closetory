@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/svPostCreate"
     android:layout_width="match_parent"
@@ -20,7 +21,7 @@
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_gray_border"
             android:gravity="center"
-            android:hint="제목"
+            android:hint="제목을 30자 이내로 작성해주세요."
             android:inputType="text"
             android:maxLines="1"
             android:paddingHorizontal="12dp"
@@ -43,14 +44,16 @@
         <ImageView
             android:id="@+id/ivMainPhoto"
             android:layout_width="0dp"
-            android:layout_height="240dp"
+            android:layout_height="0dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_gray_box"
             android:contentDescription="메인 사진"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             app:layout_constraintTop_toBottomOf="@id/etTitle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="4:5" />
+
 
         <!-- (선택) 사진 영역 중앙에 안내 텍스트 -->
         <TextView

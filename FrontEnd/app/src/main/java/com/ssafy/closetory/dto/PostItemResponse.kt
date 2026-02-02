@@ -7,5 +7,6 @@ data class PostItemResponse(
     val photoUrl: String,
     val views: Int,
     val likes: Int,
-    val comments: Int
+    val comments: Int,
+    val nickname: String
 )
