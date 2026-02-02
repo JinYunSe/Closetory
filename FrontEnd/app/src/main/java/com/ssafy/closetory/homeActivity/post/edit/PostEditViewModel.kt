@@ -3,11 +3,14 @@ package com.ssafy.closetory.homeActivity.post.edit
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostEditRequest
 import com.ssafy.closetory.dto.PostEditResponse
 import com.ssafy.closetory.homeActivity.post.PostRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 
@@ -17,11 +20,31 @@ class PostEditViewModel : ViewModel() {
 
     private val repository = PostRepository()
 
+    private val _postDetail = MutableStateFlow<PostDetailResponse?>(null)
+    val postDetail = _postDetail.asStateFlow()
+
     private val _editResult = MutableSharedFlow<PostEditResponse?>(extraBufferCapacity = 1)
     val editResult = _editResult.asSharedFlow()
 
     private val _message = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val message = _message.asSharedFlow()
+
+    // 수정 화면 진입 시 기존 게시글 상세 조회
+    fun loadPostDetail(postId: Int) {
+        viewModelScope.launch {
+            try {
+                val res = repository.getPostDetail(postId)
+                if (res.data != null) {
+                    _postDetail.value = res.data
+                }
+                val msg = res.responseMessage ?: res.errorMessage ?: "응답 메시지가 없습니다."
+                _message.tryEmit(msg)
+            } catch (e: Exception) {
+                Log.e(TAG, "loadPostDetail exception", e)
+                _message.tryEmit(e.message ?: "네트워크 오류")
+            }
+        }
+    }
 
     fun editPost(
         postId: Int,
@@ -32,7 +55,7 @@ class PostEditViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
-                Log.d(TAG, "editPost() postId=$postId title=$title content=${content.length} items=$items photo=$photo")
+                Log.d(TAG, "editPost() postId=$postId title=$title content=$content items=$items photo=$photo")
 
                 // 전체 필드 전송
                 val res = repository.editPost(
