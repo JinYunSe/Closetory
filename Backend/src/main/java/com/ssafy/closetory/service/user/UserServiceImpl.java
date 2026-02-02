@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService {
   private final S3ImageService s3ImageService;
   private final PasswordEncoder passwordEncoder;
   private final RefreshTokenService refreshTokenService;
+
   // 비밀번호 검증
   @Override
   public void updateUser(
@@ -109,10 +110,6 @@ public class UserServiceImpl implements UserService {
       throw new ForbiddenException("자신의 선호 태그만 등록할 수 있습니다.");
     }
 
-    if (userFavoriteTagRepository.existsByIdUserId(userId)) {
-      throw new ConflictException("이미 선호 태그를 등록한 사용자입니다.");
-    }
-
     List<Integer> tagIds =
         request.tags() == null ? List.of() : request.tags().stream().distinct().toList();
 
@@ -122,8 +119,10 @@ public class UserServiceImpl implements UserService {
 
     List<Tag> tags = tagRepository.findAllById(tagIds);
     if (tags.size() != tagIds.size()) {
-      throw new BadRequestException("존재하지 않는 태그가 포함되어 있습니다.");
+      throw new NotFoundException("존재하지 않는 태그가 포함되어 있습니다.");
     }
+
+    userFavoriteTagRepository.deleteByIdUserId(userId);
 
     List<UserFavoriteTag> rows =
         tagIds.stream().map(tagId -> UserFavoriteTag.of(userId, tagId)).toList();
