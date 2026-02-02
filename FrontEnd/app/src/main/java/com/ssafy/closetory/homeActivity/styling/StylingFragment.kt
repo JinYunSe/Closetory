@@ -1,14 +1,16 @@
 package com.ssafy.closetory.homeActivity.styling
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.addCallback
-import androidx.fragment.app.viewModels
+import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
@@ -16,7 +18,7 @@ import com.ssafy.closetory.databinding.FragmentStylingBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.homeActivity.adapter.ClothesAdapter
 
-private const val TAG = "StylingFragment_싸피"
+private const val TAG = "StylingFragment"
 
 class StylingFragment :
     BaseFragment<FragmentStylingBinding>(
@@ -24,10 +26,9 @@ class StylingFragment :
         R.layout.fragment_styling
     ) {
 
-    // ViewModel 초기화
-    private val viewModel: StylingViewModel by viewModels()
+    // Activity 스코프 ViewModel
+    private val viewModel: StylingViewModel by activityViewModels()
 
-    // 각 타입별 어댑터
     private lateinit var topAdapter: ClothesAdapter
     private lateinit var bottomAdapter: ClothesAdapter
     private lateinit var outerAdapter: ClothesAdapter
@@ -35,141 +36,265 @@ class StylingFragment :
     private lateinit var bagAdapter: ClothesAdapter
     private lateinit var shoeAdapter: ClothesAdapter
 
-    // 현재 슬롯에 선택된 아이템들을 저장
-    // 순서: Top, Bottom, Shoes, Outer, Accessory, Bag
-    private val selectedSlots = mutableMapOf<String, ClothesItemDto?>(
-        "TOP" to null,
-        "BOTTOM" to null,
-        "SHOES" to null,
-        "OUTER" to null,
-        "ACC" to null,
-        "BAG" to null
-    )
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            findNavController().popBackStack(R.id.navigation_home, false)
-        }
-
-        Log.d(TAG, "🚀 StylingFragment onViewCreated 시작")
+        Log.d(TAG, "StylingFragment onViewCreated 시작")
 
         setupRecyclerViews()
         setupButtons()
         observeViewModel()
+        setupVideoLoading()
+        setupBackPressHandler()
 
-        // 초기 데이터 로드 (보유한 옷만)
-        Log.d(TAG, "📡 서버에서 의류 데이터 로드 시작 (onlyMine=false)")
         viewModel.loadClothItems(onlyMine = false)
     }
 
-    /**
-     * RecyclerView 초기화 및 설정
-     */
     private fun setupRecyclerViews() {
-        // 상의 어댑터
+        // 상의 (lv_top_cloth)
         topAdapter = ClothesAdapter().apply {
             onItemClick = { item ->
                 Log.d(TAG, "상의 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("TOP", item, binding.ivSlotTop, binding.btnRemoveTop)
+                updateStageAfterSelection()
             }
         }
         binding.lvTopCloth.adapter = topAdapter
 
-        // 하의 어댑터
+        // 하의 (lv_bottom_cloth)
         bottomAdapter = ClothesAdapter().apply {
             onItemClick = { item ->
                 Log.d(TAG, "하의 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("BOTTOM", item, binding.ivSlotBottom, binding.btnRemoveBottom)
+                updateStageAfterSelection()
             }
         }
         binding.lvBottomCloth.adapter = bottomAdapter
 
-        // 아우터 어댑터
+        // 아우터 (lv_outer)
         outerAdapter = ClothesAdapter().apply {
             onItemClick = { item ->
                 Log.d(TAG, "아우터 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("OUTER", item, binding.ivSlotOuter, binding.btnRemoveOuter)
+                updateStageAfterSelection()
             }
         }
         binding.lvOuter.adapter = outerAdapter
 
-        // 액세서리 어댑터
+        // 소품류 (lv_acc_cloth)
         accAdapter = ClothesAdapter().apply {
             onItemClick = { item ->
-                Log.d(TAG, "액세서리 클릭: clothesId=${item.clothesId}")
+                Log.d(TAG, "소품류 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("ACC", item, binding.ivSlotAcc, binding.btnRemoveAcc)
+                updateStageAfterSelection()
             }
         }
         binding.lvAccCloth.adapter = accAdapter
 
-        // 가방 어댑터
+        // 가방 (lv_bag_cloth)
         bagAdapter = ClothesAdapter().apply {
             onItemClick = { item ->
                 Log.d(TAG, "가방 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("BAG", item, binding.ivSlotBag, binding.btnRemoveBag)
+                updateStageAfterSelection()
             }
         }
         binding.lvBagCloth.adapter = bagAdapter
 
-        // 신발 어댑터
+        // 신발 (lv_shoes_cloth)
         shoeAdapter = ClothesAdapter().apply {
             onItemClick = { item ->
                 Log.d(TAG, "신발 클릭: clothesId=${item.clothesId}")
                 addItemToSlot("SHOES", item, binding.ivSlotShoes, binding.btnRemoveShoes)
+                updateStageAfterSelection()
             }
         }
         binding.lvShoesCloth.adapter = shoeAdapter
     }
 
-    // 버튼 클릭 리스너 설정
     private fun setupButtons() {
-        // 뒤로가기 버튼
+        // 뒤로가기 (btn_back)
         binding.btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        // AI 가상 피팅 버튼
-        binding.btnAiVirtualfitting.setOnClickListener {
-            requestAiFitting()
-            Toast.makeText(requireContext(), "AI 가상 생성중입니다", Toast.LENGTH_LONG).show()
+        // 🎯 메인 버튼 (btn_styling_register): 상태에 따라 동작 변경
+        binding.btnStylingRegister.setOnClickListener {
+            handleMainButtonClick()
         }
 
+        // AI 피팅 결과 닫기 (btn_close_ai_fitting)
         binding.btnCloseAiFitting.setOnClickListener {
             hideAiFittingResult()
         }
 
-        // 보유한 옷만 보기 스위치
+        // 스위치 (switch_switch_owned_only)
         binding.switchSwitchOwnedOnly.setOnCheckedChangeListener { _, isChecked ->
             updateSwitchText(isChecked)
             viewModel.loadClothItems(onlyMine = isChecked)
         }
 
-        // 등록 버튼 (룩 저장)
-        binding.btnStylingRegister.setOnClickListener {
-            saveLook()
-        }
-
-        // 초기화 버튼 (모든 슬롯 비우기)
+        // 초기화 버튼 (btn_styling_reset)
         binding.btnStylingReset.setOnClickListener {
-            clearAllSlots()
+            showResetConfirmDialog()
         }
 
-        // 각 슬롯의 삭제 버튼 설정
         setupRemoveButtons()
     }
 
-    /**
-     * 스위치 텍스트 업데이트
-     */
-    private fun updateSwitchText(isOwnedOnly: Boolean) {
-        binding.tvSwitchOwnedOnly.text = if (isOwnedOnly) "내 옷만" else "모든 옷"
+    private fun setupBackPressHandler() {
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (viewModel.isAnyJobRunning()) {
+                    showLoadingWarningDialog()
+                } else {
+                    isEnabled = false
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
+    }
+
+    private fun showLoadingWarningDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("작업 진행 중")
+            .setMessage("AI 가상피팅이 진행 중입니다.\n나가시면 작업이 취소됩니다.\n\n정말 나가시겠습니까?")
+            .setPositiveButton("나가기") { _, _ ->
+                viewModel.resetAll()
+                findNavController().popBackStack()
+            }
+            .setNegativeButton("계속 진행", null)
+            .show()
+    }
+
+    private fun showResetConfirmDialog() {
+        val stage = viewModel.stage.value ?: StylingStage.SELECTING
+        val isLoading = viewModel.isLoading.value == true
+
+        if (isLoading) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("작업 진행 중")
+                .setMessage("AI 가상피팅이 진행 중입니다.\n초기화하시면 작업이 취소됩니다.")
+                .setPositiveButton("초기화") { _, _ ->
+                    clearAllSlots()
+                }
+                .setNegativeButton("취소", null)
+                .show()
+            return
+        }
+
+        if (stage != StylingStage.SELECTING) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("초기화 확인")
+                .setMessage("현재 작업 내용이 초기화됩니다.\n계속하시겠습니까?")
+                .setPositiveButton("초기화") { _, _ ->
+                    clearAllSlots()
+                }
+                .setNegativeButton("취소", null)
+                .show()
+        } else {
+            clearAllSlots()
+        }
     }
 
     /**
-     * 슬롯별 삭제 버튼 설정
+     * 🎯 메인 버튼 클릭 핸들러 - 상태별 동작
      */
+    private fun handleMainButtonClick() {
+        val stage = viewModel.stage.value ?: StylingStage.SELECTING
+        val isLoading = viewModel.isLoading.value == true
+
+        // 로딩 중이면 클릭 무시
+        if (isLoading) {
+            Log.d(TAG, "⏳ 로딩 중이라 클릭 무시")
+            return
+        }
+
+        when (stage) {
+            StylingStage.SELECTING -> {
+                Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해주세요", Toast.LENGTH_SHORT).show()
+            }
+
+            StylingStage.FITTING_READY -> {
+                // 가상피팅 요청
+                requestAiFitting()
+            }
+
+            StylingStage.FITTING_DONE -> {
+                // 등록 (저장)
+                saveLook()
+            }
+
+            StylingStage.SAVED -> {
+                // 🆕 저장 완료 후 - 코디저장소로 이동
+                navigateToLookStorage()
+            }
+        }
+    }
+
+    /**
+     * 🆕 코디저장소로 이동
+     */
+    private fun navigateToLookStorage() {
+        try {
+            // 코디저장소 Fragment로 이동 (navigation ID는 프로젝트에 맞게 수정)
+            // 예: findNavController().navigate(R.id.action_styling_to_lookStorage)
+
+            // 임시: 토스트로 안내 (실제로는 위 코드 주석 해제)
+            Toast.makeText(requireContext(), "코디저장소로 이동합니다", Toast.LENGTH_SHORT).show()
+            viewModel.onNavigatedToLookStorage()
+
+            Log.d(TAG, "🏪 코디저장소로 이동")
+        } catch (e: Exception) {
+            Log.e(TAG, "코디저장소 이동 실패", e)
+            Toast.makeText(requireContext(), "코디저장소로 이동할 수 없습니다", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // VideoView 초기화 (vv_ai_loading)
+    private fun setupVideoLoading() {
+        val videoUri = Uri.parse(
+            "android.resource://${requireContext().packageName}/${R.raw.vv_ai_fitting_progress}"
+        )
+
+        binding.vvAiLoading.apply {
+            setVideoURI(videoUri)
+
+            setOnPreparedListener { mediaPlayer ->
+                mediaPlayer.isLooping = true
+                mediaPlayer.setVolume(0f, 0f)
+                Log.d(TAG, "비디오 준비 완료")
+            }
+
+            setOnErrorListener { _, what, extra ->
+                Log.e(TAG, "비디오 재생 오류: what=$what, extra=$extra")
+                false
+            }
+        }
+
+        Log.d(TAG, "비디오 로딩 초기화 완료")
+    }
+
+    // VideoView 애니메이션 제어 (layout_ai_loading)
+    private fun updateVideoAnimation(isLoading: Boolean) {
+        if (isLoading) {
+            binding.vvAiLoading.visibility = View.VISIBLE
+
+            if (!binding.vvAiLoading.isPlaying) {
+                binding.vvAiLoading.start()
+                Log.d(TAG, "🎬 비디오 재생 시작")
+            }
+        } else {
+            binding.vvAiLoading.visibility = View.GONE
+
+            if (binding.vvAiLoading.isPlaying) {
+                binding.vvAiLoading.pause()
+                Log.d(TAG, "⏸️ 비디오 일시정지")
+            }
+        }
+    }
+
     private fun setupRemoveButtons() {
         binding.btnRemoveTop.setOnClickListener {
             removeItemFromSlot("TOP", binding.ivSlotTop, binding.btnRemoveTop)
@@ -194,66 +319,60 @@ class StylingFragment :
         binding.btnRemoveShoes.setOnClickListener {
             removeItemFromSlot("SHOES", binding.ivSlotShoes, binding.btnRemoveShoes)
         }
-        binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
-        }
+    }
+
+    private fun updateSwitchText(isChecked: Boolean) {
+        binding.tvSwitchOwnedOnly.text = if (isChecked) "내 옷만" else "모든 옷"
     }
 
     /**
-     * ViewModel LiveData 관찰
+     * ViewModel 관찰
      */
     private fun observeViewModel() {
-        // 의류 데이터 관찰
+        // 의류 데이터 관찰 (ClosetResponse 구조 맞춤)
         viewModel.closetData.observe(viewLifecycleOwner) { data ->
-            if (data == null) {
-                Log.e(TAG, "데이터가 NULL입니다!")
-                return@observe
-            }
-
-            Log.d(TAG, "의류 데이터 수신: $data")
-            Log.d(TAG, "상의 개수: ${data.topClothes?.size ?: 0}")
-            Log.d(TAG, "하의 개수: ${data.bottomClothes?.size ?: 0}")
-            Log.d(TAG, "아우터 개수: ${data.outerClothes?.size ?: 0}")
-            Log.d(TAG, "액세서리 개수: ${data.accessories?.size ?: 0}")
-            Log.d(TAG, "가방 개수: ${data.bags?.size ?: 0}")
-            Log.d(TAG, "신발 개수: ${data.shoes?.size ?: 0}")
-
-            // 각 카테고리별 데이터 제출
-            topAdapter.submitList(data.topClothes ?: emptyList())
-            bottomAdapter.submitList(data.bottomClothes ?: emptyList())
-            outerAdapter.submitList(data.outerClothes ?: emptyList())
-            accAdapter.submitList(data.accessories ?: emptyList())
-            bagAdapter.submitList(data.bags ?: emptyList())
-            shoeAdapter.submitList(data.shoes ?: emptyList())
-
-            // 데이터 제출 완료 로그
-            Log.d(TAG, "모든 Adapter에 데이터 제출 완료")
-        }
-
-        // AI 가상 피팅 결과 관찰 추가
-        viewModel.aiImageUrl.observe(viewLifecycleOwner) { imageUrl ->
-            if (imageUrl != null) {
-                showAiFittingResult(imageUrl)
+            data?.let {
+                Log.d(TAG, "closetData 수신")
+                topAdapter.submitList(it.topClothes ?: emptyList())
+                bottomAdapter.submitList(it.bottomClothes ?: emptyList())
+                outerAdapter.submitList(it.outerClothes ?: emptyList())
+                accAdapter.submitList(it.accessories ?: emptyList())
+                bagAdapter.submitList(it.bags ?: emptyList())
+                shoeAdapter.submitList(it.shoes ?: emptyList())
             }
         }
 
         // 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading) {
-                binding.progressAiFitting.visibility = View.VISIBLE
-            } else {
-                binding.progressAiFitting.visibility = View.GONE
-            }
+            Log.d(TAG, "⏳ isLoading 변경: $isLoading")
+            updateVideoAnimation(isLoading)
+            updateMainButton()
+        }
 
-            binding.btnStylingRegister.isEnabled = !isLoading
-            binding.btnStylingReset.isEnabled = !isLoading
-            binding.btnAiVirtualfitting.isEnabled = !isLoading
+        // 단계 상태 관찰
+        viewModel.stage.observe(viewLifecycleOwner) { stage ->
+            Log.d(TAG, "📍 stage 변경: $stage")
+            updateMainButton()
+
+            // SAVED 상태일 때 슬롯 초기화 (UI만)
+            if (stage == StylingStage.SAVED) {
+                clearAllSlotsUI()
+            }
+        }
+
+        // AI 가상 피팅 결과 관찰
+        viewModel.aiImageUrl.observe(viewLifecycleOwner) { imageUrl ->
+            if (imageUrl != null) {
+                Log.d(TAG, "AiImageUrl 수신: $imageUrl")
+                showAiFittingResult(imageUrl)
+            }
         }
 
         // 에러 메시지 관찰
         viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.clearErrorMessage()
             }
         }
 
@@ -261,24 +380,93 @@ class StylingFragment :
         viewModel.successMessage.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+
+                // ✅ 등록(저장) 성공하면 결과 팝업 닫기
+                // (문구는 프로젝트에 맞춰 contains 조건만 조절)
+                if (it.contains("저장") || it.contains("등록") || it.contains("코디")) {
+                    hideAiFittingResult()
+                }
+
+                viewModel.clearSuccessMessage()
+            }
+        }
+
+        // 🆕 코디저장소 이동 관찰
+        viewModel.navigateToLookStorage.observe(viewLifecycleOwner) { shouldNavigate ->
+            if (shouldNavigate) {
+                navigateToLookStorage()
             }
         }
     }
+
+    /**
+     * 🎯 메인 버튼 업데이트 (상태별)
+     */
+    private fun updateMainButton() {
+        val stage = viewModel.stage.value ?: StylingStage.SELECTING
+        val isLoading = viewModel.isLoading.value == true
+
+        when (stage) {
+            StylingStage.SELECTING -> {
+                binding.btnStylingRegister.text = "✨AI 가상피팅"
+                binding.btnStylingRegister.isEnabled = false
+                binding.btnStylingRegister.alpha = 0.5f
+            }
+
+            StylingStage.FITTING_READY -> {
+                if (isLoading) {
+                    binding.btnStylingRegister.text = "가상피팅중"
+                    binding.btnStylingRegister.isEnabled = false
+                    binding.btnStylingRegister.alpha = 0.5f
+                } else {
+                    binding.btnStylingRegister.text = "✨AI 가상피팅"
+                    binding.btnStylingRegister.isEnabled = true
+                    binding.btnStylingRegister.alpha = 1.0f
+                }
+            }
+
+            StylingStage.FITTING_DONE -> {
+                if (isLoading) {
+                    binding.btnStylingRegister.text = "등록중"
+                    binding.btnStylingRegister.isEnabled = false
+                    binding.btnStylingRegister.alpha = 0.5f
+                } else {
+                    binding.btnStylingRegister.text = "등록"
+                    binding.btnStylingRegister.isEnabled = true
+                    binding.btnStylingRegister.alpha = 1.0f
+                }
+            }
+
+            StylingStage.SAVED -> {
+                // 🆕 저장 완료 상태 - 코디저장소 가기
+                binding.btnStylingRegister.text = "📦 코디저장소 가기"
+                binding.btnStylingRegister.isEnabled = true
+                binding.btnStylingRegister.alpha = 1.0f
+            }
+        }
+    }
+
+    /**
+     * 옷 선택 후 단계 업데이트
+     */
+    private fun updateStageAfterSelection() {
+        val hasSelection = viewModel.selectedSlots.values.any { it != null }
+        viewModel.updateStageAfterSelection(hasSelection)
+    }
+
+    /**
+     * 슬롯에 아이템 추가
+     */
     private fun addItemToSlot(slotType: String, item: ClothesItemDto, imageView: ImageView, removeButton: View) {
-        Log.d(TAG, "=== addItemToSlot 호출 ===")
-        Log.d(TAG, "slotType: $slotType")
-        Log.d(TAG, "clothesId: ${item.clothesId}")
-        Log.d(TAG, "photoUrl: ${item.photoUrl}")
-        Log.d(TAG, "SERVER_URL: ${ApplicationClass.API_BASE_URL}")
+        Log.d(TAG, "addItemToSlot: $slotType, clothesId=${item.clothesId}")
 
-        selectedSlots[slotType] = item
+        // ViewModel에 저장
+        viewModel.selectedSlots[slotType] = item
 
-//        val imageUrl = "${ApplicationClass.SERVER_URL}${item.photoUrl}"
-//        Log.d(TAG, "최종 imageUrl: $imageUrl")
         val imageUrl = if (item.photoUrl.startsWith("http")) {
-            item.photoUrl // 이미 완전한 URL
+            item.photoUrl
         } else {
-            "${ApplicationClass.API_BASE_URL}${item.photoUrl}" // 상대 경로
+            "${ApplicationClass.API_BASE_URL}${item.photoUrl}"
         }
 
         Glide.with(this)
@@ -286,57 +474,33 @@ class StylingFragment :
             .placeholder(R.drawable.bg_slot_empty)
             .error(R.drawable.bg_slot_empty)
             .centerInside()
-            .listener(object : com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable> {
-                override fun onLoadFailed(
-                    e: com.bumptech.glide.load.engine.GlideException?,
-                    model: Any?,
-                    target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    Log.e(TAG, "슬롯 이미지 로딩 실패!")
-                    Log.e(TAG, "URL: $model")
-                    Log.e(TAG, "에러: ${e?.message}")
-                    e?.printStackTrace()
-                    return false
-                }
-
-                override fun onResourceReady(
-                    resource: android.graphics.drawable.Drawable,
-                    model: Any,
-                    target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>?,
-                    dataSource: com.bumptech.glide.load.DataSource,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    Log.d(TAG, "슬롯 이미지 로딩 성공!")
-                    return false
-                }
-            })
             .into(imageView)
 
         imageView.background = null
         removeButton.visibility = View.VISIBLE
     }
 
-    // 슬롯에서 아이템 제거 (X 버튼 클릭 시 내려가기)
-
+    /**
+     * 슬롯에서 아이템 제거
+     */
     private fun removeItemFromSlot(slotType: String, imageView: ImageView, removeButton: View) {
-        Log.d(TAG, "removeItemFromSlot - slotType: $slotType")
+        Log.d(TAG, "removeItemFromSlot: $slotType")
 
-        // 슬롯에서 제거
-        selectedSlots[slotType] = null
+        // ViewModel에서 제거
+        viewModel.selectedSlots[slotType] = null
 
-        // 이미지 초기화
         Glide.with(this).clear(imageView)
         imageView.setImageDrawable(null)
         imageView.setBackgroundResource(R.drawable.bg_slot_empty)
 
-        // 삭제 버튼 숨기기
         removeButton.visibility = View.GONE
 
-        Log.d(TAG, "슬롯 제거 완료: $slotType")
+        updateStageAfterSelection()
     }
 
-    // 모든 슬롯 초기화 (초기화 버튼 클릭 시)
+    /**
+     * 전체 슬롯 초기화
+     */
     private fun clearAllSlots() {
         Log.d(TAG, "clearAllSlots 호출")
 
@@ -347,128 +511,139 @@ class StylingFragment :
         removeItemFromSlot("BAG", binding.ivSlotBag, binding.btnRemoveBag)
         removeItemFromSlot("SHOES", binding.ivSlotShoes, binding.btnRemoveShoes)
 
-        // AI 가상 피팅 결과도 함께 초기화
         hideAiFittingResult()
-        viewModel.clearAiFittingResult()
+        viewModel.resetAll()
 
         Toast.makeText(requireContext(), "코디가 초기화되었습니다", Toast.LENGTH_SHORT).show()
     }
 
-//      룩 저장 (등록 버튼 클릭 시 서버로 전송)
-//      순서: Top, Bottom, Shoes, Outer, Accessory, Bag
+    /**
+     * 🆕 UI만 초기화 (SAVED 상태에서 사용)
+     */
+    private fun clearAllSlotsUI() {
+        Log.d(TAG, "clearAllSlotsUI 호출 (UI만)")
+
+        // UI만 초기화
+        val slots = listOf(
+            Triple("TOP", binding.ivSlotTop, binding.btnRemoveTop),
+            Triple("BOTTOM", binding.ivSlotBottom, binding.btnRemoveBottom),
+            Triple("OUTER", binding.ivSlotOuter, binding.btnRemoveOuter),
+            Triple("ACC", binding.ivSlotAcc, binding.btnRemoveAcc),
+            Triple("BAG", binding.ivSlotBag, binding.btnRemoveBag),
+            Triple("SHOES", binding.ivSlotShoes, binding.btnRemoveShoes)
+        )
+
+        slots.forEach { (_, imageView, removeButton) ->
+            Glide.with(this).clear(imageView)
+            imageView.setImageDrawable(null)
+            imageView.setBackgroundResource(R.drawable.bg_slot_empty)
+            removeButton.visibility = View.GONE
+        }
+
+        hideAiFittingResult()
+    }
+
+    /**
+     * 룩 저장
+     */
     private fun saveLook() {
         Log.d(TAG, "saveLook 호출")
 
-        // 선택된 아이템 ID 리스트 생성 (순서 중요!)
         val clothesIdList = listOf(
-            selectedSlots["TOP"]?.clothesId ?: -1, // Top
-            selectedSlots["BOTTOM"]?.clothesId ?: -1, // Bottom
-            selectedSlots["SHOES"]?.clothesId ?: -1, // Shoes
-            selectedSlots["OUTER"]?.clothesId ?: -1, // Outer
-            selectedSlots["ACC"]?.clothesId ?: -1, // Accessory
-            selectedSlots["BAG"]?.clothesId ?: -1 // Bag
+            viewModel.selectedSlots["TOP"]?.clothesId ?: -1,
+            viewModel.selectedSlots["BOTTOM"]?.clothesId ?: -1,
+            viewModel.selectedSlots["SHOES"]?.clothesId ?: -1,
+            viewModel.selectedSlots["OUTER"]?.clothesId ?: -1,
+            viewModel.selectedSlots["ACC"]?.clothesId ?: -1,
+            viewModel.selectedSlots["BAG"]?.clothesId ?: -1
         )
 
         Log.d(TAG, "전송할 clothesIdList: $clothesIdList")
 
-        // 최소 1개 이상 선택 확인
-        if (clothesIdList.all { it == -1 }) {
-        }
-        Log.d(TAG, "전송할 clothesIdList: $clothesIdList")
-
-        // 최소 1개 이상 선택 확인
         if (clothesIdList.all { it == -1 }) {
             Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해주세요", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // ViewModel을 통해 서버로 전송
         viewModel.saveLook(clothesIdList)
     }
 
-    // AI가상피팅
+    /**
+     * AI 가상피팅 요청
+     */
     private fun requestAiFitting() {
         Log.d(TAG, "requestAiFitting 호출")
 
         val clothesIdList = listOf(
-            selectedSlots["TOP"]?.clothesId ?: -1,
-            selectedSlots["BOTTOM"]?.clothesId ?: -1,
-            selectedSlots["SHOES"]?.clothesId ?: -1,
-            selectedSlots["OUTER"]?.clothesId ?: -1,
-            selectedSlots["ACC"]?.clothesId ?: -1,
-            selectedSlots["BAG"]?.clothesId ?: -1
+            viewModel.selectedSlots["TOP"]?.clothesId ?: -1,
+            viewModel.selectedSlots["BOTTOM"]?.clothesId ?: -1,
+            viewModel.selectedSlots["SHOES"]?.clothesId ?: -1,
+            viewModel.selectedSlots["OUTER"]?.clothesId ?: -1,
+            viewModel.selectedSlots["ACC"]?.clothesId ?: -1,
+            viewModel.selectedSlots["BAG"]?.clothesId ?: -1
         )
 
         Log.d(TAG, "AI 피팅 요청 clothesIdList: $clothesIdList")
 
-        // 최소 1개 이상 선택 확인
         if (clothesIdList.all { it == -1 }) {
-            Log.d(TAG, "AI 피팅 요청 clothIdList: $clothesIdList")
-        }
-        // 최소 1개 이상 선택 확인
-        if (clothesIdList.all { it == -1 }) {
-            Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해주세요.", Toast.LENGTH_SHORT)
+            Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해주세요.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // ViewModel을 통해 AI피팅 요청
         viewModel.requestAiFitting(clothesIdList)
     }
 
-    // AI 가상 피팅 결과 표시
-
+    /**
+     * AI 가상 피팅 결과 표시 (layout_ai_fitting)
+     */
     private fun showAiFittingResult(imageUrl: String) {
         Log.d(TAG, "AI 피팅 결과 표시: $imageUrl")
 
-        // URL 처리 (http로 시작하면 그대로, 아니면 서버 URL 붙이기)
         val finalUrl = if (imageUrl.startsWith("http")) {
             imageUrl
         } else {
             "${ApplicationClass.API_BASE_URL}$imageUrl"
         }
 
-        // AI 이미지 로딩
+        // 팝업 표시 (layout_ai_fitting, iv_ai_fitting_result)
+        binding.layoutAiFitting.visibility = View.VISIBLE
+        binding.ivAiFittingResult.visibility = View.VISIBLE
+
         Glide.with(this)
             .load(finalUrl)
             .placeholder(R.drawable.bg_slot_empty)
             .error(R.drawable.error)
             .centerInside()
-            .listener(object : com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable> {
-                override fun onLoadFailed(
-                    e: com.bumptech.glide.load.engine.GlideException?,
-                    model: Any?,
-                    target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    Log.e(TAG, "AI 이미지 로딩 실패: ${e?.message}")
-                    Toast.makeText(requireContext(), "AI 이미지 로딩에 실패했습니다", Toast.LENGTH_SHORT).show()
-                    return false
-                }
-
-                override fun onResourceReady(
-                    resource: android.graphics.drawable.Drawable,
-                    model: Any,
-                    target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>?,
-                    dataSource: com.bumptech.glide.load.DataSource,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    Log.d(TAG, "✅ AI 이미지 로딩 성공")
-                    return false
-                }
-            })
             .into(binding.ivAiFittingResult)
 
-        // AI 레이어 표시
-        binding.layoutAiFitting.visibility = View.VISIBLE
+        Log.d(TAG, "가상피팅 이미지 표시 완료")
     }
 
+    /**
+     * 가상피팅 결과 숨기기
+     */
     private fun hideAiFittingResult() {
         Log.d(TAG, "AI 피팅 결과 숨기기")
 
         binding.layoutAiFitting.visibility = View.GONE
+        binding.ivAiFittingResult.visibility = View.GONE
 
-        // 이미지 메모리 해제
         Glide.with(this).clear(binding.ivAiFittingResult)
         binding.ivAiFittingResult.setImageDrawable(null)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.vvAiLoading.stopPlayback()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.resetAfterFittingDoneIfNeeded()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Fragment 파괴 시에는 초기화하지 않음
     }
 }

@@ -135,4 +135,7 @@ dependencies {
 
     // On-device image labeling (ML Kit)
     implementation("com.google.mlkit:image-labeling:17.0.8")
+
+    // PhotoView : 핀치 줌(확대/축소) + 드래그 이동 가능 위젯
+    implementation("io.getstream:photoview:1.0.3")
 }

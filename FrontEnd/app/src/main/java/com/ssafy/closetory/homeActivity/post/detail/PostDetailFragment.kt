@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +18,7 @@ import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentPostDetailBinding
 import com.ssafy.closetory.homeActivity.adapter.PostDetailItemAdapter
+import com.ssafy.closetory.homeActivity.post.delete.PostDeleteViewModel
 import kotlinx.coroutines.launch
 
 private const val TAG = "PostDetailFragment_싸피"
@@ -25,11 +27,16 @@ private const val TAG = "PostDetailFragment_싸피"
 class PostDetailFragment :
     BaseFragment<FragmentPostDetailBinding>(FragmentPostDetailBinding::bind, R.layout.fragment_post_detail) {
 
+    // ViewModel 등록
     private val viewModel: PostDetailViewModel by viewModels()
+    private val deleteViewModel: PostDeleteViewModel by viewModels()
 
     private val postId: Int by lazy { arguments?.getInt("postId") ?: -1 }
 
     private lateinit var itemAdapter: PostDetailItemAdapter
+
+    // 대표 이미지 URL을 저장
+    private var currentPhotoUrl: String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,6 +61,15 @@ class PostDetailFragment :
         // 수정 버튼 클릭
         setupUpdateButton()
 
+        // 삭제 버튼 클릭
+        setupDeleteButton()
+
+        // 삭제 결과 이벤트 수신
+        observeDeleteViewModel()
+
+        // 사진 클릭 시 다이얼로그
+        setupPhotoClickDialog()
+
         // 게시글 상세 조회 요청
         viewModel.loadPostDetail(postId)
 
@@ -69,6 +85,22 @@ class PostDetailFragment :
         // 좋아요 버튼 클릭
         binding.ivLikeIcon.setOnClickListener {
             // TODO() : 좋아요 기능 구현 필요
+        }
+    }
+
+    // 사진 클릭 시 다이얼로그
+    private fun setupPhotoClickDialog() {
+        binding.ivPostPhoto.setOnClickListener {
+            val url = currentPhotoUrl
+
+            if (url.isNullOrBlank()) {
+                Toast.makeText(requireContext(), "이미지가 없습니다.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            PostPhotoDialogFragment
+                .newInstance(url)
+                .show(parentFragmentManager, "post_photo_dialog")
         }
     }
 
@@ -136,6 +168,9 @@ class PostDetailFragment :
                             .error(R.drawable.placeholder)
                             .into(binding.ivPostPhoto)
 
+                        // 현재 게시글 대표 이미지 URL 변수 저장 (나중에 터치 다이얼로그 쓰기 위함)
+                        currentPhotoUrl = detail.photoUrl?.trim()
+
                         // 내 글인지 판별 → 수정/삭제 버튼 표시
                         val loginUserId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)
                         Log.d(TAG, "현재 로그인 ID: $loginUserId ")
@@ -157,7 +192,47 @@ class PostDetailFragment :
                         }
                         // 내 게시글인지 확인 후 숨기기.
                         itemAdapter.setIsMinePost(isMine)
-                        itemAdapter.submitList(detail.items)
+                    }
+                }
+            }
+        }
+    }
+
+    // 삭제 버튼 클릭
+    private fun setupDeleteButton() {
+        binding.btnDelete.setOnClickListener {
+            if (postId <= 0) {
+                Toast.makeText(requireContext(), "잘못된 게시글 번호입니다.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("게시글 삭제")
+                .setMessage("정말 삭제할까요?")
+                .setPositiveButton("삭제") { _, _ ->
+                    deleteViewModel.deletePost(postId)
+                }
+                .setNegativeButton("취소", null)
+                .show()
+        }
+    }
+
+    // 삭제 결과 이벤트 수신
+    private fun observeDeleteViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                deleteViewModel.event.collect { event ->
+                    when (event) {
+                        is PostDeleteViewModel.UiEvent.DeleteSuccess -> {
+                            Toast.makeText(requireContext(), "삭제 완료", Toast.LENGTH_SHORT).show()
+
+                            // 상세 화면 종료 -> 목록 화면으로 복귀
+                            findNavController().popBackStack()
+                        }
+
+                        is PostDeleteViewModel.UiEvent.DeleteFail -> {
+                            Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }

@@ -4,6 +4,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.ItemPostCardBinding
 import com.ssafy.closetory.dto.PostItemResponse
 
@@ -46,7 +49,7 @@ class PostListAdapter(private val onItemClick: (PostItemResponse) -> Unit) :
             // 2) 작성자(username)
             // 현재 PostItemResponse에 username 필드가 없다면 빈 값 처리
             // TODO: 서버 응답에 username이 추가되면 PostItemResponse에 필드 추가 후 바인딩
-            binding.tvAuthor.text = ""
+            binding.tvAuthor.text = "게시자 X"
             binding.tvAuthor.visibility = View.GONE
 
             // 3) 조회수 / 좋아요 수
@@ -54,9 +57,13 @@ class PostListAdapter(private val onItemClick: (PostItemResponse) -> Unit) :
             binding.tvLikes.text = item.likes.toString()
 
             // 0) 썸네일 이미지
-            // photoUrl 실제 로딩은 Coil/Glide 등 이미지 라이브러리로 처리
-            // TODO: 이미지 로딩 라이브러리 적용 후 아래처럼 사용
-            // binding.ivThumbnail.load(item.photoUrl)
+            Glide.with(binding.ivThumbnail)
+                .load(item.photoUrl)
+                .placeholder(R.drawable.ic_body_default)
+                .error(R.drawable.ic_body_default)
+                // 원본 데이터 + 반환된 결과 둘 다 디스크에 캐시 : 같은 URL이미지를 보여줄 때 좋음.
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(binding.ivThumbnail)
 
             // 카드 클릭 이벤트
             binding.root.setOnClickListener {

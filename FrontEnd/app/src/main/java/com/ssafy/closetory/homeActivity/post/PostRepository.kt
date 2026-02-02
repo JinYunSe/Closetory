@@ -1,13 +1,16 @@
 package com.ssafy.closetory.homeActivity.post
 
+import android.util.Log
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostEditRequest
 import com.ssafy.closetory.dto.PostEditResponse
-import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostItemResponse
 import com.ssafy.closetory.dto.PostQueryFilter
 import okhttp3.MultipartBody
+
+private const val TAG = "PostRepository_싸피"
 
 // 게시글 관련 Repository (목록/상세/작성 등에서 재사용 가능한 형태)
 class PostRepository {
@@ -17,12 +20,13 @@ class PostRepository {
         ApplicationClass.retrofit.create(PostService::class.java)
 
     // 게시글 목록/검색 조회
-    suspend fun getPosts(keyword: String?, filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = try {
+    suspend fun getPosts(keyword: String?, searchfilter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = try {
         val res = postService.getPosts(
             keyword = keyword,
-            filter = filter
+            searchfilter = searchfilter
         )
 
+        Log.d(TAG, "Posts 요청 : $res ")
         if (res.isSuccessful) {
             // 성공 응답 (ApiResponse<List<PostItemResponse>>)
             res.body() ?: ApiResponse(
@@ -75,6 +79,35 @@ class PostRepository {
             photo = photo,
             request = request
         )
+
+        if (res.isSuccessful) {
+            res.body() ?: ApiResponse(
+                httpStatusCode = res.code(),
+                responseMessage = null,
+                errorMessage = "응답 바디가 비어있습니다.",
+                data = null
+            )
+        } else {
+            val rawError = res.errorBody()?.string()
+            ApiResponse(
+                httpStatusCode = res.code(),
+                responseMessage = null,
+                errorMessage = rawError ?: "서버 오류가 발생했습니다.",
+                data = null
+            )
+        }
+    } catch (e: Exception) {
+        ApiResponse(
+            httpStatusCode = -1,
+            responseMessage = null,
+            errorMessage = e.message ?: "네트워크 오류가 발생했습니다.",
+            data = null
+        )
+    }
+
+    // 게시글 삭제
+    suspend fun deletePost(postId: Int): ApiResponse<Unit> = try {
+        val res = postService.deletePost(postId)
 
         if (res.isSuccessful) {
             res.body() ?: ApiResponse(

@@ -15,7 +15,7 @@ class StylingRepository {
     private val closetService: ClosetService =
         ApplicationClass.retrofit.create(ClosetService::class.java)
 
-    // StylingService (룩 저장용)
+    // ⭐ ApplicationClass의 retrofit 그대로 사용 (이미 타임아웃 설정되어 있음!)
     private val stylingService: StylingService =
         ApplicationClass.retrofit.create(StylingService::class.java)
 
@@ -35,7 +35,7 @@ class StylingRepository {
     // 룩 저장
     suspend fun saveLook(request: SaveLookRequest): Response<ApiResponse<Unit>> = stylingService.saveLook(request)
 
-    // AI 가상 피팅
+    // AI 가상 피팅 (ApplicationClass의 타임아웃 설정 사용)
     suspend fun requestAiFitting(request: AiFittingRequest): Response<ApiResponse<AiFittingResponse>> =
         stylingService.requestAiFitting(request)
 }
