@@ -2,10 +2,12 @@ package com.ssafy.closetory.entity.post;
 
 import com.ssafy.closetory.entity.clothes.Clothes;
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.*;
 
 @Entity
 @Table(name = "posts")
@@ -35,6 +37,7 @@ public class Post {
   private Integer userId;
 
   @Column(name = "created_at", nullable = false)
+  @CreationTimestamp
   private LocalDateTime createdAt;
 
   @Setter
@@ -63,7 +66,4 @@ public class Post {
     this.views++;
   }
 
-  public void delete() {
-    this.deletedAt = LocalDateTime.now();
-  }
 }

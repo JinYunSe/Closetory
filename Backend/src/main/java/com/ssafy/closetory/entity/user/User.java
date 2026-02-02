@@ -3,11 +3,10 @@ package com.ssafy.closetory.entity.user;
 import com.ssafy.closetory.enums.Gender;
 import com.ssafy.closetory.enums.Provider;
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
@@ -58,8 +57,10 @@ public class User {
   private Boolean alarmEnabled;
 
   @Column(name = "created_at", nullable = false, updatable = false)
+  @CreationTimestamp
   private LocalDateTime createdAt;
 
+  @Setter
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
@@ -103,7 +104,4 @@ public class User {
     this.bodyPhotoUrl = bodyPhotoUrl;
   }
 
-  public void setDeletedAt(LocalDateTime deletedAt) {
-    this.deletedAt = deletedAt;
-  }
 }
