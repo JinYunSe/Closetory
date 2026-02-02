@@ -104,4 +104,33 @@ class PostRepository {
             data = null
         )
     }
+
+    // 게시글 삭제
+    suspend fun deletePost(postId: Int): ApiResponse<Unit> = try {
+        val res = postService.deletePost(postId)
+
+        if (res.isSuccessful) {
+            res.body() ?: ApiResponse(
+                httpStatusCode = res.code(),
+                responseMessage = null,
+                errorMessage = "응답 바디가 비어있습니다.",
+                data = null
+            )
+        } else {
+            val rawError = res.errorBody()?.string()
+            ApiResponse(
+                httpStatusCode = res.code(),
+                responseMessage = null,
+                errorMessage = rawError ?: "서버 오류가 발생했습니다.",
+                data = null
+            )
+        }
+    } catch (e: Exception) {
+        ApiResponse(
+            httpStatusCode = -1,
+            responseMessage = null,
+            errorMessage = e.message ?: "네트워크 오류가 발생했습니다.",
+            data = null
+        )
+    }
 }
