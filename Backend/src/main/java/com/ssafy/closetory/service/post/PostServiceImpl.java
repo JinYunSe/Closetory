@@ -93,10 +93,10 @@ public class PostServiceImpl implements PostService {
     Post post =
         postRepository
             .findById(postId)
-            .orElseThrow(() -> new BadRequestException("존재하지 않는 게시글입니다."));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
 
     if (!post.getUserId().equals(userId)) {
-      throw new BadRequestException("게시글 수정 권한이 없습니다.");
+      throw new ForbiddenException("게시글 수정 권한이 없습니다.");
     }
 
     if (request.title() == null || request.title().isBlank()) {
