@@ -54,8 +54,12 @@ class ClothesPickerDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 게시글에는 내 옷만 보이게 처리
+        checkedOnlyMyCloth = true
+        binding.tvOnlyMyCloth.visibility = View.GONE
+        binding.swOnlyMyCloth.visibility = View.GONE
+
         initRecyclerViews()
-        checkSwitch()
         searchDialog()
         selectedTab()
         registerObserve()
@@ -126,16 +130,6 @@ class ClothesPickerDialogFragment : DialogFragment() {
                 runSearch()
                 dialog.dismiss()
             }
-        }
-    }
-
-    // 스위치 체크 여부 확인
-    private fun checkSwitch() {
-        checkedOnlyMyCloth = binding.swOnlyMyCloth.isChecked
-
-        binding.swOnlyMyCloth.setOnCheckedChangeListener { _, isChecked ->
-            checkedOnlyMyCloth = isChecked
-            runSearch()
         }
     }
 

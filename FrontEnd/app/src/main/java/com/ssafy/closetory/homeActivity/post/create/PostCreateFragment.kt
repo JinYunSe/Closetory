@@ -285,6 +285,11 @@ class PostCreateFragment :
                     return@setOnClickListener
                 }
 
+                titleText.length > 30 -> {
+                    showToast("제목은 30자 이하로 입력해주세요.")
+                    return@setOnClickListener
+                }
+
                 contentText.isBlank() -> {
                     showToast("내용을 입력해주세요.")
                     return@setOnClickListener
