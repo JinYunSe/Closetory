@@ -87,11 +87,15 @@ class PostEditFragment :
 
         // 옷 선택 리스트 RecyclerView 초기화
         setupItemsRecyclerView()
+
         // 대표 사진 선택(카메라/갤러리) 클릭 이벤트 세팅
         setupMainPhotoClick()
 
         // 사진 텍스트 숨기기
         updateMainPhotoPlaceholder(false)
+
+        // 옷 요소 비었는지 확인
+        updateClothesEmptyState()
 
         // EditText 스크롤 충돌 방지(부모 스크롤 가로채기 방지)
         setupContentInnerScroll()
@@ -181,6 +185,7 @@ class PostEditFragment :
             onRemoveClickListener = { item ->
                 selectedItems.remove(item)
                 submitList(selectedItems.toList())
+                updateClothesEmptyState()
             }
         }
 
@@ -211,15 +216,24 @@ class PostEditFragment :
             if (selectedItems.any { it.clothesId == clothesId }) return@setFragmentResultListener
 
             selectedItems.add(PostCreateSelectedItem(clothesId, photoUrl))
+            // 선택된 아이템 어뎁터에 담기
             itemAdapter.submitList(selectedItems.toList())
+            updateClothesEmptyState()
         }
+    }
+
+    // 바인딩 시 옷 요소 비었는지 여 확인
+    private fun updateClothesEmptyState() {
+        val hasItems = selectedItems.isNotEmpty()
+
+        binding.rvItems.visibility = if (hasItems) View.VISIBLE else View.GONE
+        binding.tvNoClothes.visibility = if (hasItems) View.GONE else View.VISIBLE
     }
 
     // EditText 스크롤 충돌 방지
     private fun setupContentInnerScroll() {
         val et = binding.etContent
         val touchSlop = ViewConfiguration.get(requireContext()).scaledTouchSlop
-
         var startX = 0f
         var startY = 0f
         var moved = false
@@ -357,7 +371,9 @@ class PostEditFragment :
                         )
                     )
                 }
+
                 itemAdapter.submitList(selectedItems.toList())
+                updateClothesEmptyState()
 
                 // 대표 사진 프로필
                 val url = detail.photoUrl?.trim()
