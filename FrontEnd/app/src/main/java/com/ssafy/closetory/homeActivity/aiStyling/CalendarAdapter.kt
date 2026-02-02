@@ -1,7 +1,5 @@
-package com.ssafy.closetory.homeActivity.aiStyling
+package com.ssafy.closetory.util
 
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.aiStyling
+package com.ssafy.closetory.util
 
 import android.view.LayoutInflater
 import android.view.View

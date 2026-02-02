@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.aiStyling
+package com.ssafy.closetory.util
 
 data class Day(
     val dayText: String,

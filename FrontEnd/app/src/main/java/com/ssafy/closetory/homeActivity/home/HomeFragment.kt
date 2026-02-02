@@ -9,9 +9,9 @@ import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.DialogCalendarPickerBinding
 import com.ssafy.closetory.databinding.FragmentHomeBinding
-import com.ssafy.closetory.homeActivity.aiStyling.CalendarAdapter
-import com.ssafy.closetory.homeActivity.aiStyling.Day
-import com.ssafy.closetory.homeActivity.aiStyling.WeekAdapter
+import com.ssafy.closetory.util.CalendarAdapter
+import com.ssafy.closetory.util.Day
+import com.ssafy.closetory.util.WeekAdapter
 import java.util.Calendar
 
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind, R.layout.fragment_home) {

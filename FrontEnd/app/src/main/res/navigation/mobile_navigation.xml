@@ -162,4 +162,11 @@
         android:label="코디 저장소"
         tools:layout="@layout/fragment_cody_repository" />
 
+    <!-- 코디 상세 페이지 -->
+    <fragment
+        android:id="@+id/navigation_cody_detail"
+        android:name="com.ssafy.closetory.homeActivity.codyRepository.CodyDetailFragment"
+        android:label="코디 상세"
+        tools:layout="@layout/fragment_cody_detail" />
+
 </navigation>
