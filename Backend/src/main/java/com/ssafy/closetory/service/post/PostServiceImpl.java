@@ -13,14 +13,13 @@ import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
 import com.ssafy.closetory.service.s3.S3ImageService;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -257,6 +256,7 @@ public class PostServiceImpl implements PostService {
                     .views(post.getViews())
                     .likes(likesRepository.countByPostId(post.getId()))
                     .comments(commentRepository.countByPostId(post.getId()))
+                    .nickname(userRepository.findNicknameById(post.getUserId()))
                     .build())
         .toList();
   }
@@ -274,6 +274,7 @@ public class PostServiceImpl implements PostService {
                     .views(post.getViews())
                     .likes(likesRepository.countByPostId(post.getId()))
                     .comments(commentRepository.countByPostId(post.getId()))
+                    .nickname(userRepository.findNicknameById(post.getUserId()))
                     .build())
         .toList();
   }
@@ -291,6 +292,7 @@ public class PostServiceImpl implements PostService {
                     .views(post.getViews())
                     .likes(likesRepository.countByPostId(post.getId()))
                     .comments(commentRepository.countByPostId(post.getId()))
+                    .nickname(userRepository.findNicknameById(post.getUserId()))
                     .build())
         .toList();
   }
@@ -308,6 +310,7 @@ public class PostServiceImpl implements PostService {
                     .views(post.getViews())
                     .likes(likesRepository.countByPostId(post.getId()))
                     .comments(commentRepository.countByPostId(post.getId()))
+                    .nickname(userRepository.findNicknameById(post.getUserId()))
                     .build())
         .toList();
   }
