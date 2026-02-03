@@ -1,12 +1,8 @@
 package com.ssafy.closetory.homeActivity.post
-//
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.RadioButton
-import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.viewModels
@@ -20,55 +16,50 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentPostMainBinding
 import com.ssafy.closetory.dto.PostQueryFilter
 import com.ssafy.closetory.homeActivity.adapter.PostListAdapter
+import com.ssafy.closetory.homeActivity.post.create.PostCreateFragment
 import kotlinx.coroutines.launch
-
-private const val TAG = "PostListFragment_싸피"
 
 class PostListFragment :
     BaseFragment<FragmentPostMainBinding>(FragmentPostMainBinding::bind, R.layout.fragment_post_main) {
 
-    private val viewModel: PostListViewModel by viewModels()
-
+    private val viewModel: PostViewModel by viewModels()
     private lateinit var postListAdapter: PostListAdapter
 
     private var didInitialLoad = false
+    private var pendingOpenPostId: Int? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupRecyclerView()
-        setupPostOptionRadios()
+        val postIdFromArgs = arguments?.getInt("postId", -1) ?: -1
+        if (postIdFromArgs > 0) {
+            pendingOpenPostId = postIdFromArgs
+            arguments?.remove("postId")
+        }
 
-        // 검색, 버튼 리스너
-        setupListeners()
+        setupRecyclerView()
+        setupFilterListener()
+        setupSearchListener()
+        setupCreateListener()
 
         observeViewModel()
-
-        Log.d(TAG, "onViewCreated() savedInstanceState=$savedInstanceState")
+        observeRefreshSignal()
     }
 
-    // 뷰 상태(라디오 체크 등) 복원 후 1회만 목록을 로드
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
 
         if (didInitialLoad) return
         didInitialLoad = true
 
-        Log.d(TAG, "onViewStateRestored() savedInstanceState=$savedInstanceState, selected=${getSelectedFilter()}")
+        requestByUiState()
 
-        // 최초 진입(savedInstanceState == null): 최신순(기본 체크값)으로 로드
-        // 복원(savedInstanceState != null): 복원된 라디오 상태 기준으로 로드
-        requestPosts(keyword = getKeywordOrNull())
-    }
-
-    private fun goToPostDetail(targetPostId: Int) {
-        val bundle = Bundle().apply {
-            putInt("postId", targetPostId)
+        pendingOpenPostId?.let {
+            pendingOpenPostId = null
+            goToPostDetail(it)
         }
-        findNavController().navigate(R.id.action_post_list_to_post_detail, bundle)
     }
 
-    // RecyclerView(게시글 카드 목록) 초기 세팅
     private fun setupRecyclerView() {
         postListAdapter = PostListAdapter { item ->
             goToPostDetail(item.postId)
@@ -80,111 +71,90 @@ class PostListFragment :
         }
     }
 
-    // 2x2 라디오 버튼을 "4개 중 1개만 선택"되도록 강제 + 기본 선택(최신순)
-    private fun setupPostOptionRadios() {
-        val radios = getPostOptionRadios()
-
-        fun checkOnly(target: RadioButton) {
-            radios.forEach { it.isChecked = (it == target) }
+    private fun setupFilterListener() {
+        if (binding.rgPostOption.checkedRadioButtonId == View.NO_ID) {
+            binding.rbLatest.isChecked = true
         }
 
-        // 기본 선택: 최신순
-        // 이미 체크된 상태(복원된 상태)가 있으면 그대로 둔다
-        if (!radios.any { it.isChecked }) {
-            checkOnly(binding.rbLatest)
-        }
-
-        // 라디오 버튼 클릭 시: 하나만 체크되게 강제하고 즉시 재조회
-        radios.forEach { rb ->
-            rb.setOnClickListener {
-                checkOnly(rb)
-                requestPosts(keyword = getKeywordOrNull())
-            }
+        binding.rgPostOption.setOnCheckedChangeListener { _, _ ->
+            requestByUiState()
         }
     }
 
-    // 검색 버튼 등 "사용자 액션" 리스너 모음
-    private fun setupListeners() {
-        // 검색 버튼 클릭 시: keyword 포함해서 요청
+    private fun setupSearchListener() {
         binding.btnSearch.setOnClickListener {
-            requestPosts(keyword = getKeywordOrNull())
+            requestByUiState()
         }
 
-        // 엔터 시 검색 기능
         binding.etKeyword.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
-                requestPosts(keyword = getKeywordOrNull())
-
-                // 키보드 내리기
+                requestByUiState()
                 ViewCompat.getWindowInsetsController(binding.etKeyword)
                     ?.hide(WindowInsetsCompat.Type.ime())
-
                 true
             } else {
                 false
             }
         }
+    }
 
-        // 게시글 생성 버튼 클릭 시: 게시글 생성 화면으로 이동
+    private fun setupCreateListener() {
         binding.btnCreatePost.setOnClickListener {
-            findNavController().navigate(R.id.action_post_list_to_post_create)
+            val args = PostCreateFragment.newCreateArgs()
+            findNavController().navigate(R.id.action_post_list_to_post_create, args)
         }
     }
 
-    // keyword + filter 기준으로 게시글 목록 조회를 요청하는 공통 함수
-    private fun requestPosts(keyword: String?) {
-        viewModel.loadPosts(
-            keyword = keyword,
-            searchfilter = getSelectedFilter()
-        )
+    private fun requestByUiState() {
+        val keyword = binding.etKeyword.text?.toString()?.trim().orEmpty()
+        val filter = getSelectedFilter()
+
+        if (keyword.isEmpty()) {
+            viewModel.loadPostsFilter(filter)
+        } else {
+            viewModel.loadPosts(keyword, filter)
+        }
     }
 
-    // 검색어 EditText에서 문자열을 가져오되, 빈 값이면 null 처리
-    private fun getKeywordOrNull(): String? = binding.etKeyword.text?.toString()?.trim()
-        ?.takeIf { it.isNotEmpty() }
-
-    // 2x2 라디오 버튼 4개 리스트 반환 (편의 함수)
-    private fun getPostOptionRadios(): List<RadioButton> = listOf(
-        binding.rbLatest,
-        binding.rbPopular,
-        binding.rbWritten,
-        binding.rbLiked
-    )
-
-    // 현재 체크된 라디오 버튼을 PostQueryFilter로 변환
-    // (RadioGroup의 checkedRadioButtonId는 2x2 구조에서 신뢰하기 어려워서, isChecked로 판단)
-    private fun getSelectedFilter(): PostQueryFilter = when {
-        binding.rbPopular.isChecked -> PostQueryFilter.POPULAR
-        binding.rbWritten.isChecked -> PostQueryFilter.WRITTEN
-        binding.rbLiked.isChecked -> PostQueryFilter.LIKED
+    private fun getSelectedFilter(): PostQueryFilter = when (binding.rgPostOption.checkedRadioButtonId) {
+        R.id.rbPopular -> PostQueryFilter.POPULAR
+        R.id.rbWritten -> PostQueryFilter.WRITTEN
+        R.id.rbLiked -> PostQueryFilter.LIKED
         else -> PostQueryFilter.LATEST
     }
 
-    // ViewModel 상태 관찰: 게시글 리스트 갱신 + 메시지 표시
+    private fun goToPostDetail(targetPostId: Int) {
+        val bundle = Bundle().apply { putInt("postId", targetPostId) }
+        findNavController().navigate(R.id.action_post_list_to_post_detail, bundle)
+    }
+
     private fun observeViewModel() {
+        viewModel.postList.observe(viewLifecycleOwner) { list ->
+            postListAdapter.submitList(list)
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // 게시글 목록 갱신
-                launch {
-                    viewModel.postList.collect { list ->
-                        postListAdapter.submitList(list)
-                    }
+                viewModel.message.collect { msg ->
+                    showToast(msg)
                 }
-
-                // 에러/안내 메시지 표시
-                launch {
-                    viewModel.message.collect { msg ->
-                        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                // 로딩 UI가 있으면 여기서 처리
-                // launch {
-                //     viewModel.isLoading.collect { isLoading ->
-                //         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-                //     }
-                // }
             }
         }
+    }
+
+    private fun observeRefreshSignal() {
+        findNavController()
+            .currentBackStackEntry
+            ?.savedStateHandle
+            ?.getLiveData<Boolean>("POST_REFRESH")
+            ?.observe(viewLifecycleOwner) { refresh ->
+                if (refresh == true) {
+                    requestByUiState()
+                    findNavController()
+                        .currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.remove<Boolean>("POST_REFRESH")
+                }
+            }
     }
 }
