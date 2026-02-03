@@ -107,14 +107,8 @@ object ColorOptions {
             val item = items[position]
 
             // 기본 색상 원: fill drawable + tint
-            if (item.codeEnglish == "OTHER") {
-                holder.circle.setBackgroundResource(R.drawable.bg_circle_rainbow)
-                holder.circle.backgroundTintList = null
-            } else {
-                holder.circle.setBackgroundResource(R.drawable.bg_circle_fill)
-                holder.circle.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(item.argb)
-            }
+            holder.circle.setBackgroundResource(R.drawable.bg_circle_fill)
+            holder.circle.backgroundTintList = android.content.res.ColorStateList.valueOf(item.argb)
 
             // 테두리 표시
             holder.border.visibility = View.VISIBLE

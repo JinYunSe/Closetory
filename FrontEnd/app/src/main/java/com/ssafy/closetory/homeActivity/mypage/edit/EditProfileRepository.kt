@@ -1,13 +1,10 @@
-// EditProfileRepository
-
-package com.ssafy.closetory.homeActivity.mypage.edit
+package com.ssafy.closetory.homeActivity.myPage.edit
 
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.EditProfilePasswordRequest
 import com.ssafy.closetory.dto.EditProfileUpdateData
-import com.ssafy.closetory.homeActivity.myPage.edit.EditProfileService
 import okhttp3.MultipartBody
 import retrofit2.Response
 

@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.post.detail
+package com.ssafy.closetory.homeActivity.post
 
 import android.os.Bundle
 import android.view.LayoutInflater

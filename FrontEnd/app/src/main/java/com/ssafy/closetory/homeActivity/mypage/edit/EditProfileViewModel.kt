@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.mypage.edit
+package com.ssafy.closetory.homeActivity.myPage.edit
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

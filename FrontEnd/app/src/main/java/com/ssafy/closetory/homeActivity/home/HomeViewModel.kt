@@ -6,20 +6,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.dto.StylingResponse
-import kotlin.math.log
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 private const val TAG = "HomeViewModel_싸피"
+
 class HomeViewModel : ViewModel() {
 
-    // 월별 스타일링 리스트
-    private val _stylingList = MutableLiveData<List<StylingResponse>>()
+    private val _stylingList = MutableLiveData<List<StylingResponse>>(emptyList())
     val stylingList: LiveData<List<StylingResponse>> = _stylingList
 
-    private val _message = MutableSharedFlow<String?>(replay = 0)
-    val message: SharedFlow<String?> = _message
+    private val _message = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val message: SharedFlow<String> = _message.asSharedFlow()
 
     private val homeRepository = HomeRepository()
 
@@ -29,17 +29,21 @@ class HomeViewModel : ViewModel() {
                 val res = homeRepository.getStylingList(isMain)
 
                 if (res.isSuccessful) {
-                    val list = res.body()?.data!!
+                    val list = res.body()?.data.orEmpty() // NPE 방지
                     _stylingList.value = list
-                    Log.d(TAG, "홈 캘린더 옷 조회 성공 : $list")
+                    Log.d(TAG, "홈 캘린더 옷 조회 성공 size=${list.size}")
                 } else {
-                    val errorMessage = res.body()?.errorMessage
-                    Log.d(TAG, "홈 캘린더 옷 조회 실패 : $errorMessage")
-                    _message.emit(errorMessage)
+                    val msg =
+                        res.errorBody()?.string()
+                            ?: res.body()?.errorMessage
+                            ?: "요청 실패 (${res.code()})"
+                    Log.d(TAG, "홈 캘린더 옷 조회 실패 : $msg")
+                    _message.tryEmit(msg)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "홈 룩 목록 조회 : ${e.message}")
-                _message.emit(e.message ?: "네트워크 오류 발생")
+                val msg = e.message ?: "네트워크 오류 발생"
+                Log.e(TAG, "홈 룩 목록 조회 예외 : $msg", e)
+                _message.tryEmit(msg)
             }
         }
     }

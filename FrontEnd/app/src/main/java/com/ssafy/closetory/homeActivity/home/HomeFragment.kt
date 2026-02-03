@@ -3,26 +3,25 @@ package com.ssafy.closetory.homeActivity.home
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.load.engine.GlideException
-import com.google.android.material.snackbar.Snackbar
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.DialogCalendarPickerBinding
 import com.ssafy.closetory.databinding.FragmentHomeBinding
+import com.ssafy.closetory.dto.PostQueryFilter
 import com.ssafy.closetory.dto.StylingResponse
 import com.ssafy.closetory.homeActivity.HomeActivity
-import com.ssafy.closetory.homeActivity.home.ImagePreviewActivity
 import com.ssafy.closetory.homeActivity.adapter.HomeCalendarAdapter
+import com.ssafy.closetory.homeActivity.adapter.PostListAdapter
 import com.ssafy.closetory.homeActivity.aiStyling.Day
 import com.ssafy.closetory.homeActivity.aiStyling.WeekAdapter
+import com.ssafy.closetory.homeActivity.post.PostViewModel
 import com.ssafy.closetory.util.ColorOptions
 import java.util.Calendar
 import kotlinx.coroutines.launch
@@ -46,6 +45,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
     private var dayColorMap: Map<String, Pair<Int?, Int?>> = emptyMap()
     private var dayImageMap: Map<String, String> = emptyMap()
 
+    // 게시글 미리보기
+    private val postViewModel: PostViewModel by viewModels()
+    private lateinit var postAdapter: PostListAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -56,16 +58,62 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         setupClickPostBtn()
         setupEmbeddedCalendar(view)
 
+        // 게시판 미리보기 세팅 + 수집 + 최초 로드
+        setupPostPreview()
+        collectPostPreview()
+        postViewModel.loadPosts(keyword = null, filter = PostQueryFilter.LATEST)
+
         observeStylingList()
         collectMessageEvent()
     }
 
+    // -------------------------
+    // 게시판 미리보기
+    // -------------------------
+    private fun setupPostPreview() {
+        binding.rvPosts.layoutManager = GridLayoutManager(requireContext(), 2)
+
+        postAdapter = PostListAdapter(
+            onItemClick = { post ->
+                // Home 미리보기에서는 Home -> PostList로 이동만 보장하고,
+                // PostList에서 postId를 받아 상세로 진입하도록 처리한다.
+                val bundle = Bundle().apply { putInt("postId", post.postId) }
+                findNavController().navigate(R.id.action_home_to_post_list, bundle)
+            }
+        )
+
+        binding.rvPosts.adapter = postAdapter
+        binding.rvPosts.setHasFixedSize(true)
+    }
+
+    private fun collectPostPreview() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    postViewModel.message.collect { msg ->
+                        if (msg.isNotBlank()) showToast(msg)
+                    }
+                }
+            }
+        }
+
+        postViewModel.postList.observe(viewLifecycleOwner) { list ->
+            postAdapter.submitList(list.take(6))
+        }
+    }
+
+    // -------------------------
+    // 홈 -> 게시글 더보기
+    // -------------------------
     private fun setupClickPostBtn() {
         binding.btnPosts.setOnClickListener {
             findNavController().navigate(R.id.action_home_to_post_list)
         }
     }
 
+    // -------------------------
+    // 캘린더 (기존 유지)
+    // -------------------------
     private fun setupEmbeddedCalendar(root: View) {
         bindCalendarInclude(root)
         setupWeekHeader()
@@ -101,7 +149,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
                 if (!day.inMonth) return@HomeCalendarAdapter
 
                 val dateKey = keyOf(day)
-                val imageUrl = dayImageMap[dateKey] // 서버에서 받은 url(있을 수도/없을 수도)
+                val imageUrl = dayImageMap[dateKey]
                 Log.d(TAG, "selected date=$dateKey, imageUrl=$imageUrl")
 
                 homeCalendarAdapter.setSelected(day)
@@ -111,7 +159,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
                     return@HomeCalendarAdapter
                 }
 
-                // url이 있는 경우만 화면 이동
                 openImagePreview(imageUrl)
             },
             colorProvider = { day ->
@@ -123,7 +170,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
     }
 
     private fun showNoLookMessage() {
-        Toast.makeText(requireContext(), "등록된 룩이 없습니다.", Toast.LENGTH_SHORT).show()
+        showToast("등록된 룩이 없습니다.")
     }
 
     private fun moveMonthAndRender(deltaMonth: Int) {
@@ -144,9 +191,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 homeViewModel.message.collect { msg ->
-                    if (!msg.isNullOrBlank()) {
-                        Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
-                    }
+                    if (msg.isNotBlank()) showToast(msg)
                 }
             }
         }
@@ -299,5 +344,4 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
             null
         }
     }
-
 }

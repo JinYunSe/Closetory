@@ -1,11 +1,10 @@
 package com.ssafy.closetory.homeActivity.post
 
 import com.ssafy.closetory.dto.ApiResponse
-import com.ssafy.closetory.dto.ClothesItemDto
+import com.ssafy.closetory.dto.PostCreateResponse
 import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostEditResponse
 import com.ssafy.closetory.dto.PostItemResponse
-import com.ssafy.closetory.dto.PostQueryFilter
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -18,33 +17,62 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-// 게시판 관련 API 정의
 interface PostService {
 
-    // 게시글 목록 조회
+    // -------------------------
+    // Read - List
+    // -------------------------
     @GET("posts")
     suspend fun getPosts(
         @Query("keyword") keyword: String? = null,
-        @Query("searchfilter") searchfilter: PostQueryFilter? = null
-    ): Response<ApiResponse<List<PostItemResponse>>>
+        @Query("filter") filter: String
+    ): ApiResponse<List<PostItemResponse>>
 
-    // 게시글 상세 페이지 조회
+    // -------------------------
+    // Read - List (필터만)
+    // -------------------------
+    @GET("posts")
+    suspend fun getPostsFilter(
+        // ✅ 노션에 있던 "getPostsFilter" 용도
+        @Query("searchfilter") searchFilter: String
+    ): ApiResponse<List<PostItemResponse>>
+
+    // -------------------------
+    // Read - Detail
+    // -------------------------
     @GET("posts/{postId}")
-    suspend fun getPostDetail(@Path("postId") postId: Int): Response<ApiResponse<PostDetailResponse>>
+    suspend fun getPostDetail(@Path("postId") postId: Int): ApiResponse<PostDetailResponse>
 
-    // 게시글 수정
+    // -------------------------
+    // Create (Multipart: photo + request JSON)
+    // -------------------------
+    @Multipart
+    @POST("posts")
+    suspend fun createPost(
+        @Part photo: MultipartBody.Part,
+        @Part("request") request: RequestBody
+    ): Response<ApiResponse<PostCreateResponse>>
+
+    // -------------------------
+    // Update (Multipart: photo optional + request JSON)
+    // -------------------------
     @Multipart
     @PATCH("posts/{postId}")
     suspend fun editPost(
         @Path("postId") postId: Int,
-        @Part photo: MultipartBody.Part?, // 변경 안 했으면 null
+        @Part photo: MultipartBody.Part?, // 사진 변경 없으면 null
         @Part("request") request: RequestBody
-    ): Response<ApiResponse<PostEditResponse>>
+    ): ApiResponse<PostEditResponse>
 
-    // 게시글 삭제
+    // -------------------------
+    // Delete
+    // -------------------------
     @DELETE("posts/{postId}")
-    suspend fun deletePost(@Path("postId") postId: Int): Response<ApiResponse<Unit>>
+    suspend fun deletePost(@Path("postId") postId: Int): ApiResponse<Unit>
 
+    // -------------------------
+    // (예시) 옷 저장/해제 - 너희 기존 API에 맞춰 경로/메서드 수정
+    // -------------------------
     @POST("clothes/{clothesId}/save")
     suspend fun postClothesRental(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
 
