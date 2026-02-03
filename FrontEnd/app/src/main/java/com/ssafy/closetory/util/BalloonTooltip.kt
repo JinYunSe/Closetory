@@ -32,7 +32,6 @@ class BalloonTooltip(private val ctx: Context) {
         val root = LayoutInflater.from(ctx).inflate(R.layout.view_balloon_tooltip, null, false)
         val tv = root.findViewById<TextView>(R.id.tv_message)
         val arrowUp = root.findViewById<ImageView>(R.id.arrow_up)
-        val arrowDown = root.findViewById<ImageView>(R.id.arrow_down)
 
         tv.text = message
 
@@ -79,18 +78,16 @@ class BalloonTooltip(private val ctx: Context) {
         }
 
         arrowUp.isVisible = !showAbove
-        arrowDown.isVisible = showAbove
 
         anchor.post {
             if (anchor.windowToken == null) return@post
 
             pw.showAtLocation(anchor, Gravity.NO_GRAVITY, x, y)
 
-            val arrow = if (showAbove) arrowDown else arrowUp
-            arrow.post {
-                val arrowW = arrow.width
+            arrowUp.post {
+                val arrowW = arrowUp.width
                 val desired = anchorCenterX - x - arrowW / 2
-                arrow.translationX =
+                arrowUp.translationX =
                     clamp(desired, 0, (root.width.takeIf { it > 0 } ?: popupW) - arrowW).toFloat()
             }
 
