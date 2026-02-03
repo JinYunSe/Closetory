@@ -1,93 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- 로그인 페이지 xml -->
-
+<!-- 로그인 페이지 xml (회원가입 UI 규격과 통일, 기능 id 유지) -->
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id = "@+id/loginContainer"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/loginContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:layout_margin="20dp"
+    android:gravity="center"
     android:paddingStart="24dp"
     android:paddingEnd="24dp">
 
-    <TextView
-        android:id="@+id/tvLoginTitle"
+    <!-- 기존 변수명(tvLoginTitle) 유지: 상단 브랜드 영역으로 사용 -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="로그인"
-        android:textSize="36sp"
-        android:textStyle="bold" />
-
-    <EditText
-        android:id="@+id/etLoginId"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:hint="아이디"
-        android:singleLine="true"
-        android:maxLines="1"
-        android:inputType="text"
-        android:background="#E0E0E0"
-        android:padding="16dp"
-        android:layout_marginTop="40dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="16dp"
         android:orientation="horizontal"
-        android:background="#E0E0E0"
         android:gravity="center_vertical">
 
-        <EditText
-            android:id="@+id/etLoginPassword"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/tvLoginTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Closetory"
+            android:textSize="34sp"
+            android:textStyle="bold"
+            android:textColor="@color/main_color" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" | "
+            android:textSize="28sp"
+            android:textColor="@color/main_color"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="4dp" />
+
+        <!-- 로고 (id 유지) -->
+        <ImageView
+            android:id="@+id/ivBrandLogo"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:contentDescription="앱 로고"
+            android:src="@drawable/logo"
+            android:scaleType="fitCenter" />
+    </LinearLayout>
+
+    <!-- 슬로건 (id 유지) -->
+    <TextView
+        android:id="@+id/tvSlogan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="10dp"
+        android:text="옷장–코디–착용–공유로 이어지는 완결형 패션 경험"
+        android:textSize="12sp"
+        android:textColor="#000000" />
+
+    <!-- 아이디 -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        app:boxBackgroundMode="none"
+        app:hintEnabled="false">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etLoginId"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:hint="비밀번호"
-            android:inputType="textPassword"
-            android:background="@null"
-            android:padding="16dp" />
+            android:background="@drawable/bg_login_input"
+            android:hint="아이디"
+            android:inputType="text"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:padding="4dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="#9E9E9E" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 비밀번호(눈 아이콘 포함) -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_marginTop="16dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:boxBackgroundMode="none"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etLoginPassword"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_login_input"
+                android:hint="비밀번호"
+                android:inputType="textPassword"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:padding="4dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="#9E9E9E" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <ImageButton
             android:id="@+id/btnToggleLoginPassword"
-            android:layout_width="48dp"
-            android:layout_height="match_parent"
-            android:background="@null"
-            android:src="@drawable/ic_eye"
-            android:contentDescription="비밀번호 보기/숨기기" />
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="6dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="비밀번호 보기/숨기기"
+            android:src="@drawable/ic_eye" />
+    </FrameLayout>
 
-    </LinearLayout>
-
-    <Button
+    <!-- 로그인 버튼 (id 유지) -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="24dp"
+        android:padding="4dp"
         android:text="로그인"
-        android:backgroundTint="@color/main_color"
-        android:layout_marginTop="32dp" />
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:textSize="12sp"
+        app:backgroundTint="@color/main_color"
+        app:cornerRadius="8dp"
+        app:rippleColor="#66FFFFFF"
+        android:insetTop="0dp"
+        android:insetBottom="0dp" />
 
-    <Button
-        android:id="@+id/btnGoogleLogin"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="구글 로그인"
-        android:backgroundTint="@color/main_color"
-        android:layout_marginTop="8dp" />
-
-    <Button
-        android:id="@+id/btnKakaoLogin"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="카카오 로그인"
-        android:backgroundTint="@color/main_color"
-        android:layout_marginTop="8dp"/>
-
+    <!-- 하단 링크 영역 (기존 id 유지) -->
     <LinearLayout
-        android:id = "@+id/footerContainer"
+        android:id="@+id/footerContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -95,7 +146,7 @@
         android:layout_marginTop="16dp">
 
         <LinearLayout
-            android:id = "@+id/footerSignupContainer"
+            android:id="@+id/footerSignupContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -106,17 +157,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="계정이 없으신가요?"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textColor="#000000"
                 android:clickable="true"
                 android:focusable="true"
                 android:padding="8dp" />
+
             <TextView
                 android:id="@+id/tvNoIdToSignup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="회원가입"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textColor="#000000"
                 android:clickable="true"
                 android:focusable="true"
@@ -128,30 +180,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvFindId"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:padding="8dp"
-                android:text="아이디 찾기"
-                android:textColor="#000000"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tvFindPw"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:padding="8dp"
-                android:text="비밀번호 찾기"
-                android:textColor="#000000"
-                android:textSize="14sp" />
-        </LinearLayout>
+            android:orientation="horizontal" />
     </LinearLayout>
+
 </LinearLayout>

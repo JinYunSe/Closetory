@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!-- fragment_edit_profile.xml -->
+
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,6 +8,7 @@
     android:id="@+id/scrollContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     android:fillViewport="true"
     android:overScrollMode="never"
     tools:context=".homeActivity.mypage.edit.EditProfileFragment">
@@ -15,24 +16,21 @@
     <LinearLayout
         android:id="@+id/layoutContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp"
+        android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        tools:layout_editor_absoluteX="20dp"
-        tools:layout_editor_absoluteY="20dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="회원 정보 수정"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/main_color"
+            android:layout_marginBottom="8dp" />
 
-        <!-- 사진 영역 -->
+        <!-- 사진 영역 (그대로 유지) -->
         <LinearLayout
             android:id="@+id/layoutPhotos"
             android:layout_width="match_parent"
@@ -46,7 +44,7 @@
                 android:id="@+id/layoutProfileImage"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:layout_marginEnd="14dp">
+                android:layout_marginEnd="24dp">
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/imgProfile"
@@ -62,9 +60,9 @@
             <!-- 전신 사진 -->
             <FrameLayout
                 android:id="@+id/layoutBodyImage"
-                android:layout_width="140dp"
+                android:layout_width="96dp"
                 android:layout_height="120dp"
-                android:layout_marginStart="14dp">
+                android:layout_marginStart="24dp">
 
                 <ImageView
                     android:id="@+id/imgBody"
@@ -76,173 +74,195 @@
             </FrameLayout>
         </LinearLayout>
 
+        <!-- 비밀번호 변경 (기존 id 유지: TextView 유지, 버튼처럼 보이게만) -->
         <TextView
             android:id="@+id/tvChangePassword"
             android:layout_width="match_parent"
+            android:layout_height="40dp"
             android:layout_marginTop="16dp"
-            android:layout_height="56dp"
-            android:background="#E0E0E0"
+            android:background="@drawable/bg_login_button_main_color"
+            android:backgroundTint="@null"
             android:gravity="center"
             android:text="비밀번호 변경"
-            android:backgroundTint="@color/main_color"
-            android:textColor="#000000"
-            android:textSize="16sp" />
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:padding="4dp" />
 
-        <!-- 닉네임 (라벨 박스 스타일) -->
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- 닉네임 (라벨 위 + TextInput) -->
+        <LinearLayout
             android:id="@+id/boxNicknameEdit"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_profile_border"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvNicknameLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="닉네임"
-                android:textSize="11sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
+                android:textColor="#0A0F18" />
 
-            <EditText
-                android:id="@+id/etNickname"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@android:color/transparent"
-                android:hint="닉네임 입력"
-                android:maxLength="10"
-                android:singleLine="true"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:padding="0dp"
-                android:imeOptions="actionNext"
-                app:layout_constraintTop_toBottomOf="@id/tvNicknameLabel"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:layout_marginTop="4dp"
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false">
 
-        <!-- 키 / 몸무게 (라벨 박스 스타일) -->
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNickname"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_login_input"
+                    android:hint="닉네임 입력"
+                    android:maxLength="10"
+                    android:singleLine="true"
+                    android:maxLines="1"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#0A0F18"
+                    android:textColorHint="#9E9E9E"
+                    android:padding="1dp"
+                    android:imeOptions="actionNext" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <!-- 키 -->
+
+        <!-- 몸무게 -->
         <LinearLayout
-            android:id="@+id/layoutSize"
+            android:id="@+id/boxHeightEdit"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
 
-            <!-- 키 -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/boxHeightEdit"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_profile_border"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp">
+            <TextView
+                android:id="@+id/tvHeightLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="키"
+                android:textColor="#0A0F18"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvHeightLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="키"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:layout_marginTop="4dp"
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etHeight"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_login_input"
                     android:hint="cm"
-                    android:inputType="number"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:padding="0dp"
                     android:imeOptions="actionNext"
-                    app:layout_constraintTop_toBottomOf="@id/tvHeightLabel"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- 몸무게 -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/boxWeightEdit"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_profile_border"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp">
-
-                <TextView
-                    android:id="@+id/tvWeightLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="몸무게"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <EditText
-                    android:id="@+id/etWeight"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:hint="kg"
                     android:inputType="number"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:padding="0dp"
-                    android:imeOptions="actionNext"
-                    app:layout_constraintTop_toBottomOf="@id/tvWeightLabel"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
+                    android:maxLength="3"
+                    android:maxLines="1"
+                    android:padding="1dp"
+                    android:singleLine="true"
+                    android:textColor="#0A0F18"
+                    android:textColorHint="#9E9E9E"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/boxWeightEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvWeightLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="몸무게"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#0A0F18" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:layout_marginTop="4dp"
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_login_input"
+                    android:hint="kg"
+                    android:inputType="number"
+                    android:maxLength="3"
+                    android:singleLine="true"
+                    android:maxLines="1"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#0A0F18"
+                    android:textColorHint="#9E9E9E"
+                    android:padding="1dp"
+                    android:imeOptions="actionNext" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <!-- 성별 (회원가입 톤: MaterialButton) -->
+        <LinearLayout
             android:id="@+id/layoutGender"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_height="40dp"
             android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnFemale"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="40dp"
                 android:layout_marginEnd="12dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/gray_500"
-                android:text="여성" />
+                android:text="여성"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:padding="4dp"
+                app:rippleColor="@android:color/transparent"
+                app:backgroundTint="@color/gray_300"
+                app:cornerRadius="8dp"
+                android:stateListAnimator="@null"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMale"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="12dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/gray_500"
-                android:text="남성" />
+                android:text="남성"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:padding="4dp"
+                app:rippleColor="@android:color/transparent"
+                app:backgroundTint="@color/gray_300"
+                app:cornerRadius="8dp"
+                android:stateListAnimator="@null"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
         </LinearLayout>
 
         <!-- 알람 수신 여부 -->
@@ -250,7 +270,6 @@
             android:id="@+id/layoutAlarm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -258,7 +277,9 @@
                 android:id="@+id/switchAlarm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="false" />
+                android:checked="false"
+                app:thumbTint="@color/switch_thumb_selector"
+                app:trackTint="@color/switch_track_selector" />
 
             <TextView
                 android:id="@+id/tvAlarmTitle"
@@ -266,35 +287,52 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:text="알람 수신 여부"
-                android:textColor="#000000"
+                android:textColor="#0A0F18"
                 android:textSize="16sp" />
         </LinearLayout>
 
+        <!-- 확인/취소 (회원가입 톤: MaterialButton) -->
         <LinearLayout
             android:id="@+id/layoutActions"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
+            android:layout_height="40dp"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSave"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="40dp"
                 android:layout_marginEnd="12dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/main_color"
-                android:text="확인" />
+                android:text="확인"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:padding="4dp"
+                app:backgroundTint="@color/main_color"
+                app:cornerRadius="8dp"
+                app:rippleColor="#1A000000"
+                android:stateListAnimator="@null"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancel"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="12dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/gray_500"
-                android:text="취소" />
+                android:text="취소"
+                android:textColor="#0A0F18"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:padding="4dp"
+                app:backgroundTint="@color/gray_300"
+                app:cornerRadius="8dp"
+                app:rippleColor="#1A000000"
+                android:stateListAnimator="@null"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
         </LinearLayout>
 
     </LinearLayout>
