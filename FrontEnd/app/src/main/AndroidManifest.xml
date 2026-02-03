@@ -41,7 +41,7 @@
         </activity>
 
         <activity
-            android:name=".homeActivity.home.ImagePreviewActivity"
+            android:name=".homeActivity.home.ImagePreviewDialogFragment"
             android:exported="false" />
 
         <activity
