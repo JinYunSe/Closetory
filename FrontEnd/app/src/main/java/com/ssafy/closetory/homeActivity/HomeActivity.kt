@@ -1,19 +1,28 @@
 package com.ssafy.closetory.homeActivity
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
+import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseActivity
 import com.ssafy.closetory.databinding.ActivityHomeBinding
+import com.ssafy.closetory.homeActivity.mypage.MyPageViewModel
 import com.ssafy.closetory.util.TagOptions
+import kotlinx.coroutines.launch
 
+private const val TAG = "HomeActivity_싸피"
 class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::inflate) {
 
     private data class NavItem(val destinationId: Int, val containerId: Int, val iconId: Int, val textId: Int)
 
     private val homeInitViewModel: HomeInitViewModel by viewModels()
+
+    private val myPageViewModel: MyPageViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,11 +130,29 @@ class HomeActivity : BaseActivity<ActivityHomeBinding>(ActivityHomeBinding::infl
 
     private fun init() {
         homeInitViewModel.getTagsList()
+
+        val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)!!
+        Log.d(TAG, "로그인 직후 userId 가져오기 : $userId")
+        myPageViewModel.loadUserProfile(userId)
     }
 
     fun registerObserve() {
         homeInitViewModel.tagsList.observe(this) {
             TagOptions.setTags(it)
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                myPageViewModel.userProfile.collect { profile ->
+                    if (profile == null) return@collect
+
+                    Log.d(TAG, "userProfile 수신: $profile")
+                    ApplicationClass.sharedPreferences.putUserNickName(profile.nickname)
+
+                    val userNickName = ApplicationClass.sharedPreferences.getUserNickName()
+                    Log.d(TAG, "userNickName: $userNickName")
+                }
+            }
         }
     }
 }
