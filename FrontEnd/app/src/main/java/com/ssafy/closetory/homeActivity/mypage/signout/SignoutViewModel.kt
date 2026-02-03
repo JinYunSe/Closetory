@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.myPage.signout
+package com.ssafy.closetory.homeActivity.mypage.signout
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

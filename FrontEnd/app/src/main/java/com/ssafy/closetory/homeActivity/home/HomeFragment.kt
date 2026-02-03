@@ -61,7 +61,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         // 게시판 미리보기 세팅 + 수집 + 최초 로드
         setupPostPreview()
         collectPostPreview()
-        postViewModel.loadPosts(keyword = null, filter = PostQueryFilter.LATEST)
+        postViewModel.loadPostsFilter(filter = PostQueryFilter.LATEST)
 
         observeStylingList()
         collectMessageEvent()
@@ -98,7 +98,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         }
 
         postViewModel.postList.observe(viewLifecycleOwner) { list ->
-            postAdapter.submitList(list.take(6))
+            postAdapter.submitList(list?.take(6) ?: emptyList())
         }
     }
 

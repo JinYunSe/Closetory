@@ -7,20 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.ssafy.closetory.dto.ApiResponse
-import com.ssafy.closetory.dto.PostCreateRequest
-import com.ssafy.closetory.dto.PostCreateResponse
-import com.ssafy.closetory.dto.PostDetailResponse
-import com.ssafy.closetory.dto.PostEditRequest
-import com.ssafy.closetory.dto.PostEditResponse
-import com.ssafy.closetory.dto.PostItemResponse
-import com.ssafy.closetory.dto.PostQueryFilter
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.ssafy.closetory.dto.*
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import retrofit2.Response
@@ -29,35 +17,40 @@ private const val TAG = "PostViewModel_싸피"
 
 class PostViewModel : ViewModel() {
 
-    // =========================================================
+    // -------------------------
     // Dependencies
-    // =========================================================
+    // -------------------------
     private val repository = PostRepository()
 
-    // =========================================================
-    // Public state/event (exposed)
-    // =========================================================
-    // message
+    // -------------------------
+    // Public: message
+    // -------------------------
     private val _message = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val message: SharedFlow<String> = _message.asSharedFlow()
 
-    // list
+    // -------------------------
+    // Public: list (LiveData)
+    // -------------------------
     private val _postList = MutableLiveData<List<PostItemResponse>>(emptyList())
     val postList: LiveData<List<PostItemResponse>> = _postList
 
-    // detail
+    // -------------------------
+    // Public: detail (StateFlow)
+    // -------------------------
     private val _postDetail = MutableStateFlow<PostDetailResponse?>(null)
     val postDetail: StateFlow<PostDetailResponse?> = _postDetail.asStateFlow()
 
-    // create result
+    private var loadedDetailPostId: Int? = null
+
+    // -------------------------
+    // Public: create/edit/delete events
+    // -------------------------
     private val _createResult = MutableSharedFlow<PostCreateResponse?>(extraBufferCapacity = 1)
     val createResult: SharedFlow<PostCreateResponse?> = _createResult.asSharedFlow()
 
-    // edit result
     private val _editResult = MutableSharedFlow<PostEditResponse?>(extraBufferCapacity = 1)
     val editResult: SharedFlow<PostEditResponse?> = _editResult.asSharedFlow()
 
-    // delete event
     sealed class DeleteEvent {
         data class Success(val postId: Int) : DeleteEvent()
         data class Fail(val message: String) : DeleteEvent()
@@ -67,34 +60,22 @@ class PostViewModel : ViewModel() {
     val deleteEvent: SharedFlow<DeleteEvent> = _deleteEvent.asSharedFlow()
 
     // =========================================================
-    // Internal variables
+    // List
     // =========================================================
-    private var loadedDetailPostId: Int? = null
-
-    // =========================================================
-    // List (검색 + 필터 / 필터만)
-    // =========================================================
-
-    /**
-     * 검색 + 필터
-     * keyword가 null/blank면 getPostsFilter를 타도록 분기
-     */
     fun loadPosts(keyword: String?, filter: PostQueryFilter) {
         viewModelScope.launch {
             try {
-                val kw = keyword?.trim().takeIf { !it.isNullOrEmpty() }
-
-                val apiRes = if (kw == null) {
-                    repository.getPostsFilter(filter)
-                } else {
-                    repository.getPosts(keyword = kw, filter = filter)
+                val kw = keyword?.trim()!!
+                if (kw.isEmpty()) {
+                    _postList.value = emptyList()
+                    _message.tryEmit("검색어가 비어있습니다.")
+                    return@launch
                 }
 
-                Log.d(TAG, "loadPosts 응답: $apiRes")
-
+                val apiRes = repository.getPosts(keyword = kw, filter = filter)
                 val data = apiRes.data
                 if (data != null) {
-                    _postList.value = data
+                    _postList.value = data!!
                 } else {
                     _postList.value = emptyList()
                     _message.tryEmit(apiRes.errorMessage ?: apiRes.responseMessage ?: "게시글을 불러오지 못했습니다.")
@@ -106,18 +87,13 @@ class PostViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 필터만 조회
-     */
     fun loadPostsFilter(filter: PostQueryFilter) {
         viewModelScope.launch {
             try {
                 val apiRes = repository.getPostsFilter(filter)
-                Log.d(TAG, "loadPostsFilter 응답: $apiRes")
-
                 val data = apiRes.data
                 if (data != null) {
-                    _postList.value = data
+                    _postList.value = data!!
                 } else {
                     _postList.value = emptyList()
                     _message.tryEmit(apiRes.errorMessage ?: apiRes.responseMessage ?: "게시글을 불러오지 못했습니다.")
@@ -147,6 +123,38 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "loadPostDetail 예외", e)
+                _message.tryEmit(e.message ?: "네트워크 오류")
+            }
+        }
+    }
+
+    // =========================================================
+    // Like (✅ 조회수 증가 버그 방지: 상세 재조회 금지)
+    // =========================================================
+    fun toggleLike(postId: Int) {
+        viewModelScope.launch {
+            val cur = _postDetail.value
+            if (cur == null || cur.postId != postId) return@launch
+
+            val willLike = !cur.isLiked
+
+            try {
+                val apiRes = if (willLike) repository.likePost(postId) else repository.unlikePost(postId)
+                val ok = apiRes.httpStatusCode in 200..299
+
+                if (!ok) {
+                    _message.tryEmit(apiRes.errorMessage ?: apiRes.responseMessage ?: "좋아요 처리 실패")
+                    return@launch
+                }
+
+                // ✅ 서버 상세 재조회 안 함 (views 증가 방지)
+                val newCount = (cur.likeCount + if (willLike) 1 else -1).coerceAtLeast(0)
+                _postDetail.value = cur.copy(
+                    isLiked = willLike,
+                    likeCount = newCount
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "toggleLike 예외", e)
                 _message.tryEmit(e.message ?: "네트워크 오류")
             }
         }
@@ -193,6 +201,7 @@ class PostViewModel : ViewModel() {
                 if (apiRes.data != null) _editResult.tryEmit(apiRes.data)
                 _message.tryEmit(apiRes.responseMessage ?: apiRes.errorMessage ?: "수정 완료")
 
+                // 수정 성공 시에만 상세 재조회 (이건 의도된 동작)
                 if (apiRes.httpStatusCode in 200..299) {
                     loadPostDetail(postId, force = true)
                 }
@@ -241,9 +250,10 @@ class PostViewModel : ViewModel() {
                 }
 
                 if (res.isSuccessful) {
-                    val msg =
-                        res.body()?.responseMessage ?: if (willSave) "저장 완료" else "저장 해제 완료"
+                    val msg = res.body()?.responseMessage ?: if (willSave) "저장 완료" else "저장 해제 완료"
                     _message.tryEmit(msg)
+
+                    // 옷 저장 상태는 상세 items에 영향 → 상세 재조회 (서버가 views+1 하는 구조면 이 부분도 백엔드가 분리돼야 완벽)
                     loadPostDetail(postId, force = true)
                 } else {
                     _message.tryEmit("요청 실패(code=${res.code()})")
@@ -255,9 +265,6 @@ class PostViewModel : ViewModel() {
         }
     }
 
-    // =========================================================
-    // Utils
-    // =========================================================
     private inline fun <reified T> parseErrorBody(res: Response<ApiResponse<T>>): ApiResponse<T>? {
         return try {
             val json = res.errorBody()?.string() ?: return null

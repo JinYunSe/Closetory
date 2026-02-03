@@ -23,7 +23,6 @@ class PostListFragment :
     BaseFragment<FragmentPostMainBinding>(FragmentPostMainBinding::bind, R.layout.fragment_post_main) {
 
     private val viewModel: PostViewModel by viewModels()
-
     private lateinit var postListAdapter: PostListAdapter
 
     private var didInitialLoad = false
@@ -32,7 +31,6 @@ class PostListFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Home 등에서 postId가 넘어오면 목록 뜬 직후 상세로 이동
         val postIdFromArgs = arguments?.getInt("postId", -1) ?: -1
         if (postIdFromArgs > 0) {
             pendingOpenPostId = postIdFromArgs
@@ -43,6 +41,7 @@ class PostListFragment :
         setupFilterListener()
         setupSearchListener()
         setupCreateListener()
+
         observeViewModel()
         observeRefreshSignal()
     }
@@ -53,7 +52,7 @@ class PostListFragment :
         if (didInitialLoad) return
         didInitialLoad = true
 
-        requestPosts()
+        requestByUiState()
 
         pendingOpenPostId?.let {
             pendingOpenPostId = null
@@ -61,9 +60,6 @@ class PostListFragment :
         }
     }
 
-    // -------------------------
-    // UI Setup
-    // -------------------------
     private fun setupRecyclerView() {
         postListAdapter = PostListAdapter { item ->
             goToPostDetail(item.postId)
@@ -75,30 +71,24 @@ class PostListFragment :
         }
     }
 
-    /**
-     * RadioGroup으로 단일 선택을 안정적으로 처리
-     * (RadioButton에 onClick + 수동 체크 해제 방식은 동작 꼬일 수 있음)
-     */
     private fun setupFilterListener() {
-        // 기본값(최신순) 보장
         if (binding.rgPostOption.checkedRadioButtonId == View.NO_ID) {
             binding.rbLatest.isChecked = true
         }
 
         binding.rgPostOption.setOnCheckedChangeListener { _, _ ->
-            // 필터 바뀌면 즉시 조회
-            requestPosts()
+            requestByUiState()
         }
     }
 
     private fun setupSearchListener() {
         binding.btnSearch.setOnClickListener {
-            requestPosts()
+            requestByUiState()
         }
 
         binding.etKeyword.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
-                requestPosts()
+                requestByUiState()
                 ViewCompat.getWindowInsetsController(binding.etKeyword)
                     ?.hide(WindowInsetsCompat.Type.ime())
                 true
@@ -115,21 +105,15 @@ class PostListFragment :
         }
     }
 
-    // -------------------------
-    // Navigation
-    // -------------------------
-    private fun goToPostDetail(targetPostId: Int) {
-        val bundle = Bundle().apply { putInt("postId", targetPostId) }
-        findNavController().navigate(R.id.action_post_list_to_post_detail, bundle)
-    }
+    private fun requestByUiState() {
+        val keyword = binding.etKeyword.text?.toString()?.trim().orEmpty()
+        val filter = getSelectedFilter()
 
-    // -------------------------
-    // Data
-    // -------------------------
-    private fun requestPosts() {
-        val keyword = binding.etKeyword.text?.toString()?.trim().takeIf { !it.isNullOrBlank() }
-        viewModel.loadPosts(keyword = keyword, filter = getSelectedFilter())
-        // PostViewModel에서 keyword가 비어있으면 getPostsFilter로 분기하도록 되어 있으니 그대로 사용하면 됨
+        if (keyword.isEmpty()) {
+            viewModel.loadPostsFilter(filter)
+        } else {
+            viewModel.loadPosts(keyword, filter)
+        }
     }
 
     private fun getSelectedFilter(): PostQueryFilter = when (binding.rgPostOption.checkedRadioButtonId) {
@@ -139,16 +123,16 @@ class PostListFragment :
         else -> PostQueryFilter.LATEST
     }
 
-    // -------------------------
-    // Observe
-    // -------------------------
+    private fun goToPostDetail(targetPostId: Int) {
+        val bundle = Bundle().apply { putInt("postId", targetPostId) }
+        findNavController().navigate(R.id.action_post_list_to_post_detail, bundle)
+    }
+
     private fun observeViewModel() {
-        // LiveData observe
         viewModel.postList.observe(viewLifecycleOwner) { list ->
             postListAdapter.submitList(list)
         }
 
-        // SharedFlow collect
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.message.collect { msg ->
@@ -158,9 +142,6 @@ class PostListFragment :
         }
     }
 
-    /**
-     * 상세/등록/수정/삭제 후 목록으로 돌아왔을 때 즉시 갱신
-     */
     private fun observeRefreshSignal() {
         findNavController()
             .currentBackStackEntry
@@ -168,7 +149,7 @@ class PostListFragment :
             ?.getLiveData<Boolean>("POST_REFRESH")
             ?.observe(viewLifecycleOwner) { refresh ->
                 if (refresh == true) {
-                    requestPosts()
+                    requestByUiState()
                     findNavController()
                         .currentBackStackEntry
                         ?.savedStateHandle

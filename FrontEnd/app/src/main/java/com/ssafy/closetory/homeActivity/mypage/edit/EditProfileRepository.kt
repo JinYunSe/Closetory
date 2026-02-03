@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.myPage.edit
+package com.ssafy.closetory.homeActivity.mypage.edit
 
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.ApiResponse

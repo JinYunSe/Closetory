@@ -1,9 +1,6 @@
 package com.ssafy.closetory.homeActivity.post.detail
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.text.method.ScrollingMovementMethod
-import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -29,13 +26,12 @@ class PostDetailFragment :
     BaseFragment<FragmentPostDetailBinding>(FragmentPostDetailBinding::bind, R.layout.fragment_post_detail) {
 
     private val viewModel: PostViewModel by viewModels()
-
     private val postId: Int by lazy { arguments?.getInt("postId") ?: -1 }
 
     private lateinit var itemAdapter: PostDetailItemAdapter
     private var currentPhotoUrl: String? = null
 
-    // 상세 진입 시 조회수 +1이 발생하므로, 상세를 한 번이라도 로드했다면 뒤로갈 때 목록을 갱신
+    // 상세를 한 번이라도 로드했으면(조회수 변동), 나갈 때 목록 갱신
     private var shouldRefreshListOnExit: Boolean = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -47,33 +43,47 @@ class PostDetailFragment :
             return
         }
 
-        setupItemsRecyclerView()
+        setupRecycler()
+        setupSystemBack()
         observeViewModel()
         observeRefreshFromEdit()
 
-        binding.tvContent.movementMethod = ScrollingMovementMethod()
-        setupContentInnerScrollForTextView()
-
         binding.ivPostPhoto.setOnClickListener { openPhotoDialogIfExist() }
-        binding.btnUpdate.setOnClickListener { navigateToEdit() }
+
+        binding.btnUpdate.setOnClickListener {
+            val args = PostCreateFragment.newEditArgs(postId)
+            findNavController().navigate(R.id.action_post_detail_to_post_edit, args)
+        }
+
         binding.btnDelete.setOnClickListener { confirmDelete() }
 
-        // 시스템 뒤로가기 처리 (목록 갱신 신호 전달)
-        setupSystemBackRefresh()
+        // 좋아요 클릭: 상세 재조회 금지 (views 증가 버그 방지)
+        binding.ivLikeIcon.setOnClickListener {
+            viewModel.toggleLike(postId)
+        }
 
-        // 상세 조회 (여기서 서버 조회수 +1이 일어나는 케이스)
+        // 상세 최초 진입 때만 조회 (서버가 여기서 views+1)
         viewModel.loadPostDetail(postId, force = true)
-
-        clickLike()
     }
 
-    // TODO: 윤세야 좋아요 기능 해야한다!!
-    private fun clickLike() {
-        binding.ivLikeIcon.setOnClickListener {
+    private fun setupRecycler() {
+        itemAdapter = PostDetailItemAdapter(
+            onItemClick = { /* no-op */ },
+            onSaveClick = { item ->
+                val clothesId = item.clothesId
+                if (clothesId <= 0) return@PostDetailItemAdapter
+                viewModel.toggleClothesSave(postId = postId, clothesId = clothesId, willSave = !item.isSaved)
+            }
+        )
+
+        binding.rvClothes.apply {
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            adapter = itemAdapter
+            overScrollMode = View.OVER_SCROLL_NEVER
         }
     }
 
-    private fun setupSystemBackRefresh() {
+    private fun setupSystemBack() {
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
@@ -90,9 +100,7 @@ class PostDetailFragment :
     }
 
     private fun observeRefreshFromEdit() {
-        // 수정 화면(PostCreateFragment)에서 돌아오면:
-        // 1) 상세 재조회
-        // 2) 목록(PostList)에도 갱신 신호 전파
+        // 수정 화면에서 돌아오면 상세는 재조회 + 목록도 갱신 신호 전달
         findNavController()
             .currentBackStackEntry
             ?.savedStateHandle
@@ -113,80 +121,12 @@ class PostDetailFragment :
             }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private fun setupContentInnerScrollForTextView() {
-        val tv = binding.tvContent
-        tv.setOnTouchListener { v, event ->
-            val canScroll = v.canScrollVertically(-1) || v.canScrollVertically(1)
-            if (!canScroll) {
-                v.parent?.requestDisallowInterceptTouchEvent(false)
-                return@setOnTouchListener false
-            }
-
-            v.parent?.requestDisallowInterceptTouchEvent(true)
-
-            if (event.actionMasked == MotionEvent.ACTION_MOVE) {
-                val atTop = !v.canScrollVertically(-1)
-                val atBottom = !v.canScrollVertically(1)
-
-                val prevY = if (event.historySize > 0) event.getHistoricalY(0) else event.y
-                val dy = event.y - prevY
-
-                if (atTop && dy > 0) v.parent?.requestDisallowInterceptTouchEvent(false)
-                if (atBottom && dy < 0) v.parent?.requestDisallowInterceptTouchEvent(false)
-            }
-            false
-        }
-    }
-
-    private fun openPhotoDialogIfExist() {
-        val url = currentPhotoUrl
-        if (url.isNullOrBlank()) {
-            Toast.makeText(requireContext(), "이미지가 없습니다.", Toast.LENGTH_SHORT).show()
-            return
-        }
-        PostPhotoDialogFragment.newInstance(url)
-            .show(parentFragmentManager, "post_photo_dialog")
-    }
-
-    private fun navigateToEdit() {
-        val args = PostCreateFragment.newEditArgs(postId)
-        findNavController().navigate(R.id.action_post_detail_to_post_edit, args)
-    }
-
-    private fun setupItemsRecyclerView() {
-        itemAdapter = PostDetailItemAdapter(
-            onItemClick = { /* no-op */ },
-            onSaveClick = { item ->
-                val clothesId = item.clothesId
-                if (clothesId <= 0) {
-                    Toast.makeText(requireContext(), "옷 정보가 올바르지 않습니다.", Toast.LENGTH_SHORT).show()
-                    return@PostDetailItemAdapter
-                }
-
-                viewModel.toggleClothesSave(
-                    postId = postId,
-                    clothesId = clothesId,
-                    willSave = !item.isSaved
-                )
-            }
-        )
-
-        binding.rvClothes.apply {
-            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-            adapter = itemAdapter
-            overScrollMode = View.OVER_SCROLL_NEVER
-        }
-    }
-
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.message.collect { msg ->
-                        if (!msg.isNullOrBlank()) {
-                            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-                        }
+                        if (msg.isNotBlank()) Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                     }
                 }
 
@@ -194,7 +134,6 @@ class PostDetailFragment :
                     viewModel.postDetail.collect { detail ->
                         if (detail == null) return@collect
 
-                        // ✅ 상세를 한 번이라도 성공적으로 받으면, 나갈 때 목록 갱신
                         shouldRefreshListOnExit = true
 
                         binding.tvTitle.text = detail.title
@@ -203,6 +142,12 @@ class PostDetailFragment :
                         binding.tvViews.text = detail.views.toString()
                         binding.tvLikes.text = detail.likeCount.toString()
                         binding.ivLikeIcon.isSelected = detail.isLiked
+
+                        if (binding.ivLikeIcon.isSelected) {
+                            binding.ivLikeIcon.setImageResource(R.drawable.heart_red)
+                        } else {
+                            binding.ivLikeIcon.setImageResource(R.drawable.heart_empty)
+                        }
 
                         Glide.with(this@PostDetailFragment)
                             .load(detail.profilePhotoUrl)
@@ -236,13 +181,9 @@ class PostDetailFragment :
                     viewModel.deleteEvent.collect { event ->
                         when (event) {
                             is PostViewModel.DeleteEvent.Success -> {
-                                Toast.makeText(requireContext(), "삭제 완료", Toast.LENGTH_SHORT).show()
-
-                                // ✅ 삭제 시에는 무조건 목록 갱신
                                 findNavController().previousBackStackEntry
                                     ?.savedStateHandle
                                     ?.set("POST_REFRESH", true)
-
                                 findNavController().popBackStack()
                             }
 
@@ -263,5 +204,12 @@ class PostDetailFragment :
             .setPositiveButton("삭제") { _, _ -> viewModel.deletePost(postId) }
             .setNegativeButton("취소", null)
             .show()
+    }
+
+    private fun openPhotoDialogIfExist() {
+        val url = currentPhotoUrl
+        if (url.isNullOrBlank()) return
+        PostPhotoDialogFragment.newInstance(url)
+            .show(parentFragmentManager, "post_photo_dialog")
     }
 }

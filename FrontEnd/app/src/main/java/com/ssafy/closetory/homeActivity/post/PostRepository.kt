@@ -3,14 +3,7 @@ package com.ssafy.closetory.homeActivity.post
 import android.util.Log
 import com.google.gson.Gson
 import com.ssafy.closetory.ApplicationClass
-import com.ssafy.closetory.dto.ApiResponse
-import com.ssafy.closetory.dto.PostCreateRequest
-import com.ssafy.closetory.dto.PostCreateResponse
-import com.ssafy.closetory.dto.PostDetailResponse
-import com.ssafy.closetory.dto.PostEditRequest
-import com.ssafy.closetory.dto.PostEditResponse
-import com.ssafy.closetory.dto.PostItemResponse
-import com.ssafy.closetory.dto.PostQueryFilter
+import com.ssafy.closetory.dto.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -21,35 +14,31 @@ private const val TAG = "PostRepository_싸피"
 class PostRepository {
 
     private val service: PostService by lazy {
-        // 너희 프로젝트에서 retrofit 인스턴스 만드는 방식에 맞춰 수정 가능
         ApplicationClass.retrofit.create(PostService::class.java)
     }
 
     // -------------------------
-    // Read - List
+    // List
     // -------------------------
-    suspend fun getPosts(keyword: String?, filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = safeCall {
-        service.getPosts(
-            keyword = keyword,
-            filter = filter.name
-        )
+    suspend fun getPosts(keyword: String, filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = safeCall {
+        service.getPosts(keyword = keyword, searchFilter = filter.name)
     }
 
-    // -------------------------
-    // Read - List (필터만)
-    // -------------------------
     suspend fun getPostsFilter(filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = safeCall {
-        service.getPostsFilter(
-            searchFilter = filter.name
-        )
+        service.getPostsFilter(searchFilter = filter.name)
     }
 
     // -------------------------
-    // Read - Detail
+    // Detail
     // -------------------------
-    suspend fun getPostDetail(postId: Int): ApiResponse<PostDetailResponse> = safeCall {
-        service.getPostDetail(postId)
-    }
+    suspend fun getPostDetail(postId: Int): ApiResponse<PostDetailResponse> = safeCall { service.getPostDetail(postId) }
+
+    // -------------------------
+    // Like
+    // -------------------------
+    suspend fun likePost(postId: Int): ApiResponse<Unit> = safeCall { service.likePost(postId) }
+
+    suspend fun unlikePost(postId: Int): ApiResponse<Unit> = safeCall { service.unlikePost(postId) }
 
     // -------------------------
     // Create
@@ -79,25 +68,20 @@ class PostRepository {
     // -------------------------
     // Delete
     // -------------------------
-    suspend fun deletePost(postId: Int): ApiResponse<Unit> = safeCall {
-        service.deletePost(postId)
-    }
+    suspend fun deletePost(postId: Int): ApiResponse<Unit> = safeCall { service.deletePost(postId) }
 
     // -------------------------
-    // 옷 저장/해제 (Response 그대로 반환)
+    // Clothes save/unsave
     // -------------------------
     suspend fun postClothesRental(clothesId: Int): Response<ApiResponse<Unit>> = service.postClothesRental(clothesId)
 
     suspend fun deleteClothesRental(clothesId: Int): Response<ApiResponse<Unit>> =
         service.deleteClothesRental(clothesId)
 
-    // -------------------------
-    // 공용 safe wrapper (예외 -> ApiResponse 형태로 통일)
-    // -------------------------
     private inline fun <T> safeCall(block: () -> ApiResponse<T>): ApiResponse<T> = try {
         block()
     } catch (e: Exception) {
-        Log.e(TAG, "API call error", e)
+        Log.e(TAG, "API error", e)
         ApiResponse(
             httpStatusCode = 500,
             responseMessage = null,

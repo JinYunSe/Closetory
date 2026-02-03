@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".homeActivity.myPage.MyPageFragment">
+    tools:context=".homeActivity.mypage.MyPageFragment">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nsvMyPage"

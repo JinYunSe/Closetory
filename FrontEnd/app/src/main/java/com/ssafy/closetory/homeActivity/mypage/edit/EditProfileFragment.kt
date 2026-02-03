@@ -25,7 +25,6 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentEditProfileBinding
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.EditProfileUpdateData
-import com.ssafy.closetory.homeActivity.myPage.edit.EditProfileViewModel
 import com.ssafy.closetory.util.PermissionChecker
 import com.ssafy.closetory.util.image.ImageMultipartUtil
 import java.io.File
