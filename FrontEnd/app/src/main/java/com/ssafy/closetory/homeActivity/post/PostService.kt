@@ -1,6 +1,12 @@
 package com.ssafy.closetory.homeActivity.post
 
 import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.CommentCreateRequest
+import com.ssafy.closetory.dto.CommentCreateResponse
+import com.ssafy.closetory.dto.CommentDto
+import com.ssafy.closetory.dto.CommentListResponse
+import com.ssafy.closetory.dto.CommentUpdateRequest
+import com.ssafy.closetory.dto.CommentUpdateResponse
 import com.ssafy.closetory.dto.PostCreateResponse
 import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostEditResponse
@@ -69,4 +75,30 @@ interface PostService {
 
     @DELETE("clothes/{clothesId}/save")
     suspend fun deleteClothesRental(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
+
+    // -------------------------
+    // Comments (댓글 API 추가)
+    // -------------------------
+    // ✅ CommentListResponse가 아니라 List<CommentDto>로 직접 받음
+    @GET("posts/{postId}/comments")
+    suspend fun getComments(@Path("postId") postId: Int): ApiResponse<List<CommentDto>>
+
+    @POST("posts/{postId}/comments")
+    suspend fun createComment(
+        @Path("postId") postId: Int,
+        @Body request: CommentCreateRequest
+    ): Response<ApiResponse<CommentCreateResponse>>
+
+    @PATCH("posts/{postId}/comments/{commentId}")
+    suspend fun updateComment(
+        @Path("postId") postId: Int,
+        @Path("commentId") commentId: Int,
+        @Body request: CommentUpdateRequest
+    ): Response<ApiResponse<CommentUpdateResponse>>
+
+    @DELETE("posts/{postId}/comments/{commentId}")
+    suspend fun deleteComment(
+        @Path("postId") postId: Int,
+        @Path("commentId") commentId: Int
+    ): Response<ApiResponse<Unit>>
 }

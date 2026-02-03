@@ -57,6 +57,8 @@ class MyPageViewModel : ViewModel() {
                     val data = body?.data
 
                     if (data != null) {
+                        // 닉네임 추가
+                        ApplicationClass.sharedPreferences.putNickname(data.nickname)
                         _userProfile.emit(data)
                     } else {
                         _message.emit("회원정보를 불러오지 못했습니다.")
@@ -127,6 +129,9 @@ class MyPageViewModel : ViewModel() {
                     // 토큰 및 사용자 ID 로컬 데이터 삭제
                     ApplicationClass.authManager.clearToken()
                     ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+
+                    // nickname 삭제
+                    ApplicationClass.sharedPreferences.clearNickname()
                 } else {
                     // 로그아웃 실패 처리
                     val body = res.body()

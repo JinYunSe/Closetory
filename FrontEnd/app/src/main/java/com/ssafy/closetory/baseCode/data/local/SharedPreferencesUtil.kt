@@ -21,13 +21,24 @@ class SharedPreferencesUtil(context: Context) {
     fun getUserCookie(): MutableSet<String>? = preferences.getStringSet(ApplicationClass.COOKIES_KEY_NAME, HashSet())
 
     // 현재 사용 안 하는 중
-    fun getString(key: String): String? = preferences.getString(key, null)
+    fun getString(key: String, string: String): String? = preferences.getString(key, null)
 
     fun putUserId(key: String, value: Int) {
         preferences.edit().putInt(key, value).apply()
     }
 
     fun getUserId(key: String, defaultValue: Int = -1): Int? = preferences.getInt(key, defaultValue)
+
+    fun getNickname(defaultValue: String = ""): String =
+        preferences.getString(ApplicationClass.NICKNAME, defaultValue)?.trim() ?: defaultValue
+
+    fun putNickname(nickname: String) {
+        preferences.edit().putString(ApplicationClass.NICKNAME, nickname.trim()).apply()
+    }
+
+    fun clearNickname() {
+        preferences.edit().remove(ApplicationClass.NICKNAME).apply()
+    }
 
     fun clearUserId(key: String) {
         preferences.edit().remove(key).apply()
