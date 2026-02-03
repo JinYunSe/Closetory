@@ -12,6 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
+        android:overScrollMode="never"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,22 +24,26 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- 제목 (id 유지) -->
             <TextView
                 android:id="@+id/tvTitle"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:gravity="center"
                 android:text="게시글 제목"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:background="#E0E0E0"/>
+                android:background="@drawable/bg_login_input"
+                android:textColor="@color/main_color"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
+            <!-- 작성자/통계 -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/layoutMeta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp">
+                android:layout_marginTop="8dp">
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/ivProfile"
@@ -57,8 +62,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:text="작성자"
-                    android:textColor="@android:color/black"
-                    android:textSize="13sp"
+                    android:textColor="@color/main_color"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
                     app:layout_constraintStart_toEndOf="@id/ivProfile"
                     app:layout_constraintTop_toTopOf="@id/ivProfile"
                     app:layout_constraintBottom_toBottomOf="@id/ivProfile"/>
@@ -79,7 +85,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginEnd="6dp"
+                        android:layout_marginEnd="10dp"
                         android:gravity="center">
 
                         <ImageView
@@ -96,8 +102,6 @@
                             android:layout_marginTop="3dp"
                             android:text="0"
                             style="@style/TextPostSmallInfoLabel" />
-
-
                     </LinearLayout>
 
                     <!-- 좋아요 -->
@@ -105,9 +109,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="6dp"
+                        android:layout_marginStart="10dp"
                         android:gravity="center">
-
 
                         <ImageView
                             android:id="@+id/ivLikeIcon"
@@ -126,36 +129,54 @@
                     </LinearLayout>
                 </LinearLayout>
 
-
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- 게시글 사진: 테두리 깔끔하게 (바깥 컨테이너가 bg_login_input 담당) -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp">
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_login_input"
+                android:padding="1dp">
 
-                <ImageView
-                    android:id="@+id/ivPostPhoto"
+                <!-- 사진 박스: 입력창 톤 테두리 -->
+                <FrameLayout
+                    android:id="@+id/boxPostPhoto"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:background="#D9D9D9"
-                    android:contentDescription="게시글 사진"
-                    android:scaleType="centerCrop"
+                    android:background="@drawable/bg_login_input"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintDimensionRatio="4:5" />
+                    app:layout_constraintDimensionRatio="4:5">
+
+                    <!-- 실제 사진: 라운드로 잘리게 (id 유지) -->
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivPostPhoto"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:background="@android:color/white"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayClosetoryMediumRounded" />
+
+                </FrameLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- 옷 정보 라벨 -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="옷 정보" />
+                android:layout_marginTop="16dp"
+                android:text="옷 정보"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/main_color" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvClothes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:nestedScrollingEnabled="false"
                 android:orientation="horizontal"/>
 
@@ -163,28 +184,34 @@
                 android:id="@+id/tvNoClothes"
                 android:layout_width="match_parent"
                 android:layout_height="90dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_gray_box"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_login_input"
                 android:gravity="center"
                 android:text="옷 정보가 없습니다."
-                android:textColor="#666666"
-                android:textSize="13sp"
+                android:textColor="#9E9E9E"
+                android:textSize="12sp"
+                android:textStyle="bold"
                 android:visibility="gone" />
 
+            <!-- 게시글 라벨 -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="게시글" />
+                android:layout_marginTop="16dp"
+                android:text="게시글"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/main_color" />
 
+            <!-- 본문 (id 유지) -->
             <TextView
                 android:id="@+id/tvContent"
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
-                android:layout_marginTop="6dp"
-                android:background="#D9D9D9"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_login_input"
                 android:text="게시글"
-                android:textColor="@android:color/black"
+                android:textColor="@color/main_color"
                 android:textSize="12sp"
                 android:padding="12dp"
                 android:scrollbars="vertical"
@@ -192,51 +219,75 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true"/>
 
+            <!-- 댓글 라벨 -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="댓글" />
+                android:layout_marginTop="16dp"
+                android:text="댓글"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/main_color" />
 
+            <!-- 댓글 입력 -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/layoutCommentInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp">
+                android:layout_marginTop="4dp">
 
-                <EditText
-                    android:id="@+id/etComment"
+                <!-- ✅ Material EditText -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilComment"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:maxHeight="120dp"
-                    android:hint="댓글을 입력하세요"
-                    android:textSize="10sp"
-                    android:background="#E0E0E0"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
                     android:layout_marginEnd="8dp"
-                    android:gravity="center|start"
-                    android:inputType="textMultiLine"
-                    android:overScrollMode="ifContentScrolls"
-                    android:scrollbars="vertical"
+                    app:boxBackgroundMode="none"
+                    app:hintEnabled="false"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/btnCommentSubmit"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                    app:layout_constraintBottom_toBottomOf="parent">
 
-                <Button
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="40dp"
+                        android:maxHeight="120dp"
+                        android:background="@drawable/bg_login_input"
+                        android:hint="댓글을 입력하세요"
+                        android:inputType="textMultiLine"
+                        android:gravity="center|start"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:textSize="12sp"
+                        android:textColor="@color/main_color"
+                        android:textColorHint="#9E9E9E"
+                        android:scrollbars="vertical"
+                        android:overScrollMode="ifContentScrolls" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Material Button -->
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCommentSubmit"
                     android:layout_width="96dp"
-                    android:layout_height="48dp"
-                    android:backgroundTint="@color/main_color"
+                    android:layout_height="40dp"
                     android:text="댓글 등록"
-                    app:layout_constraintBottom_toBottomOf="@id/etComment"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    app:backgroundTint="@color/main_color"
+                    app:cornerRadius="8dp"
+                    app:rippleColor="#1A000000"
+                    android:stateListAnimator="@null"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/etComment"
-                    app:layout_constraintVertical_bias="0.0" />
+                    app:layout_constraintTop_toTopOf="@id/tilComment"
+                    app:layout_constraintBottom_toBottomOf="@id/tilComment" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -244,9 +295,10 @@
                 android:id="@+id/rvComments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false" />
 
+            <!-- 수정/삭제 버튼 영역 (id 유지) -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/layoutPostActions"
                 android:layout_width="match_parent"
@@ -255,25 +307,41 @@
                 android:layout_marginBottom="12dp"
                 android:visibility="gone">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnUpdate"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="40dp"
                     android:text="수정"
-                    android:backgroundTint="@color/main_color"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    app:backgroundTint="@color/main_color"
+                    app:cornerRadius="8dp"
+                    app:rippleColor="#1A000000"
+                    android:stateListAnimator="@null"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/btnDelete"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="1"/>
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="40dp"
                     android:layout_marginStart="16dp"
                     android:text="삭제"
-                    android:backgroundTint="@color/gray_500"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    app:backgroundTint="@color/gray_500"
+                    app:cornerRadius="8dp"
+                    app:rippleColor="#1A000000"
+                    android:stateListAnimator="@null"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     app:layout_constraintStart_toEndOf="@id/btnUpdate"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/btnUpdate"
