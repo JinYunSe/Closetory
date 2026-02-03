@@ -209,7 +209,6 @@
                     app:layout_constraintEnd_toEndOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- 회원정보 수정 버튼 (id 유지: TextView 유지) -->
             <TextView
                 android:id="@+id/tvEditProfile"
                 android:layout_width="0dp"
@@ -251,9 +250,46 @@
                 app:layout_constraintTop_toTopOf="@id/tvHistoryTitle"
                 app:layout_constraintBottom_toBottomOf="@id/tvHistoryTitle" />
 
-            <!-- 여기에 코디 히스토리 내역 추가해야함. -->
-            <!-- TODO : 코디 히스토리 내역 추가 -->
+            <!-- Top3 옷 섹션 -->
+            <TextView
+                android:id="@+id/tvTop3ClothesSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="이번달에 가장 자주 입은 옷 Top 3"
+                android:textSize="12sp"
+                android:textColor="#0A0F18"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvHistoryTitle" />
 
+            <!-- Top3 RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTop3Clothes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTop3ClothesSubtitle"
+                tools:listitem="@layout/item_top3_clothes"
+                tools:itemCount="3"/>
+
+            <!-- 빈 상태 메시지 -->
+            <TextView
+                android:id="@+id/tvEmptyTop3"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="8dp"
+                android:text="이번 달 착용 기록이 없습니다.\n코디하러 가보세요!"
+                android:textSize="12sp"
+                android:textColor="#8A93A3"
+                android:gravity="center"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTop3ClothesSubtitle"/>
 
             <!-- 통계 -->
             <TextView
@@ -266,7 +302,8 @@
                 android:textStyle="bold"
                 android:textColor="#0A0F18"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvHistoryTitle" />
+                app:layout_constraintTop_toBottomOf="@id/rvTop3Clothes" />
+
             <TextView
                 android:id="@+id/tvPieTagSubtitle"
                 android:layout_width="wrap_content"
@@ -291,7 +328,6 @@
                 app:layout_constraintEnd_toStartOf="@id/pieColor"
                 app:layout_constraintTop_toBottomOf="@id/tvPieTagSubtitle"
                 app:layout_constraintHorizontal_weight="1" />
-
 
             <TextView
                 android:id="@+id/tvPieColorSubtitle"

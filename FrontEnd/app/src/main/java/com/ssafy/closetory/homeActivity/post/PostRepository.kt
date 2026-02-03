@@ -1,282 +1,3 @@
-// package com.ssafy.closetory.homeActivity.post
-//
-// import android.util.Log
-// import com.google.gson.Gson
-// import com.ssafy.closetory.ApplicationClass
-// import com.ssafy.closetory.dto.*
-// import okhttp3.MediaType.Companion.toMediaType
-// import okhttp3.MultipartBody
-// import okhttp3.RequestBody.Companion.toRequestBody
-// import retrofit2.Response
-//
-// private const val TAG = "PostRepository_싸피"
-//
-// class PostRepository {
-//
-//    private val service: PostService by lazy {
-//        ApplicationClass.retrofit.create(PostService::class.java)
-//    }
-//
-//    // -------------------------
-//    // List
-//    // -------------------------
-//    suspend fun getPosts(keyword: String, filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = safeCall {
-//        service.getPosts(keyword = keyword, searchFilter = filter.name)
-//    }
-//
-//    suspend fun getPostsFilter(filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = safeCall {
-//        service.getPostsFilter(searchFilter = filter.name)
-//    }
-//
-//    // -------------------------
-//    // Detail
-//    // -------------------------
-//    suspend fun getPostDetail(postId: Int): ApiResponse<PostDetailResponse> = safeCall { service.getPostDetail(postId) }
-//
-//    // -------------------------
-//    // Like
-//    // -------------------------
-//    suspend fun likePost(postId: Int): ApiResponse<Unit> = safeCall { service.likePost(postId) }
-//
-//    suspend fun unlikePost(postId: Int): ApiResponse<Unit> = safeCall { service.unlikePost(postId) }
-//
-//    // -------------------------
-//    // Create
-//    // -------------------------
-//    suspend fun createPost(
-//        photo: MultipartBody.Part,
-//        request: PostCreateRequest
-//    ): Response<ApiResponse<PostCreateResponse>> {
-//        val json = Gson().toJson(request)
-//        val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-//        return service.createPost(photo = photo, request = body)
-//    }
-//
-//    // -------------------------
-//    // Update
-//    // -------------------------
-//    suspend fun editPost(
-//        postId: Int,
-//        photo: MultipartBody.Part?,
-//        request: PostEditRequest
-//    ): ApiResponse<PostEditResponse> = safeCall {
-//        val json = Gson().toJson(request)
-//        val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-//        service.editPost(postId = postId, photo = photo, request = body)
-//    }
-//
-//    // -------------------------
-//    // Delete
-//    // -------------------------
-//    suspend fun deletePost(postId: Int): ApiResponse<Unit> = safeCall { service.deletePost(postId) }
-//
-//    // -------------------------
-//    // Clothes save/unsave
-//    // -------------------------
-//    suspend fun postClothesRental(clothesId: Int): Response<ApiResponse<Unit>> = service.postClothesRental(clothesId)
-//
-//    suspend fun deleteClothesRental(clothesId: Int): Response<ApiResponse<Unit>> =
-//        service.deleteClothesRental(clothesId)
-//
-//    private inline fun <T> safeCall(block: () -> ApiResponse<T>): ApiResponse<T> = try {
-//        block()
-//    } catch (e: Exception) {
-//        Log.e(TAG, "API error", e)
-//        ApiResponse(
-//            httpStatusCode = 500,
-//            responseMessage = null,
-//            errorMessage = e.message ?: "네트워크 오류",
-//            data = null
-//        )
-//    }
-// }
-
-// package com.ssafy.closetory.homeActivity.post
-//
-// import android.util.Log
-// import com.google.gson.Gson
-// import com.ssafy.closetory.ApplicationClass
-// import com.ssafy.closetory.dto.*
-// import okhttp3.MediaType.Companion.toMediaType
-// import okhttp3.MultipartBody
-// import okhttp3.RequestBody.Companion.toRequestBody
-// import retrofit2.Response
-//
-// private const val TAG = "PostRepository_싸피"
-//
-// class PostRepository {
-//
-//    private val service: PostService by lazy {
-//        ApplicationClass.retrofit.create(PostService::class.java)
-//    }
-//
-//    // -------------------------
-//    // List
-//    // -------------------------
-//    suspend fun getPosts(keyword: String, filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = safeCall {
-//        service.getPosts(keyword = keyword, searchFilter = filter.name)
-//    }
-//
-//    suspend fun getPostsFilter(filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = safeCall {
-//        service.getPostsFilter(searchFilter = filter.name)
-//    }
-//
-//    // -------------------------
-//    // Detail
-//    // -------------------------
-//    suspend fun getPostDetail(postId: Int): ApiResponse<PostDetailResponse> = safeCall { service.getPostDetail(postId) }
-//
-//    // -------------------------
-//    // Like
-//    // -------------------------
-//    suspend fun likePost(postId: Int): ApiResponse<Unit> = safeCall { service.likePost(postId) }
-//
-//    suspend fun unlikePost(postId: Int): ApiResponse<Unit> = safeCall { service.unlikePost(postId) }
-//
-//    // -------------------------
-//    // Create
-//    // -------------------------
-//    suspend fun createPost(
-//        photo: MultipartBody.Part,
-//        request: PostCreateRequest
-//    ): Response<ApiResponse<PostCreateResponse>> {
-//        val json = Gson().toJson(request)
-//        val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-//        return service.createPost(photo = photo, request = body)
-//    }
-//
-//    // -------------------------
-//    // Update
-//    // -------------------------
-//    suspend fun editPost(
-//        postId: Int,
-//        photo: MultipartBody.Part?,
-//        request: PostEditRequest
-//    ): ApiResponse<PostEditResponse> = safeCall {
-//        val json = Gson().toJson(request)
-//        val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-//        service.editPost(postId = postId, photo = photo, request = body)
-//    }
-//
-//    // -------------------------
-//    // Delete
-//    // -------------------------
-//    suspend fun deletePost(postId: Int): ApiResponse<Unit> = safeCall { service.deletePost(postId) }
-//
-//    // -------------------------
-//    // Clothes save/unsave
-//    // -------------------------
-//    suspend fun postClothesRental(clothesId: Int): Response<ApiResponse<Unit>> = service.postClothesRental(clothesId)
-//
-//    suspend fun deleteClothesRental(clothesId: Int): Response<ApiResponse<Unit>> =
-//        service.deleteClothesRental(clothesId)
-//
-//    private inline fun <T> safeCall(block: () -> ApiResponse<T>): ApiResponse<T> = try {
-//        block()
-//    } catch (e: Exception) {
-//        Log.e(TAG, "API error", e)
-//        ApiResponse(
-//            httpStatusCode = 500,
-//            responseMessage = null,
-//            errorMessage = e.message ?: "네트워크 오류",
-//            data = null
-//        )
-//    }
-// }
-
-// package com.ssafy.closetory.homeActivity.post
-//
-// import android.util.Log
-// import com.google.gson.Gson
-// import com.ssafy.closetory.ApplicationClass
-// import com.ssafy.closetory.dto.*
-// import okhttp3.MediaType.Companion.toMediaType
-// import okhttp3.MultipartBody
-// import okhttp3.RequestBody.Companion.toRequestBody
-// import retrofit2.Response
-//
-// private const val TAG = "PostRepository_싸피"
-//
-// class PostRepository {
-//
-//    private val service: PostService by lazy {
-//        ApplicationClass.retrofit.create(PostService::class.java)
-//    }
-//
-//    // -------------------------
-//    // List
-//    // -------------------------
-//    suspend fun getPosts(keyword: String, filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = safeCall {
-//        service.getPosts(keyword = keyword, searchFilter = filter.name)
-//    }
-//
-//    suspend fun getPostsFilter(filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = safeCall {
-//        service.getPostsFilter(searchFilter = filter.name)
-//    }
-//
-//    // -------------------------
-//    // Detail
-//    // -------------------------
-//    suspend fun getPostDetail(postId: Int): ApiResponse<PostDetailResponse> = safeCall { service.getPostDetail(postId) }
-//
-//    // -------------------------
-//    // Like
-//    // -------------------------
-//    suspend fun likePost(postId: Int): ApiResponse<Unit> = safeCall { service.likePost(postId) }
-//
-//    suspend fun unlikePost(postId: Int): ApiResponse<Unit> = safeCall { service.unlikePost(postId) }
-//
-//    // -------------------------
-//    // Create
-//    // -------------------------
-//    suspend fun createPost(
-//        photo: MultipartBody.Part,
-//        request: PostCreateRequest
-//    ): Response<ApiResponse<PostCreateResponse>> {
-//        val json = Gson().toJson(request)
-//        val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-//        return service.createPost(photo = photo, request = body)
-//    }
-//
-//    // -------------------------
-//    // Update
-//    // -------------------------
-//    suspend fun editPost(
-//        postId: Int,
-//        photo: MultipartBody.Part?,
-//        request: PostEditRequest
-//    ): ApiResponse<PostEditResponse> = safeCall {
-//        val json = Gson().toJson(request)
-//        val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-//        service.editPost(postId = postId, photo = photo, request = body)
-//    }
-//
-//    // -------------------------
-//    // Delete
-//    // -------------------------
-//    suspend fun deletePost(postId: Int): ApiResponse<Unit> = safeCall { service.deletePost(postId) }
-//
-//    // -------------------------
-//    // Clothes save/unsave
-//    // -------------------------
-//    suspend fun postClothesRental(clothesId: Int): Response<ApiResponse<Unit>> = service.postClothesRental(clothesId)
-//
-//    suspend fun deleteClothesRental(clothesId: Int): Response<ApiResponse<Unit>> =
-//        service.deleteClothesRental(clothesId)
-//
-//    private inline fun <T> safeCall(block: () -> ApiResponse<T>): ApiResponse<T> = try {
-//        block()
-//    } catch (e: Exception) {
-//        Log.e(TAG, "API error", e)
-//        ApiResponse(
-//            httpStatusCode = 500,
-//            responseMessage = null,
-//            errorMessage = e.message ?: "네트워크 오류",
-//            data = null
-//        )
-//    }
-// }
-
 @file:Suppress("ktlint:standard:no-wildcard-imports")
 
 package com.ssafy.closetory.homeActivity.post
@@ -301,37 +22,34 @@ class PostRepository {
     // -------------------------
     // List
     // -------------------------
-    suspend fun getPosts(keyword: String, filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = safeCall {
-        service.getPosts(keyword = keyword, searchFilter = filter.name)
-    }
+    suspend fun getPosts(keyword: String, filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> =
+        safeApiCall { service.getPosts(keyword = keyword, searchFilter = filter.name) }
 
-    suspend fun getPostsFilter(filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> = safeCall {
-        service.getPostsFilter(searchFilter = filter.name)
-    }
+    suspend fun getPostsFilter(filter: PostQueryFilter): ApiResponse<List<PostItemResponse>> =
+        safeApiCall { service.getPostsFilter(searchFilter = filter.name) }
 
     // -------------------------
     // Detail
     // -------------------------
-    suspend fun getPostDetail(postId: Int): ApiResponse<PostDetailResponse> = safeCall { service.getPostDetail(postId) }
+    suspend fun getPostDetail(postId: Int): ApiResponse<PostDetailResponse> =
+        safeApiCall { service.getPostDetail(postId) }
 
     // -------------------------
     // Like
     // -------------------------
-    suspend fun likePost(postId: Int): ApiResponse<Unit> = safeCall { service.likePost(postId) }
+    suspend fun likePost(postId: Int): ApiResponse<Unit> = safeApiCall { service.likePost(postId) }
 
-    suspend fun unlikePost(postId: Int): ApiResponse<Unit> = safeCall { service.unlikePost(postId) }
+    suspend fun unlikePost(postId: Int): ApiResponse<Unit> = safeApiCall { service.unlikePost(postId) }
 
     // -------------------------
     // Create
     // -------------------------
-    suspend fun createPost(
-        photo: MultipartBody.Part,
-        request: PostCreateRequest
-    ): Response<ApiResponse<PostCreateResponse>> {
-        val json = Gson().toJson(request)
-        val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
-        return service.createPost(photo = photo, request = body)
-    }
+    suspend fun createPost(photo: MultipartBody.Part, request: PostCreateRequest): ApiResponse<PostCreateResponse> =
+        safeResponseCall {
+            val json = Gson().toJson(request)
+            val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
+            service.createPost(photo = photo, request = body)
+        }
 
     // -------------------------
     // Update
@@ -340,7 +58,7 @@ class PostRepository {
         postId: Int,
         photo: MultipartBody.Part?,
         request: PostEditRequest
-    ): ApiResponse<PostEditResponse> = safeCall {
+    ): ApiResponse<PostEditResponse> = safeApiCall {
         val json = Gson().toJson(request)
         val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
         service.editPost(postId = postId, photo = photo, request = body)
@@ -349,58 +67,44 @@ class PostRepository {
     // -------------------------
     // Delete
     // -------------------------
-    suspend fun deletePost(postId: Int): ApiResponse<Unit> = safeCall { service.deletePost(postId) }
+    suspend fun deletePost(postId: Int): ApiResponse<Unit> = safeApiCall { service.deletePost(postId) }
 
     // -------------------------
     // Clothes save/unsave
     // -------------------------
-    suspend fun postClothesRental(clothesId: Int): Response<ApiResponse<Unit>> = service.postClothesRental(clothesId)
+    suspend fun postClothesRental(clothesId: Int): ApiResponse<Unit> =
+        safeResponseCall { service.postClothesRental(clothesId) }
 
-    suspend fun deleteClothesRental(clothesId: Int): Response<ApiResponse<Unit>> =
-        service.deleteClothesRental(clothesId)
+    suspend fun deleteClothesRental(clothesId: Int): ApiResponse<Unit> =
+        safeResponseCall { service.deleteClothesRental(clothesId) }
 
     // -------------------------
-    // Comments (✅ 댓글 API 추가)
+    // Comments (✅ 수정: 단순화 및 일관성 개선)
     // -------------------------
+    suspend fun getComments(postId: Int): ApiResponse<CommentListResponse> {
+        val normalizeList = safeApiCall { service.getComments(postId) }
 
-    /**
-     * 댓글 목록 조회
-     * ✅ 수정: 서버가 CommentListResponse 반환 → comment 필드 추출
-     */
-    suspend fun getComments(postId: Int): ApiResponse<List<CommentDto>> = safeCall {
-        service.getComments(postId)
+        return normalizeList // ✅ data=null이면 emptyList로 통일
     }
 
-    /**
-     * 댓글 등록
-     */
-    suspend fun createComment(postId: Int, content: String): Response<ApiResponse<CommentCreateResponse>> {
+    suspend fun createComment(postId: Int, content: String): ApiResponse<CommentCreateResponse> = safeResponseCall {
         val request = CommentCreateRequest(content)
-        return service.createComment(postId, request)
+        service.createComment(postId, request)
     }
 
-    /**
-     * 댓글 수정
-     */
-    suspend fun updateComment(
-        postId: Int,
-        commentId: Int,
-        content: String
-    ): Response<ApiResponse<CommentUpdateResponse>> {
-        val request = CommentUpdateRequest(content)
-        return service.updateComment(postId, commentId, request)
-    }
+    suspend fun updateComment(postId: Int, commentId: Int, content: String): ApiResponse<CommentUpdateResponse> =
+        safeResponseCall {
+            val request = CommentUpdateRequest(content)
+            service.updateComment(postId, commentId, request)
+        }
 
-    /**
-     * 댓글 삭제
-     */
-    suspend fun deleteComment(postId: Int, commentId: Int): Response<ApiResponse<Unit>> =
-        service.deleteComment(postId, commentId)
+    suspend fun deleteComment(postId: Int, commentId: Int): ApiResponse<Unit> =
+        safeResponseCall { service.deleteComment(postId, commentId) }
 
     // -------------------------
-    // Helper
+    // Helper (✅ 2종류로 분리: ApiResponse 직접 / Response<ApiResponse> 래핑)
     // -------------------------
-    private inline fun <T> safeCall(block: () -> ApiResponse<T>): ApiResponse<T> = try {
+    private suspend inline fun <T> safeApiCall(crossinline block: suspend () -> ApiResponse<T>): ApiResponse<T> = try {
         block()
     } catch (e: Exception) {
         Log.e(TAG, "API error", e)
@@ -410,5 +114,44 @@ class PostRepository {
             errorMessage = e.message ?: "네트워크 오류",
             data = null
         )
+    }
+
+    private suspend inline fun <T> safeResponseCall(
+        crossinline block: suspend () -> Response<ApiResponse<T>>
+    ): ApiResponse<T> = try {
+        val res = block()
+
+        if (res.isSuccessful) {
+            res.body() ?: ApiResponse(
+                httpStatusCode = 500,
+                responseMessage = null,
+                errorMessage = "빈 응답(body=null)",
+                data = null
+            )
+        } else {
+            // ✅ 서버가 4xx/5xx 던질 때도 ApiResponse 형태로 통일해 UI가 한 방식으로 처리 가능
+            ApiResponse(
+                httpStatusCode = res.code(),
+                responseMessage = null,
+                errorMessage = "서버 오류: ${res.code()}",
+                data = null
+            )
+        }
+    } catch (e: Exception) {
+        Log.e(TAG, "API error", e)
+        ApiResponse(
+            httpStatusCode = 500,
+            responseMessage = null,
+            errorMessage = e.message ?: "네트워크 오류",
+            data = null
+        )
+    }
+
+    // ✅ 리스트 응답은 data=null이면 emptyList로 바꿔서 UI NPE 방지
+    private fun <T> ApiResponse<List<T>>.normalizeList(): ApiResponse<List<T>> {
+        if (this.httpStatusCode in 200..299) {
+            return this.copy(data = this.data ?: emptyList())
+        }
+        return this
     }
 }

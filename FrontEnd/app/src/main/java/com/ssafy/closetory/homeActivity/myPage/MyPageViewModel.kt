@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.StatisticsResponse
+import com.ssafy.closetory.dto.Top3ClothesResponse
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -16,6 +17,10 @@ import kotlinx.coroutines.launch
 private const val TAG = "MyPageViewModel_싸피"
 
 class MyPageViewModel : ViewModel() {
+
+    // top3
+    private val _top3Clothes = MutableLiveData<List<Top3ClothesResponse>>()
+    val top3Clothes: LiveData<List<Top3ClothesResponse>> = _top3Clothes
 
     // 마이페이지 Repository
     private val repository = MyPageRepository()
@@ -193,6 +198,27 @@ class MyPageViewModel : ViewModel() {
                 _message.emit(e.message ?: "네트워크 오류 발생")
                 Log.d(TAG, "getColorsStatistics 예외 메시지 : ${e.message}")
                 _colorStatistics.value = emptyList()
+            }
+        }
+    }
+
+    fun getTop3Clothes(userId: Int) {
+        viewModelScope.launch {
+            try {
+                val res = repository.getTop3Clothes(userId)
+
+                if (res.isSuccessful) {
+                    val data = res.body()?.data ?: emptyList()
+                    _top3Clothes.value = data
+                } else {
+                    val message = res.body()?.errorMessage ?: "Top3 조회 실패"
+                    _top3Clothes.value = emptyList()
+                    _message.emit(message)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Top3 조회 예외 발생: ${e.message}", e)
+                _top3Clothes.value = emptyList()
+                _message.emit(e.message ?: "네트워크 오류 발생")
             }
         }
     }

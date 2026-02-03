@@ -17,6 +17,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
@@ -60,6 +61,9 @@ class MyPageFragment :
     private var passwordDialog: AlertDialog? = null
     private var userId = -1
 
+    // Top3 Adapter
+    private lateinit var top3Adapter: Top3ClothesAdapter
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -70,27 +74,62 @@ class MyPageFragment :
             return
         }
 
+        // RecyclerView 초기화
+        setupRecyclerView()
+
         myPageViewModel.getTagsStatistics(userId)
         myPageViewModel.getColorsStatistics(userId)
+        // Top3 데이터 요청
+        myPageViewModel.getTop3Clothes(userId)
 
         observeUserProfile()
         loadUserProfile()
 
+        // Top3 데이터 관찰
+        observeTop3Clothes()
+
         binding.btnLogout.setOnClickListener { showLogoutDialog() }
         binding.btnSignout.setOnClickListener { showSignoutDialog() }
         binding.tvEditProfile.setOnClickListener { showPasswordCheckDialog() }
-        // MyPageFragment.kt 수정
+
         binding.btnCodyRepository.setOnClickListener {
             val navController = findNavController()
-            // 현재 목적지가 마이페이지일 때만 이동을 수행하도록 안전장치 추가
             if (navController.currentDestination?.id == R.id.navigation_my_page) {
                 navController.navigate(R.id.action_navigation_my_page_to_codyRepositoryFragment)
             }
         }
+
         observeLogout()
         observeMessage()
         collectSignout()
         observePasswordCheck()
+    }
+
+    private fun setupRecyclerView() {
+        top3Adapter = Top3ClothesAdapter()
+        binding.rvTop3Clothes.apply {
+            adapter = top3Adapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        }
+    }
+
+    private fun observeTop3Clothes() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                myPageViewModel.top3Clothes.observe(viewLifecycleOwner) { clothesList ->
+                    if (clothesList.isEmpty()) {
+                        // 빈 상태 표시
+                        binding.rvTop3Clothes.visibility = View.GONE
+                        binding.tvEmptyTop3.visibility = View.VISIBLE
+                    } else {
+                        // 데이터 표시
+                        binding.rvTop3Clothes.visibility = View.VISIBLE
+                        binding.tvEmptyTop3.visibility = View.GONE
+                        top3Adapter.submitList(clothesList)
+                    }
+                }
+            }
+        }
     }
 
     private fun bindUserProfile(user: EditProfileInfoResponse) {
@@ -230,112 +269,28 @@ class MyPageFragment :
         dialog.show()
     }
 
+    private fun togglePasswordVisibility(editText: EditText, currentlyVisible: Boolean): Boolean =
+        if (currentlyVisible) {
+            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            false
+        } else {
+            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            true
+        }
+
     private fun observePasswordCheck() {
         viewLifecycleOwner.lifecycleScope.launch {
             myPageViewModel.passwordVerified.collect { success ->
+                passwordDialog?.dismiss()
                 if (success) {
-                    passwordDialog?.dismiss()
-                    passwordDialog = null
                     findNavController().navigate(R.id.action_navigation_my_page_to_editProfileFragment)
                 }
             }
         }
-
-        // 태그 통계 수신
-        myPageViewModel.tagsStatistics.observe(viewLifecycleOwner) { list ->
-            updatePieTag(list)
-        }
-
-        // 색상 통계 수신
-        myPageViewModel.colorStatistics.observe(viewLifecycleOwner) { list ->
-            updatePieColor(list)
-        }
     }
 
-    private fun togglePasswordVisibility(editText: EditText, isVisible: Boolean): Boolean {
-        editText.inputType =
-            if (isVisible) {
-                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            } else {
-                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-            }
-        editText.setSelection(editText.text.length)
-        return !isVisible
-    }
-
-    /* -------------------- 회원 탈퇴 -------------------- */
-
-    private fun collectSignout() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            signoutViewModel.signoutSuccess.collect {
-                Toast.makeText(requireContext(), "회원 탈퇴에 성공했습니다.", Toast.LENGTH_SHORT).show()
-
-                ApplicationClass.authManager.clearToken()
-                ApplicationClass.sharedPreferences.clearUserNickName()
-                ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
-
-                Log.d(
-                    TAG,
-                    "회원 탈퇴 이후 값 확인 :  userNickName : ${ApplicationClass.sharedPreferences.getUserNickName()}, userId : ${ApplicationClass.sharedPreferences.getUserId(
-                        ApplicationClass.USERID
-                    )}"
-                )
-
-                moveToLogin()
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            signoutViewModel.message.collect { mes -> showToast(mes) }
-        }
-    }
-
-    private fun showSignoutDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_signout, null)
-
-        val etPassword = dialogView.findViewById<EditText>(R.id.etSignoutPassword)
-        val btnConfirm = dialogView.findViewById<Button>(R.id.btnSignoutConfirm)
-        val btnCancel = dialogView.findViewById<Button>(R.id.btnSignoutCancel)
-        val btnToggle = dialogView.findViewById<ImageButton>(R.id.btnToggleSignoutPassword)
-
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(dialogView)
-            .setCancelable(false)
-            .create()
-
-        var isPasswordVisible = false
-
-        btnToggle.setOnClickListener {
-            isPasswordVisible = !isPasswordVisible
-            etPassword.inputType =
-                if (isPasswordVisible) {
-                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                } else {
-                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                }
-            etPassword.setSelection(etPassword.text.length)
-        }
-
-        btnConfirm.setOnClickListener {
-            val password = etPassword.text.toString()
-            if (password.isBlank()) {
-                Toast.makeText(requireContext(), "비밀번호를 입력해주세요.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val uid = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
-            if (uid == -1) {
-                Toast.makeText(requireContext(), "유저 정보가 없습니다. 다시 로그인 해주세요.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            signoutViewModel.signout(uid, password)
-            dialog.dismiss()
-        }
-
-        btnCancel.setOnClickListener { dialog.dismiss() }
-
-        dialog.show()
+    override fun showToast(msg: String) {
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
     }
 
     private fun moveToLogin() {
@@ -344,24 +299,85 @@ class MyPageFragment :
         startActivity(intent)
     }
 
-    /* -------------------- PieChart (공통) -------------------- */
+    /* -------------------- 회원 탈퇴 -------------------- */
+
+    private fun collectSignout() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            signoutViewModel.signoutSuccess.collect {
+                showToast("회원 탈퇴가 완료되었습니다.")
+                val authManager = AuthManager(requireContext())
+                authManager.clearToken()
+                ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+                ApplicationClass.sharedPreferences.clearUserNickName()
+                moveToLogin()
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            signoutViewModel.message.collect { msg ->
+                showToast(msg)
+            }
+        }
+    }
+
+    private fun showSignoutDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_password_check, null)
+
+        val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
+        val btnToggle = dialogView.findViewById<ImageButton>(R.id.btnTogglePassword)
+        val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirm)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+
+        var visible = false
+
+        btnToggle.setOnClickListener {
+            visible = togglePasswordVisibility(etPassword, visible)
+        }
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("회원 탈퇴")
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        btnConfirm.setOnClickListener {
+            val password = etPassword.text.toString()
+            if (password.isBlank()) {
+                showToast("비밀번호를 입력해주세요.")
+                return@setOnClickListener
+            }
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("정말 탈퇴하시겠습니까?")
+                .setMessage("모든 데이터가 삭제되며 복구할 수 없습니다.")
+                .setPositiveButton("탈퇴") { _, _ ->
+                    signoutViewModel.signout(userId, password)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("취소", null)
+                .show()
+        }
+
+        dialog.show()
+    }
+
+    /* -------------------- PieChart Common -------------------- */
 
     private fun applyPieCommon(pieChart: PieChart) {
         pieChart.description.isEnabled = false
         pieChart.legend.isEnabled = false
 
-        // 퍼센트 계산은 Marker/값표시 쪽에서 쓰일 수 있으니 유지
         pieChart.setUsePercentValues(true)
 
         pieChart.setDrawEntryLabels(false)
         pieChart.setDrawCenterText(false)
 
-        // 도넛 모양
         pieChart.isDrawHoleEnabled = true
         pieChart.holeRadius = 40f
         pieChart.transparentCircleRadius = 0f
 
-        // 파이 크기 확대
         pieChart.setExtraOffsets(2f, 2f, 2f, 2f)
         pieChart.setMinOffset(0f)
 
@@ -383,7 +399,6 @@ class MyPageFragment :
     private fun buildPieData(pieChart: PieChart, dataSet: PieDataSet): PieData = PieData(dataSet).apply {
         setValueTextSize(12f)
 
-        // 7% 이하는 숨김, 그 외만 표시
         setValueFormatter(object : ValueFormatter() {
             override fun getPieLabel(value: Float, pieEntry: PieEntry?): String =
                 if (value <= 7f) "" else String.format("%.1f%%", value)
@@ -427,17 +442,15 @@ class MyPageFragment :
                 if (idx < 5) TAG_PIE_COLORS[idx] else TAG_PIE_COLORS.last()
             }
         }
-        // 조각 별 글자색 자동 지정
+
         val valueTextColors = dataSet.colors.map { sliceColor -> idealTextColorOn(sliceColor) }
         dataSet.setValueTextColors(valueTextColors)
 
         applyPieDatasetCommon(dataSet)
         pieChart.data = buildPieData(pieChart, dataSet)
 
-        // 차트에 애니메이션 넣기
         pieChart.animateY(900, Easing.EaseInOutQuad)
 
-        // PieMarkerView 클래스/레이아웃이 프로젝트에 있어야 함
         pieChart.marker = PieMarkerView(requireContext(), R.layout.marker_pie)
 
         pieChart.invalidate()
@@ -493,20 +506,18 @@ class MyPageFragment :
             val c = if (i < top5EngInOrder.size) {
                 ColorOptions.englishToArgb(top5EngInOrder[i]) ?: 0xFFBDBDBD.toInt()
             } else {
-                0xFFFFFFFF.toInt() // 기타 흰색
+                0xFFFFFFFF.toInt()
             }
             colors.add(c)
         }
         dataSet.colors = colors
 
-        // 조각 별 글자색 자동 지정
         val valueTextColors = colors.map { sliceColor -> idealTextColorOn(sliceColor) }
         dataSet.setValueTextColors(valueTextColors)
 
         applyPieDatasetCommon(dataSet)
         pieChart.data = buildPieData(pieChart, dataSet)
 
-        // 차트에 애니메이션 넣기
         pieChart.animateY(900, Easing.EaseInOutQuad)
 
         pieChart.marker = PieMarkerView(requireContext(), R.layout.marker_pie)
@@ -536,10 +547,8 @@ class MyPageFragment :
         val g = Color.green(bgColor)
         val b = Color.blue(bgColor)
 
-        // 밝기(YIQ). 값이 클수록 밝은 색
         val yiq = (r * 299 + g * 587 + b * 114) / 1000
 
-        // 기준값 160은 실무에서 무난 (원하면 150~170 튜닝)
         return if (yiq >= 160) Color.BLACK else Color.WHITE
     }
 

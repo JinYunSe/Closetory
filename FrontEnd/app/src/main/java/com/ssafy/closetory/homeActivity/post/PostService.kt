@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 package com.ssafy.closetory.homeActivity.post
 
 import com.ssafy.closetory.dto.ApiResponse
@@ -31,14 +33,13 @@ interface PostService {
     suspend fun getPostsFilter(@Query("searchfilter") searchFilter: String): ApiResponse<List<PostItemResponse>>
 
     // -------------------------
-    // Detail (주의: 서버가 여기서 views +1 한다면, 불필요한 재호출 금지)
+    // Detail
     // -------------------------
     @GET("posts/{postId}")
     suspend fun getPostDetail(@Path("postId") postId: Int): ApiResponse<PostDetailResponse>
 
     // -------------------------
-    // Like (✅ 상세 재조회 없이 이 API로만 좋아요 상태 갱신)
-    // 서버 스펙에 맞게 경로/메서드 조정 필요할 수 있음
+    // Like
     // -------------------------
     @POST("posts/{postId}/like")
     suspend fun likePost(@Path("postId") postId: Int): ApiResponse<Unit>
@@ -68,7 +69,7 @@ interface PostService {
     suspend fun deletePost(@Path("postId") postId: Int): ApiResponse<Unit>
 
     // -------------------------
-    // (선택) Clothes save/unsave
+    // Clothes save/unsave
     // -------------------------
     @POST("clothes/{clothesId}/save")
     suspend fun postClothesRental(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
@@ -77,11 +78,10 @@ interface PostService {
     suspend fun deleteClothesRental(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
 
     // -------------------------
-    // Comments (댓글 API 추가)
+    // Comments
     // -------------------------
-    // ✅ CommentListResponse가 아니라 List<CommentDto>로 직접 받음
     @GET("posts/{postId}/comments")
-    suspend fun getComments(@Path("postId") postId: Int): ApiResponse<List<CommentDto>>
+    suspend fun getComments(@Path("postId") postId: Int): ApiResponse<CommentListResponse>
 
     @POST("posts/{postId}/comments")
     suspend fun createComment(

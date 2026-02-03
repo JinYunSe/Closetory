@@ -44,7 +44,7 @@ abstract class BaseFragment<B : ViewBinding>(private val bind: (View) -> B, @Lay
         super.onDestroyView()
     }
 
-    fun showToast(message: String) {
+    open fun showToast(message: String) {
         Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
     }
 }
