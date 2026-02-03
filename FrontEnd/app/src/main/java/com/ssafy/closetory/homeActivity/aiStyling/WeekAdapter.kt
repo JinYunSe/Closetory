@@ -14,7 +14,8 @@ class WeekAdapter(private val items: List<String>) : RecyclerView.Adapter<WeekAd
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_week, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_week, parent, false)
         return VH(view)
     }
 

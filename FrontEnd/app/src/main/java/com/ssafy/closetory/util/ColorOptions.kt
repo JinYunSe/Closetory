@@ -2,6 +2,7 @@ package com.ssafy.closetory.util
 
 import android.annotation.SuppressLint
 import android.graphics.Rect
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,8 @@ import com.ssafy.closetory.R
 data class ColorItem(val codeEnglish: String, val codeKorean: String, val argb: Int)
 
 object ColorOptions {
+
+    private const val TAG = "ColorOptions"
 
     private class ColorGridSpacingItemDecoration(private val spanCount: Int, private val spacingPx: Int) :
         RecyclerView.ItemDecoration() {
@@ -51,14 +54,37 @@ object ColorOptions {
 
     // 영문 코드를 한글로 변환
     fun englishToKorean(code: String?): String? {
-        val key = code?.trim()?.uppercase() ?: return null
-        return byCode[key]?.codeKorean
+        if (code.isNullOrBlank()) {
+            Log.d(TAG, "englishToKorean: 색상 코드가 null 또는 blank")
+            return null
+        }
+        val key = code.trim().uppercase()
+        val result = byCode[key]?.codeKorean
+
+        if (result == null) {
+            Log.w(TAG, "englishToKorean: 알 수 없는 색상 코드 '$code'")
+        }
+
+        return result
     }
 
-    // 영문 코드를 색상 값으로 변환
+    // 영문 코드를 색상 값으로 변환 (달력 표시용)
     fun englishToArgb(code: String?): Int? {
-        val key = code?.trim()?.uppercase() ?: return null
-        return byCode[key]?.argb
+        if (code.isNullOrBlank()) {
+            Log.d(TAG, "englishToArgb: 색상 코드가 null 또는 blank")
+            return null
+        }
+
+        val key = code.trim().uppercase()
+        val result = byCode[key]?.argb
+
+        if (result == null) {
+            Log.w(TAG, "englishToArgb: 알 수 없는 색상 코드 '$code' (대문자 변환: '$key')")
+        } else {
+            Log.d(TAG, "englishToArgb: '$code' → 0x${Integer.toHexString(result)}")
+        }
+
+        return result
     }
 
     fun setup(sectionRoot: View): ColorAdapter {
@@ -107,14 +133,8 @@ object ColorOptions {
             val item = items[position]
 
             // 기본 색상 원: fill drawable + tint
-            if (item.codeEnglish == "OTHER") {
-                holder.circle.setBackgroundResource(R.drawable.bg_circle_rainbow)
-                holder.circle.backgroundTintList = null
-            } else {
-                holder.circle.setBackgroundResource(R.drawable.bg_circle_fill)
-                holder.circle.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(item.argb)
-            }
+            holder.circle.setBackgroundResource(R.drawable.bg_circle_fill)
+            holder.circle.backgroundTintList = android.content.res.ColorStateList.valueOf(item.argb)
 
             // 테두리 표시
             holder.border.visibility = View.VISIBLE

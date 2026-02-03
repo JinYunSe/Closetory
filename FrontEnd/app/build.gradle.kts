@@ -100,6 +100,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.fragment)
+    implementation(libs.engage.core)
     implementation(libs.image.labeling.default.common)
 
     testImplementation(libs.junit)

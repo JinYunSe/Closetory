@@ -53,14 +53,17 @@
         android:label="@string/title_my_page"
         tools:layout="@layout/fragment_my_page">
 
-        <!-- 회원정보 수정으로 이동 -->
         <action
             android:id="@+id/action_navigation_my_page_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
 
+        <!-- 코디 저장소로 이동 -->
+        <action
+            android:id="@+id/action_navigation_my_page_to_codyRepositoryFragment"
+            app:destination="@id/codyRepositoryFragment" />
+
     </fragment>
 
-    <!-- EditProfileFragment -->
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.ssafy.closetory.homeActivity.mypage.edit.EditProfileFragment"
@@ -88,16 +91,21 @@
 
         <action
             android:id="@+id/action_clothes_detail_to_registration"
-            app:destination="@+id/navigation_registration_clothes"
-            />
+            app:destination="@+id/navigation_registration_clothes" />
 
         <argument
             android:name="clothesId"
             app:argType="integer"
             android:defaultValue="-1" />
+
         <action
             android:id="@+id/action_navigation_clothes_detail_self"
             app:destination="@id/navigation_clothes_detail" />
+
+        <action
+            android:id="@+id/action_post_list_to_post_detail"
+            app:destination="@id/navigation_post_detail"
+            app:launchSingleTop="true" />
     </fragment>
 
     <fragment
@@ -111,16 +119,24 @@
         <action
             android:id="@+id/action_post_list_to_post_detail"
             app:destination="@id/navigation_post_detail" />
-        <action
-            android:id="@+id/action_post_list_to_post_edit"
-            app:destination="@id/navigation_post_edit" />
     </fragment>
 
     <fragment
         android:id="@+id/navigation_post_create"
         android:name="com.ssafy.closetory.homeActivity.post.create.PostCreateFragment"
         android:label="PostCreate"
-        tools:layout="@layout/fragment_post_create" />
+        tools:layout="@layout/fragment_post_create">
+
+        <argument
+            android:name="mode"
+            app:argType="string"
+            android:defaultValue="create" />
+
+        <argument
+            android:name="postId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_post_detail"
@@ -133,22 +149,25 @@
             app:argType="integer"
             android:defaultValue="-1" />
 
+        <!-- ✅ 상세→수정은 PostEditFragment가 아니라 PostCreateFragment(재사용)로 보냄 -->
         <action
             android:id="@+id/action_post_detail_to_post_edit"
-            app:destination="@id/navigation_post_edit" />
+            app:destination="@id/navigation_post_create" />
     </fragment>
 
+    <!-- CodyRepositoryFragment (코디 저장소) -->
     <fragment
-        android:id="@+id/navigation_post_edit"
-        android:name="com.ssafy.closetory.homeActivity.post.edit.PostEditFragment"
-        android:label="PostEdit"
-        tools:layout="@layout/fragment_post_create">
+        android:id="@+id/codyRepositoryFragment"
+        android:name="com.ssafy.closetory.homeActivity.codyRepository.CodyRepositoryFragment"
+        android:label="코디 저장소"
+        tools:layout="@layout/fragment_cody_repository" />
 
-        <argument
-            android:name="postId"
-            app:argType="integer"
-            android:defaultValue="-1" />
-    </fragment>
+    <!-- 코디 상세 페이지 -->
+    <fragment
+        android:id="@+id/navigation_cody_detail"
+        android:name="com.ssafy.closetory.homeActivity.codyRepository.CodyDetailFragment"
+        android:label="코디 상세"
+        tools:layout="@layout/fragment_cody_detail" />
 
     <fragment
         android:id="@+id/navigation_tag_onboarding"

@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.post.create.dialog
+package com.ssafy.closetory.homeActivity.post
 
 import android.os.Bundle
 import android.util.Log

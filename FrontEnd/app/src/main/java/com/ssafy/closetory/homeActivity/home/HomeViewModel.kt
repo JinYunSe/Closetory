@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 private const val TAG = "HomeViewModel_싸피"
+
 class HomeViewModel : ViewModel() {
 
     // 월별 스타일링 리스트
@@ -20,6 +21,18 @@ class HomeViewModel : ViewModel() {
 
     private val _message = MutableSharedFlow<String?>(replay = 0)
     val message: SharedFlow<String?> = _message
+
+    // 2) 날짜별 상/하의 색(캘린더 칠하기용): "yyyy-MM-dd" -> (topColorName, bottomColorName)
+    private val _dayColorMap = MutableLiveData<Map<String, Pair<String?, String?>>>(emptyMap())
+    val dayColorMap: LiveData<Map<String, Pair<String?, String?>>> = _dayColorMap
+
+    // 3) 이미 등록된 날짜 Set (중복 등록/선택 막기용)
+    private val _registeredDateSet = MutableLiveData<Set<String>>(emptySet())
+    val registeredDateSet: LiveData<Set<String>> = _registeredDateSet
+
+    // 4) lookId -> date (저장소에서 날짜 오버레이 표시용)
+    private val _lookIdToDateMap = MutableLiveData<Map<Int, String>>(emptyMap())
+    val lookIdToDateMap: LiveData<Map<Int, String>> = _lookIdToDateMap
 
     private val homeRepository = HomeRepository()
 

@@ -1,50 +1,69 @@
 package com.ssafy.closetory.homeActivity.post
 
 import com.ssafy.closetory.dto.ApiResponse
-import com.ssafy.closetory.dto.ClothesItemDto
+import com.ssafy.closetory.dto.PostCreateResponse
 import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostEditResponse
 import com.ssafy.closetory.dto.PostItemResponse
-import com.ssafy.closetory.dto.PostQueryFilter
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.Multipart
-import retrofit2.http.PATCH
-import retrofit2.http.POST
-import retrofit2.http.Part
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
-// 게시판 관련 API 정의
 interface PostService {
 
-    // 게시글 목록 조회
+    // -------------------------
+    // List
+    // -------------------------
     @GET("posts")
     suspend fun getPosts(
-        @Query("keyword") keyword: String? = null,
-        @Query("searchfilter") searchfilter: PostQueryFilter? = null
-    ): Response<ApiResponse<List<PostItemResponse>>>
+        @Query("keyword") keyword: String,
+        @Query("searchfilter") searchFilter: String
+    ): ApiResponse<List<PostItemResponse>>
 
-    // 게시글 상세 페이지 조회
+    @GET("posts")
+    suspend fun getPostsFilter(@Query("searchfilter") searchFilter: String): ApiResponse<List<PostItemResponse>>
+
+    // -------------------------
+    // Detail (주의: 서버가 여기서 views +1 한다면, 불필요한 재호출 금지)
+    // -------------------------
     @GET("posts/{postId}")
-    suspend fun getPostDetail(@Path("postId") postId: Int): Response<ApiResponse<PostDetailResponse>>
+    suspend fun getPostDetail(@Path("postId") postId: Int): ApiResponse<PostDetailResponse>
 
-    // 게시글 수정
+    // -------------------------
+    // Like (✅ 상세 재조회 없이 이 API로만 좋아요 상태 갱신)
+    // 서버 스펙에 맞게 경로/메서드 조정 필요할 수 있음
+    // -------------------------
+    @POST("posts/{postId}/like")
+    suspend fun likePost(@Path("postId") postId: Int): ApiResponse<Unit>
+
+    @DELETE("posts/{postId}/like")
+    suspend fun unlikePost(@Path("postId") postId: Int): ApiResponse<Unit>
+
+    // -------------------------
+    // Create / Update / Delete
+    // -------------------------
+    @Multipart
+    @POST("posts")
+    suspend fun createPost(
+        @Part photo: MultipartBody.Part,
+        @Part("request") request: RequestBody
+    ): Response<ApiResponse<PostCreateResponse>>
+
     @Multipart
     @PATCH("posts/{postId}")
     suspend fun editPost(
         @Path("postId") postId: Int,
-        @Part photo: MultipartBody.Part?, // 변경 안 했으면 null
+        @Part photo: MultipartBody.Part?,
         @Part("request") request: RequestBody
-    ): Response<ApiResponse<PostEditResponse>>
+    ): ApiResponse<PostEditResponse>
 
-    // 게시글 삭제
     @DELETE("posts/{postId}")
-    suspend fun deletePost(@Path("postId") postId: Int): Response<ApiResponse<Unit>>
+    suspend fun deletePost(@Path("postId") postId: Int): ApiResponse<Unit>
 
+    // -------------------------
+    // (선택) Clothes save/unsave
+    // -------------------------
     @POST("clothes/{clothesId}/save")
     suspend fun postClothesRental(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
 
