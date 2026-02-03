@@ -15,6 +15,6 @@ public class TagServiceImpl implements TagService {
 
   @Override
   public List<TagItem> getTags() {
-    return tagRepository.findAll().stream().map(TagItem::from).toList();
+    return tagRepository.findAllByOrderByIdAsc().stream().map(TagItem::from).toList();
   }
 }
