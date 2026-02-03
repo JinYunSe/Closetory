@@ -8,7 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray_500">#FF9E9E9E</color>
-
+    <color name="gray_300">#FFE0E0E0</color>
+    <color name="kakao">#F4E54E</color>
     <!-- 달력 -->
     <color name="textColor">#222222</color>
     <color name="borderColor">#E0E0E0</color>
@@ -19,7 +20,7 @@
     <color name="todayBorderColor">#4CA3FF</color>
 
     <!-- 앱 메인 색상 (파스텔 블루) -->
-    <color name="main_color">#A6DAF4</color>
+    <color name="main_color">#0A0F18</color>
 
     <!--chip 기본 색상-->
     <color name="chip_bg_default">#F2F2F2</color>

@@ -1,40 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".homeActivity.home.HomeFragment">
+
+    <include
+        android:id="@+id/home_calender"
+        layout="@layout/dialog_calendar_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        />
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        tools:context=".homeActivity.home.HomeFragment">
-
-        <include
-            android:id="@+id/home_calender"
-            layout="@layout/dialog_calendar_picker"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        android:layout_weight="6">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp">
+            android:orientation="horizontal"
+            >
 
-            <Button
-                android:id="@+id/btn_posts"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/main_color"
-                android:text="게시글 더보기"
-                android:layout_gravity="end" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_posts"
+            <TextView
+                android:id="@+id/btn_posts_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="vertical"
-                android:fadeScrollbars="false"
-                android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="true"
-                tools:listitem="@layout/item_post_card" />
+                android:layout_gravity="start"
+                android:layout_weight="1"
+                android:backgroundTint="@color/main_color"
+                android:text="스레드"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/btn_posts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:backgroundTint="@color/main_color"
+                android:layout_weight="8"
+                android:text="더보기" />
         </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_posts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="false"
+            android:nestedScrollingEnabled="true"
+            tools:listitem="@layout/item_post_card" />
+    </LinearLayout>
 </LinearLayout>

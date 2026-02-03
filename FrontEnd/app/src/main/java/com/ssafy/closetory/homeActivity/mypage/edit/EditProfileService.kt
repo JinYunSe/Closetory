@@ -25,7 +25,7 @@ interface EditProfileService {
         @Path("userId") userId: Int,
         @Part profilePhoto: MultipartBody.Part?, // 키: profilePhoto
         @Part bodyPhoto: MultipartBody.Part?, // 키: bodyPhoto
-        @Part("request") request: EditProfileUpdateData // EditProfileUpdateData
+        @Part("request") request: EditProfileUpdateData
     ): Response<ApiResponse<Unit>>
 
     // 현재 비밀번호 변경하기

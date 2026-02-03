@@ -33,17 +33,27 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNext"
             android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:text="확인"
+            android:layout_height="40dp"
             android:layout_marginTop="20dp"
-            android:backgroundTint="@color/main_color"
+            android:text="확인"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:padding="4dp"
+            android:stateListAnimator="@null"
+            app:backgroundTint="@color/main_color"
+            app:cornerRadius="8dp"
+            app:rippleColor="#1A000000"
             app:layout_constraintTop_toBottomOf="@id/rvOptions"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"/>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
