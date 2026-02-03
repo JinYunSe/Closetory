@@ -824,8 +824,8 @@ class RegistrationClothesFragment :
 
     private fun detectDominantColorCode(bitmap: Bitmap): String? {
         val scaled = Bitmap.createScaledBitmap(bitmap, 96, 96, true)
-        val start = (scaled.width * 0.4f).toInt()
-        val end = (scaled.width * 0.6f).toInt()
+        val start = (scaled.width * 0.35f).toInt()
+        val end = (scaled.width * 0.65f).toInt()
 
         val hsv = FloatArray(3)
         val samples = ArrayList<Int>(1200)
@@ -840,10 +840,9 @@ class RegistrationClothesFragment :
                 Color.colorToHSV(pixel, hsv)
                 val sat = hsv[1]
                 val v = hsv[2]
-                // Ignore near-white background from cutout
                 if (sat < 0.08f && v > 0.92f) continue
                 if (v < 0.06f) continue
-                if (sat < 0.20f) continue
+                if (sat < 0.18f) continue
 
                 samples.add(pixel)
             }
@@ -851,7 +850,6 @@ class RegistrationClothesFragment :
 
         val candidates = ColorOptions.items.filter { it.codeEnglish != "OTHER" }
         if (samples.isEmpty()) {
-            // Fallback: use relaxed average over the whole scaled image
             var sumR = 0L
             var sumG = 0L
             var sumB = 0L
@@ -876,47 +874,63 @@ class RegistrationClothesFragment :
             val avgB = (sumB / count).toInt().coerceIn(0, 255)
             return nearestColorOption(avgR, avgG, avgB, candidates)
         }
-        val votes = mutableMapOf<String, Int>().apply {
-            candidates.forEach { put(it.codeEnglish, 0) }
-        }
 
-        for (p in samples) {
-            val r = Color.red(p)
-            val g = Color.green(p)
-            val b = Color.blue(p)
+        val k = 4
+        val centers = initCenters(samples, k)
+        val counts = IntArray(k)
+        val sums = Array(k) { IntArray(3) }
+        val satSums = FloatArray(k)
 
-            Color.colorToHSV(p, hsv)
-            val sat = hsv[1]
-            val v = hsv[2]
-            if (sat < 0.18f) {
-                val neutral = when {
-                    v < 0.16f -> "BLACK"
-                    v < 0.55f -> "GRAY"
-                    v > 0.93f -> "WHITE"
-                    else -> "IVORY"
-                }
-                votes[neutral] = (votes[neutral] ?: 0) + 2
-                continue
+        repeat(10) {
+            counts.fill(0)
+            satSums.fill(0f)
+            for (s in sums) {
+                s[0] = 0; s[1] = 0; s[2] = 0
             }
 
-            val lab = rgbToLab(r, g, b)
-            var best: String? = null
-            var bestDist = Float.MAX_VALUE
-            for (c in candidates) {
-                val cr = Color.red(c.argb)
-                val cg = Color.green(c.argb)
-                val cb = Color.blue(c.argb)
-                val cLab = rgbToLab(cr, cg, cb)
-                val dist = deltaE76(lab, cLab)
-                if (dist < bestDist) {
-                    bestDist = dist
-                    best = c.codeEnglish
-                }
+            for (p in samples) {
+                val r = Color.red(p)
+                val g = Color.green(p)
+                val b = Color.blue(p)
+                Color.colorToHSV(p, hsv)
+                val sat = hsv[1]
+                val idx = nearestCenterIndex(centers, r, g, b)
+                counts[idx]++
+                sums[idx][0] += r
+                sums[idx][1] += g
+                sums[idx][2] += b
+                satSums[idx] += sat
             }
-            if (best != null) votes[best] = (votes[best] ?: 0) + 1
+
+            for (i in 0 until k) {
+                if (counts[i] == 0) continue
+                centers[i][0] = sums[i][0] / counts[i]
+                centers[i][1] = sums[i][1] / counts[i]
+                centers[i][2] = sums[i][2] / counts[i]
+            }
         }
 
-        return votes.maxByOrNull { it.value }?.key ?: candidates.firstOrNull()?.codeEnglish
+        val dominantIndex = counts.indices.maxByOrNull { i ->
+            if (counts[i] == 0) 0f else counts[i] * (0.5f + (satSums[i] / counts[i]))
+        } ?: return candidates.firstOrNull()?.codeEnglish
+
+        val avgR = centers[dominantIndex][0].coerceIn(0, 255)
+        val avgG = centers[dominantIndex][1].coerceIn(0, 255)
+        val avgB = centers[dominantIndex][2].coerceIn(0, 255)
+
+        Color.colorToHSV(Color.rgb(avgR, avgG, avgB), hsv)
+        val sat = hsv[1]
+        val v = hsv[2]
+        if (sat < 0.18f) {
+            return when {
+                v < 0.16f -> "BLACK"
+                v < 0.55f -> "GRAY"
+                v > 0.93f -> "WHITE"
+                else -> "IVORY"
+            }
+        }
+
+        return nearestColorOption(avgR, avgG, avgB, candidates)
     }
 
     private fun nearestColorOption(r: Int, g: Int, b: Int, candidates: List<ColorItem>): String? {
@@ -932,6 +946,34 @@ class RegistrationClothesFragment :
             if (dist < bestDist) {
                 bestDist = dist
                 best = c.codeEnglish
+            }
+        }
+        return best
+    }
+
+    private fun initCenters(samples: List<Int>, k: Int): Array<IntArray> {
+        val centers = Array(k) { IntArray(3) }
+        val step = (samples.size / k).coerceAtLeast(1)
+        for (i in 0 until k) {
+            val p = samples[(i * step).coerceAtMost(samples.size - 1)]
+            centers[i][0] = Color.red(p)
+            centers[i][1] = Color.green(p)
+            centers[i][2] = Color.blue(p)
+        }
+        return centers
+    }
+
+    private fun nearestCenterIndex(centers: Array<IntArray>, r: Int, g: Int, b: Int): Int {
+        var best = 0
+        var bestDist = Int.MAX_VALUE
+        for (i in centers.indices) {
+            val dr = r - centers[i][0]
+            val dg = g - centers[i][1]
+            val db = b - centers[i][2]
+            val dist = dr * dr + dg * dg + db * db
+            if (dist < bestDist) {
+                bestDist = dist
+                best = i
             }
         }
         return best
