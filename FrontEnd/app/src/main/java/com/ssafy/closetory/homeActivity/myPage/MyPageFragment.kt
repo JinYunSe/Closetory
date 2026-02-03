@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -34,6 +35,8 @@ import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.auth.AuthManager
 import java.lang.reflect.Field
 import kotlinx.coroutines.launch
+
+private const val TAG = "MyPageFragment_싸피"
 
 // 태그 파이차트용(요청 팔레트 + 기타 흰색)
 private val TAG_PIE_COLORS = listOf(
@@ -164,6 +167,14 @@ class MyPageFragment :
                     val authManager = AuthManager(requireContext())
                     authManager.clearToken()
                     ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+                    ApplicationClass.sharedPreferences.clearUserNickName()
+
+                    Log.d(
+                        TAG,
+                        "로그아웃 이후 값 확인 :  userNickName : ${ApplicationClass.sharedPreferences.getUserNickName()}, userId : ${ApplicationClass.sharedPreferences.getUserId(
+                            ApplicationClass.USERID
+                        )}"
+                    )
 
                     val intent = Intent(requireContext(), AuthActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -259,7 +270,15 @@ class MyPageFragment :
                 Toast.makeText(requireContext(), "회원 탈퇴에 성공했습니다.", Toast.LENGTH_SHORT).show()
 
                 ApplicationClass.authManager.clearToken()
+                ApplicationClass.sharedPreferences.clearUserNickName()
                 ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+
+                Log.d(
+                    TAG,
+                    "회원 탈퇴 이후 값 확인 :  userNickName : ${ApplicationClass.sharedPreferences.getUserNickName()}, userId : ${ApplicationClass.sharedPreferences.getUserId(
+                        ApplicationClass.USERID
+                    )}"
+                )
 
                 moveToLogin()
             }
