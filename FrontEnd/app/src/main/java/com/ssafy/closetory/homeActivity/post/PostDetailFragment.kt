@@ -462,7 +462,7 @@ import kotlinx.coroutines.launch
 
 class PostDetailFragment :
     BaseFragment<FragmentPostDetailBinding>(FragmentPostDetailBinding::bind, R.layout.fragment_post_detail) {
-    private var myNickname: String = ""
+    val myNickname = ApplicationClass.sharedPreferences.getUserNickName()
 
     private val viewModel: PostViewModel by viewModels()
     private val postId: Int by lazy { arguments?.getInt("postId") ?: -1 }
@@ -485,9 +485,9 @@ class PostDetailFragment :
 
         setupRecycler()
         setupCommentsRecycler()
+        observeViewModel()
         setupSystemBack()
         setupCommentSubmit()
-        observeViewModel()
         observeRefreshFromEdit()
 
         binding.ivPostPhoto.setOnClickListener { openPhotoDialogIfExist() }
@@ -604,6 +604,13 @@ class PostDetailFragment :
                 launch {
                     viewModel.message.collect { msg ->
                         if (msg.isNotBlank()) Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                launch {
+                    viewModel.comments.collect { comments ->
+                        Log.d("COMMENT_UI", "submitList size=${comments.size}")
+                        commentAdapter.submitList(comments.toList()) // 항상 새 리스트
+                        binding.rvComments.visibility = if (comments.isNotEmpty()) View.VISIBLE else View.GONE
                     }
                 }
 
@@ -740,39 +747,5 @@ class PostDetailFragment :
             }
             .setNegativeButton("취소", null)
             .show()
-    }
-
-    // 댓글
-    private fun ensureMyNicknameLoaded(userId: Int, onReady: () -> Unit) {
-        val cached = ApplicationClass.sharedPreferences.getNickname().trim()
-        if (cached.isNotEmpty()) {
-            myNickname = cached
-            Log.d("NICK_TEST", "✅ nickname cache 사용 = [$myNickname]")
-            onReady()
-            return
-        }
-
-        // 캐시에 없으면 MyPage 프로필 API로 채움
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val service = ApplicationClass.retrofit.create(MyPageService::class.java)
-                val res = service.getUserProfile(userId)
-
-                if (res.isSuccessful) {
-                    val nickname = res.body()?.data?.nickname?.trim().orEmpty()
-                    ApplicationClass.sharedPreferences.putNickname(nickname)
-                    myNickname = nickname
-                    Log.d("NICK_TEST", "✅ nickname 프로필로 저장 = [$myNickname]")
-                } else {
-                    Log.d("NICK_TEST", "❌ 프로필 조회 실패 code=${res.code()}")
-                    myNickname = ""
-                }
-            } catch (e: Exception) {
-                Log.e("NICK_TEST", "❌ nickname 로드 예외: ${e.message}", e)
-                myNickname = ""
-            } finally {
-                onReady()
-            }
-        }
     }
 }

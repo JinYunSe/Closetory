@@ -58,7 +58,7 @@ class MyPageViewModel : ViewModel() {
 
                     if (data != null) {
                         // 닉네임 추가
-                        ApplicationClass.sharedPreferences.putNickname(data.nickname)
+//                        ApplicationClass.sharedPreferences.putNickname(data.nickname)
                         _userProfile.emit(data)
                     } else {
                         _message.emit("회원정보를 불러오지 못했습니다.")
@@ -131,7 +131,7 @@ class MyPageViewModel : ViewModel() {
                     ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
 
                     // nickname 삭제
-                    ApplicationClass.sharedPreferences.clearNickname()
+//                    ApplicationClass.sharedPreferences.clearNickname()
                 } else {
                     // 로그아웃 실패 처리
                     val body = res.body()

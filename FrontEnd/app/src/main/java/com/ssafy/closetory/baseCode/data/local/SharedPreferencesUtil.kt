@@ -20,25 +20,18 @@ class SharedPreferencesUtil(context: Context) {
     // 현재 사용 안 하는 중
     fun getUserCookie(): MutableSet<String>? = preferences.getStringSet(ApplicationClass.COOKIES_KEY_NAME, HashSet())
 
-    // 현재 사용 안 하는 중
-    fun getString(key: String, string: String): String? = preferences.getString(key, null)
+    fun putUserNickName(nickname: String, key: String = "NICKNAME") {
+        preferences.edit().putString(key, nickname).apply()
+    }
+
+    fun getUserNickName(key: String = "NICKNAME", defaultValue: String = "NICK_NAME_NULL"): String? =
+        preferences.getString(key, defaultValue)
 
     fun putUserId(key: String, value: Int) {
         preferences.edit().putInt(key, value).apply()
     }
 
     fun getUserId(key: String, defaultValue: Int = -1): Int? = preferences.getInt(key, defaultValue)
-
-    fun getNickname(defaultValue: String = ""): String =
-        preferences.getString(ApplicationClass.NICKNAME, defaultValue)?.trim() ?: defaultValue
-
-    fun putNickname(nickname: String) {
-        preferences.edit().putString(ApplicationClass.NICKNAME, nickname.trim()).apply()
-    }
-
-    fun clearNickname() {
-        preferences.edit().remove(ApplicationClass.NICKNAME).apply()
-    }
 
     fun clearUserId(key: String) {
         preferences.edit().remove(key).apply()
@@ -56,4 +49,11 @@ class SharedPreferencesUtil(context: Context) {
             .putBoolean(onboardingKey(userId), done)
             .apply()
     }
+
+    fun clearUserNickName(key: String = "NICKNAME") {
+        preferences.edit().remove(key).apply()
+    }
+
+    // 지금 사용 안 하는 중
+    fun getString(key: String, string: String): String? = preferences.getString(key, null)
 }

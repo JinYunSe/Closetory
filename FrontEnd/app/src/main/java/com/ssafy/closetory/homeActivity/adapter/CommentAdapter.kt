@@ -245,7 +245,6 @@ class CommentAdapter(
             // ⚠️ 임시 해결책: 서버의 isMine이 false로 오는 문제가 해결될 때까지
             // 닉네임으로 비교 (또는 userId로 비교)
 //            val myNickname = ApplicationClass.sharedPreferences.getString("nickname", "") ?: ""
-//            val myNickname = ApplicationClass.sharedPreferences.getNickname() // 전용 메소드로 고정
 //            val isActuallyMine = if (comment.isMine) {
 //                // 서버가 제대로 판단한 경우
 //                true
@@ -253,11 +252,8 @@ class CommentAdapter(
 //                // 서버가 false로 보낸 경우, 닉네임으로 재확인
 //                comment.nickname == myNickname
 //            }
-
-            val commentNickname = comment.nickname?.trim().orEmpty()
-            val myNickname = ApplicationClass.sharedPreferences.getNickname().trim()
-
-            val isActuallyMine = comment.isMine || (myNickname.isNotEmpty() && commentNickname == myNickname)
+            val myNickname = ApplicationClass.sharedPreferences.getUserNickName()
+            val isMyComment = comment.nickname == myNickname
 
             Log.d(TAG, "========================================")
             Log.d(TAG, "댓글 바인딩 - ID: ${comment.commentId}")
@@ -265,11 +261,11 @@ class CommentAdapter(
             Log.d(TAG, "내용: ${comment.content}")
             Log.d(TAG, "서버 isMine: ${comment.isMine}")
             Log.d(TAG, "내 닉네임: $myNickname")
-            Log.d(TAG, "실제 isMine: $isActuallyMine")
+            Log.d(TAG, "실제 isMine: $isMyComment")
             Log.d(TAG, "========================================")
 
             // 내 댓글인 경우에만 수정/삭제 버튼 표시
-            if (isActuallyMine) {
+            if (isMyComment) {
                 Log.d(TAG, "✅ 내 댓글입니다! 버튼 표시")
                 binding.layoutCommentActions.visibility = View.VISIBLE
 

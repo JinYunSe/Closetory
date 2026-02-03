@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -16,11 +17,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.AuthActivity
@@ -34,14 +36,16 @@ import com.ssafy.closetory.util.auth.AuthManager
 import java.lang.reflect.Field
 import kotlinx.coroutines.launch
 
+private const val TAG = "MyPageFragment_싸피"
+
 // 태그 파이차트용(요청 팔레트 + 기타 흰색)
 private val TAG_PIE_COLORS = listOf(
-    "#0D47A1".toColorInt(), // Level 1
-    "#1976D2".toColorInt(), // Level 2
-    "#42A5F5".toColorInt(), // Level 3
-    "#90CAF9".toColorInt(), // Level 4
-    "#E3F2FD".toColorInt(), // Level 5
-    "#FFFFFF".toColorInt() // 기타
+    "#0A0F18".toColorInt(), // main black
+    "#2B2F36".toColorInt(), // dark gray
+    "#4B515C".toColorInt(), // mid gray
+    "#8A93A3".toColorInt(), // light gray
+    "#D7DCE5".toColorInt(), // very light gray
+    "#F1F3F6".toColorInt() // etc (almost white)
 )
 
 class MyPageFragment :
@@ -91,8 +95,8 @@ class MyPageFragment :
 
     private fun bindUserProfile(user: EditProfileInfoResponse) {
         binding.tvNickname.text = user.nickname ?: "닉네임"
-        binding.tvHeight.text = "${user.height ?: 0}cm"
-        binding.tvWeight.text = "${user.weight ?: 0}kg"
+        binding.tvHeight.text = "${user.height ?: 0} cm"
+        binding.tvWeight.text = "${user.weight ?: 0} kg"
 
         bindProfileImage(user.profilePhotoUrl)
         bindBodyImage(user.bodyPhotoUrl)
@@ -163,6 +167,15 @@ class MyPageFragment :
                     val authManager = AuthManager(requireContext())
                     authManager.clearToken()
                     ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+                    ApplicationClass.sharedPreferences.clearUserNickName()
+
+                    Log.d(
+                        TAG,
+                        @Suppress("ktlint:standard:max-line-length")
+                        "로그아웃 이후 값 확인 :  userNickName : ${ApplicationClass.sharedPreferences.getUserNickName()}, userId : ${ApplicationClass.sharedPreferences.getUserId(
+                            ApplicationClass.USERID
+                        )}"
+                    )
 
                     val intent = Intent(requireContext(), AuthActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -258,7 +271,15 @@ class MyPageFragment :
                 Toast.makeText(requireContext(), "회원 탈퇴에 성공했습니다.", Toast.LENGTH_SHORT).show()
 
                 ApplicationClass.authManager.clearToken()
+                ApplicationClass.sharedPreferences.clearUserNickName()
                 ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+
+                Log.d(
+                    TAG,
+                    "회원 탈퇴 이후 값 확인 :  userNickName : ${ApplicationClass.sharedPreferences.getUserNickName()}, userId : ${ApplicationClass.sharedPreferences.getUserId(
+                        ApplicationClass.USERID
+                    )}"
+                )
 
                 moveToLogin()
             }
@@ -326,36 +347,47 @@ class MyPageFragment :
     /* -------------------- PieChart (공통) -------------------- */
 
     private fun applyPieCommon(pieChart: PieChart) {
-        pieChart.setDrawHoleEnabled(false)
-        pieChart.setDrawCenterText(false)
-        pieChart.setDrawEntryLabels(false)
         pieChart.description.isEnabled = false
-        pieChart.setUsePercentValues(true)
         pieChart.legend.isEnabled = false
 
-        // 잘림 방지 + 두 그래프 동일 사이즈 체감
-        pieChart.setExtraOffsets(12f, 12f, 12f, 12f)
+        // 퍼센트 계산은 Marker/값표시 쪽에서 쓰일 수 있으니 유지
+        pieChart.setUsePercentValues(true)
+
+        pieChart.setDrawEntryLabels(false)
+        pieChart.setDrawCenterText(false)
+
+        // 도넛 모양
+        pieChart.isDrawHoleEnabled = true
+        pieChart.holeRadius = 40f
+        pieChart.transparentCircleRadius = 0f
+
+        // 파이 크기 확대
+        pieChart.setExtraOffsets(2f, 2f, 2f, 2f)
+        pieChart.setMinOffset(0f)
+
+        pieChart.isRotationEnabled = false
         pieChart.isHighlightPerTapEnabled = true
+        pieChart.highlightValues(null)
     }
 
     private fun applyPieDatasetCommon(dataSet: PieDataSet) {
         dataSet.setDrawValues(true)
 
-        dataSet.yValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
-        dataSet.valueLinePart1OffsetPercentage = 80f
-        dataSet.valueLinePart1Length = 0.30f
-        dataSet.valueLinePart2Length = 0.35f
-        dataSet.valueLineWidth = 1f
-        dataSet.isUsingSliceColorAsValueLineColor = true
+        dataSet.yValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE
+        dataSet.xValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE
 
         dataSet.sliceSpace = 1f
         dataSet.selectionShift = 6f
     }
 
     private fun buildPieData(pieChart: PieChart, dataSet: PieDataSet): PieData = PieData(dataSet).apply {
-        setValueFormatter(PercentFormatter(pieChart))
         setValueTextSize(12f)
-        setValueTextColor(Color.BLACK)
+
+        // 7% 이하는 숨김, 그 외만 표시
+        setValueFormatter(object : ValueFormatter() {
+            override fun getPieLabel(value: Float, pieEntry: PieEntry?): String =
+                if (value <= 7f) "" else String.format("%.1f%%", value)
+        })
     }
 
     /* -------------------- PieChart (태그) -------------------- */
@@ -395,9 +427,15 @@ class MyPageFragment :
                 if (idx < 5) TAG_PIE_COLORS[idx] else TAG_PIE_COLORS.last()
             }
         }
+        // 조각 별 글자색 자동 지정
+        val valueTextColors = dataSet.colors.map { sliceColor -> idealTextColorOn(sliceColor) }
+        dataSet.setValueTextColors(valueTextColors)
 
         applyPieDatasetCommon(dataSet)
         pieChart.data = buildPieData(pieChart, dataSet)
+
+        // 차트에 애니메이션 넣기
+        pieChart.animateY(900, Easing.EaseInOutQuad)
 
         // PieMarkerView 클래스/레이아웃이 프로젝트에 있어야 함
         pieChart.marker = PieMarkerView(requireContext(), R.layout.marker_pie)
@@ -461,8 +499,15 @@ class MyPageFragment :
         }
         dataSet.colors = colors
 
+        // 조각 별 글자색 자동 지정
+        val valueTextColors = colors.map { sliceColor -> idealTextColorOn(sliceColor) }
+        dataSet.setValueTextColors(valueTextColors)
+
         applyPieDatasetCommon(dataSet)
         pieChart.data = buildPieData(pieChart, dataSet)
+
+        // 차트에 애니메이션 넣기
+        pieChart.animateY(900, Easing.EaseInOutQuad)
 
         pieChart.marker = PieMarkerView(requireContext(), R.layout.marker_pie)
 
@@ -483,6 +528,19 @@ class MyPageFragment :
         val pairs = stats.mapNotNull { extractColorAndValue(it) }
         val (entries, top5Eng) = buildTop5WithEtcColorEntries(pairs)
         renderPieColor(entries, top5Eng)
+    }
+
+    /* -------------------- 파이차트 텍스트 색상 함수 -------------------- */
+    private fun idealTextColorOn(bgColor: Int): Int {
+        val r = Color.red(bgColor)
+        val g = Color.green(bgColor)
+        val b = Color.blue(bgColor)
+
+        // 밝기(YIQ). 값이 클수록 밝은 색
+        val yiq = (r * 299 + g * 587 + b * 114) / 1000
+
+        // 기준값 160은 실무에서 무난 (원하면 150~170 튜닝)
+        return if (yiq >= 160) Color.BLACK else Color.WHITE
     }
 
     /* -------------------- DTO 리플렉션 (유지) -------------------- */

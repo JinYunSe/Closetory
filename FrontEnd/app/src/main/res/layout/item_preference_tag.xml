@@ -6,14 +6,18 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnOption"
+        style="@style/Widget.Closetory.TagButton"
         android:layout_width="match_parent"
-        android:layout_height="96dp"
+        android:layout_height="52dp"
         android:text="캐주얼"
-        android:textSize="14sp"
+        android:textSize="13sp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:stateListAnimator="@null"
         android:insetLeft="0dp"
         android:insetRight="0dp"
         android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:stateListAnimator="@null"
-        android:backgroundTint="@color/tag_button_tint" />
+        android:insetBottom="0dp"/>
 </FrameLayout>
