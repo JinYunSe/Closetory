@@ -251,6 +251,10 @@
                 app:layout_constraintTop_toTopOf="@id/tvHistoryTitle"
                 app:layout_constraintBottom_toBottomOf="@id/tvHistoryTitle" />
 
+            <!-- 여기에 코디 히스토리 내역 추가해야함. -->
+            <!-- TODO : 코디 히스토리 내역 추가 -->
+
+
             <!-- 통계 -->
             <TextView
                 android:id="@+id/tvStatsTitle"
@@ -263,13 +267,12 @@
                 android:textColor="#0A0F18"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvHistoryTitle" />
-
             <TextView
-                android:id="@+id/tvStatsSubtitle"
+                android:id="@+id/tvPieTagSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="달에 가장 자주 입은 옷 Top 3"
+                android:text="이번 달 나의 사용 태그 Top 5"
                 android:textSize="12sp"
                 android:textColor="#0A0F18"
                 app:layout_constraintStart_toStartOf="parent"
@@ -279,23 +282,42 @@
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/pieTag"
                 android:layout_width="0dp"
-                android:layout_height="260dp"
+                android:layout_height="0dp"
                 android:layout_marginTop="4dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/bg_login_input"
+                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/pieColor"
-                app:layout_constraintTop_toBottomOf="@id/tvStatsSubtitle"
+                app:layout_constraintTop_toBottomOf="@id/tvPieTagSubtitle"
                 app:layout_constraintHorizontal_weight="1" />
+
+
+            <TextView
+                android:id="@+id/tvPieColorSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="4dp"
+                android:text="이번 달 나의 사용 색상 Top 5"
+                android:textSize="12sp"
+                android:textColor="#0A0F18"
+                app:layout_constraintStart_toEndOf="@id/pieTag"
+                app:layout_constraintTop_toBottomOf="@id/tvStatsTitle" />
 
             <!-- 색상 PieChart (그대로) -->
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/pieColor"
                 android:layout_width="0dp"
-                android:layout_height="260dp"
+                android:layout_height="0dp"
                 android:layout_marginTop="4dp"
-                app:layout_constraintStart_toEndOf="@id/pieTag"
+                android:layout_marginStart="2dp"
+                android:background="@drawable/bg_login_input"
+                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvStatsSubtitle"
-                app:layout_constraintHorizontal_weight="1" />
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@id/pieTag"
+                app:layout_constraintTop_toBottomOf="@id/tvPieColorSubtitle" />
 
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/barrierPieBottom"
