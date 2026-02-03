@@ -75,7 +75,14 @@ class MyPageFragment :
         binding.btnLogout.setOnClickListener { showLogoutDialog() }
         binding.btnSignout.setOnClickListener { showSignoutDialog() }
         binding.tvEditProfile.setOnClickListener { showPasswordCheckDialog() }
-
+        // MyPageFragment.kt 수정
+        binding.btnCodyRepository.setOnClickListener {
+            val navController = findNavController()
+            // 현재 목적지가 마이페이지일 때만 이동을 수행하도록 안전장치 추가
+            if (navController.currentDestination?.id == R.id.navigation_my_page) {
+                navController.navigate(R.id.action_navigation_my_page_to_codyRepositoryFragment)
+            }
+        }
         observeLogout()
         observeMessage()
         collectSignout()

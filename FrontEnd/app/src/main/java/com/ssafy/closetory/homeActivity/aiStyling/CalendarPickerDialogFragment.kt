@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.GridLayoutManager
 import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.DialogCalendarPickerBinding
+import com.ssafy.closetory.homeActivity.adapter.HomeCalendarAdapter
 import java.util.Calendar
 
 class CalendarPickerDialogFragment : DialogFragment() {
@@ -24,7 +26,8 @@ class CalendarPickerDialogFragment : DialogFragment() {
     private val calendar: Calendar = Calendar.getInstance() // 현재 표시 월
     private val today: Calendar = Calendar.getInstance() // 오늘 비교용
 
-    private lateinit var calendarAdapter: CalendarAdapter
+    // ✅ 홈 캘린더 어댑터 재사용
+    private lateinit var calendarAdapter: HomeCalendarAdapter
     private var selectedDay: Day? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,11 +47,20 @@ class CalendarPickerDialogFragment : DialogFragment() {
         binding.rvWeeklist.layoutManager = GridLayoutManager(requireContext(), 7)
         binding.rvWeeklist.adapter = WeekAdapter(listOf("일", "월", "화", "수", "목", "금", "토"))
 
-        // 달력
+        // 달력(홈 UI 재사용)
         binding.rvCalendar.layoutManager = GridLayoutManager(requireContext(), 7)
-        calendarAdapter = CalendarAdapter(emptyList()) { day ->
-            selectedDay = day
-        }
+        calendarAdapter = HomeCalendarAdapter(
+            items = emptyList(),
+            onClick = { day ->
+                selectedDay = day
+                calendarAdapter.setSelected(day) // 선택 표시 확실히
+            },
+            colorProvider = { _ ->
+                // 다이얼로그에서는 일단 색상바 사용 안 함(필요 시 나중에 monthly 연결 가능)
+                null to null
+            },
+            isBlocked = { _ -> false }
+        )
         binding.rvCalendar.adapter = calendarAdapter
 
         // 초기 월
@@ -71,18 +83,20 @@ class CalendarPickerDialogFragment : DialogFragment() {
 
         binding.btnConfirm.setOnClickListener {
             val sel = selectedDay ?: run {
-                // 선택 안 했으면 "오늘"을 기본으로(원하면 그냥 return)
+                // 선택 안 했으면 오늘을 기본값으로
                 val y = today.get(Calendar.YEAR)
                 val m0 = today.get(Calendar.MONTH)
                 val d = today.get(Calendar.DAY_OF_MONTH)
-                val dateStr = "%04d\n%02d-%02d".format(y, m0 + 1, d)
-                setFragmentResult(REQ_KEY, Bundle().apply { putString(BUNDLE_KEY_DATE, dateStr) })
+                val dateStr = "%04d-%02d-%02d".format(y, m0 + 1, d)
+
+                setFragmentResult(REQ_KEY, bundleOf(BUNDLE_KEY_DATE to dateStr))
                 dismiss()
                 return@setOnClickListener
             }
 
-            val dateStr = "%04d\n%02d-%02d".format(sel.year, sel.month0 + 1, sel.dayOfMonth)
-            setFragmentResult(REQ_KEY, Bundle().apply { putString(BUNDLE_KEY_DATE, dateStr) })
+            // ✅ 결과는 무조건 yyyy-MM-dd
+            val dateStr = "%04d-%02d-%02d".format(sel.year, sel.month0 + 1, sel.dayOfMonth)
+            setFragmentResult(REQ_KEY, bundleOf(BUNDLE_KEY_DATE to dateStr))
             dismiss()
         }
     }
@@ -133,7 +147,6 @@ class CalendarPickerDialogFragment : DialogFragment() {
             c.set(Calendar.MONTH, month0)
             c.add(Calendar.MONTH, -1)
             c.set(Calendar.DAY_OF_MONTH, d)
-
             list.add(makeDay(c, inMonth = false))
         }
 
