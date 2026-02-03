@@ -60,8 +60,4 @@ public class Post {
   public void updatePhoto(String photoUrl) {
     this.photoUrl = photoUrl;
   }
-
-  public void increaseViews() {
-    this.views++;
-  }
 }
