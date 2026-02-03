@@ -4,7 +4,6 @@ import com.ssafy.closetory.dto.AiFittingRequest
 import com.ssafy.closetory.dto.AiFittingResponse
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.SaveLookRequest
-import com.ssafy.closetory.dto.SaveLookResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST

@@ -9,4 +9,6 @@
     <string name="title_clothes_detail">옷 상세 조회</string>
     <!-- 달력 -->
     <string name="title_day">DAY</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

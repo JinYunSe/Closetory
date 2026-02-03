@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_cody_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp">
+
+    <!-- 코디 이미지 (정사각형) -->
+    <ImageView
+        android:id="@+id/iv_cody"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#dee2e6"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1" />
+
+    <!-- 내 옷만 뱃지 -->
+    <ImageView
+        android:id="@+id/iv_only_mine_badge"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_margin="8dp"
+        android:background="@drawable/bg_circle_badge"
+        android:contentDescription="내 옷만 배지"
+        android:padding="6dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/closetory_badge"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/iv_cody"
+        app:layout_constraintEnd_toEndOf="@id/iv_cody" />
+
+    <!-- 날짜 -->
+    <TextView
+        android:id="@+id/tv_cody_date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/main_color"
+        android:gravity="center"
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        tools:text="2026-01-20"
+        app:layout_constraintStart_toStartOf="@id/iv_cody"
+        app:layout_constraintEnd_toEndOf="@id/iv_cody"
+        app:layout_constraintBottom_toBottomOf="@id/iv_cody" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.load.engine.GlideException
 import com.google.android.material.snackbar.Snackbar
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
@@ -19,10 +18,10 @@ import com.ssafy.closetory.databinding.DialogCalendarPickerBinding
 import com.ssafy.closetory.databinding.FragmentHomeBinding
 import com.ssafy.closetory.dto.StylingResponse
 import com.ssafy.closetory.homeActivity.HomeActivity
-import com.ssafy.closetory.homeActivity.home.ImagePreviewActivity
 import com.ssafy.closetory.homeActivity.adapter.HomeCalendarAdapter
 import com.ssafy.closetory.homeActivity.aiStyling.Day
 import com.ssafy.closetory.homeActivity.aiStyling.WeekAdapter
+import com.ssafy.closetory.homeActivity.home.ImagePreviewActivity
 import com.ssafy.closetory.util.ColorOptions
 import java.util.Calendar
 import kotlinx.coroutines.launch
@@ -42,10 +41,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
 
     private val homeViewModel: HomeViewModel by viewModels()
 
-    // yyyy-MM-dd
+    // yyyy-MM-dd -> (topColorARGB, bottomColorARGB)
     private var dayColorMap: Map<String, Pair<Int?, Int?>> = emptyMap()
+
+    // yyyy-MM-dd -> photoUrl
     private var dayImageMap: Map<String, String> = emptyMap()
 
+    // 등록된 날짜 Set
+    private var registeredDates: Set<String> = emptySet()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -101,8 +104,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
                 if (!day.inMonth) return@HomeCalendarAdapter
 
                 val dateKey = keyOf(day)
-                val imageUrl = dayImageMap[dateKey] // 서버에서 받은 url(있을 수도/없을 수도)
-                Log.d(TAG, "selected date=$dateKey, imageUrl=$imageUrl")
+                val imageUrl = dayImageMap[dateKey]
+
+                Log.d(TAG, "📅 선택된 날짜: $dateKey")
+                Log.d(TAG, "🖼️ 이미지 URL: $imageUrl")
+                Log.d(TAG, "✅ 등록 여부: ${registeredDates.contains(dateKey)}")
 
                 homeCalendarAdapter.setSelected(day)
 
@@ -111,12 +117,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
                     return@HomeCalendarAdapter
                 }
 
-                // url이 있는 경우만 화면 이동
                 openImagePreview(imageUrl)
             },
             colorProvider = { day ->
-                dayColorMap[keyOf(day)] ?: (null to null)
-            }
+                val dateKey = keyOf(day)
+                val colors = dayColorMap[dateKey] ?: (null to null)
+                colors
+            },
+            isBlocked = { _ -> false } // 등록된 날짜도 클릭 가능 (수정/삭제는 나중에)
         )
 
         calBinding.rvCalendar.adapter = homeCalendarAdapter
@@ -134,8 +142,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
 
     private fun observeStylingList() {
         homeViewModel.stylingList.observe(viewLifecycleOwner) { list ->
+            Log.d(TAG, "🎨 스타일링 리스트 받음: ${list.size}개")
+
             dayColorMap = buildDayColorMap(list)
             dayImageMap = buildDayImageMap(list)
+            registeredDates = list.mapNotNull { normalizeDateKey(it.date) }.toSet()
+
+            Log.d(TAG, "🗓️ 등록된 날짜: $registeredDates")
+            Log.d(TAG, "🎨 색상 맵: $dayColorMap")
+
             renderMonth()
         }
     }
@@ -247,6 +262,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         startActivity(intent)
     }
 
+    /**
+     * 날짜별 이미지 URL 매핑
+     */
     private fun buildDayImageMap(list: List<StylingResponse>): Map<String, String> = list.asSequence()
         .mapNotNull { item ->
             val key = normalizeDateKey(item.date) ?: return@mapNotNull null
@@ -257,33 +275,57 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         }
         .toMap()
 
+    /**
+     * 이미지 URL 전처리 (상대경로 -> 절대경로)
+     */
     private fun resolveImageUrl(raw: String): String {
         if (raw.startsWith("http")) return raw
         val clean = raw.removePrefix("/")
         return "${ApplicationClass.API_BASE_URL}$clean"
     }
 
-    private fun buildDayColorMap(list: List<StylingResponse>): Map<String, Pair<Int?, Int?>> = list.asSequence()
-        .mapNotNull { item ->
-            val key = normalizeDateKey(item.date) ?: return@mapNotNull null
-            key to item
-        }
-        .groupBy({ it.first }, { it.second })
-        .mapValues { (_, items) ->
-            val last = items.lastOrNull()
-            val top = ColorOptions.englishToArgb(last?.topColor)
-            val bottom = ColorOptions.englishToArgb(last?.bottomColor)
-            top to bottom
-        }
+    /**
+     * 날짜별 색상 매핑 (상의/하의)
+     */
+    private fun buildDayColorMap(list: List<StylingResponse>): Map<String, Pair<Int?, Int?>> {
+        return list.asSequence()
+            .mapNotNull { item ->
+                val key = normalizeDateKey(item.date) ?: return@mapNotNull null
+                key to item
+            }
+            .groupBy({ it.first }, { it.second })
+            .mapValues { (dateKey, items) ->
+                // 같은 날짜에 여러 룩이 있으면 마지막 것 사용
+                val last = items.lastOrNull()
+                val topColor = ColorOptions.englishToArgb(last?.topColor)
+                val bottomColor = ColorOptions.englishToArgb(last?.bottomColor)
 
+                Log.d(TAG, "🎨 날짜: $dateKey")
+                Log.d(TAG, "   - 원본 상의: ${last?.topColor} -> ARGB: $topColor")
+                Log.d(TAG, "   - 원본 하의: ${last?.bottomColor} -> ARGB: $bottomColor")
+
+                topColor to bottomColor
+            }
+    }
+
+    /**
+     * Day 객체를 yyyy-MM-dd 형식의 키로 변환
+     */
     private fun keyOf(d: Day): String = "%04d-%02d-%02d".format(d.year, d.month0 + 1, d.dayOfMonth)
 
+    /**
+     * 서버에서 받은 날짜 문자열을 yyyy-MM-dd 형식으로 정규화
+     */
     private fun normalizeDateKey(raw: String?): String? {
         if (raw.isNullOrBlank()) return null
         val s = raw.trim()
 
-        if (s.length >= 10 && s[4] == '-' && s[7] == '-') return s.substring(0, 10)
+        // 이미 yyyy-MM-dd 형식이면 그대로 반환
+        if (s.length >= 10 && s[4] == '-' && s[7] == '-') {
+            return s.substring(0, 10)
+        }
 
+        // T 또는 공백으로 분리된 경우 처리
         return try {
             val head = s.split("T", " ").first()
             val parts = head.split("-")
@@ -299,5 +341,4 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
             null
         }
     }
-
 }

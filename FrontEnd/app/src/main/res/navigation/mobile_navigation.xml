@@ -58,6 +58,11 @@
             android:id="@+id/action_navigation_my_page_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
 
+        <!-- 코디 저장소로 이동 -->
+        <action
+            android:id="@+id/action_navigation_my_page_to_codyRepositoryFragment"
+            app:destination="@id/codyRepositoryFragment" />
+
     </fragment>
 
     <!-- EditProfileFragment -->
@@ -149,6 +154,20 @@
             app:argType="integer"
             android:defaultValue="-1" />
     </fragment>
+
+    <!-- CodyRepositoryFragment (코디 저장소) -->
+    <fragment
+        android:id="@+id/codyRepositoryFragment"
+        android:name="com.ssafy.closetory.homeActivity.codyRepository.CodyRepositoryFragment"
+        android:label="코디 저장소"
+        tools:layout="@layout/fragment_cody_repository" />
+
+    <!-- 코디 상세 페이지 -->
+    <fragment
+        android:id="@+id/navigation_cody_detail"
+        android:name="com.ssafy.closetory.homeActivity.codyRepository.CodyDetailFragment"
+        android:label="코디 상세"
+        tools:layout="@layout/fragment_cody_detail" />
 
     <fragment
         android:id="@+id/navigation_tag_onboarding"
