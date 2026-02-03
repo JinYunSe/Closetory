@@ -11,6 +11,8 @@ import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentCodyRepositoryBinding
 import com.ssafy.closetory.dto.CodyRepositoryResponse
+import com.ssafy.closetory.homeActivity.HomeActivity
+import com.ssafy.closetory.util.ui.BalloonTooltip
 
 private const val TAG = "CodyRepositoryFragment"
 
@@ -26,10 +28,18 @@ class CodyRepositoryFragment :
         CodyAdapter { item -> onClickCody(item) }
     }
 
+    private var helpTooltip: BalloonTooltip? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         Log.d(TAG, "CodyRepositoryFragment onViewCreated")
+
+        // BalloonTooltip 초기화
+        val homeActivity = requireActivity() as? HomeActivity
+        homeActivity?.let {
+            helpTooltip = BalloonTooltip(it)
+        }
 
         setupRecyclerView()
         setupListeners()
@@ -37,6 +47,27 @@ class CodyRepositoryFragment :
 
         // 페이지 진입 시 룩 목록 로드
         viewModel.getLooks()
+
+        // 도움말 버튼 설정
+        binding.btnClosetoryGuide.setOnClickListener { v ->
+            helpTooltip?.show(
+                anchor = v,
+                message = """
+                    👕 우측 상단에 로고 뱃지가 있는 코디만
+                    캘린더에 등록할 수 있어요.
+                    코디를 선택하면 상세 화면에서
+                    날짜를 선택하고 등록할 수 있습니다.
+                """.trimIndent(),
+                autoDismissMs = 3500
+            )
+        }
+    }
+
+    override fun onDestroyView() {
+        // 툴팁 정리
+        helpTooltip?.dismiss()
+        helpTooltip = null
+        super.onDestroyView()
     }
 
     private fun setupRecyclerView() {

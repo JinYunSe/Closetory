@@ -24,8 +24,8 @@
     <!-- 내 옷만 뱃지 -->
     <ImageView
         android:id="@+id/iv_only_mine_badge"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_margin="8dp"
         android:background="@drawable/bg_circle_badge"
         android:contentDescription="내 옷만 배지"
