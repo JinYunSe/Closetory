@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.myPage
+package com.ssafy.closetory.homeActivity.mypage
 
 import android.content.Context
 import android.widget.TextView

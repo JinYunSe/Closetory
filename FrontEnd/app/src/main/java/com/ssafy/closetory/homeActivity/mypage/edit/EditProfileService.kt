@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.myPage.edit
+package com.ssafy.closetory.homeActivity.mypage.edit
 
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.EditProfileInfoResponse
@@ -25,7 +25,7 @@ interface EditProfileService {
         @Path("userId") userId: Int,
         @Part profilePhoto: MultipartBody.Part?, // 키: profilePhoto
         @Part bodyPhoto: MultipartBody.Part?, // 키: bodyPhoto
-        @Part("request") request: EditProfileUpdateData // EditProfileUpdateData
+        @Part("request") request: EditProfileUpdateData
     ): Response<ApiResponse<Unit>>
 
     // 현재 비밀번호 변경하기

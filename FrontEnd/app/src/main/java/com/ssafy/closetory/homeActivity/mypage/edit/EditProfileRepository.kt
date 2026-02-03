@@ -7,7 +7,6 @@ import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.EditProfilePasswordRequest
 import com.ssafy.closetory.dto.EditProfileUpdateData
-import com.ssafy.closetory.homeActivity.myPage.edit.EditProfileService
 import okhttp3.MultipartBody
 import retrofit2.Response
 

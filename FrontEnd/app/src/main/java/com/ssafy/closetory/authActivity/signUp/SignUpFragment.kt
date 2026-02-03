@@ -50,7 +50,7 @@ class SignUpFragment :
             binding.btnMale.backgroundTintList =
                 ColorStateList.valueOf(requireContext().getColor(R.color.main_color))
             binding.btnFemale.backgroundTintList =
-                ColorStateList.valueOf(requireContext().getColor(R.color.gray_500))
+                ColorStateList.valueOf(requireContext().getColor(R.color.gray_300))
         }
 
         binding.btnFemale.setOnClickListener {
@@ -58,7 +58,7 @@ class SignUpFragment :
             binding.btnFemale.backgroundTintList =
                 ColorStateList.valueOf(requireContext().getColor(R.color.main_color))
             binding.btnMale.backgroundTintList =
-                ColorStateList.valueOf(requireContext().getColor(R.color.gray_500))
+                ColorStateList.valueOf(requireContext().getColor(R.color.gray_300))
         }
 
         // 회원가입 버튼

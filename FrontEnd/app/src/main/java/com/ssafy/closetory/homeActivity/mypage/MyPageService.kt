@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.myPage
+package com.ssafy.closetory.homeActivity.mypage
 
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.EditProfileInfoResponse

@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.myPage.signout
+package com.ssafy.closetory.homeActivity.mypage.signout
 
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.SignoutRequest

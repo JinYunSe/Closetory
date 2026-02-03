@@ -97,7 +97,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
                     InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                 }
 
-            binding.etLoginPassword.setSelection(binding.etLoginPassword.text.length)
+            binding.etLoginPassword.setSelection(binding.etLoginPassword.text?.length ?: 0)
         }
     }
 }

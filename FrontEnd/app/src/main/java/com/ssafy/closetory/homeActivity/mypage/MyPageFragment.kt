@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.myPage
+package com.ssafy.closetory.homeActivity.mypage
 
 import android.content.Intent
 import android.graphics.Color
@@ -28,7 +28,7 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentMyPageBinding
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.StatisticsResponse
-import com.ssafy.closetory.homeActivity.myPage.signout.SignoutViewModel
+import com.ssafy.closetory.homeActivity.mypage.signout.SignoutViewModel
 import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.auth.AuthManager
 import java.lang.reflect.Field
@@ -84,8 +84,8 @@ class MyPageFragment :
 
     private fun bindUserProfile(user: EditProfileInfoResponse) {
         binding.tvNickname.text = user.nickname ?: "닉네임"
-        binding.tvHeight.text = "${user.height ?: 0}cm"
-        binding.tvWeight.text = "${user.weight ?: 0}kg"
+        binding.tvHeight.text = "${user.height ?: 0} cm"
+        binding.tvWeight.text = "${user.weight ?: 0} kg"
 
         bindProfileImage(user.profilePhotoUrl)
         bindBodyImage(user.bodyPhotoUrl)
