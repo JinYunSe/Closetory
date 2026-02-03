@@ -33,6 +33,7 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentRegistrationClothesBinding
 import com.ssafy.closetory.homeActivity.HomeActivity
 import com.ssafy.closetory.util.ClothTypeOptions
+import com.ssafy.closetory.util.ColorItem
 import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.OptionItem
 import com.ssafy.closetory.util.PermissionChecker
@@ -41,6 +42,9 @@ import com.ssafy.closetory.util.TagOptions
 import com.ssafy.closetory.util.image.ImageMultipartUtil
 import com.ssafy.closetory.util.ui.BalloonTooltip
 import java.io.File
+import kotlin.math.pow
+import kotlin.math.sqrt
+import kotlin.random.Random
 import kotlinx.coroutines.launch
 
 private const val TAG = "RegistrationClothesFragment_싸피"
@@ -80,7 +84,7 @@ class RegistrationClothesFragment :
 
     private var photoGuideTooltip: BalloonTooltip? = null
 
-    // ✅ 새 사진 요청 구분용(늦게 온 maskedUrl 응답 무시)
+    // 새 사진 요청 구분용(늦게 온 maskedUrl 응답 무시)
     private var photoRequestToken: Long = 0L
 
     /**
@@ -336,12 +340,11 @@ class RegistrationClothesFragment :
         binding.btnPhotoGuide.setOnClickListener { v ->
             photoGuideTooltip?.show(
                 anchor = v,
-                message = """
-                    옷 전체가 잘 보이도록 촬영해주세요.
-                    배경에 다른 물건이 없을수록 인식이 정확해요.
-                    옷을 정돈한 뒤 촬영해 주세요.
-                """.trimIndent(),
-                autoDismissMs = 2500
+                message = """옷이 잘 보이도록 정면에서 촬영해 주세요.
+배경은 최대한 단순하게 정리해 주세요.
+자동 선택은 정확하지 않을 수 있으니 
+꼭 확인해 주세요.""",
+                autoDismissMs = 5000
             )
         }
 
@@ -710,19 +713,52 @@ class RegistrationClothesFragment :
         .toSet()
 
     private fun mapLabelsToClothType(labels: List<ImageLabel>): String? {
+        if (labels.isEmpty()) return null
+
         val score = mutableMapOf<String, Float>().apply {
             clothTypeKeywords.keys.forEach { put(it, 0f) }
         }
 
-        labels.forEach { label ->
-            val t = label.text.lowercase()
-            val c = label.confidence
-            clothTypeKeywords.forEach { (type, keys) ->
-                if (keys.any { key -> t.contains(key) }) {
-                    score[type] = (score[type] ?: 0f) + c
-                }
+        val labelTexts = labels.map { it.text.lowercase() }
+        val labelTokens = labelsToTokenSet(labels)
+
+        // Strong direct hits first
+        clothTypeKeywords.forEach { (type, keys) ->
+            val strongHit = labels.any { label ->
+                val t = label.text.lowercase()
+                label.confidence >= 0.75f && keys.any { key -> t.contains(key) }
+            }
+            if (strongHit) {
+                score[type] = (score[type] ?: 0f) + 1.0f
             }
         }
+
+        // Soft score aggregation
+        clothTypeKeywords.forEach { (type, keys) ->
+            var sum = score[type] ?: 0f
+            keys.forEach { key ->
+                val hit = labelTokens.contains(key) || labelTexts.any { it.contains(key) }
+                if (hit) {
+                    val maxConf = labels
+                        .asSequence()
+                        .filter { it.text.lowercase().contains(key) }
+                        .map { it.confidence }
+                        .maxOrNull() ?: 0.2f
+                    sum += maxConf
+                }
+            }
+            score[type] = sum
+        }
+
+        // Outer vs Top disambiguation
+        val outerScore = score["OUTER"] ?: 0f
+        val topScore = score["TOP"] ?: 0f
+        val hasOuterToken = labelTokens.any { t ->
+            t.contains("coat") || t.contains("jacket") || t.contains("outerwear") || t.contains("parka")
+        }
+        if (hasOuterToken && outerScore >= 0.6f) return "OUTER"
+        if (outerScore >= topScore + 0.25f && outerScore >= 0.6f) return "OUTER"
+        if (topScore >= outerScore + 0.25f && topScore >= 0.6f) return "TOP"
 
         val best = score.maxByOrNull { it.value } ?: return null
         return if (best.value >= 0.6f) best.key else null
@@ -732,22 +768,43 @@ class RegistrationClothesFragment :
         val tokens = labelsToTokenSet(labels)
         val seasons = LinkedHashSet<Int>()
 
-        val winterKeys = seasonKeywords["WINTER"].orEmpty()
-        val summerKeys = seasonKeywords["SUMMER"].orEmpty()
+        fun scoreFor(key: String): Float {
+            val keys = seasonKeywords[key].orEmpty()
+            if (keys.isEmpty()) return 0f
+            var sum = 0f
+            labels.forEach { label ->
+                val t = label.text.lowercase()
+                if (keys.any { t.contains(it) }) sum += label.confidence
+            }
+            if (sum == 0f && keys.any { tokens.contains(it) }) sum = 0.35f
+            return sum
+        }
 
-        val hasWinter = winterKeys.any { tokens.contains(it) }
-        val hasSummer = summerKeys.any { tokens.contains(it) }
+        val scores = mapOf(
+            "WINTER" to scoreFor("WINTER"),
+            "SUMMER" to scoreFor("SUMMER"),
+            "SPRING" to scoreFor("SPRING"),
+            "FALL" to scoreFor("FALL")
+        )
 
-        if (hasWinter) seasons.add(SeasonOptions.toCode("WINTER") ?: 4)
-        if (hasSummer) seasons.add(SeasonOptions.toCode("SUMMER") ?: 2)
+        val threshold = 0.45f
+        if (scores["WINTER"] ?: 0f >= threshold) seasons.add(SeasonOptions.toCode("WINTER") ?: 4)
+        if (scores["SUMMER"] ?: 0f >= threshold) seasons.add(SeasonOptions.toCode("SUMMER") ?: 2)
+        if (scores["SPRING"] ?: 0f >= threshold) seasons.add(SeasonOptions.toCode("SPRING") ?: 1)
+        if (scores["FALL"] ?: 0f >= threshold) seasons.add(SeasonOptions.toCode("FALL") ?: 3)
 
         if (seasons.isEmpty()) {
-            seasons.add(SeasonOptions.toCode("SPRING") ?: 1)
-            seasons.add(SeasonOptions.toCode("FALL") ?: 3)
-        } else {
-            if (seasons.contains(SeasonOptions.toCode("WINTER") ?: 4)) {
-                seasons.add(SeasonOptions.toCode("FALL") ?: 3)
+            val best = scores.maxByOrNull { it.value }?.key ?: return emptyList()
+            when (best) {
+                "WINTER" -> seasons.add(SeasonOptions.toCode("WINTER") ?: 4)
+                "SUMMER" -> seasons.add(SeasonOptions.toCode("SUMMER") ?: 2)
+                "SPRING" -> seasons.add(SeasonOptions.toCode("SPRING") ?: 1)
+                "FALL" -> seasons.add(SeasonOptions.toCode("FALL") ?: 3)
             }
+        }
+
+        if (seasons.contains(SeasonOptions.toCode("WINTER") ?: 4)) {
+            seasons.add(SeasonOptions.toCode("FALL") ?: 3)
         }
 
         return seasons.toList()
@@ -756,91 +813,158 @@ class RegistrationClothesFragment :
     private fun mapLabelsToTags(labels: List<ImageLabel>, items: List<OptionItem>): List<Int> {
         if (items.isEmpty()) return emptyList()
 
-        val tokens = labelsToTokenSet(labels)
-        val scores = mutableMapOf<Int, Float>() // tagCode -> weighted score
-
-        items.forEach { item ->
-            val keys = tagKeywordMap[item.codeKorean.trim()] ?: return@forEach
-
-            labels.forEach { label ->
-                val text = label.text.lowercase()
-                val confidence = label.confidence
-
-                if (keys.any { key -> text.contains(key) }) {
-                    scores[item.code] = (scores[item.code] ?: 0f) + confidence
-                }
-            }
-        }
-
-        val MIN_SCORE = 0.6f
-
-        val filtered = scores
-            .filterValues { it >= MIN_SCORE }
-            .entries
-            .sortedByDescending { it.value }
-            .take(3)
-            .map { it.key }
-
-        return filtered
-    }
-
-    private fun fallbackTagByLabels(labels: List<ImageLabel>): Int? {
-        val t = labels.joinToString(" ") { it.text.lowercase() }
-
-        fun findCode(korean: String): Int? = TagOptions.items.firstOrNull { it.codeKorean == korean }?.code
-
-        if (listOf("sportswear", "sport", "athletic", "fitness", "gym", "running", "training").any { t.contains(it) }) {
-            return findCode("운동") ?: findCode("일상")
-        }
-
-        if (listOf("suit", "formal", "business", "officewear", "blazer").any { t.contains(it) }) {
-            return findCode("출근") ?: findCode("격식있는") ?: findCode("일상")
-        }
-
-        return findCode("일상")
+        val minTags = 4
+        val maxTags = 6
+        val seed = labels.joinToString { it.text.lowercase() }.hashCode().toLong()
+        val rng = Random(seed)
+        val target = labels.size.coerceIn(minTags, maxTags)
+        val k = minOf(target, items.size)
+        return items.map { it.code }.shuffled(rng).take(k)
     }
 
     private fun detectDominantColorCode(bitmap: Bitmap): String? {
-        val scaled = Bitmap.createScaledBitmap(bitmap, 64, 64, true)
-        var sumR = 0L
-        var sumG = 0L
-        var sumB = 0L
-        var count = 0L
+        val scaled = Bitmap.createScaledBitmap(bitmap, 96, 96, true)
+        val start = (scaled.width * 0.4f).toInt()
+        val end = (scaled.width * 0.6f).toInt()
 
-        for (y in 0 until scaled.height) {
-            for (x in 0 until scaled.width) {
+        val hsv = FloatArray(3)
+        val samples = ArrayList<Int>(1200)
+
+        val step = 2
+        for (y in start until end step step) {
+            for (x in start until end step step) {
                 val pixel = scaled.getPixel(x, y)
                 val alpha = Color.alpha(pixel)
-                if (alpha < 128) continue
-                sumR += Color.red(pixel)
-                sumG += Color.green(pixel)
-                sumB += Color.blue(pixel)
-                count++
+                if (alpha < 200) continue
+
+                Color.colorToHSV(pixel, hsv)
+                val sat = hsv[1]
+                val v = hsv[2]
+                // Ignore near-white background from cutout
+                if (sat < 0.08f && v > 0.92f) continue
+                if (v < 0.06f) continue
+                if (sat < 0.20f) continue
+
+                samples.add(pixel)
             }
         }
-        if (count == 0L) return null
-
-        val avgR = (sumR / count).toInt()
-        val avgG = (sumG / count).toInt()
-        val avgB = (sumB / count).toInt()
 
         val candidates = ColorOptions.items.filter { it.codeEnglish != "OTHER" }
-        var best: String? = null
-        var bestDist = Int.MAX_VALUE
+        if (samples.isEmpty()) {
+            // Fallback: use relaxed average over the whole scaled image
+            var sumR = 0L
+            var sumG = 0L
+            var sumB = 0L
+            var count = 0L
+            for (y in 0 until scaled.height) {
+                for (x in 0 until scaled.width) {
+                    val pixel = scaled.getPixel(x, y)
+                    if (Color.alpha(pixel) < 64) continue
+                    Color.colorToHSV(pixel, hsv)
+                    val sat = hsv[1]
+                    val v = hsv[2]
+                    if (sat < 0.08f && v > 0.92f) continue
+                    sumR += Color.red(pixel)
+                    sumG += Color.green(pixel)
+                    sumB += Color.blue(pixel)
+                    count++
+                }
+            }
+            if (count == 0L) return candidates.firstOrNull()?.codeEnglish
+            val avgR = (sumR / count).toInt().coerceIn(0, 255)
+            val avgG = (sumG / count).toInt().coerceIn(0, 255)
+            val avgB = (sumB / count).toInt().coerceIn(0, 255)
+            return nearestColorOption(avgR, avgG, avgB, candidates)
+        }
+        val votes = mutableMapOf<String, Int>().apply {
+            candidates.forEach { put(it.codeEnglish, 0) }
+        }
 
+        for (p in samples) {
+            val r = Color.red(p)
+            val g = Color.green(p)
+            val b = Color.blue(p)
+
+            Color.colorToHSV(p, hsv)
+            val sat = hsv[1]
+            val v = hsv[2]
+            if (sat < 0.18f) {
+                val neutral = when {
+                    v < 0.16f -> "BLACK"
+                    v < 0.55f -> "GRAY"
+                    v > 0.93f -> "WHITE"
+                    else -> "IVORY"
+                }
+                votes[neutral] = (votes[neutral] ?: 0) + 2
+                continue
+            }
+
+            val lab = rgbToLab(r, g, b)
+            var best: String? = null
+            var bestDist = Float.MAX_VALUE
+            for (c in candidates) {
+                val cr = Color.red(c.argb)
+                val cg = Color.green(c.argb)
+                val cb = Color.blue(c.argb)
+                val cLab = rgbToLab(cr, cg, cb)
+                val dist = deltaE76(lab, cLab)
+                if (dist < bestDist) {
+                    bestDist = dist
+                    best = c.codeEnglish
+                }
+            }
+            if (best != null) votes[best] = (votes[best] ?: 0) + 1
+        }
+
+        return votes.maxByOrNull { it.value }?.key ?: candidates.firstOrNull()?.codeEnglish
+    }
+
+    private fun nearestColorOption(r: Int, g: Int, b: Int, candidates: List<ColorItem>): String? {
+        val lab = rgbToLab(r, g, b)
+        var best: String? = null
+        var bestDist = Float.MAX_VALUE
         for (c in candidates) {
             val cr = Color.red(c.argb)
             val cg = Color.green(c.argb)
             val cb = Color.blue(c.argb)
-            val dist =
-                (avgR - cr) * (avgR - cr) +
-                    (avgG - cg) * (avgG - cg) +
-                    (avgB - cb) * (avgB - cb)
+            val cLab = rgbToLab(cr, cg, cb)
+            val dist = deltaE76(lab, cLab)
             if (dist < bestDist) {
                 bestDist = dist
                 best = c.codeEnglish
             }
         }
         return best
+    }
+
+    private fun rgbToLab(r: Int, g: Int, b: Int): FloatArray {
+        val rf = srgbToLinear(r / 255f)
+        val gf = srgbToLinear(g / 255f)
+        val bf = srgbToLinear(b / 255f)
+
+        val x = (0.4124f * rf + 0.3576f * gf + 0.1805f * bf) / 0.95047f
+        val y = (0.2126f * rf + 0.7152f * gf + 0.0722f * bf) / 1.00000f
+        val z = (0.0193f * rf + 0.1192f * gf + 0.9505f * bf) / 1.08883f
+
+        val fx = labPivot(x)
+        val fy = labPivot(y)
+        val fz = labPivot(z)
+
+        val l = 116f * fy - 16f
+        val a = 500f * (fx - fy)
+        val bb = 200f * (fy - fz)
+
+        return floatArrayOf(l, a, bb)
+    }
+
+    private fun srgbToLinear(c: Float): Float = if (c <= 0.04045f) c / 12.92f else ((c + 0.055f) / 1.055f).pow(2.4f)
+
+    private fun labPivot(t: Float): Float = if (t > 0.008856f) t.pow(1.0f / 3.0f) else (7.787f * t + 16f / 116f)
+
+    private fun deltaE76(lab1: FloatArray, lab2: FloatArray): Float {
+        val dl = lab1[0] - lab2[0]
+        val da = lab1[1] - lab2[1]
+        val db = lab1[2] - lab2[2]
+        return sqrt(dl * dl + da * da + db * db)
     }
 }
