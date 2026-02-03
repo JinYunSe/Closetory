@@ -13,38 +13,6 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "HomeViewModel_싸피"
 
-// class HomeViewModel : ViewModel() {
-//
-//    // 월별 스타일링 리스트
-//    private val _stylingList = MutableLiveData<List<StylingResponse>>()
-//    val stylingList: LiveData<List<StylingResponse>> = _stylingList
-//
-//    private val _message = MutableSharedFlow<String?>(replay = 0)
-//    val message: SharedFlow<String?> = _message
-//
-//    private val homeRepository = HomeRepository()
-//
-//    fun getStylingList(isMain: Boolean) {
-//        viewModelScope.launch {
-//            try {
-//                val res = homeRepository.getStylingList(isMain)
-//
-//                if (res.isSuccessful) {
-//                    val list = res.body()?.data!!
-//                    _stylingList.value = list
-//                    Log.d(TAG, "홈 캘린더 옷 조회 성공 : $list")
-//                } else {
-//                    val errorMessage = res.body()?.errorMessage
-//                    Log.d(TAG, "홈 캘린더 옷 조회 실패 : $errorMessage")
-//                    _message.emit(errorMessage)
-//                }
-//            } catch (e: Exception) {
-//                Log.e(TAG, "홈 룩 목록 조회 : ${e.message}")
-//                _message.emit(e.message ?: "네트워크 오류 발생")
-//            }
-//        }
-//    }
-// }
 class HomeViewModel : ViewModel() {
 
     private val _message = MutableSharedFlow<String?>(replay = 0)
