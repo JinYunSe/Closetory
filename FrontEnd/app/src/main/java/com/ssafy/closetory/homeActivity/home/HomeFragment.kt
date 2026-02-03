@@ -9,7 +9,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.android.material.snackbar.Snackbar
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
@@ -18,11 +17,11 @@ import com.ssafy.closetory.databinding.FragmentHomeBinding
 import com.ssafy.closetory.dto.PostQueryFilter
 import com.ssafy.closetory.dto.StylingResponse
 import com.ssafy.closetory.homeActivity.HomeActivity
+import com.ssafy.closetory.homeActivity.ImagePreviewDialogFragment
 import com.ssafy.closetory.homeActivity.adapter.HomeCalendarAdapter
 import com.ssafy.closetory.homeActivity.adapter.PostListAdapter
 import com.ssafy.closetory.homeActivity.aiStyling.Day
 import com.ssafy.closetory.homeActivity.aiStyling.WeekAdapter
-import com.ssafy.closetory.homeActivity.home.ImagePreviewActivity
 import com.ssafy.closetory.homeActivity.post.PostViewModel
 import com.ssafy.closetory.util.ColorOptions
 import java.util.Calendar
@@ -308,9 +307,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
     }
 
     private fun openImagePreview(imageUrl: String) {
-        val intent = android.content.Intent(requireContext(), ImagePreviewActivity::class.java)
-        intent.putExtra(ImagePreviewActivity.EXTRA_IMAGE_URL, imageUrl)
-        startActivity(intent)
+        ImagePreviewDialogFragment
+            .newInstance(imageUrl)
+            .show(parentFragmentManager, "ImagePreviewDialog")
     }
 
     /**
