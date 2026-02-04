@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:paddingBottom="16dp"
     tools:context=".homeActivity.aiStyling.AiStylingFragment">
 
     <LinearLayout
@@ -20,9 +20,7 @@
             android:background="@drawable/bg_login_input"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
-            android:layout_marginEnd="4dp">
-
+            android:paddingHorizontal="8dp">
             <!--  파란 글씨(여기만 바뀌게)  -->
             <TextView
                 android:id="@+id/tv_style_mode"
@@ -32,33 +30,30 @@
                 android:layout_weight="0.8"
                 android:gravity="center"
                 android:text="어울림"
-                android:textColor="@color/gray_500"
-                android:textSize="12sp" />
+                android:textColor="#000000"
+                android:textSize="14sp" />
             <!--  스위치에는 글자 절대 표시 X  -->
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switch_style_mode"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="0.8"
                 android:gravity="center"
                 android:showText="false"
-                android:scaleX="0.85"
-                android:scaleY="0.85"/>
+                android:switchMinWidth="48dp"
+                app:thumbTint="@color/switch_thumb_selector"
+                app:trackTint="@color/switch_track_selector" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:background="@drawable/bg_switch_group"
+            android:background="@drawable/bg_login_input"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
-            android:layout_marginEnd="4dp">
-
+            android:paddingHorizontal="8dp">
             <!--  파란 글씨(여기만 바뀌게)  -->
-
-            <!--  스위치에는 글자 절대 표시 X  -->
             <TextView
                 android:id="@+id/tv_switch_owned_only"
                 android:layout_width="0dp"
@@ -67,18 +62,19 @@
                 android:layout_weight="0.8"
                 android:gravity="center"
                 android:text="모든 옷"
-                android:textColor="@color/gray_500"
-                android:textSize="12sp" />
-
+                android:textColor="#000000"
+                android:textSize="14sp" />
+            <!--  스위치에는 글자 절대 표시 X  -->
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switch_switch_owned_only"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="0.8"
                 android:gravity="center"
-                android:scaleX="0.85"
-                android:scaleY="0.85"
-                android:showText="false" />
+                android:showText="false"
+                android:switchMinWidth="48dp"
+                app:thumbTint="@color/switch_thumb_selector"
+                app:trackTint="@color/switch_track_selector" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -86,27 +82,28 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:backgroundTint="#FFFFFF"
+            android:background="@drawable/bg_login_input"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:minWidth="0dp"
             android:minHeight="0dp"
             android:paddingVertical="0dp"
             android:text="직접코디\n생성"
-            android:textColor="@color/gray_500"
-            android:textSize="12sp"
-            app:backgroundTint="@android:color/white"
-            app:cornerRadius="8dp"
-            app:strokeColor="@color/gray_500"
-            app:strokeWidth="1dp" />
+            android:textColor="#000000"
+            app:backgroundTint="@color/white"
+            app:cornerRadius="12dp"
+            app:strokeWidth="0.8dp"
+            app:iconTint="@color/black"
+            app:icon="@drawable/img_direct_coordination"
+            app:iconSize="18dp"
+            app:iconGravity="textStart"/>
     </LinearLayout>
 
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="350dp"
-        android:background="#e9ecef"
-        android:layout_marginTop="4dp">
+        android:background="#e9ecef">
 
         <!-- 기존 슬롯 레이아웃 -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -145,7 +142,7 @@
             <!-- 아우터 슬롯 -->
             <FrameLayout
                 android:id="@+id/slot_outer"
-                android:layout_width="90dp"
+                android:layout_width="100dp"
                 android:layout_height="110dp"
                 android:layout_marginEnd="10dp"
                 app:layout_constraintEnd_toStartOf="@+id/slot_top"
@@ -171,8 +168,8 @@
             <!-- 악세서리 슬롯 -->
             <FrameLayout
                 android:id="@+id/slot_acc"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
                 android:layout_marginStart="10dp"
                 app:layout_constraintStart_toEndOf="@+id/slot_top"
                 app:layout_constraintTop_toTopOf="@+id/slot_top">
@@ -250,7 +247,7 @@
             <!-- 신발 슬롯 -->
             <FrameLayout
                 android:id="@+id/slot_shoes"
-                android:layout_width="80dp"
+                android:layout_width="85dp"
                 android:layout_height="80dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -322,7 +319,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.8"
+        android:layout_weight="0.7"
         android:gravity="bottom"
         android:orientation="horizontal"
         android:paddingHorizontal="20dp"
@@ -330,41 +327,48 @@
 
         <ImageView
             android:id="@+id/iv_ai_profile"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginBottom="4dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="2dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/default_image" />
+            android:src="@drawable/img_ai"
+            android:layout_gravity="center"/>
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/sv_ai_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="12dp"
             android:layout_weight="1"
-            android:maxHeight="150dp"
-            android:overScrollMode="never">
+            android:maxHeight="180dp"
+            android:overScrollMode="never"
+            android:layout_gravity="center"
+            android:fillViewport="false">
 
             <TextView
                 android:id="@+id/tv_ai_message"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/speech_bubble_left"
+                android:background="@drawable/speech_bubble"
                 android:lineSpacingExtra="4dp"
-                android:minHeight="44dp"
+                android:minHeight="64dp"
                 android:paddingStart="20dp"
-                android:paddingTop="30dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="12dp"
-                android:text="AI가 여기에 답변을 해줍니다. 텍스트가 길어지면 자동으로 위로 늘어나며 스크롤이 생성됩니다."
-                android:textColor="#333333"
-                android:textSize="14sp" />
+                android:paddingTop="18dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="18dp"
+                android:text="'AI 코디추천'을 눌러보세요.\n\n무신사 스타일로 여러분의 코디를 추천해드립니다!"
+                android:textColor="#000000"
+                android:textSize="14.5sp"
+                android:letterSpacing="-0.01" />
         </androidx.core.widget.NestedScrollView>
+
+
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="55dp"
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="10dp"
         android:gravity="center_vertical"
@@ -373,17 +377,23 @@
         <FrameLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:layout_gravity="center">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_register"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:text="✨AI 코디추천"
-                android:textColor="@color/white"
-                app:cornerRadius="8dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"/>
+                android:text="AI 코디추천"
+                android:textStyle="bold"
+                android:background="@drawable/bg_login_button_black"
+                android:textColor="@android:color/white"
+                app:cornerRadius="12dp"
+
+                app:icon="@drawable/img_ai_logo"
+                app:iconSize="18dp"
+                app:iconGravity="textStart"
+                />
 
         </FrameLayout>
 
@@ -394,14 +404,13 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_ai_styling_reset"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="55dp"
             android:layout_weight="1"
             android:background="@drawable/bg_login_input"
-            app:backgroundTint="@color/gray_300"
+            app:backgroundTint="@null"
             android:text="초기화"
-            android:textColor="@color/main_color"
-            app:cornerRadius="8dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"/>
+            android:textColor="#000000"
+            android:textStyle="bold"
+            />
     </LinearLayout>
 </LinearLayout>
