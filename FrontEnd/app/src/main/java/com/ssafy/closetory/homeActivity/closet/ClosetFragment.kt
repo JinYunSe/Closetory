@@ -41,6 +41,8 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
 
     private val clothAdapter = ClothesAdapter()
 
+    private var suppressSwitchListener = false
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -48,6 +50,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
 
         initRecyclerViews()
         bindAdapterClicks()
+        restoreFilterState()
         checkSwitch()
         searchDialog()
         registerObserve()
@@ -105,6 +108,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
                 currentTags = selectedTags.takeIf { it.isNotEmpty() }
                 currentSeasons = selectedSeasons.takeIf { it.isNotEmpty() }
                 currentColor = selectedColor
+                persistFilterState()
 
                 runSearch()
                 dialog.dismiss()
@@ -114,9 +118,14 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
 
     // 스위치 체크 여부 확인
     fun checkSwitch() {
-        checkedOnlyMyCloth = binding.swOnlyMyCloth.isChecked
+        suppressSwitchListener = true
+        binding.swOnlyMyCloth.isChecked = checkedOnlyMyCloth
+        suppressSwitchListener = false
+
         binding.swOnlyMyCloth.setOnCheckedChangeListener { _, isChecked ->
+            if (suppressSwitchListener) return@setOnCheckedChangeListener
             checkedOnlyMyCloth = isChecked
+            persistFilterState()
             runSearch()
         }
     }
@@ -128,6 +137,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
             "runSearch tags=$currentTags seasons=$currentSeasons color=$currentColor onlyMy=$checkedOnlyMyCloth"
         )
 
+        persistFilterState()
         viewModel.getClothesList(
             tags = currentTags,
             color = currentColor,
@@ -195,5 +205,21 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
                 runSearch()
             }
         }
+    }
+
+    private fun persistFilterState() {
+        val handle = findNavController().currentBackStackEntry?.savedStateHandle ?: return
+        handle["CLOSET_FILTER_TAGS"] = currentTags?.let { ArrayList(it) }
+        handle["CLOSET_FILTER_SEASONS"] = currentSeasons?.let { ArrayList(it) }
+        handle["CLOSET_FILTER_COLOR"] = currentColor
+        handle["CLOSET_FILTER_ONLY_MINE"] = checkedOnlyMyCloth
+    }
+
+    private fun restoreFilterState() {
+        val handle = findNavController().currentBackStackEntry?.savedStateHandle ?: return
+        currentTags = handle.get<ArrayList<Int>>("CLOSET_FILTER_TAGS")?.toList()
+        currentSeasons = handle.get<ArrayList<Int>>("CLOSET_FILTER_SEASONS")?.toList()
+        currentColor = handle.get<String>("CLOSET_FILTER_COLOR")
+        checkedOnlyMyCloth = handle.get<Boolean>("CLOSET_FILTER_ONLY_MINE") ?: checkedOnlyMyCloth
     }
 }

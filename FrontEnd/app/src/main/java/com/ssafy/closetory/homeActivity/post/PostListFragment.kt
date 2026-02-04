@@ -27,6 +27,7 @@ class PostListFragment :
 
     private var didInitialLoad = false
     private var pendingOpenPostId: Int? = null
+    private var suppressFilterRequest = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -42,6 +43,7 @@ class PostListFragment :
         setupSearchListener()
         setupCreateListener()
 
+        restoreUiState()
         observeViewModel()
         observeRefreshSignal()
     }
@@ -72,11 +74,8 @@ class PostListFragment :
     }
 
     private fun setupFilterListener() {
-        if (binding.rgPostOption.checkedRadioButtonId == View.NO_ID) {
-            binding.rbLatest.isChecked = true
-        }
-
         binding.rgPostOption.setOnCheckedChangeListener { _, _ ->
+            if (suppressFilterRequest) return@setOnCheckedChangeListener
             requestByUiState()
         }
     }
@@ -124,6 +123,7 @@ class PostListFragment :
     }
 
     private fun goToPostDetail(targetPostId: Int) {
+        persistUiState()
         val bundle = Bundle().apply { putInt("postId", targetPostId) }
         findNavController().navigate(R.id.action_post_list_to_post_detail, bundle)
     }
@@ -156,5 +156,26 @@ class PostListFragment :
                         ?.remove<Boolean>("POST_REFRESH")
                 }
             }
+    }
+
+    private fun persistUiState() {
+        val handle = findNavController().currentBackStackEntry?.savedStateHandle ?: return
+        handle["POST_FILTER_ID"] = binding.rgPostOption.checkedRadioButtonId
+        handle["POST_KEYWORD"] = binding.etKeyword.text?.toString().orEmpty()
+    }
+
+    private fun restoreUiState() {
+        val handle = findNavController().currentBackStackEntry?.savedStateHandle ?: return
+        val filterId = handle.get<Int>("POST_FILTER_ID") ?: View.NO_ID
+        val keyword = handle.get<String>("POST_KEYWORD") ?: ""
+
+        suppressFilterRequest = true
+        if (filterId != View.NO_ID) {
+            binding.rgPostOption.check(filterId)
+        } else {
+            binding.rbLatest.isChecked = true
+        }
+        binding.etKeyword.setText(keyword)
+        suppressFilterRequest = false
     }
 }
