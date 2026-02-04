@@ -1,6 +1,14 @@
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 package com.ssafy.closetory.homeActivity.post
 
 import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.CommentCreateRequest
+import com.ssafy.closetory.dto.CommentCreateResponse
+import com.ssafy.closetory.dto.CommentDto
+import com.ssafy.closetory.dto.CommentListResponse
+import com.ssafy.closetory.dto.CommentUpdateRequest
+import com.ssafy.closetory.dto.CommentUpdateResponse
 import com.ssafy.closetory.dto.PostCreateResponse
 import com.ssafy.closetory.dto.PostDetailResponse
 import com.ssafy.closetory.dto.PostEditResponse
@@ -25,14 +33,13 @@ interface PostService {
     suspend fun getPostsFilter(@Query("searchfilter") searchFilter: String): ApiResponse<List<PostItemResponse>>
 
     // -------------------------
-    // Detail (주의: 서버가 여기서 views +1 한다면, 불필요한 재호출 금지)
+    // Detail
     // -------------------------
     @GET("posts/{postId}")
     suspend fun getPostDetail(@Path("postId") postId: Int): ApiResponse<PostDetailResponse>
 
     // -------------------------
-    // Like (✅ 상세 재조회 없이 이 API로만 좋아요 상태 갱신)
-    // 서버 스펙에 맞게 경로/메서드 조정 필요할 수 있음
+    // Like
     // -------------------------
     @POST("posts/{postId}/like")
     suspend fun likePost(@Path("postId") postId: Int): ApiResponse<Unit>
@@ -62,11 +69,36 @@ interface PostService {
     suspend fun deletePost(@Path("postId") postId: Int): ApiResponse<Unit>
 
     // -------------------------
-    // (선택) Clothes save/unsave
+    // Clothes save/unsave
     // -------------------------
     @POST("clothes/{clothesId}/save")
     suspend fun postClothesRental(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
 
     @DELETE("clothes/{clothesId}/save")
     suspend fun deleteClothesRental(@Path("clothesId") clothesId: Int): Response<ApiResponse<Unit>>
+
+    // -------------------------
+    // Comments
+    // -------------------------
+    @GET("posts/{postId}/comments")
+    suspend fun getComments(@Path("postId") postId: Int): ApiResponse<List<CommentDto>>
+
+    @POST("posts/{postId}/comments")
+    suspend fun createComment(
+        @Path("postId") postId: Int,
+        @Body request: CommentCreateRequest
+    ): Response<ApiResponse<CommentCreateResponse>>
+
+    @PATCH("posts/{postId}/comments/{commentId}")
+    suspend fun updateComment(
+        @Path("postId") postId: Int,
+        @Path("commentId") commentId: Int,
+        @Body request: CommentUpdateRequest
+    ): Response<ApiResponse<CommentUpdateResponse>>
+
+    @DELETE("posts/{postId}/comments/{commentId}")
+    suspend fun deleteComment(
+        @Path("postId") postId: Int,
+        @Path("commentId") commentId: Int
+    ): Response<ApiResponse<Unit>>
 }

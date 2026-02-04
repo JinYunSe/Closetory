@@ -59,6 +59,12 @@ class PostViewModel : ViewModel() {
     private val _deleteEvent = MutableSharedFlow<DeleteEvent>(extraBufferCapacity = 1)
     val deleteEvent: SharedFlow<DeleteEvent> = _deleteEvent.asSharedFlow()
 
+    // -------------------------
+    // Public: comments (StateFlow)
+    // -------------------------
+    private val _comments = MutableStateFlow<List<CommentDto>>(emptyList())
+    val comments: StateFlow<List<CommentDto>> = _comments.asStateFlow()
+
     // =========================================================
     // List
     // =========================================================
@@ -166,18 +172,16 @@ class PostViewModel : ViewModel() {
     fun createPost(photo: MultipartBody.Part, title: String, content: String, items: List<Int>) {
         viewModelScope.launch {
             try {
-                val res = repository.createPost(
+                val apiRes = repository.createPost(
                     photo = photo,
                     request = PostCreateRequest(title = title, content = content, items = items)
                 )
 
-                if (res.isSuccessful) {
-                    val body = res.body()
-                    _createResult.tryEmit(body?.data)
-                    _message.tryEmit(body?.responseMessage ?: body?.errorMessage ?: "등록 완료")
+                if (apiRes.httpStatusCode in 200..299) {
+                    _createResult.tryEmit(apiRes.data)
+                    _message.tryEmit(apiRes.responseMessage ?: "등록 완료")
                 } else {
-                    val apiError = parseErrorBody<PostCreateResponse>(res)
-                    _message.tryEmit(apiError?.errorMessage ?: "등록 실패(code=${res.code()})")
+                    _message.tryEmit(apiRes.errorMessage ?: "등록 실패")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "createPost 예외", e)
@@ -201,7 +205,6 @@ class PostViewModel : ViewModel() {
                 if (apiRes.data != null) _editResult.tryEmit(apiRes.data)
                 _message.tryEmit(apiRes.responseMessage ?: apiRes.errorMessage ?: "수정 완료")
 
-                // 수정 성공 시에만 상세 재조회 (이건 의도된 동작)
                 if (apiRes.httpStatusCode in 200..299) {
                     loadPostDetail(postId, force = true)
                 }
@@ -219,44 +222,40 @@ class PostViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val apiRes = repository.deletePost(postId)
-                val ok = apiRes.httpStatusCode in 200..299
 
-                if (ok) {
+                if (apiRes.httpStatusCode in 200..299) {
                     _deleteEvent.tryEmit(DeleteEvent.Success(postId))
-                    _message.tryEmit(apiRes.responseMessage ?: "삭제 완료")
+                    _message.tryEmit(apiRes.responseMessage ?: "게시글이 삭제되었습니다.")
                 } else {
-                    val msg = apiRes.errorMessage ?: apiRes.responseMessage ?: "삭제 실패"
-                    _deleteEvent.tryEmit(DeleteEvent.Fail(msg))
-                    _message.tryEmit(msg)
+                    _deleteEvent.tryEmit(DeleteEvent.Fail(apiRes.errorMessage ?: "삭제 실패"))
                 }
             } catch (e: Exception) {
-                val msg = e.message ?: "네트워크 오류"
-                _deleteEvent.tryEmit(DeleteEvent.Fail(msg))
-                _message.tryEmit(msg)
+                Log.e(TAG, "deletePost 예외", e)
+                _deleteEvent.tryEmit(DeleteEvent.Fail(e.message ?: "네트워크 오류"))
             }
         }
     }
 
     // =========================================================
-    // (선택) 옷 저장/해제
+    // Clothes Save/Unsave
     // =========================================================
     fun toggleClothesSave(postId: Int, clothesId: Int, willSave: Boolean) {
         viewModelScope.launch {
             try {
-                val res = if (willSave) {
+                val apiRes = if (willSave) {
                     repository.postClothesRental(clothesId)
                 } else {
                     repository.deleteClothesRental(clothesId)
                 }
 
-                if (res.isSuccessful) {
-                    val msg = res.body()?.responseMessage ?: if (willSave) "저장 완료" else "저장 해제 완료"
-                    _message.tryEmit(msg)
+                if (apiRes.httpStatusCode in 200..299) {
+                    val msg = if (willSave) "저장 완료" else "저장 해제 완료"
+                    _message.tryEmit(apiRes.responseMessage ?: msg)
 
-                    // 옷 저장 상태는 상세 items에 영향 → 상세 재조회 (서버가 views+1 하는 구조면 이 부분도 백엔드가 분리돼야 완벽)
+                    // 옷 저장 상태는 상세 items에 영향 → 상세 재조회
                     loadPostDetail(postId, force = true)
                 } else {
-                    _message.tryEmit("요청 실패(code=${res.code()})")
+                    _message.tryEmit(apiRes.errorMessage ?: "요청 실패")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "toggleClothesSave 예외", e)
@@ -265,6 +264,145 @@ class PostViewModel : ViewModel() {
         }
     }
 
+    // =========================================================
+    // Comments (✅ 댓글 기능 - ApiResponse 직접 처리)
+    // =========================================================
+
+    /**
+     * ✅ 댓글 목록 조회 (수정됨: 서버가 List를 직접 반환)
+     */
+    fun loadComments(postId: Int) {
+        viewModelScope.launch {
+            try {
+                val apiRes = repository.getComments(postId)
+
+                if (apiRes.httpStatusCode in 200..299 && apiRes.data != null) {
+                    // ✅ FIX: 서버가 List<CommentDto>를 직접 반환하므로 바로 할당
+                    _comments.value = apiRes.data ?: emptyList()
+                    Log.d(TAG, "✅ 댓글 조회 성공: ${apiRes.data.size}개")
+                } else {
+                    _message.tryEmit(apiRes.errorMessage ?: apiRes.responseMessage ?: "댓글을 불러올 수 없습니다.")
+                    _comments.value = emptyList()
+                    Log.e(TAG, "댓글 조회 실패 - code: ${apiRes.httpStatusCode}, error: ${apiRes.errorMessage}")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "loadComments 예외", e)
+                _message.tryEmit(e.message ?: "네트워크 오류")
+                _comments.value = emptyList()
+            }
+        }
+    }
+
+    /**
+     * 댓글 등록
+     */
+    fun createComment(postId: Int, content: String) {
+        if (content.isBlank()) {
+            viewModelScope.launch {
+                _message.tryEmit("댓글 내용을 입력하세요.")
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val apiRes = repository.createComment(postId, content)
+
+                if (apiRes.httpStatusCode in 200..299) {
+                    _message.tryEmit(apiRes.responseMessage ?: "댓글이 등록되었습니다.")
+                    // 댓글 등록 후 목록 다시 조회
+                    loadComments(postId)
+                } else {
+                    Log.e(TAG, "댓글 등록 실패: code=${apiRes.httpStatusCode}, error=${apiRes.errorMessage}")
+                    val errorMsg = when (apiRes.httpStatusCode) {
+                        400 -> "댓글 내용은 비워둘 수 없습니다."
+                        404 -> "존재하지 않는 게시글입니다."
+                        else -> apiRes.errorMessage ?: "댓글 등록에 실패했습니다."
+                    }
+                    _message.tryEmit(errorMsg)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "createComment 예외", e)
+                _message.tryEmit(e.message ?: "네트워크 오류")
+            }
+        }
+    }
+
+    /**
+     * ✅ 댓글 수정 (ApiResponse 직접 처리)
+     */
+    fun updateComment(postId: Int, commentId: Int, content: String) {
+        if (content.isBlank()) {
+            viewModelScope.launch {
+                _message.tryEmit("댓글 내용을 입력하세요.")
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val apiRes = repository.updateComment(postId, commentId, content)
+
+                if (apiRes.httpStatusCode in 200..299) {
+                    Log.d(TAG, "✅ 댓글 수정 성공")
+                    _message.tryEmit(apiRes.responseMessage ?: "댓글이 수정되었습니다.")
+
+                    // 댓글 수정 후 목록 다시 조회
+                    loadComments(postId)
+                } else {
+                    Log.e(TAG, "❌ 댓글 수정 실패: code=${apiRes.httpStatusCode}, error=${apiRes.errorMessage}")
+
+                    val errorMsg = when (apiRes.httpStatusCode) {
+                        400 -> "댓글 내용은 비워둘 수 없습니다."
+                        401 -> "인증에 실패했습니다."
+                        403 -> "댓글 수정 권한이 없습니다."
+                        404 -> "댓글을 찾을 수 없습니다."
+                        else -> apiRes.errorMessage ?: "댓글 수정에 실패했습니다."
+                    }
+                    _message.tryEmit(errorMsg)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "updateComment 예외", e)
+                _message.tryEmit(e.message ?: "네트워크 오류")
+            }
+        }
+    }
+
+    /**
+     * ✅ 댓글 삭제 (ApiResponse 직접 처리)
+     */
+    fun deleteComment(postId: Int, commentId: Int) {
+        viewModelScope.launch {
+            try {
+                val apiRes = repository.deleteComment(postId, commentId)
+
+                if (apiRes.httpStatusCode in 200..299) {
+                    Log.d(TAG, "✅ 댓글 삭제 성공")
+                    _message.tryEmit(apiRes.responseMessage ?: "댓글이 삭제되었습니다.")
+
+                    // 댓글 삭제 후 목록 다시 조회
+                    loadComments(postId)
+                } else {
+                    Log.e(TAG, "❌ 댓글 삭제 실패: code=${apiRes.httpStatusCode}, error=${apiRes.errorMessage}")
+
+                    val errorMsg = when (apiRes.httpStatusCode) {
+                        401 -> "인증에 실패했습니다."
+                        403 -> "댓글 삭제 권한이 없습니다."
+                        404 -> "댓글을 찾을 수 없습니다."
+                        else -> apiRes.errorMessage ?: "댓글 삭제에 실패했습니다."
+                    }
+                    _message.tryEmit(errorMsg)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "deleteComment 예외", e)
+                _message.tryEmit(e.message ?: "네트워크 오류")
+            }
+        }
+    }
+
+    // =========================================================
+    // Helper
+    // =========================================================
     private inline fun <reified T> parseErrorBody(res: Response<ApiResponse<T>>): ApiResponse<T>? {
         return try {
             val json = res.errorBody()?.string() ?: return null

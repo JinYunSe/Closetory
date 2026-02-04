@@ -41,4 +41,6 @@ class MyPageRepository {
     suspend fun getTagsStatistics(userId: Int) = service.getTagsStatistics(userId)
 
     suspend fun getColorsStatistics(userId: Int) = service.getColorsStatistics(userId)
+
+    suspend fun getTop3Clothes(userId: Int) = service.getTop3Clothes(userId)
 }

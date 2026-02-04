@@ -55,5 +55,5 @@ class SharedPreferencesUtil(context: Context) {
     }
 
     // 지금 사용 안 하는 중
-    fun getString(key: String): String? = preferences.getString(key, null)
+    fun getString(key: String, string: String): String? = preferences.getString(key, null)
 }

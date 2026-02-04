@@ -17,6 +17,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 class ApplicationClass : Application() {
 
     companion object {
+        // 댓글의 닉네임 사용
+        const val NICKNAME = "nickname"
+
         lateinit var sharedPreferences: SharedPreferencesUtil
 
         lateinit var authManager: AuthManager

@@ -12,7 +12,7 @@ class XAccessTokenInterceptor : Interceptor {
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val builder: Request.Builder = chain.request().newBuilder()
-        val jwtToken: String? = sharedPreferences.getString(X_ACCESS_TOKEN)
+        val jwtToken: String? = sharedPreferences.getString(X_ACCESS_TOKEN, "")
         if (jwtToken != null) {
             builder.addHeader("X-ACCESS-TOKEN", jwtToken)
         }
