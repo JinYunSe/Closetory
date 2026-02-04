@@ -6,46 +6,53 @@
     android:id="@+id/postMainContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp">
-    <!--tools:context=".homeActivity.post.PostMainFragment">-->
+    android:padding="16dp">
 
-    <!-- 상단 제목 -->
+    <!-- 상단 제목 (무신사 톤: 16sp bold) -->
     <TextView
         android:id="@+id/tvPostMainTitle"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="게시판 목록"
-        android:textSize="20sp"
+        android:layout_height="40dp"
+        android:text="쓰레드"
+        android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/btnCreatePost"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:textColor="#0A0F18"
+        android:gravity="center_vertical"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnCreatePost"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- 게시글 생성 버튼 -->
-    <Button
+    <!-- 게시글 생성 버튼 (톤 통일: 40dp / 12sp bold / main_color) -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCreatePost"
         android:layout_width="wrap_content"
-        android:layout_height="36dp"
-        android:text="게시글 생성"
-        android:backgroundTint="@color/main_color"
+        android:layout_height="40dp"
+        android:text="쓰레드 생성"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:stateListAnimator="@null"
+        app:backgroundTint="@color/main_color"
+        app:cornerRadius="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- 검색 영역 -->
+    <!-- 검색 영역 (입력 톤 통일: 높이 32dp / bg_login_input) -->
     <LinearLayout
         android:id="@+id/llSearch"
         android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        android:background="#E0E0E0"
+        android:layout_height="32dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_login_input"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="12dp"
         android:paddingEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvPostMainTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvPostMainTitle">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <EditText
             android:id="@+id/etKeyword"
@@ -57,25 +64,28 @@
             android:inputType="text"
             android:imeOptions="actionSearch"
             android:singleLine="true"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp" />
+            android:textSize="12sp"
+            android:textColor="#0A0F18"
+            android:textColorHint="#9E9E9E"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp" />
 
         <ImageButton
             android:id="@+id/btnSearch"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:background="@null"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@android:color/transparent"
             android:contentDescription="검색"
-            android:src="@android:drawable/ic_menu_search" />
-
+            android:src="@android:drawable/ic_menu_search"
+            android:padding="6dp" />
     </LinearLayout>
 
-    <!-- 정렬/필터: 4개 중 1개만 선택 (1x4, 기본 최신순) -->
+    <!-- 정렬/필터: 기능 유지(라디오 4개), 톤만 정리 -->
     <RadioGroup
         android:id="@+id/rgPostOption"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="4dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@+id/llSearch"
@@ -85,11 +95,13 @@
         <RadioButton
             android:id="@+id/rbLatest"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="0.6"
             android:checked="true"
             android:text="최신순"
-            android:textSize="10sp"
+            android:textSize="12sp"
+            android:textColor="#0A0F18"
+            android:buttonTint="@color/main_color"
             android:minHeight="0dp"
             android:minWidth="0dp"
             android:paddingTop="0dp"
@@ -98,22 +110,26 @@
         <RadioButton
             android:id="@+id/rbPopular"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="0.6"
             android:text="추천순"
-            android:textSize="10sp"
+            android:textSize="12sp"
+            android:textColor="#0A0F18"
+            android:buttonTint="@color/main_color"
             android:minHeight="0dp"
             android:minWidth="0dp"
             android:paddingTop="0dp"
-            android:paddingBottom="0dp"/>
+            android:paddingBottom="0dp" />
 
         <RadioButton
             android:id="@+id/rbWritten"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="0.8"
             android:text="나의 게시글"
-            android:textSize="10sp"
+            android:textSize="12sp"
+            android:textColor="#0A0F18"
+            android:buttonTint="@color/main_color"
             android:minHeight="0dp"
             android:minWidth="0dp"
             android:paddingTop="0dp"
@@ -122,15 +138,16 @@
         <RadioButton
             android:id="@+id/rbLiked"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="좋아요한 게시글"
-            android:textSize="10sp"
+            android:textSize="12sp"
+            android:textColor="#0A0F18"
+            android:buttonTint="@color/main_color"
             android:minHeight="0dp"
             android:minWidth="0dp"
             android:paddingTop="0dp"
-            android:paddingBottom="0dp"/>
-
+            android:paddingBottom="0dp" />
     </RadioGroup>
 
     <!-- 게시글 목록 -->
@@ -138,14 +155,13 @@
         android:id="@+id/rvPostList"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="4dp"
         android:clipToPadding="false"
-        android:paddingBottom="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
+        android:paddingBottom="24dp"
         app:layout_constraintTop_toBottomOf="@+id/rgPostOption"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_post_card" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

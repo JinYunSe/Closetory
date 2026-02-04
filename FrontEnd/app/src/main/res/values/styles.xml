@@ -34,12 +34,19 @@
         <item name="android:minWidth">0dp</item>
     </style>
 
-    <!-- 사진 테두리 -->
+    <!-- 사진 테두리 영역 -->
     <style name="ShapeAppearanceOverlayClosetoryMediumRounded">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">8dp</item>
 
     </style>
+
+    <!-- 사진 테두리 바운더리 선 -->
+    <style name="WidgetClosetoryPhotoBox">
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">@color/gray_300</item>
+    </style>
+
 
 
     <!-- 원형 프로필 이미지용 ShapeAppearance -->
