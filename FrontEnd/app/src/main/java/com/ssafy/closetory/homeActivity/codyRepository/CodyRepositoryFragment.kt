@@ -43,19 +43,6 @@ class CodyRepositoryFragment :
         setupObservers()
 
         viewModel.getLooks()
-
-        binding.btnClosetoryGuide.setOnClickListener { v ->
-            helpTooltip?.show(
-                anchor = v,
-                message = """
-                    👕 우측 상단에 로고 뱃지가 있는 코디만
-                    캘린더에 등록할 수 있어요.
-                    코디를 선택하면 상세 화면에서
-                    날짜를 선택하고 등록할 수 있습니다.
-                """.trimIndent(),
-                autoDismissMs = 3500
-            )
-        }
     }
 
     override fun onDestroyView() {

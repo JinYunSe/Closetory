@@ -39,21 +39,15 @@
         android:gravity="center_vertical"
         android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/btn_closetory_guide"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginEnd="12dp"
-            android:contentDescription="내 옷 뱃지"
-            android:src="@drawable/question_mark" />
-
         <TextView
+            android:id="@+id/tv_subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="        👕선택해서 캘린더에 등록해보세요👕"
+            android:gravity="center"
+            android:text="내 옷 코디만 캘린더에 등록할 수 있어요"
             android:textColor="@color/black"
-            android:textSize="14sp" />
+            android:textSize="13sp" />
     </LinearLayout>
 
 
