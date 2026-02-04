@@ -43,7 +43,6 @@
                 android:id="@+id/layoutMeta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
                 android:layout_marginTop="8dp">
 
                 <com.google.android.material.imageview.ShapeableImageView
@@ -55,7 +54,7 @@
                     android:scaleType="centerCrop"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.Circle"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"/>
+                    app:layout_constraintStart_toStartOf="parent" />
 
                 <TextView
                     android:id="@+id/tvAuthor"
@@ -68,7 +67,7 @@
                     android:textStyle="bold"
                     app:layout_constraintStart_toEndOf="@id/ivProfile"
                     app:layout_constraintTop_toTopOf="@id/ivProfile"
-                    app:layout_constraintBottom_toBottomOf="@id/ivProfile"/>
+                    app:layout_constraintBottom_toBottomOf="@id/ivProfile" />
 
                 <!-- 우측: 조회수/좋아요 -->
                 <LinearLayout
@@ -76,7 +75,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center|end"
+                    android:gravity="end"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/ivProfile"
                     app:layout_constraintBottom_toBottomOf="@id/ivProfile">
@@ -85,57 +84,54 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
+                        android:orientation="vertical"
                         android:layout_marginEnd="10dp"
                         android:gravity="center">
 
                         <ImageView
                             android:id="@+id/ivViewsIcon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:tint="@color/black"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
                             android:contentDescription="조회수 아이콘"
                             android:src="@drawable/ic_eye" />
 
                         <TextView
                             android:id="@+id/tvViews"
+                            style="@style/TextPostSmallInfoLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:text="0"
-                            android:textSize="10sp"
-                            style="@style/TextPostSmallInfoLabel" />
+                            android:layout_marginTop="3dp"
+                            android:text="0" />
                     </LinearLayout>
 
                     <!-- 좋아요 -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
+                        android:orientation="vertical"
                         android:layout_marginStart="10dp"
                         android:gravity="center">
 
                         <ImageView
                             android:id="@+id/ivLikeIcon"
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
                             android:contentDescription="좋아요 아이콘"
                             android:src="@drawable/heart_empty" />
 
                         <TextView
                             android:id="@+id/tvLikes"
+                            style="@style/TextPostSmallInfoLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:text="0"
-                            android:textSize="10dp"
-                            style="@style/TextPostSmallInfoLabel" />
+                            android:layout_marginTop="3dp"
+                            android:text="0" />
                     </LinearLayout>
                 </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- 게시글 사진: 테두리 깔끔하게 (바깥 컨테이너가 bg_login_input 담당) -->
+            <!-- 게시글 사진 -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -143,7 +139,7 @@
                 android:background="@drawable/bg_login_input"
                 android:padding="1dp">
 
-                <!-- 사진 박스: 입력창 톤 테두리 -->
+                <!-- ✅ FIX: 0dp + ratio면 top/bottom 제약을 완성시켜야 함 -->
                 <FrameLayout
                     android:id="@+id/boxPostPhoto"
                     android:layout_width="0dp"
@@ -152,9 +148,9 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="4:5">
 
-                    <!-- 실제 사진: 라운드로 잘리게 (id 유지) -->
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivPostPhoto"
                         android:layout_width="match_parent"
@@ -181,8 +177,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:nestedScrollingEnabled="false"
-                android:orientation="horizontal" />
+                android:nestedScrollingEnabled="false" />
 
             <TextView
                 android:id="@+id/tvNoClothes"
@@ -221,7 +216,7 @@
                 android:scrollbars="vertical"
                 android:overScrollMode="ifContentScrolls"
                 android:focusable="true"
-                android:focusableInTouchMode="true"/>
+                android:focusableInTouchMode="true" />
 
             <!-- 댓글 라벨 -->
             <TextView
@@ -240,7 +235,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp">
 
-                <!-- ✅ Material EditText -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilComment"
                     android:layout_width="0dp"
@@ -274,7 +268,6 @@
                         android:overScrollMode="ifContentScrolls" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Material Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCommentSubmit"
                     android:layout_width="96dp"
@@ -329,7 +322,7 @@
                     app:layout_constraintEnd_toStartOf="@id/btnDelete"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintHorizontal_weight="1"/>
+                    app:layout_constraintHorizontal_weight="1" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
@@ -350,7 +343,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/btnUpdate"
                     app:layout_constraintBottom_toBottomOf="@id/btnUpdate"
-                    app:layout_constraintHorizontal_weight="1"/>
+                    app:layout_constraintHorizontal_weight="1" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

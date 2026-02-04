@@ -8,16 +8,17 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.ItemCommentBinding
 import com.ssafy.closetory.dto.CommentDto
+import kotlin.math.log
 
+private val TAG = "CommentAdapter_싸피"
 class CommentAdapter(
     private val onEditClick: (CommentDto) -> Unit = {},
     private val onDeleteClick: (CommentDto) -> Unit = {}
 ) : ListAdapter<CommentDto, CommentAdapter.CommentViewHolder>(CommentDiffCallback()) {
-
-    private val TAG = "CommentAdapter_싸피"
 
     inner class CommentViewHolder(private val binding: ItemCommentBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -35,33 +36,35 @@ class CommentAdapter(
                 .circleCrop()
                 .into(binding.ivProfile)
 
-            // ✅ 서버의 isMine 필드를 직접 사용 (서버가 이미 권한 판단 완료)
             val isMyComment = comment.isMine
+            val userNickName = ApplicationClass.sharedPreferences.getUserNickName()
 
             Log.d(TAG, "========================================")
             Log.d(TAG, "댓글 바인딩 - ID: ${comment.commentId}")
             Log.d(TAG, "닉네임: ${comment.nickname}")
             Log.d(TAG, "내용: ${comment.content}")
             Log.d(TAG, "isMine: $isMyComment")
+            Log.d(TAG, "SharedPreference ${ApplicationClass.sharedPreferences.getUserNickName()}")
             Log.d(TAG, "========================================")
 
             // 내 댓글인 경우에만 수정/삭제 버튼 표시
-            if (isMyComment) {
+            if (userNickName.equals(comment.nickname)) {
                 Log.d(TAG, "✅ 내 댓글입니다! 수정/삭제 버튼 표시")
-                binding.layoutCommentActions.visibility = View.VISIBLE
+                binding.ivEdit.visibility = View.VISIBLE
 
-                binding.btnEditComment.setOnClickListener {
+                binding.ivEdit.setOnClickListener {
                     Log.d(TAG, "📝 수정 버튼 클릭 - 댓글 ID: ${comment.commentId}")
                     onEditClick(comment)
                 }
 
-                binding.btnDeleteComment.setOnClickListener {
+                binding.ivDelete.setOnClickListener {
                     Log.d(TAG, "🗑️ 삭제 버튼 클릭 - 댓글 ID: ${comment.commentId}")
                     onDeleteClick(comment)
                 }
             } else {
                 Log.d(TAG, "❌ 다른 사람 댓글입니다. 버튼 숨김")
-                binding.layoutCommentActions.visibility = View.GONE
+                binding.ivEdit.visibility = View.GONE
+                binding.ivDelete.visibility = View.GONE
             }
         }
     }
