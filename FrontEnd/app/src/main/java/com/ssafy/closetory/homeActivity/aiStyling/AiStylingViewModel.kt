@@ -260,7 +260,7 @@ class AiStylingViewModel : ViewModel() {
 
     private fun buildFittingIdList(coordination: AiCoordinationResponse): List<Int> {
         val map = coordination.clothesIdList.associateBy { it.clothesType.uppercase() }
-        val order = listOf("TOP", "BOTTOM", "SHOES", "OUTER", "ACCESSORY", "BAG")
+        val order = listOf("TOP", "BOTTOM", "SHOES", "OUTER", "ACCESSORIES", "BAG")
         return order.map { type -> map[type]?.clothesId ?: -1 }
     }
 

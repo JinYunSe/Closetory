@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.closet
+﻿package com.ssafy.closetory.homeActivity.closet
 
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +7,7 @@ import androidx.activity.addCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -158,11 +159,27 @@ class ClothesDetailFragment :
             closetViewModel.deleteSuccess.collect { success ->
                 if (success != true) return@collect
 
-                // "새로고침"신호 제공 => 이걸로 옷 장 목록 조회가 다시 이뤄져야 한다고 알림
-                findNavController().previousBackStackEntry?.savedStateHandle?.set("refreshCloset", true)
+                val navController = findNavController()
 
-                // 뒤로가기
-                findNavController().popBackStack(R.id.navigation_closet, false)
+                // "새로고침" 신호 전달 (옷장 화면이 백스택에 있을 때만)
+                runCatching {
+                    navController.getBackStackEntry(R.id.navigation_closet)
+                        .savedStateHandle
+                        .set("refreshCloset", true)
+                }
+
+                // 옷장 화면이 없으면 직접 이동
+                val popped = navController.popBackStack(R.id.navigation_closet, false)
+                if (!popped) {
+                    navController.navigate(
+                        R.id.navigation_closet,
+                        null,
+                        navOptions {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    )
+                }
             }
         }
 
@@ -212,3 +229,4 @@ class ClothesDetailFragment :
         )
     }
 }
+

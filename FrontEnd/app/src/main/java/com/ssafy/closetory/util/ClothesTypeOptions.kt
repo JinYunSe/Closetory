@@ -14,7 +14,7 @@ object ClothTypeOptions {
         OptionItem("OUTER", "아우터", 3),
         OptionItem("SHOES", "신발", 4),
         OptionItem("BAG", "가방", 5),
-        OptionItem("ACCESSORY", "소품류", 6)
+        OptionItem("ACCESSORIES", "소품류", 6)
     )
 
     val byEnglish: Map<String, OptionItem> =

@@ -229,7 +229,7 @@ class RegistrationClothesFragment :
             "bag", "bags", "backpack", "backpacks", "handbag", "handbags",
             "tote", "totes", "crossbody", "clutch", "pouch"
         ),
-        "ACCESSORY" to setOf(
+        "ACCESSORIES" to setOf(
             "accessory", "accessories", "hat", "hats", "cap", "caps", "beanie",
             "scarf", "scarves", "belt", "belts", "glasses", "sunglasses", "tie", "watch"
         ),
@@ -885,7 +885,9 @@ class RegistrationClothesFragment :
             counts.fill(0)
             satSums.fill(0f)
             for (s in sums) {
-                s[0] = 0; s[1] = 0; s[2] = 0
+                s[0] = 0;
+                s[1] = 0;
+                s[2] = 0
             }
 
             for (p in samples) {
