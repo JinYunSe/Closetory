@@ -50,7 +50,7 @@ class CodyAdapter(private val onItemClick: (CodyRepositoryResponse) -> Unit) :
 
         fun bind(item: CodyRepositoryResponse) {
             // 이미지 URL 처리 (상대경로면 base URL 추가)
-            val fullImageUrl = if (item.photoUrl.startsWith("http")) {
+            val fullphotoUrl = if (item.photoUrl.startsWith("http")) {
                 item.photoUrl
             } else {
                 // 앞에 슬래시 제거 (중복 방지)
@@ -58,11 +58,11 @@ class CodyAdapter(private val onItemClick: (CodyRepositoryResponse) -> Unit) :
                 "${ApplicationClass.API_BASE_URL}$cleanPath"
             }
 
-            Log.d(TAG, "🖼️ bind - lookId: ${item.lookId}, date: '${item.date}', url: $fullImageUrl")
+            Log.d(TAG, "🖼️ bind - lookId: ${item.lookId}, date: '${item.date}', url: $fullphotoUrl")
 
             // 이미지 로딩
             Glide.with(binding.root.context)
-                .load(fullImageUrl)
+                .load(fullphotoUrl)
                 .centerCrop()
                 .placeholder(R.drawable.bg_slot_empty)
                 .error(R.drawable.error)

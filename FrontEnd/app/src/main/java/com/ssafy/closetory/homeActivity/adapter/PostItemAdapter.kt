@@ -33,16 +33,16 @@ class PostItemAdapter : ListAdapter<PostCreateSelectedItem, PostItemAdapter.View
     inner class ViewHolder(private val binding: ItemPostItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: PostCreateSelectedItem) = with(binding) {
-            val imageUrl = if (item.photoUrl.startsWith("http")) {
+            val photoUrl = if (item.photoUrl.startsWith("http")) {
                 item.photoUrl
             } else {
                 "${ApplicationClass.API_BASE_URL}${item.photoUrl}"
             }
             android.util.Log.d("POST_ITEM_ADAPTER", "photoUrl=${item.photoUrl}")
-            android.util.Log.d("POST_ITEM_ADAPTER", "imageUrl=$imageUrl")
+            android.util.Log.d("POST_ITEM_ADAPTER", "photoUrl=$photoUrl")
 
             Glide.with(ivItem.context)
-                .load(imageUrl)
+                .load(photoUrl)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.error)
                 .centerCrop()

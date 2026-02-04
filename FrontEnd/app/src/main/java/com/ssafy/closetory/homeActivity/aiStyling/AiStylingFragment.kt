@@ -78,7 +78,7 @@ class AiStylingFragment :
         }
 
         // AI 가상피팅 이미지
-        viewModel.aiImageUrl.observe(viewLifecycleOwner) { url ->
+        viewModel.aiphotoUrl.observe(viewLifecycleOwner) { url ->
             if (url.isNullOrBlank()) return@observe
 
             // 가상피팅 완료 시 팝업 열기
@@ -247,27 +247,27 @@ class AiStylingFragment :
         when (stage) {
             AiStylingStage.RECOMMEND -> {
                 if (isLoading) {
-                    binding.btnRegister.text = "AI 코디 추천 중..."
+                    binding.btnRegister.text = "AI 코디 추천 중"
                     binding.btnRegister.isEnabled = false
                 } else {
-                    binding.btnRegister.text = "✨AI 코디추천"
+                    binding.btnRegister.text = "AI 코디추천"
                     binding.btnRegister.isEnabled = true
                 }
             }
 
             AiStylingStage.FITTING_READY -> {
                 if (isLoading) {
-                    binding.btnRegister.text = "AI 가상피팅 생성 중..."
+                    binding.btnRegister.text = "AI 가상피팅 생성 중"
                     binding.btnRegister.isEnabled = false
                 } else {
-                    binding.btnRegister.text = "✨AI 가상피팅"
+                    binding.btnRegister.text = "AI 가상피팅"
                     binding.btnRegister.isEnabled = true
                 }
             }
 
             AiStylingStage.FITTING_DONE -> {
                 if (isLoading) {
-                    binding.btnRegister.text = "저장 중..."
+                    binding.btnRegister.text = "저장 중"
                     binding.btnRegister.isEnabled = false
                 } else {
                     binding.btnRegister.text = "등록"

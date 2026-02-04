@@ -38,7 +38,7 @@ class RecentCodyAdapter : ListAdapter<CodyRepositoryResponse, RecentCodyAdapter.
             binding.tvUsageCount.visibility = View.GONE
 
             // 이미지 URL 처리
-            val fullImageUrl = if (item.photoUrl.startsWith("http")) {
+            val fullphotoUrl = if (item.photoUrl.startsWith("http")) {
                 item.photoUrl
             } else {
                 val cleanPath = item.photoUrl.removePrefix("/")
@@ -47,7 +47,7 @@ class RecentCodyAdapter : ListAdapter<CodyRepositoryResponse, RecentCodyAdapter.
 
             // 이미지 로드
             Glide.with(binding.root.context)
-                .load(fullImageUrl)
+                .load(fullphotoUrl)
                 .placeholder(R.drawable.error)
                 .error(R.drawable.error)
                 .centerCrop()

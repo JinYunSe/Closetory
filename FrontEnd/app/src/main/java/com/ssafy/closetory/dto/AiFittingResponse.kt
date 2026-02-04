@@ -1,3 +1,8 @@
 package com.ssafy.closetory.dto
 
-data class AiFittingResponse(val aiImageUrl: String?)
+import com.google.gson.annotations.SerializedName
+
+data class AiFittingResponse(
+    @SerializedName("aiphotoUrl")
+    val aiphotoUrl: String?
+)

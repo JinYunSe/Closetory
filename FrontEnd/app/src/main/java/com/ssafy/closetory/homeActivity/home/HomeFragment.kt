@@ -154,21 +154,21 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
                 if (!day.inMonth) return@HomeCalendarAdapter
 
                 val dateKey = keyOf(day)
-                val imageUrl = dayImageMap[dateKey]
-                Log.d(TAG, "selected date=$dateKey, imageUrl=$imageUrl")
+                val photoUrl = dayImageMap[dateKey]
+                Log.d(TAG, "selected date=$dateKey, photoUrl=$photoUrl")
 
                 Log.d(TAG, "📅 선택된 날짜: $dateKey")
-                Log.d(TAG, "🖼️ 이미지 URL: $imageUrl")
+                Log.d(TAG, "🖼️ 이미지 URL: $photoUrl")
                 Log.d(TAG, "✅ 등록 여부: ${registeredDates.contains(dateKey)}")
 
                 homeCalendarAdapter.setSelected(day)
 
-                if (imageUrl.isNullOrBlank()) {
+                if (photoUrl.isNullOrBlank()) {
                     showNoLookMessage()
                     return@HomeCalendarAdapter
                 }
 
-                openImagePreview(imageUrl)
+                openImagePreview(photoUrl)
             },
             colorProvider = { day ->
                 val dateKey = keyOf(day)
@@ -305,9 +305,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
         )
     }
 
-    private fun openImagePreview(imageUrl: String) {
+    private fun openImagePreview(photoUrl: String) {
         ImagePreviewDialogFragment
-            .newInstance(imageUrl)
+            .newInstance(photoUrl)
             .show(parentFragmentManager, "ImagePreviewDialog")
     }
 
@@ -319,7 +319,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
             val key = normalizeDateKey(item.date) ?: return@mapNotNull null
             val raw = item.photoUrl.trim()
             if (raw.isBlank()) return@mapNotNull null
-            val url = resolveImageUrl(raw)
+            val url = resolvephotoUrl(raw)
             key to url
         }
         .toMap()
@@ -327,7 +327,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::bind
     /**
      * 이미지 URL 전처리 (상대경로 -> 절대경로)
      */
-    private fun resolveImageUrl(raw: String): String {
+    private fun resolvephotoUrl(raw: String): String {
         if (raw.startsWith("http")) return raw
         val clean = raw.removePrefix("/")
         return "${ApplicationClass.API_BASE_URL}$clean"

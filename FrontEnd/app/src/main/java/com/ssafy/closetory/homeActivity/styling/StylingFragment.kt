@@ -360,10 +360,10 @@ class StylingFragment :
         }
 
         // AI 가상 피팅 결과 관찰
-        viewModel.aiImageUrl.observe(viewLifecycleOwner) { imageUrl ->
-            if (imageUrl != null) {
-                Log.d(TAG, "AiImageUrl 수신: $imageUrl")
-                showAiFittingResult(imageUrl)
+        viewModel.aiphotoUrl.observe(viewLifecycleOwner) { photoUrl ->
+            if (photoUrl != null) {
+                Log.d(TAG, "AiphotoUrl 수신: $photoUrl")
+                showAiFittingResult(photoUrl)
             }
         }
 
@@ -407,9 +407,9 @@ class StylingFragment :
 
         when (stage) {
             StylingStage.SELECTING -> {
-                binding.btnStylingRegister.text = "✨AI 가상피팅"
+                binding.btnStylingRegister.text = "AI 가상피팅"
                 binding.btnStylingRegister.isEnabled = false
-                binding.btnStylingRegister.alpha = 0.5f
+                binding.btnStylingRegister.alpha = 0.4f
             }
 
             StylingStage.FITTING_READY -> {
@@ -418,7 +418,7 @@ class StylingFragment :
                     binding.btnStylingRegister.isEnabled = false
                     binding.btnStylingRegister.alpha = 0.5f
                 } else {
-                    binding.btnStylingRegister.text = "✨AI 가상피팅"
+                    binding.btnStylingRegister.text = "AI 가상피팅"
                     binding.btnStylingRegister.isEnabled = true
                     binding.btnStylingRegister.alpha = 1.0f
                 }
@@ -462,14 +462,14 @@ class StylingFragment :
         // ViewModel에 저장
         viewModel.selectedSlots[slotType] = item
 
-        val imageUrl = if (item.photoUrl.startsWith("http")) {
+        val photoUrl = if (item.photoUrl.startsWith("http")) {
             item.photoUrl
         } else {
             "${ApplicationClass.API_BASE_URL}${item.photoUrl}"
         }
 
         Glide.with(this)
-            .load(imageUrl)
+            .load(photoUrl)
             .placeholder(R.drawable.bg_slot_empty)
             .error(R.drawable.bg_slot_empty)
             .centerInside()
@@ -593,13 +593,13 @@ class StylingFragment :
     /**
      * AI 가상 피팅 결과 표시 (layout_ai_fitting)
      */
-    private fun showAiFittingResult(imageUrl: String) {
-        Log.d(TAG, "AI 피팅 결과 표시: $imageUrl")
+    private fun showAiFittingResult(photoUrl: String) {
+        Log.d(TAG, "AI 피팅 결과 표시: $photoUrl")
 
-        val finalUrl = if (imageUrl.startsWith("http")) {
-            imageUrl
+        val finalUrl = if (photoUrl.startsWith("http")) {
+            photoUrl
         } else {
-            "${ApplicationClass.API_BASE_URL}$imageUrl"
+            "${ApplicationClass.API_BASE_URL}$photoUrl"
         }
 
         // 팝업 표시 (layout_ai_fitting, iv_ai_fitting_result)
