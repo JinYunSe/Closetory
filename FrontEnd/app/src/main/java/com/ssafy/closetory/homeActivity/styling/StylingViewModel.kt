@@ -37,7 +37,7 @@ class StylingViewModel : ViewModel() {
         "BOTTOM" to null,
         "SHOES" to null,
         "OUTER" to null,
-        "ACCESSORY" to null,
+        "ACCESSORIES" to null,
         "BAG" to null
     )
 
@@ -269,7 +269,7 @@ class StylingViewModel : ViewModel() {
         selectedSlots["BOTTOM"] = null
         selectedSlots["SHOES"] = null
         selectedSlots["OUTER"] = null
-        selectedSlots["ACCESSORY"] = null
+        selectedSlots["ACCESSORIES"] = null
         selectedSlots["BAG"] = null
 
         _aiImageUrl.value = null
@@ -329,7 +329,7 @@ class StylingViewModel : ViewModel() {
         selectedSlots["BOTTOM"] = null
         selectedSlots["SHOES"] = null
         selectedSlots["OUTER"] = null
-        selectedSlots["ACCESSORY"] = null
+        selectedSlots["ACCESSORIES"] = null
         selectedSlots["BAG"] = null
 
         _aiImageUrl.value = null

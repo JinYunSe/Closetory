@@ -346,7 +346,7 @@ class AiStylingFragment :
         setSlot(binding.ivSlotBottom, map["BOTTOM"]?.photoUrl)
         setSlot(binding.ivSlotShoes, map["SHOES"]?.photoUrl)
         setSlot(binding.ivSlotOuter, map["OUTER"]?.photoUrl)
-        setSlot(binding.ivSlotAcc, map["ACCESSORY"]?.photoUrl)
+        setSlot(binding.ivSlotAcc, map["ACCESSORIES"]?.photoUrl)
         setSlot(binding.ivSlotBag, map["BAG"]?.photoUrl)
     }
 
