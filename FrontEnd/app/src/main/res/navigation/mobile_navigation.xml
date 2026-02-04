@@ -140,7 +140,7 @@
 
     <fragment
         android:id="@+id/navigation_post_detail"
-        android:name="com.ssafy.closetory.homeActivity.post.detail.PostDetailFragment"
+        android:name="com.ssafy.closetory.homeActivity.post.PostDetailFragment"
         android:label="PostDetail"
         tools:layout="@layout/fragment_post_detail">
 

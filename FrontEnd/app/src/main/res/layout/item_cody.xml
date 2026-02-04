@@ -8,48 +8,44 @@
     android:layout_height="wrap_content"
     android:layout_margin="6dp">
 
-    <!-- 코디 이미지 (정사각형) -->
     <ImageView
         android:id="@+id/iv_cody"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#dee2e6"
         android:scaleType="centerCrop"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="1:1" />
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- 내 옷만 뱃지 -->
     <ImageView
         android:id="@+id/iv_only_mine_badge"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_margin="8dp"
-        android:background="@drawable/bg_circle_badge"
         android:contentDescription="내 옷만 배지"
         android:padding="6dp"
-        android:scaleType="centerInside"
-        android:src="@drawable/closetory_badge"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@id/iv_cody"
-        app:layout_constraintEnd_toEndOf="@id/iv_cody" />
+        android:scaleType="fitCenter"
+        android:src="@drawable/icon_closed"
+        android:visibility="visible"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="16dp" />
 
-    <!-- 날짜 -->
     <TextView
         android:id="@+id/tv_cody_date"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/main_color"
         android:gravity="center"
-        android:padding="12dp"
+        android:padding="4dp"
         android:textColor="#FFFFFF"
-        android:textSize="14sp"
+        android:textSize="8sp"
         android:textStyle="bold"
-        tools:text="2026-01-20"
-        app:layout_constraintStart_toStartOf="@id/iv_cody"
+        app:layout_constraintBottom_toBottomOf="@id/iv_cody"
         app:layout_constraintEnd_toEndOf="@id/iv_cody"
-        app:layout_constraintBottom_toBottomOf="@id/iv_cody" />
+        app:layout_constraintStart_toStartOf="@id/iv_cody"
+        tools:text="2026-01-20" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

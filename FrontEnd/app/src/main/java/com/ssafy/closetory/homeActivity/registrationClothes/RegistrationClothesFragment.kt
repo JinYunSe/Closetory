@@ -384,7 +384,11 @@ class RegistrationClothesFragment :
             val color = colorAdapter.getSelectedColor()
 
             val finalPhotoUrl =
-                if (mode == MODE_EDIT && !isPhotoChanged) originalPhotoUrl else maskedUrl
+                if (mode == MODE_EDIT && !isPhotoChanged) {
+                    maskedPhotoUrl ?: originalPhotoUrl
+                } else {
+                    maskedUrl
+                }
 
             if (finalPhotoUrl.isNullOrBlank()) {
                 showToast("사진이 필요합니다.")
