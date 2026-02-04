@@ -408,9 +408,9 @@ class StylingFragment :
 
         when (stage) {
             StylingStage.SELECTING -> {
-                binding.btnStylingRegister.text = "✨AI 가상피팅"
+                binding.btnStylingRegister.text = "AI 가상피팅"
                 binding.btnStylingRegister.isEnabled = false
-                binding.btnStylingRegister.alpha = 0.5f
+                binding.btnStylingRegister.alpha = 0.4f
             }
 
             StylingStage.FITTING_READY -> {
@@ -419,7 +419,7 @@ class StylingFragment :
                     binding.btnStylingRegister.isEnabled = false
                     binding.btnStylingRegister.alpha = 0.5f
                 } else {
-                    binding.btnStylingRegister.text = "✨AI 가상피팅"
+                    binding.btnStylingRegister.text = "AI 가상피팅"
                     binding.btnStylingRegister.isEnabled = true
                     binding.btnStylingRegister.alpha = 1.0f
                 }
