@@ -351,7 +351,7 @@ class RegistrationClothesFragment :
                 )
                 return@setOnClickListener
             }
-            ClothesAlteration()
+            clothesAlteration()
         }
 
         showPhotoPlaceholder("사진 등록")
@@ -425,7 +425,7 @@ class RegistrationClothesFragment :
         super.onDestroyView()
     }
 
-    private fun ClothesAlteration() {
+    private fun clothesAlteration() {
         val photoUrl = maskedPhotoUrl ?: viewModel.imageUrl.value
         if (photoUrl.isNullOrBlank()) {
             showToast("사진을 먼저 등록해주세요.")
