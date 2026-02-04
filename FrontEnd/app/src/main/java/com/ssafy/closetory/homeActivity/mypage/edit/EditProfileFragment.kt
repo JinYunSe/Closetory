@@ -38,6 +38,13 @@ class EditProfileFragment :
         R.layout.fragment_edit_profile
     ) {
 
+    // 닉네임: 특수문자 금지 (영문/숫자/한글/공백/언더바 허용)
+    private val NICKNAME_REGEX = Regex("^[A-Za-z0-9가-힣\\s_]+$")
+
+    // 비밀번호: 영문(대/소 아무거나) + 숫자 + 특수문자 포함, 길이 8 이상
+    private val PASSWORD_REGEX =
+        Regex("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#\$%^&*()_+\\-={}:;\"'<>,.?/\\\\|\\[\\]]).{8,}$")
+
     // ViewModel 참조임
     private val viewModel: EditProfileViewModel by viewModels()
 
@@ -285,6 +292,11 @@ class EditProfileFragment :
                 return@setOnClickListener
             }
 
+            if (!NICKNAME_REGEX.matches(nickname)) {
+                showToast("닉네임에는 특수문자를 사용할 수 없습니다.")
+                return@setOnClickListener
+            }
+
             if (heightText.isBlank()) {
                 showToast("키를 입력해주세요.")
                 return@setOnClickListener
@@ -443,8 +455,8 @@ class EditProfileFragment :
                 return@setOnClickListener
             }
 
-            if (newPw.length < 8) {
-                showToast("비밀번호는 8자리 이상이어야 합니다.")
+            if (!PASSWORD_REGEX.matches(newPw)) {
+                showToast("비밀번호는 8자리 이상이며 영문, 숫자, 특수문자를 모두 포함해야 합니다.")
                 return@setOnClickListener
             }
 
