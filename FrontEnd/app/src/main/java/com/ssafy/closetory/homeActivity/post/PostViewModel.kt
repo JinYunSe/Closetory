@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.post
+﻿package com.ssafy.closetory.homeActivity.post
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -64,6 +64,9 @@ class PostViewModel : ViewModel() {
     // -------------------------
     private val _comments = MutableStateFlow<List<CommentDto>>(emptyList())
     val comments: StateFlow<List<CommentDto>> = _comments.asStateFlow()
+
+    // 댓글 목록 최신 요청만 반영하기 위한 토큰
+    private var commentsRequestSeq: Long = 0L
 
     // =========================================================
     // List
@@ -273,22 +276,29 @@ class PostViewModel : ViewModel() {
      */
     fun loadComments(postId: Int) {
         viewModelScope.launch {
+            val seq = ++commentsRequestSeq
             try {
                 val apiRes = repository.getComments(postId)
 
                 if (apiRes.httpStatusCode in 200..299 && apiRes.data != null) {
                     // ✅ FIX: 서버가 List<CommentDto>를 직접 반환하므로 바로 할당
-                    _comments.value = apiRes.data ?: emptyList()
+                    if (seq == commentsRequestSeq) {
+                        _comments.value = apiRes.data ?: emptyList()
+                    }
                     Log.d(TAG, "✅ 댓글 조회 성공: ${apiRes.data.size}개")
                 } else {
                     _message.tryEmit(apiRes.errorMessage ?: apiRes.responseMessage ?: "댓글을 불러올 수 없습니다.")
-                    _comments.value = emptyList()
+                    if (seq == commentsRequestSeq) {
+                        _comments.value = emptyList()
+                    }
                     Log.e(TAG, "댓글 조회 실패 - code: ${apiRes.httpStatusCode}, error: ${apiRes.errorMessage}")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "loadComments 예외", e)
                 _message.tryEmit(e.message ?: "네트워크 오류")
-                _comments.value = emptyList()
+                if (seq == commentsRequestSeq) {
+                    _comments.value = emptyList()
+                }
             }
         }
     }
@@ -312,6 +322,7 @@ class PostViewModel : ViewModel() {
                     _message.tryEmit(apiRes.responseMessage ?: "댓글이 등록되었습니다.")
                     // 댓글 등록 후 목록 다시 조회
                     loadComments(postId)
+                    loadPostDetail(postId, force = true)
                 } else {
                     Log.e(TAG, "댓글 등록 실패: code=${apiRes.httpStatusCode}, error=${apiRes.errorMessage}")
                     val errorMsg = when (apiRes.httpStatusCode) {
@@ -347,8 +358,14 @@ class PostViewModel : ViewModel() {
                     Log.d(TAG, "✅ 댓글 수정 성공")
                     _message.tryEmit(apiRes.responseMessage ?: "댓글이 수정되었습니다.")
 
+                    // 즉시 반영 (UI 선 업데이트)
+                    _comments.value = _comments.value.map { comment ->
+                        if (comment.commentId == commentId) comment.copy(content = content) else comment
+                    }
+
                     // 댓글 수정 후 목록 다시 조회
                     loadComments(postId)
+                    loadPostDetail(postId, force = true)
                 } else {
                     Log.e(TAG, "❌ 댓글 수정 실패: code=${apiRes.httpStatusCode}, error=${apiRes.errorMessage}")
 
@@ -380,8 +397,12 @@ class PostViewModel : ViewModel() {
                     Log.d(TAG, "✅ 댓글 삭제 성공")
                     _message.tryEmit(apiRes.responseMessage ?: "댓글이 삭제되었습니다.")
 
+                    // 즉시 반영 (UI 선 업데이트)
+                    _comments.value = _comments.value.filterNot { it.commentId == commentId }
+
                     // 댓글 삭제 후 목록 다시 조회
                     loadComments(postId)
+                    loadPostDetail(postId, force = true)
                 } else {
                     Log.e(TAG, "❌ 댓글 삭제 실패: code=${apiRes.httpStatusCode}, error=${apiRes.errorMessage}")
 
