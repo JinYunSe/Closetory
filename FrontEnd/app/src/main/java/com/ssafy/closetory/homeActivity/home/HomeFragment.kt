@@ -17,7 +17,6 @@ import com.ssafy.closetory.databinding.FragmentHomeBinding
 import com.ssafy.closetory.dto.PostQueryFilter
 import com.ssafy.closetory.dto.StylingResponse
 import com.ssafy.closetory.homeActivity.HomeActivity
-import com.ssafy.closetory.homeActivity.ImagePreviewDialogFragment
 import com.ssafy.closetory.homeActivity.adapter.HomeCalendarAdapter
 import com.ssafy.closetory.homeActivity.adapter.PostListAdapter
 import com.ssafy.closetory.homeActivity.aiStyling.Day

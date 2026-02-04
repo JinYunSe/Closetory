@@ -44,7 +44,7 @@
             android:singleLine="true"
             android:maxLines="1"
             android:inputType="text"
-            android:textSize="12sp"
+            android:textSize="@dimen/text_input"
             android:padding="1dp"
             android:textColor="@android:color/black"
             android:textColorHint="#9E9E9E" />
@@ -54,7 +54,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="32dp"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="@dimen/text_to_text">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -67,9 +67,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_login_input"
-                android:hint="비밀번호 (영문, 숫자, 특수문자를 포함해서 8자 이상)"
+                android:hint="비밀번호 (영문, 숫자, 특수문자, 8자 이상 필수)"
                 android:inputType="textPassword"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_input"
                 android:padding="1dp"
                 android:singleLine="true"
                 android:maxLines="1"
@@ -92,7 +92,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="32dp"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="@dimen/text_to_text">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -107,7 +107,7 @@
                 android:background="@drawable/bg_login_input"
                 android:hint="비밀번호 확인"
                 android:inputType="textPassword"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_input"
                 android:padding="1dp"
                 android:singleLine="true"
                 android:maxLines="1"
@@ -130,7 +130,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="32dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/text_to_text"
         app:boxBackgroundMode="none"
         app:hintEnabled="false">
 
@@ -143,7 +143,7 @@
             android:singleLine="true"
             android:maxLines="1"
             android:inputType="text"
-            android:textSize="12sp"
+            android:textSize="@dimen/text_input"
             android:maxLength="10"
             android:padding="1dp"
             android:textColor="@android:color/black"
@@ -157,7 +157,7 @@
         android:id="@+id/personalSizeContainer"
         android:layout_width="match_parent"
         android:layout_height="32dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/text_to_text"
         android:orientation="horizontal">
 
         <com.google.android.material.textfield.TextInputLayout
@@ -174,7 +174,7 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_login_input"
                 android:hint="키(cm)"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_input"
                 android:singleLine="true"
                 android:maxLines="1"
                 android:maxLength="3"
@@ -200,7 +200,7 @@
                 android:background="@drawable/bg_login_input"
                 android:hint="몸무게(kg)"
                 android:singleLine="true"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_input"
                 android:maxLines="1"
                 android:maxLength="3"
                 android:inputType="number"
@@ -218,7 +218,7 @@
         android:id="@+id/genderContainer"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/text_to_text"
         android:orientation="horizontal"
         android:clipChildren="false"
         android:clipToPadding="false">
@@ -232,7 +232,7 @@
             android:text="여성"
             android:textColor="@android:color/white"
             android:textStyle="bold"
-            android:textSize="12sp"
+            android:textSize="@dimen/text_button"
             android:padding="4dp"
             app:rippleColor="@android:color/transparent"
             app:backgroundTint="@color/gray_300"
@@ -248,7 +248,7 @@
             android:text="남성"
             android:textColor="@android:color/white"
             android:textStyle="bold"
-            android:textSize="12sp"
+            android:textSize="@dimen/text_button"
             android:padding="4dp"
             app:rippleColor="@android:color/transparent"
             app:backgroundTint="@color/gray_300"

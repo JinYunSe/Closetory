@@ -2,7 +2,7 @@ package com.ssafy.closetory.homeActivity.registrationClothes
 
 import com.ssafy.closetory.dto.ApiResponse
 import com.ssafy.closetory.dto.ClothesIdDto
-import com.ssafy.closetory.dto.MaskedImageResponse
+import com.ssafy.closetory.dto.PhotoUrlDto
 import com.ssafy.closetory.dto.RegistrationClothesDto
 import okhttp3.MultipartBody
 import retrofit2.Response
@@ -18,9 +18,7 @@ interface RegistrationClothesService {
     // 배경 제거
     @Multipart
     @POST("clothes/masking")
-    suspend fun removeImageBackground(
-        @Part clothesPhoto: MultipartBody.Part
-    ): Response<ApiResponse<MaskedImageResponse>>
+    suspend fun removeImageBackground(@Part clothesPhoto: MultipartBody.Part): Response<ApiResponse<PhotoUrlDto>>
 
     // 옷 등록
     @POST("clothes")
@@ -32,4 +30,7 @@ interface RegistrationClothesService {
         @Path("clothesId") clothesId: Int,
         @Body req: RegistrationClothesDto
     ): Response<ApiResponse<Unit>>
+
+    @POST("clothes/editing")
+    suspend fun requestClothesAlteration(@Body req: PhotoUrlDto): Response<ApiResponse<PhotoUrlDto>>
 }

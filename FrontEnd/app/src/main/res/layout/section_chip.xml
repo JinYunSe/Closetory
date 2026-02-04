@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:text=""
         android:textColor="@color/black"
-        android:textSize="18dp" />
+        android:textSize="16sp" />
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chipGroup"

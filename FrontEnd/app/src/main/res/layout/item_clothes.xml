@@ -5,10 +5,12 @@
     android:layout_width="100dp"
     android:layout_height="100dp"
     android:layout_margin="8dp"
-    app:cardCornerRadius="18dp"
+    app:cardCornerRadius="8dp"
     app:cardUseCompatPadding="false"
     app:cardPreventCornerOverlap="false"
-    app:strokeWidth="0dp">
+    app:strokeWidth="0dp"
+    app:cardElevation="0dp"
+    android:elevation="0dp">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -20,7 +22,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:contentDescription="@null" />
+            android:contentDescription="@null"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayClosetoryMediumRounded"
+            />
 
         <!--  상단 오른쪽 북마크 -->
         <ImageView

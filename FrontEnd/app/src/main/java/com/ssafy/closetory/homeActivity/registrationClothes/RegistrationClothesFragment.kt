@@ -81,8 +81,10 @@ class RegistrationClothesFragment :
     private var autoSelectApplied: Boolean = false
     private var lastAutoSelectUrl: String? = null
     private var pendingTagCodes: List<Int> = emptyList()
+    private var maskedPhotoUrl: String? = null
 
     private var photoGuideTooltip: BalloonTooltip? = null
+    private var hasPhotoForGuide: Boolean = false
 
     // 새 사진 요청 구분용(늦게 온 maskedUrl 응답 무시)
     private var photoRequestToken: Long = 0L
@@ -338,14 +340,18 @@ class RegistrationClothesFragment :
         setupOptionSection()
 
         binding.btnPhotoGuide.setOnClickListener { v ->
-            photoGuideTooltip?.show(
-                anchor = v,
-                message = """옷이 잘 보이도록 정면에서 촬영해 주세요.
+            if (!hasPhotoForGuide) {
+                photoGuideTooltip?.show(
+                    anchor = v,
+                    message = """옷이 잘 보이도록 정면에서 촬영해 주세요.
 배경은 최대한 단순하게 정리해 주세요.
-자동 선택은 정확하지 않을 수 있으니 
+자동 추정은 정확하지 않을 수 있으니
 꼭 확인해 주세요.""",
-                autoDismissMs = 5000
-            )
+                    autoDismissMs = 5000
+                )
+                return@setOnClickListener
+            }
+            clothesAlteration()
         }
 
         showPhotoPlaceholder("사진 등록")
@@ -371,14 +377,18 @@ class RegistrationClothesFragment :
         }
 
         binding.btnRegistrationClothes.setOnClickListener {
-            val maskedUrl = viewModel.maskedphotoUrl.value
+            val maskedUrl = viewModel.imageUrl.value
             val tags = TagOptions.getSelectedTag(tagsSection)
             val clothesType = ClothTypeOptions.getClothTypeEnglish(clothTypeSection)
             val seasons = SeasonOptions.getSelectedSeason(seasonSection)
             val color = colorAdapter.getSelectedColor()
 
             val finalPhotoUrl =
-                if (mode == MODE_EDIT && !isPhotoChanged) originalPhotoUrl else maskedUrl
+                if (mode == MODE_EDIT && !isPhotoChanged) {
+                    maskedPhotoUrl ?: originalPhotoUrl
+                } else {
+                    maskedUrl
+                }
 
             if (finalPhotoUrl.isNullOrBlank()) {
                 showToast("사진이 필요합니다.")
@@ -419,6 +429,18 @@ class RegistrationClothesFragment :
         super.onDestroyView()
     }
 
+    private fun clothesAlteration() {
+        val photoUrl = maskedPhotoUrl ?: viewModel.imageUrl.value
+        if (photoUrl.isNullOrBlank()) {
+            showToast("사진을 먼저 등록해주세요.")
+            return
+        }
+
+        // 옷 개선 요청 (선택 옵션)
+        photoRequestToken = System.currentTimeMillis()
+        viewModel.requestClothesAlteration(photoUrl)
+    }
+
     private fun readArgs() {
         val args = arguments ?: return
         mode = args.getString(ARG_MODE, MODE_CREATE)
@@ -440,9 +462,11 @@ class RegistrationClothesFragment :
 
             hidePhotoPlaceholder()
             binding.btnRegistrationClothes.isEnabled = true
+            updatePhotoGuideIcon(hasPhoto = true)
         } else {
             showPhotoPlaceholder("사진 등록")
             binding.btnRegistrationClothes.isEnabled = false
+            updatePhotoGuideIcon(hasPhoto = false)
         }
 
         TagOptions.setSelectedTag(tagsSection, originalTags)
@@ -511,6 +535,16 @@ class RegistrationClothesFragment :
         binding.tvPhotoPlaceholder.visibility = View.GONE
     }
 
+    private fun updatePhotoGuideIcon(hasPhoto: Boolean) {
+        hasPhotoForGuide = hasPhoto
+        val iconRes = if (hasPhoto) {
+            R.drawable.pngwing_exclamation_mark
+        } else {
+            R.drawable.baseline_help_24
+        }
+        binding.btnPhotoGuide.setImageResource(iconRes)
+    }
+
     private fun openGalleryPicker() {
         pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
@@ -549,8 +583,9 @@ class RegistrationClothesFragment :
 
     @SuppressLint("CheckResult")
     private fun registerObserve() {
-        viewModel.maskedphotoUrl.observe(viewLifecycleOwner) { url ->
+        viewModel.imageUrl.observe(viewLifecycleOwner) { url ->
             if (url.isNullOrBlank()) return@observe
+            maskedPhotoUrl = url
 
             // 이 observe 실행 시점의 토큰 캡처
             val tokenAtRequest = photoRequestToken
@@ -567,6 +602,7 @@ class RegistrationClothesFragment :
                         isMaskingInProgress = false
                         binding.btnRegistrationClothes.isEnabled = false
                         showPhotoPlaceholder("사진 등록")
+                        updatePhotoGuideIcon(hasPhoto = false)
                         showToast("이미지 로드에 실패했습니다.")
                         return false
                     }
@@ -584,6 +620,7 @@ class RegistrationClothesFragment :
                         isMaskingInProgress = false
                         binding.btnRegistrationClothes.isEnabled = true
                         hidePhotoPlaceholder()
+                        updatePhotoGuideIcon(hasPhoto = true)
 
                         // ✅ 배경 제거된 이미지가 들어올 때마다
                         //    "그 이미지 기준으로" 태그/옷종류/계절/색상을 다시 선택
@@ -592,7 +629,7 @@ class RegistrationClothesFragment :
                         // ✅ URL 기준으로 무조건 autoSelect 수행
                         autoSelectApplied = false
                         lastAutoSelectUrl = null
-                        autoSelectFromphotoUrl(url)
+                        autoSelectFromImageUrl(url)
 
                         return false
                     }
@@ -644,7 +681,7 @@ class RegistrationClothesFragment :
         return true
     }
 
-    private fun autoSelectFromphotoUrl(url: String) {
+    private fun autoSelectFromImageUrl(url: String) {
         if (!shouldAutoSelect(url)) return
 
         autoSelectApplied = true

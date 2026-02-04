@@ -6,7 +6,8 @@
     android:id="@+id/postMainContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:paddingBottom="0dp">
 
     <!-- 상단 제목 (무신사 톤: 16sp bold) -->
     <TextView
@@ -64,7 +65,7 @@
             android:inputType="text"
             android:imeOptions="actionSearch"
             android:singleLine="true"
-            android:textSize="12sp"
+            android:textSize="@dimen/text_input"
             android:textColor="#0A0F18"
             android:textColorHint="#9E9E9E"
             android:paddingTop="0dp"
