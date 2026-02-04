@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -17,11 +18,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.AuthActivity
@@ -35,14 +37,16 @@ import com.ssafy.closetory.util.auth.AuthManager
 import java.lang.reflect.Field
 import kotlinx.coroutines.launch
 
-// 태그 파이차트용(요청 팔레트 + 기타 흰색)
+private const val TAG = "MyPageFragment_싸피"
+
+// ✅ (기존) 태그 파이차트용 팔레트 유지
 private val TAG_PIE_COLORS = listOf(
-    "#0D47A1".toColorInt(), // Level 1
-    "#1976D2".toColorInt(), // Level 2
-    "#42A5F5".toColorInt(), // Level 3
-    "#90CAF9".toColorInt(), // Level 4
-    "#E3F2FD".toColorInt(), // Level 5
-    "#FFFFFF".toColorInt() // 기타
+    "#0A0F18".toColorInt(), // main black
+    "#2B2F36".toColorInt(), // dark gray
+    "#4B515C".toColorInt(), // mid gray
+    "#8A93A3".toColorInt(), // light gray
+    "#D7DCE5".toColorInt(), // very light gray
+    "#F1F3F6".toColorInt() // etc (almost white)
 )
 
 class MyPageFragment :
@@ -69,34 +73,36 @@ class MyPageFragment :
             return
         }
 
-        // RecyclerView 먼저 초기화
+        // ✅ Top3(코디 히스토리) RecyclerView 초기화/관찰 추가
         setupRecyclerView()
+        observeTop3Clothes()
 
+        // 기존 통계 호출 유지 + Top3 호출 추가
         myPageViewModel.getTagsStatistics(userId)
         myPageViewModel.getColorsStatistics(userId)
         myPageViewModel.getTop3Clothes(userId)
 
         observeUserProfile()
         loadUserProfile()
-        // Top3 데이터 관찰
-        observeTop3Clothes()
 
         binding.btnLogout.setOnClickListener { showLogoutDialog() }
         binding.btnSignout.setOnClickListener { showSignoutDialog() }
         binding.tvEditProfile.setOnClickListener { showPasswordCheckDialog() }
-        // MyPageFragment.kt 수정
+
         binding.btnCodyRepository.setOnClickListener {
             val navController = findNavController()
-            // 현재 목적지가 마이페이지일 때만 이동을 수행하도록 안전장치 추가
             if (navController.currentDestination?.id == R.id.navigation_my_page) {
                 navController.navigate(R.id.action_navigation_my_page_to_codyRepositoryFragment)
             }
         }
+
         observeLogout()
         observeMessage()
         collectSignout()
         observePasswordCheck()
     }
+
+    /* -------------------- ✅ Top3 (코디 히스토리) -------------------- */
 
     private fun setupRecyclerView() {
         top3Adapter = Top3ClothesAdapter()
@@ -105,28 +111,26 @@ class MyPageFragment :
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         }
     }
+
     private fun observeTop3Clothes() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                myPageViewModel.top3Clothes.observe(viewLifecycleOwner) { clothesList ->
-                    if (clothesList.isEmpty()) {
-                        // 빈 상태 표시
-                        binding.rvTop3Clothes.visibility = View.GONE
-                        binding.tvEmptyTop3.visibility = View.VISIBLE
-                    } else {
-                        // 데이터 표시
-                        binding.rvTop3Clothes.visibility = View.VISIBLE
-                        binding.tvEmptyTop3.visibility = View.GONE
-                        top3Adapter.submitList(clothesList)
-                    }
-                }
+        myPageViewModel.top3Clothes.observe(viewLifecycleOwner) { clothesList ->
+            if (clothesList.isNullOrEmpty()) {
+                binding.rvTop3Clothes.visibility = View.GONE
+                binding.tvEmptyTop3.visibility = View.VISIBLE
+            } else {
+                binding.rvTop3Clothes.visibility = View.VISIBLE
+                binding.tvEmptyTop3.visibility = View.GONE
+                top3Adapter.submitList(clothesList)
             }
         }
     }
+
+    /* -------------------- 프로필 -------------------- */
+
     private fun bindUserProfile(user: EditProfileInfoResponse) {
         binding.tvNickname.text = user.nickname ?: "닉네임"
-        binding.tvHeight.text = "${user.height ?: 0}cm"
-        binding.tvWeight.text = "${user.weight ?: 0}kg"
+        binding.tvHeight.text = "${user.height ?: 0} cm"
+        binding.tvWeight.text = "${user.weight ?: 0} kg"
 
         bindProfileImage(user.profilePhotoUrl)
         bindBodyImage(user.bodyPhotoUrl)
@@ -162,8 +166,6 @@ class MyPageFragment :
         myPageViewModel.loadUserProfile(userId)
     }
 
-    /* -------------------- 로그아웃 -------------------- */
-
     private fun observeUserProfile() {
         viewLifecycleOwner.lifecycleScope.launch {
             myPageViewModel.userProfile.collect { user ->
@@ -171,6 +173,8 @@ class MyPageFragment :
             }
         }
     }
+
+    /* -------------------- 로그아웃 -------------------- */
 
     private fun showLogoutDialog() {
         val dialog = AlertDialog.Builder(requireContext())
@@ -197,6 +201,14 @@ class MyPageFragment :
                     val authManager = AuthManager(requireContext())
                     authManager.clearToken()
                     ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+                    ApplicationClass.sharedPreferences.clearUserNickName()
+
+                    Log.d(
+                        TAG,
+                        "로그아웃 이후 값 확인 : userNickName=${ApplicationClass.sharedPreferences.getUserNickName()}, userId=${ApplicationClass.sharedPreferences.getUserId(
+                            ApplicationClass.USERID
+                        )}"
+                    )
 
                     val intent = Intent(requireContext(), AuthActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -262,12 +274,10 @@ class MyPageFragment :
             }
         }
 
-        // 태그 통계 수신
         myPageViewModel.tagsStatistics.observe(viewLifecycleOwner) { list ->
             updatePieTag(list)
         }
 
-        // 색상 통계 수신
         myPageViewModel.colorStatistics.observe(viewLifecycleOwner) { list ->
             updatePieColor(list)
         }
@@ -292,7 +302,15 @@ class MyPageFragment :
                 Toast.makeText(requireContext(), "회원 탈퇴에 성공했습니다.", Toast.LENGTH_SHORT).show()
 
                 ApplicationClass.authManager.clearToken()
+                ApplicationClass.sharedPreferences.clearUserNickName()
                 ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+
+                Log.d(
+                    TAG,
+                    "회원 탈퇴 이후 값 확인 : userNickName=${ApplicationClass.sharedPreferences.getUserNickName()}, userId=${ApplicationClass.sharedPreferences.getUserId(
+                        ApplicationClass.USERID
+                    )}"
+                )
 
                 moveToLogin()
             }
@@ -357,39 +375,44 @@ class MyPageFragment :
         startActivity(intent)
     }
 
-    /* -------------------- PieChart (공통) -------------------- */
+    /* -------------------- PieChart (공통) : ✅ 기존 코드 유지 -------------------- */
 
     private fun applyPieCommon(pieChart: PieChart) {
-        pieChart.setDrawHoleEnabled(false)
-        pieChart.setDrawCenterText(false)
-        pieChart.setDrawEntryLabels(false)
         pieChart.description.isEnabled = false
-        pieChart.setUsePercentValues(true)
         pieChart.legend.isEnabled = false
+        pieChart.setUsePercentValues(true)
 
-        // 잘림 방지 + 두 그래프 동일 사이즈 체감
-        pieChart.setExtraOffsets(12f, 12f, 12f, 12f)
+        pieChart.setDrawEntryLabels(false)
+        pieChart.setDrawCenterText(false)
+
+        pieChart.isDrawHoleEnabled = true
+        pieChart.holeRadius = 40f
+        pieChart.transparentCircleRadius = 0f
+
+        pieChart.setExtraOffsets(2f, 2f, 2f, 2f)
+        pieChart.setMinOffset(0f)
+
+        pieChart.isRotationEnabled = false
         pieChart.isHighlightPerTapEnabled = true
+        pieChart.highlightValues(null)
     }
 
     private fun applyPieDatasetCommon(dataSet: PieDataSet) {
         dataSet.setDrawValues(true)
-
-        dataSet.yValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
-        dataSet.valueLinePart1OffsetPercentage = 80f
-        dataSet.valueLinePart1Length = 0.30f
-        dataSet.valueLinePart2Length = 0.35f
-        dataSet.valueLineWidth = 1f
-        dataSet.isUsingSliceColorAsValueLineColor = true
-
+        dataSet.yValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE
+        dataSet.xValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE
         dataSet.sliceSpace = 1f
         dataSet.selectionShift = 6f
     }
 
     private fun buildPieData(pieChart: PieChart, dataSet: PieDataSet): PieData = PieData(dataSet).apply {
-        setValueFormatter(PercentFormatter(pieChart))
         setValueTextSize(12f)
-        setValueTextColor(Color.BLACK)
+
+        // ✅ 기존: 7% 이하는 숨김
+        setValueFormatter(object : ValueFormatter() {
+            override fun getPieLabel(value: Float, pieEntry: PieEntry?): String =
+                if (value <= 7f) "" else String.format("%.1f%%", value)
+        })
     }
 
     /* -------------------- PieChart (태그) -------------------- */
@@ -408,9 +431,7 @@ class MyPageFragment :
             top5.forEach { (tag, value) ->
                 add(PieEntry(value, "").apply { data = tag })
             }
-            if (etcSum > 0f) {
-                add(PieEntry(etcSum, "").apply { data = "기타" })
-            }
+            if (etcSum > 0f) add(PieEntry(etcSum, "").apply { data = "기타" })
         }
     }
 
@@ -430,12 +451,17 @@ class MyPageFragment :
             }
         }
 
+        // ✅ 기존: 조각별 글자색 자동
+        val valueTextColors = dataSet.colors.map { sliceColor -> idealTextColorOn(sliceColor) }
+        dataSet.setValueTextColors(valueTextColors)
+
         applyPieDatasetCommon(dataSet)
         pieChart.data = buildPieData(pieChart, dataSet)
 
-        // PieMarkerView 클래스/레이아웃이 프로젝트에 있어야 함
-        pieChart.marker = PieMarkerView(requireContext(), R.layout.marker_pie)
+        // ✅ 기존: 애니메이션 유지
+        pieChart.animateY(900, Easing.EaseInOutQuad)
 
+        pieChart.marker = PieMarkerView(requireContext(), R.layout.marker_pie)
         pieChart.invalidate()
     }
 
@@ -457,7 +483,6 @@ class MyPageFragment :
 
         val top5 = sorted.take(5)
         val top5Eng = top5.map { it.first }
-
         val etcSum = sorted.drop(5).sumOf { it.second.toDouble() }.toFloat()
 
         val entries = mutableListOf<PieEntry>()
@@ -465,9 +490,7 @@ class MyPageFragment :
             val labelKo = ColorOptions.englishToKorean(colorEng) ?: colorEng
             entries.add(PieEntry(value, "").apply { data = labelKo })
         }
-        if (etcSum > 0f) {
-            entries.add(PieEntry(etcSum, "").apply { data = "기타" })
-        }
+        if (etcSum > 0f) entries.add(PieEntry(etcSum, "").apply { data = "기타" })
 
         return entries to top5Eng
     }
@@ -495,11 +518,14 @@ class MyPageFragment :
         }
         dataSet.colors = colors
 
+        val valueTextColors = colors.map { sliceColor -> idealTextColorOn(sliceColor) }
+        dataSet.setValueTextColors(valueTextColors)
+
         applyPieDatasetCommon(dataSet)
         pieChart.data = buildPieData(pieChart, dataSet)
 
+        pieChart.animateY(900, Easing.EaseInOutQuad)
         pieChart.marker = PieMarkerView(requireContext(), R.layout.marker_pie)
-
         pieChart.invalidate()
     }
 
@@ -517,6 +543,15 @@ class MyPageFragment :
         val pairs = stats.mapNotNull { extractColorAndValue(it) }
         val (entries, top5Eng) = buildTop5WithEtcColorEntries(pairs)
         renderPieColor(entries, top5Eng)
+    }
+
+    /* -------------------- ✅ 파이차트 텍스트 색 자동 -------------------- */
+    private fun idealTextColorOn(bgColor: Int): Int {
+        val r = Color.red(bgColor)
+        val g = Color.green(bgColor)
+        val b = Color.blue(bgColor)
+        val yiq = (r * 299 + g * 587 + b * 114) / 1000
+        return if (yiq >= 160) Color.BLACK else Color.WHITE
     }
 
     /* -------------------- DTO 리플렉션 (유지) -------------------- */
