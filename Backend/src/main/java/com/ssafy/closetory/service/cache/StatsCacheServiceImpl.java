@@ -38,4 +38,11 @@ public class StatsCacheServiceImpl implements StatsCacheService {
 
     return loaded;
   }
+
+  @Override
+  public void evictMonthlyStats(Integer userId, String yyyyMM) {
+    redisTemplate.delete(StatsCacheKey.top3(userId, yyyyMM));
+    redisTemplate.delete(StatsCacheKey.tagRatio(userId, yyyyMM));
+    redisTemplate.delete(StatsCacheKey.colorRatio(userId, yyyyMM));
+  }
 }

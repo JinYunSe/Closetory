@@ -15,6 +15,8 @@ import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
+import com.ssafy.closetory.service.cache.StatsCacheKey;
+import com.ssafy.closetory.service.cache.StatsCacheService;
 import com.ssafy.closetory.service.clothes.ClothesService;
 import com.ssafy.closetory.service.s3.S3ImageService;
 import java.io.IOException;
@@ -48,6 +50,7 @@ public class LookServiceImpl implements LookService {
   private final LookRepository lookRepository;
   private final ClothesService clothesService;
   private final ClothesLooksRepository clothesLooksRepository;
+  private final StatsCacheService statsCacheService;
 
   private static final String[] clothesType = {
     "top_image", "bottom_image", "shoes_image",
@@ -416,6 +419,8 @@ public class LookServiceImpl implements LookService {
       throw new ForbiddenException("자신의 룩만 수정할 수 있습니다.");
     }
 
+    LocalDate oldDate = look.getDate();
+
     lookRepository
         .findByUserIdAndDate(userId, request.date())
         .ifPresent(lookOnSameDate -> lookOnSameDate.setDate(null));
@@ -431,6 +436,8 @@ public class LookServiceImpl implements LookService {
     }
 
     look.setDate(request.date());
+
+    evictMonthlyStats(userId, oldDate, request.date());
   }
 
   @Override
@@ -438,6 +445,8 @@ public class LookServiceImpl implements LookService {
   public void deleteLook(Integer lookId, Integer userId) {
     Look look =
         lookRepository.findById(lookId).orElseThrow(() -> new NotFoundException("존재하지 않는 룩입니다."));
+
+    LocalDate date = look.getDate();
 
     if (!look.getUserId().equals(userId)) {
       throw new ForbiddenException("자신의 룩만 삭제할 수 있습니다.");
@@ -448,5 +457,18 @@ public class LookServiceImpl implements LookService {
     clothesLooksRepository.deleteAll(lookItems);
 
     lookRepository.delete(look);
+
+    if (date != null) {
+      evictMonthlyStats(userId, date, null);
+    }
+  }
+
+  private void evictMonthlyStats(Integer userId, LocalDate oldDate, LocalDate newDate) {
+    if (oldDate != null) {
+      statsCacheService.evictMonthlyStats(userId, StatsCacheKey.yyyyMM(oldDate));
+    }
+    if (newDate != null) {
+      statsCacheService.evictMonthlyStats(userId, StatsCacheKey.yyyyMM(newDate));
+    }
   }
 }
