@@ -1,4 +1,4 @@
-package com.ssafy.closetory.authActivity.signUp
+﻿package com.ssafy.closetory.authActivity.signUp
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -55,14 +55,14 @@ class SignUpViewModel : ViewModel() {
                 } else {
                     _signUpSuccess.emit(false)
                     _message.emit(
-                        body?.errorMessage ?: "입력 정보를 확인해주세요"
+                        body?.errorMessage ?: "입력 정보를 확인해 주세요."
                     )
                 }
             } catch (e: Exception) {
                 Log.e("SIGNUP_FLOW", "signUp() 예외 발생 ${e.message}", e)
                 _signUpSuccess.emit(false)
-                _message.emit("네트워크 통신 오류 발생")
             }
         }
     }
 }
+

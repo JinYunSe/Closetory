@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.registrationClothes
+﻿package com.ssafy.closetory.homeActivity.registrationClothes
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -365,7 +365,7 @@ class RegistrationClothesFragment :
 
         binding.imbtnRegistrationClothes.setOnClickListener {
             if (isMaskingInProgress) {
-                showToast("잠시 후 다시 시도해주세요.")
+                showToast("잠시 후 다시 시도해 주세요.")
                 return@setOnClickListener
             }
 
@@ -395,19 +395,19 @@ class RegistrationClothesFragment :
                 return@setOnClickListener
             }
             if (tags.isEmpty()) {
-                showToast("태그를 1개 이상 선택해주세요.")
+                showToast("태그를 1개 이상 선택해 주세요.")
                 return@setOnClickListener
             }
             if (clothesType == null) {
-                showToast("옷 종류를 선택해주세요.")
+                showToast("옷 종류를 선택해 주세요.")
                 return@setOnClickListener
             }
             if (seasons.isEmpty()) {
-                showToast("계절을 선택해주세요.")
+                showToast("계절을 선택해 주세요.")
                 return@setOnClickListener
             }
             if (color.isNullOrBlank()) {
-                showToast("색상을 선택해주세요.")
+                showToast("색상을 선택해 주세요.")
                 return@setOnClickListener
             }
 
@@ -432,7 +432,7 @@ class RegistrationClothesFragment :
     private fun clothesAlteration() {
         val photoUrl = maskedPhotoUrl ?: viewModel.imageUrl.value
         if (photoUrl.isNullOrBlank()) {
-            showToast("사진을 먼저 등록해주세요.")
+            showToast("사진을 먼저 등록해 주세요.")
             return
         }
 
@@ -1049,3 +1049,4 @@ class RegistrationClothesFragment :
         return sqrt(dl * dl + da * da + db * db)
     }
 }
+

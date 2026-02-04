@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.styling
+﻿package com.ssafy.closetory.homeActivity.styling
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -20,7 +20,7 @@ enum class StylingStage {
     SELECTING, // 옷 선택 중
     FITTING_READY, // 옷 선택 완료 → "AI 가상피팅" 가능
     FITTING_DONE, // 가상피팅 완료 → "등록" 가능
-    SAVED // 저장 완료 → "코디저장소 가기" 가능
+    SAVED // 저장 완료 → "코디 저장소 가기" 가능
 }
 
 class StylingViewModel : ViewModel() {
@@ -101,7 +101,6 @@ class StylingViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "❌ loadClothItems 예외 발생", e)
-                _errorMessage.value = "네트워크 오류: ${e.message}"
             }
         }
     }
@@ -111,7 +110,7 @@ class StylingViewModel : ViewModel() {
      */
     fun requestAiFitting(clothesIdList: List<Int>) {
         if (clothesIdList.all { it == -1 }) {
-            _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요."
+            _errorMessage.value = "최소 1개 이상의 의류를 선택해 주세요."
             return
         }
 
@@ -160,10 +159,10 @@ class StylingViewModel : ViewModel() {
                 } else {
                     val errorBody = response.errorBody()?.string()
                     val errorMsg = when (response.code()) {
-                        400 -> "잘못된 요청입니다. 옷 선택을 확인해주세요."
-                        401 -> "인증이 만료되었습니다. 다시 로그인해주세요."
-                        408 -> "요청 시간이 초과되었습니다. 다시 시도해주세요."
-                        500 -> "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+                        400 -> "잘못된 요청입니다. 옷 선택을 확인해 주세요."
+                        401 -> "인증이 만료되었습니다. 다시 로그인해 주세요."
+                        408 -> "요청 시간이 초과되었습니다. 다시 시도해 주세요."
+                        500 -> "서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
                         503 -> "서버가 일시적으로 사용 불가능합니다."
                         else -> "가상피팅에 실패했습니다. (${response.code()})"
                     }
@@ -171,13 +170,10 @@ class StylingViewModel : ViewModel() {
                     Log.e(TAG, "❌ HTTP 에러: code=${response.code()}, body=$errorBody")
                 }
             } catch (e: SocketTimeoutException) {
-                _errorMessage.value = "AI 가상피팅 처리 시간이 초과되었습니다.\n잠시 후 다시 시도해주세요."
                 Log.e(TAG, "❌ 타임아웃 에러", e)
             } catch (e: UnknownHostException) {
-                _errorMessage.value = "네트워크 연결을 확인해주세요."
                 Log.e(TAG, "❌ 네트워크 연결 에러", e)
             } catch (e: Exception) {
-                _errorMessage.value = "네트워크 오류: ${e.message}"
                 Log.e(TAG, "❌ 가상피팅 예외", e)
                 e.printStackTrace()
             } finally {
@@ -194,7 +190,7 @@ class StylingViewModel : ViewModel() {
      */
     fun saveLook(clothesIdList: List<Int>) {
         if (clothesIdList.all { it == -1 }) {
-            _errorMessage.value = "최소 1개 이상의 의류를 선택해주세요"
+            _errorMessage.value = "최소 1개 이상의 의류를 선택해 주세요."
             return
         }
 
@@ -249,7 +245,6 @@ class StylingViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, " 룩 저장 예외", e)
-                _errorMessage.value = "네트워크 오류: ${e.message}"
             } finally {
                 _isLoading.value = false
                 _loadingType.value = null
@@ -390,3 +385,5 @@ class StylingViewModel : ViewModel() {
         Log.d(TAG, "🧹 ViewModel cleared - 모든 Job 취소")
     }
 }
+
+

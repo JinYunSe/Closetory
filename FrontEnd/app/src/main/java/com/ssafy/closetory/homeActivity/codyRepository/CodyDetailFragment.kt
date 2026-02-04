@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.codyRepository
+﻿package com.ssafy.closetory.homeActivity.codyRepository
 
 import android.os.Bundle
 import android.util.Log
@@ -171,7 +171,7 @@ class CodyDetailFragment :
                 selectedCalendarDate = originalDate
                 updateRegisterButton(true)
             } else {
-                binding.tvSelectedDate.text = "날짜를 선택해주세요"
+                binding.tvSelectedDate.text = "날짜를 선택해 주세요."
                 binding.ivCalendarIcon.visibility = View.VISIBLE
                 updateRegisterButton(false)
             }
@@ -438,3 +438,4 @@ class CodyDetailFragment :
         dateStr
     }
 }
+

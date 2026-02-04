@@ -65,7 +65,6 @@ class MyPageViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "loadUserProfile error", e)
-                _message.emit("네트워크 오류")
             }
         }
     }
@@ -115,7 +114,6 @@ class MyPageViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("LOGOUT_FLOW", "logout() 예외 발생 ${e.message}", e)
                 _logoutSuccess.emit(false)
-                _message.emit("로그아웃 예외사항 발생")
             }
         }
     }
@@ -133,7 +131,6 @@ class MyPageViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "태그 통계 예외 발생 : ${e.message}")
-                _message.emit(e.message ?: "네트워크 오류 발생")
                 _tagsStatistics.value = emptyList()
             }
         }
@@ -152,7 +149,6 @@ class MyPageViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "색상 통계 예외 발생 : ${e.message}")
-                _message.emit(e.message ?: "네트워크 오류 발생")
                 _colorStatistics.value = emptyList()
             }
         }
@@ -182,7 +178,6 @@ class MyPageViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e(TAG, "최근 코디 조회 예외 발생: ${e.message}", e)
                 _recentCody.value = emptyList()
-                _message.emit(e.message ?: "네트워크 오류 발생")
             }
         }
     }
@@ -201,7 +196,6 @@ class MyPageViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e(TAG, "getTop3Clothes 예외 발생 : ${e.message}", e)
                 _top3Clothes.value = emptyList()
-                _message.emit("Top3 조회 네트워크 오류")
             }
         }
     }

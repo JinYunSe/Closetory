@@ -108,7 +108,7 @@ class PostDetailFragment :
             val content = binding.etComment.text.toString().trim()
 
             if (content.isEmpty()) {
-                Toast.makeText(requireContext(), "댓글 내용을 입력하세요.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "댓글 내용을 입력해 주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -278,7 +278,7 @@ class PostDetailFragment :
     private fun showEditCommentDialog(comment: CommentDto) {
         val editText = android.widget.EditText(requireContext()).apply {
             setText(comment.content)
-            hint = "댓글 내용을 입력하세요"
+            hint = "댓글 내용을 입력해 주세요."
             setPadding(50, 30, 50, 30)
         }
 
@@ -291,7 +291,7 @@ class PostDetailFragment :
                     Log.d("COMMENT_EDIT", "🔧 댓글 수정 요청: commentId=${comment.commentId}, content=$newContent")
                     viewModel.updateComment(postId, comment.commentId, newContent)
                 } else {
-                    Toast.makeText(requireContext(), "댓글 내용을 입력하세요.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "댓글 내용을 입력해 주세요.", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("취소", null)
@@ -313,3 +313,4 @@ class PostDetailFragment :
             .show()
     }
 }
+

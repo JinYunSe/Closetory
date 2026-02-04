@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.styling
+﻿package com.ssafy.closetory.homeActivity.styling
 
 import android.net.Uri
 import android.os.Bundle
@@ -213,7 +213,7 @@ class StylingFragment :
 
         when (stage) {
             StylingStage.SELECTING -> {
-                Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해주세요", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해 주세요.", Toast.LENGTH_SHORT).show()
             }
 
             StylingStage.FITTING_READY -> {
@@ -242,13 +242,12 @@ class StylingFragment :
             // 예: findNavController().navigate(R.id.action_styling_to_lookStorage)
 
             // 임시: 토스트로 안내 (실제로는 위 코드 주석 해제)
-            Toast.makeText(requireContext(), "코디저장소로 이동합니다", Toast.LENGTH_SHORT).show()
             viewModel.onNavigatedToLookStorage()
 
             Log.d(TAG, "🏪 코디저장소로 이동")
         } catch (e: Exception) {
             Log.e(TAG, "코디저장소 이동 실패", e)
-            Toast.makeText(requireContext(), "코디저장소로 이동할 수 없습니다", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "코디 저장소로 이동할 수 없습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -438,8 +437,8 @@ class StylingFragment :
             }
 
             StylingStage.SAVED -> {
-                // 🆕 저장 완료 상태 - 코디저장소 가기
-                binding.btnStylingRegister.text = "📦 코디저장소 가기"
+                // 🆕 저장 완료 상태 - 코디 저장소 가기
+                binding.btnStylingRegister.text = "📦 코디 저장소 가기"
                 binding.btnStylingRegister.isEnabled = true
                 binding.btnStylingRegister.alpha = 1.0f
             }
@@ -513,8 +512,6 @@ class StylingFragment :
 
         hideAiFittingResult()
         viewModel.resetAll()
-
-        Toast.makeText(requireContext(), "코디가 초기화되었습니다", Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -561,7 +558,7 @@ class StylingFragment :
         Log.d(TAG, "전송할 clothesIdList: $clothesIdList")
 
         if (clothesIdList.all { it == -1 }) {
-            Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해주세요", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해 주세요.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -586,7 +583,7 @@ class StylingFragment :
         Log.d(TAG, "AI 피팅 요청 clothesIdList: $clothesIdList")
 
         if (clothesIdList.all { it == -1 }) {
-            Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해주세요.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해 주세요.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -647,3 +644,4 @@ class StylingFragment :
         // Fragment 파괴 시에는 초기화하지 않음
     }
 }
+

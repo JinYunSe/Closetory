@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.post.create
+﻿package com.ssafy.closetory.homeActivity.post.create
 
 import android.Manifest
 import android.net.Uri
@@ -267,14 +267,14 @@ class PostCreateFragment :
             val items = selectedItems.map { it.clothesId }
 
             when {
-                titleText.isBlank() -> return@setOnClickListener showToast("제목을 입력해주세요.")
-                titleText.length > 30 -> return@setOnClickListener showToast("제목은 30자 이하로 입력해주세요.")
-                contentText.isBlank() -> return@setOnClickListener showToast("내용을 입력해주세요.")
+                titleText.isBlank() -> return@setOnClickListener showToast("제목을 입력해 주세요.")
+                titleText.length > 30 -> return@setOnClickListener showToast("제목은 30자 이하로 입력해 주세요.")
+                contentText.isBlank() -> return@setOnClickListener showToast("내용을 입력해 주세요.")
             }
 
             if (mode == MODE_CREATE) {
-                val uri = selectedMainPhotoUri ?: return@setOnClickListener showToast("대표 사진을 등록해주세요.")
-                val photo = buildPhotoPartOrNull(uri) ?: return@setOnClickListener showToast("사진 처리 실패")
+                val uri = selectedMainPhotoUri ?: return@setOnClickListener showToast("대표 사진을 등록해 주세요.")
+                val photo = buildPhotoPartOrNull(uri) ?: return@setOnClickListener showToast("사진 처리에 실패했습니다.")
 
                 viewModel.createPost(
                     photo = photo,
@@ -289,7 +289,7 @@ class PostCreateFragment :
 
             val photoPart: MultipartBody.Part? =
                 if (isPhotoChanged) {
-                    val uri = selectedMainPhotoUri ?: return@setOnClickListener showToast("사진 처리 실패")
+                    val uri = selectedMainPhotoUri ?: return@setOnClickListener showToast("사진 처리에 실패했습니다.")
                     buildPhotoPartOrNull(uri)
                 } else {
                     null
@@ -389,3 +389,5 @@ class PostCreateFragment :
         }
     }
 }
+
+

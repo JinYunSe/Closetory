@@ -191,7 +191,6 @@ class AiStylingFragment :
                     binding.layoutAiFitting.visibility = View.GONE
                     viewModel.resetAll()
                     binding.tvAiMessage.text = "AI가 여기에 답변을 해줍니다."
-                    Toast.makeText(requireContext(), "초기화되었습니다.", Toast.LENGTH_SHORT).show()
                 }
                 .setNegativeButton("취소", null)
                 .show()
@@ -207,13 +206,11 @@ class AiStylingFragment :
                     binding.layoutAiFitting.visibility = View.GONE
                     viewModel.resetAll()
                     binding.tvAiMessage.text = "AI가 여기에 답변을 해줍니다."
-                    Toast.makeText(requireContext(), "초기화되었습니다.", Toast.LENGTH_SHORT).show()
                 }
                 .setNegativeButton("취소", null)
                 .show()
         } else {
             // 초기 상태면 바로 초기화
-            Toast.makeText(requireContext(), "이미 초기 상태입니다.", Toast.LENGTH_SHORT).show()
         }
     }
 

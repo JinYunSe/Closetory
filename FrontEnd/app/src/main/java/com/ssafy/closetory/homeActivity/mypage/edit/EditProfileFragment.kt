@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.mypage.edit
+﻿package com.ssafy.closetory.homeActivity.mypage.edit
 
 import android.Manifest
 import android.content.res.ColorStateList
@@ -283,12 +283,12 @@ class EditProfileFragment :
             val weightText = binding.etWeight.text.toString().trim()
 
             if (nickname.isBlank()) {
-                showToast("닉네임을 입력해주세요.")
+                showToast("닉네임을 입력해 주세요.")
                 return@setOnClickListener
             }
 
             if (nickname.length > 10) {
-                showToast("닉네임은 10자 이하로 입력해주세요.")
+                showToast("닉네임은 10자 이하로 입력해 주세요.")
                 return@setOnClickListener
             }
 
@@ -298,12 +298,12 @@ class EditProfileFragment :
             }
 
             if (heightText.isBlank()) {
-                showToast("키를 입력해주세요.")
+                showToast("키를 입력해 주세요.")
                 return@setOnClickListener
             }
 
             if (weightText.isBlank()) {
-                showToast("몸무게를 입력해주세요.")
+                showToast("몸무게를 입력해 주세요.")
                 return@setOnClickListener
             }
 
@@ -311,26 +311,26 @@ class EditProfileFragment :
             val weight = weightText.toShortOrNull()
 
             if (height == null) {
-                showToast("키는 숫자로 입력해주세요.")
+                showToast("키는 숫자로 입력해 주세요.")
                 return@setOnClickListener
             }
 
             if (weight == null) {
-                showToast("몸무게는 숫자로 입력해주세요.")
+                showToast("몸무게는 숫자로 입력해 주세요.")
                 return@setOnClickListener
             }
             if (height < 100 || height > 250) {
-                showToast("키는 100~250 범위로 입력해주세요.")
+                showToast("키는 100~250 범위로 입력해 주세요.")
                 return@setOnClickListener
             }
 
             if (weight < 20 || weight > 200) {
-                showToast("몸무게는 20~200 범위로 입력해주세요.")
+                showToast("몸무게는 20~200 범위로 입력해 주세요.")
                 return@setOnClickListener
             }
 
             if (gender == null) {
-                showToast("성별을 선택해주세요.")
+                showToast("성별을 선택해 주세요.")
                 return@setOnClickListener
             }
 
@@ -446,12 +446,12 @@ class EditProfileFragment :
             val confirmPw = etConfirm.text.toString()
 
             if (newPw.isBlank() || confirmPw.isBlank()) {
-                showToast("모든 항목을 입력해주세요.")
+                showToast("모든 항목을 입력해 주세요.")
                 return@setOnClickListener
             }
 
             if (newPw != confirmPw) {
-                showToast("새 비밀번호가 일치하지 않습니다.")
+                showToast("새 비밀번호가 일치하지 않습니다..")
                 return@setOnClickListener
             }
 
@@ -484,3 +484,5 @@ class EditProfileFragment :
         return !isVisible
     }
 }
+
+

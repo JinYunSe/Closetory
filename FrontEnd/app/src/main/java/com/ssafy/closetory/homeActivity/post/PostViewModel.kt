@@ -91,7 +91,6 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _postList.value = emptyList()
-                _message.tryEmit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -109,7 +108,6 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _postList.value = emptyList()
-                _message.tryEmit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -132,7 +130,6 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "loadPostDetail 예외", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -164,7 +161,6 @@ class PostViewModel : ViewModel() {
                 )
             } catch (e: Exception) {
                 Log.e(TAG, "toggleLike 예외", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -188,7 +184,6 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "createPost 예외", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -213,7 +208,6 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "editPost 예외", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -234,7 +228,6 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "deletePost 예외", e)
-                _deleteEvent.tryEmit(DeleteEvent.Fail(e.message ?: "네트워크 오류"))
             }
         }
     }
@@ -262,7 +255,6 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "toggleClothesSave 예외", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -295,7 +287,6 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "loadComments 예외", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
                 if (seq == commentsRequestSeq) {
                     _comments.value = emptyList()
                 }
@@ -309,7 +300,7 @@ class PostViewModel : ViewModel() {
     fun createComment(postId: Int, content: String) {
         if (content.isBlank()) {
             viewModelScope.launch {
-                _message.tryEmit("댓글 내용을 입력하세요.")
+                _message.tryEmit("댓글 내용을 입력해 주세요.")
             }
             return
         }
@@ -334,7 +325,6 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "createComment 예외", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -345,7 +335,7 @@ class PostViewModel : ViewModel() {
     fun updateComment(postId: Int, commentId: Int, content: String) {
         if (content.isBlank()) {
             viewModelScope.launch {
-                _message.tryEmit("댓글 내용을 입력하세요.")
+                _message.tryEmit("댓글 내용을 입력해 주세요.")
             }
             return
         }
@@ -380,7 +370,6 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "updateComment 예외", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -416,7 +405,6 @@ class PostViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "deleteComment 예외", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -434,3 +422,4 @@ class PostViewModel : ViewModel() {
         }
     }
 }
+
