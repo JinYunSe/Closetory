@@ -36,7 +36,6 @@ class SignoutViewModel : ViewModel() {
                     )
                 }
             } catch (e: Exception) {
-                _message.emit(e.message ?: "네트워크 오류가 발생했습니다.")
             }
         }
     }

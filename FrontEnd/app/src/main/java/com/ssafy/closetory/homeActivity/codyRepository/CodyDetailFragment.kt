@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.codyRepository
+﻿package com.ssafy.closetory.homeActivity.codyRepository
 
 import android.os.Bundle
 import android.util.Log
@@ -30,63 +30,79 @@ class CodyDetailFragment :
         R.layout.fragment_cody_detail
     ) {
 
-    // 코디 저장소 ViewModel
     private val codyViewModel: CodyRepositoryViewModel by viewModels()
-
-    // 홈 ViewModel (캘린더 데이터 공유)
     private val homeViewModel: HomeViewModel by activityViewModels()
 
     private var lookId: Int = -1
     private var photoUrl: String = ""
-    private var originalDate: String = "" // 기존 등록 날짜
+    private var originalDate: String = ""
     private var aiReason: String? = null
     private var onlyMine: Boolean = false
 
     private var selectedCalendarDate: String? = null
 
-    // 캘린더 관련
     private val calendar: Calendar = Calendar.getInstance()
     private val today: Calendar = Calendar.getInstance()
     private lateinit var calBinding: DialogCalendarPickerBinding
     private lateinit var calendarAdapter: HomeCalendarAdapter
 
-    // 서버 데이터
     private var dayColorMap: Map<String, Pair<Int?, Int?>> = emptyMap()
     private var registeredDateSet: Set<String> = emptySet()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d(TAG, "CodyDetailFragment onViewCreated")
-
         receiveArguments()
+
         setupEmbeddedCalendar(view)
+        applyCalendarSectionVisibility()
+
         setupUI()
         setupListeners()
         observeViewModels()
 
         // 홈 캘린더 데이터 로드
         homeViewModel.getStylingList(true)
+
+        // ✅ 핵심: aiReason이 비어있으면 lookId로 서버 목록에서 다시 채움
+        if (aiReason.isNullOrBlank()) {
+            Log.w(TAG, "aiReason이 arguments로 안 들어옴 → lookId로 보강 조회 시도: $lookId")
+            codyViewModel.getLooks()
+        }
     }
 
-    /**
-     * Bundle 데이터 받기
-     */
     private fun receiveArguments() {
         arguments?.let { bundle ->
             lookId = bundle.getInt("lookId", -1)
             photoUrl = bundle.getString("photoUrl", "")
-            originalDate = bundle.getString("date", "")
-            aiReason = bundle.getString("aiReason")
+            originalDate = bundle.getString("date", "") ?: ""
+
+            // ✅ defaultValue로 안전하게 받고, blank면 null 처리
+            val reasonArg = bundle.getString("aiReason", "") ?: ""
+            aiReason = reasonArg.takeIf { it.isNotBlank() }
+
             onlyMine = bundle.getBoolean("onlyMine", false)
 
-            Log.d(TAG, "받은 데이터 - lookId: $lookId, originalDate: $originalDate")
+            Log.d(
+                TAG,
+                "받은 데이터 - lookId=$lookId, date='$originalDate', onlyMine=$onlyMine, aiReasonLen=${aiReason?.length ?: 0}"
+            )
         }
     }
 
-    /**
-     * 임베디드 캘린더 설정 (HomeFragment 로직 그대로 사용)
-     */
+    private fun applyCalendarSectionVisibility() {
+        val showCalendarSection = onlyMine
+
+        binding.tvCalendarLabel.visibility = if (showCalendarSection) View.VISIBLE else View.GONE
+        binding.layoutSelectedDate.visibility = if (showCalendarSection) View.VISIBLE else View.GONE
+        binding.cardRegister.visibility = if (showCalendarSection) View.VISIBLE else View.GONE
+
+        binding.root.findViewById<View>(R.id.cody_detail_calendar)?.visibility =
+            if (showCalendarSection) View.VISIBLE else View.GONE
+
+        if (!showCalendarSection) selectedCalendarDate = null
+    }
+
     private fun setupEmbeddedCalendar(root: View) {
         bindCalendarInclude(root)
         setupWeekHeader()
@@ -98,7 +114,6 @@ class CodyDetailFragment :
         calBinding.btnPrev.setOnClickListener { moveMonthAndRender(-1) }
         calBinding.btnNext.setOnClickListener { moveMonthAndRender(1) }
 
-        // 다이얼로그용 버튼은 숨김
         calBinding.btnConfirm.visibility = View.GONE
         calBinding.btnCancel.visibility = View.GONE
         calBinding.tvTitle.visibility = View.GONE
@@ -106,6 +121,7 @@ class CodyDetailFragment :
 
     private fun bindCalendarInclude(root: View) {
         val includeRoot = root.findViewById<View>(R.id.cody_detail_calendar)
+        requireNotNull(includeRoot) { "cody_detail_calendar(include) not found in fragment_cody_detail.xml" }
         calBinding = DialogCalendarPickerBinding.bind(includeRoot)
     }
 
@@ -121,25 +137,19 @@ class CodyDetailFragment :
             items = emptyList(),
             onClick = { day ->
                 if (!day.inMonth) return@HomeCalendarAdapter
+                if (!onlyMine) return@HomeCalendarAdapter
                 onCalendarDateSelected(day)
             },
             colorProvider = { day ->
                 dayColorMap[keyOf(day)] ?: (null to null)
             },
-            isBlocked = { day ->
-                // 이미 등록된 날짜는 차단하지 않음 (수정 가능하게)
-                false
-            }
+            isBlocked = { false }
         )
 
         calBinding.rvCalendar.adapter = calendarAdapter
     }
 
-    /**
-     * UI 초기 설정
-     */
     private fun setupUI() {
-        // 이미지 로딩
         val fullphotoUrl = if (photoUrl.startsWith("http")) {
             photoUrl
         } else {
@@ -154,19 +164,23 @@ class CodyDetailFragment :
             .error(R.drawable.error)
             .into(binding.ivCodyImage)
 
-        // 기존 등록 날짜 표시
-        if (originalDate.isNotBlank()) {
-            binding.tvSelectedDate.text = formatDateDisplay(originalDate)
-            binding.ivCalendarIcon.visibility = View.GONE
-            selectedCalendarDate = originalDate
-            updateRegisterButton(true)
-        } else {
-            binding.tvSelectedDate.text = "날짜를 선택해주세요"
-            binding.ivCalendarIcon.visibility = View.VISIBLE
-            updateRegisterButton(false)
+        if (onlyMine) {
+            if (originalDate.isNotBlank()) {
+                binding.tvSelectedDate.text = formatDateDisplay(originalDate)
+                binding.ivCalendarIcon.visibility = View.GONE
+                selectedCalendarDate = originalDate
+                updateRegisterButton(true)
+            } else {
+                binding.tvSelectedDate.text = "날짜를 선택해 주세요."
+                binding.ivCalendarIcon.visibility = View.VISIBLE
+                updateRegisterButton(false)
+            }
         }
 
-        // AI 추천 이유 표시
+        applyAiReasonToUI()
+    }
+
+    private fun applyAiReasonToUI() {
         if (!aiReason.isNullOrBlank()) {
             binding.tvReasonLabel.visibility = View.VISIBLE
             binding.tvReason.visibility = View.VISIBLE
@@ -177,33 +191,35 @@ class CodyDetailFragment :
         }
     }
 
-    /**
-     * 리스너 설정
-     */
     private fun setupListeners() {
-        // 뒤로가기
-        binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
-        }
+        binding.btnBack.setOnClickListener { findNavController().popBackStack() }
 
-        // 등록/수정 버튼
         binding.btnRegister.setOnClickListener {
-            if (selectedCalendarDate != null) {
-                registerToCalendar()
-            }
+            if (!onlyMine) return@setOnClickListener
+            if (selectedCalendarDate != null) registerToCalendar()
         }
 
-        // 삭제 버튼
-        binding.btnDelete.setOnClickListener {
-            showDeleteConfirmDialog()
-        }
+        binding.btnDelete.setOnClickListener { showDeleteConfirmDialog() }
     }
 
-    /**
-     * ViewModel 관찰
-     */
     private fun observeViewModels() {
-        // 홈 ViewModel - 캘린더 데이터
+        // ✅ 보강 데이터: 목록에서 lookId 매칭해 aiReason 채움
+        codyViewModel.looks.observe(viewLifecycleOwner) { list ->
+            if (!aiReason.isNullOrBlank()) return@observe
+            val found = list.firstOrNull { it.lookId == lookId } ?: return@observe
+
+            Log.d(TAG, "lookId=$lookId 보강 성공 - aiReasonLen=${found.aiReason?.length ?: 0}")
+
+            // 필요한 값들 보강(안전)
+            aiReason = found.aiReason?.takeIf { it.isNotBlank() }
+            // (선택) 서버 값이 더 정확하면 여기서 업데이트 가능
+            // photoUrl = found.photoUrl
+            // originalDate = found.date ?: originalDate
+            // onlyMine = found.onlyMine
+
+            applyAiReasonToUI()
+        }
+
         homeViewModel.dayColorMap.observe(viewLifecycleOwner) { colorMap ->
             dayColorMap = colorMap.mapValues { (_, colors) ->
                 val (topName, bottomName) = colors
@@ -219,13 +235,11 @@ class CodyDetailFragment :
             Log.d(TAG, "등록된 날짜 Set: $registeredDateSet")
         }
 
-        // 코디 ViewModel - 등록/삭제 결과
         codyViewModel.successMessage.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 codyViewModel.clearSuccessMessage()
 
-                // 성공 후 홈 캘린더 새로고침 & 뒤로가기
                 homeViewModel.getStylingList(true)
                 findNavController().popBackStack()
             }
@@ -239,26 +253,22 @@ class CodyDetailFragment :
         }
 
         codyViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.btnRegister.isEnabled = !isLoading && selectedCalendarDate != null
+            if (onlyMine) {
+                binding.btnRegister.isEnabled = !isLoading && selectedCalendarDate != null
+            }
             binding.btnDelete.isEnabled = !isLoading
         }
     }
 
-    /**
-     * 캘린더 날짜 선택
-     */
     private fun onCalendarDateSelected(day: Day) {
         val dateKey = keyOf(day)
         Log.d(TAG, "날짜 선택: $dateKey")
 
-        // 이미 등록된 날짜인지 확인
         if (registeredDateSet.contains(dateKey)) {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("날짜 변경 확인")
                 .setMessage("$dateKey 에 이미 다른 룩이 등록되어 있습니다.\n변경하시겠습니까?")
-                .setPositiveButton("변경") { _, _ ->
-                    applySelectedDate(day, dateKey)
-                }
+                .setPositiveButton("변경") { _, _ -> applySelectedDate(day, dateKey) }
                 .setNegativeButton("취소", null)
                 .show()
         } else {
@@ -273,39 +283,27 @@ class CodyDetailFragment :
         binding.ivCalendarIcon.visibility = View.GONE
         binding.tvSelectedDate.text = formatDateDisplay(dateKey)
         updateRegisterButton(true)
-
         Log.d(TAG, "날짜 적용: $dateKey")
     }
 
-    /**
-     * 캘린더에 등록
-     */
     private fun registerToCalendar() {
         val date = selectedCalendarDate ?: return
-
         Log.d(TAG, "캘린더 등록 - lookId: $lookId, date: $date")
-
         codyViewModel.registerToCalendar(lookId, date)
     }
 
-    /**
-     * 룩 삭제 확인 다이얼로그
-     */
     private fun showDeleteConfirmDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("룩 삭제")
             .setMessage("이 룩을 삭제하시겠습니까?")
-            .setPositiveButton("삭제") { _, _ ->
-                codyViewModel.deleteLook(lookId)
-            }
+            .setPositiveButton("삭제") { _, _ -> codyViewModel.deleteLook(lookId) }
             .setNegativeButton("취소", null)
             .show()
     }
 
-    /**
-     * 등록 버튼 상태 업데이트
-     */
     private fun updateRegisterButton(isEnabled: Boolean) {
+        if (!onlyMine) return
+
         binding.btnRegister.isEnabled = isEnabled
 
         if (isEnabled) {
@@ -321,18 +319,12 @@ class CodyDetailFragment :
         }
     }
 
-    /**
-     * 월 이동 및 렌더링
-     */
     private fun moveMonthAndRender(deltaMonth: Int) {
         calendar.add(Calendar.MONTH, deltaMonth)
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         renderMonth()
     }
 
-    /**
-     * 월 렌더링
-     */
     private fun renderMonth() {
         val year = calendar.get(Calendar.YEAR)
         val month0 = calendar.get(Calendar.MONTH)
@@ -341,7 +333,6 @@ class CodyDetailFragment :
         val days = build42Days(year, month0)
         calendarAdapter.submitList(days)
 
-        // 선택된 날짜가 있으면 유지
         selectedCalendarDate?.let { dateStr ->
             val parts = dateStr.split("-")
             if (parts.size == 3) {
@@ -358,9 +349,6 @@ class CodyDetailFragment :
         }
     }
 
-    /**
-     * 42일 생성 (HomeFragment와 동일)
-     */
     private fun build42Days(year: Int, month0: Int): List<Day> {
         val list = mutableListOf<Day>()
 
@@ -376,7 +364,6 @@ class CodyDetailFragment :
         val prev = (cal.clone() as Calendar).apply { add(Calendar.MONTH, -1) }
         val prevLast = prev.getActualMaximum(Calendar.DAY_OF_MONTH)
 
-        // 이전 달
         val prevCount = firstDow - 1
         val startPrevDay = prevLast - prevCount + 1
         for (d in startPrevDay..prevLast) {
@@ -389,7 +376,6 @@ class CodyDetailFragment :
             list.add(makeDay(c, inMonth = false))
         }
 
-        // 이번 달
         for (d in 1..thisLast) {
             val c = Calendar.getInstance().apply {
                 set(Calendar.YEAR, year)
@@ -399,7 +385,6 @@ class CodyDetailFragment :
             list.add(makeDay(c, inMonth = true))
         }
 
-        // 다음 달
         var nextDay = 1
         while (list.size < 42) {
             val c = Calendar.getInstance().apply {
@@ -439,9 +424,6 @@ class CodyDetailFragment :
 
     private fun keyOf(d: Day): String = "%04d-%02d-%02d".format(d.year, d.month0 + 1, d.dayOfMonth)
 
-    /**
-     * 날짜 표시 포맷: "2026-01-15" → "2026년 1월 15일"
-     */
     private fun formatDateDisplay(dateStr: String): String = try {
         val parts = dateStr.split("-")
         if (parts.size == 3) {

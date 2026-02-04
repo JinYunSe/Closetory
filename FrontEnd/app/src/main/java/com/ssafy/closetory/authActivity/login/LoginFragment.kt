@@ -1,4 +1,4 @@
-// LoginFragment.kt
+﻿// LoginFragment.kt
 
 package com.ssafy.closetory.authActivity.login
 
@@ -44,7 +44,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
             val password = binding.etLoginPassword.text.toString().trim()
 
             if (username.isBlank() || password.isBlank()) {
-                showToast("아이디 비밀번호를 입력해주세요")
+                showToast("아이디와 비밀번호를 입력해 주세요.")
                 return@setOnClickListener
             }
 
@@ -101,3 +101,4 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
         }
     }
 }
+

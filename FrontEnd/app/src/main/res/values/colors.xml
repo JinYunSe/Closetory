@@ -18,7 +18,7 @@
     <!--    토요일, 일요일 색상-->
     <color name="satColor">#1E88E5</color>
     <color name="sunColor">#E53935</color>
-    <color name="todayBorderColor">#4CA3FF</color>
+    <color name="todayBorderColor">#4B4B4B</color>
 
     <!-- 앱 메인 색상 (파스텔 블루) -->
     <color name="main_color">#0A0F18</color>

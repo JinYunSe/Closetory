@@ -1,4 +1,4 @@
-package com.ssafy.closetory.util
+﻿package com.ssafy.closetory.util
 
 import android.content.Context
 import android.content.Intent
@@ -71,10 +71,9 @@ class PermissionChecker {
         Log.d(TAG, "requestPermissionLauncher: 건수 : ${result.size}")
 
         if (result.values.contains(false)) {
-            Toast.makeText(ctx, "권한이 부족합니다.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(ctx, "권한이 필요합니다.", Toast.LENGTH_SHORT).show()
             moveToSettings(ctx)
         } else {
-            Toast.makeText(ctx, "모든 권한이 허가되었습니다.", Toast.LENGTH_SHORT).show()
             permitted?.onGranted()
         }
     }
@@ -93,3 +92,4 @@ class PermissionChecker {
             .show()
     }
 }
+

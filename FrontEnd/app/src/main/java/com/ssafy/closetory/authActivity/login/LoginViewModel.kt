@@ -51,7 +51,6 @@ class LoginViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "login() 예외 발생: ${e.message}", e)
-                _message.emit("네트워크 오류")
             }
         }
     }

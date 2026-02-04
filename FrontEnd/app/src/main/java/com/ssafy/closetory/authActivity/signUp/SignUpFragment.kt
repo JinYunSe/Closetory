@@ -1,4 +1,4 @@
-// SignUpFragment.kt
+﻿// SignUpFragment.kt
 
 package com.ssafy.closetory.authActivity.signUp
 
@@ -91,30 +91,30 @@ class SignUpFragment :
 
             when {
                 username.isBlank() ->
-                    showToast("아이디를 입력하세요")
+                    showToast("아이디를 입력해 주세요.")
 
                 !USERNAME_REGEX.matches(username) ->
                     showToast("아이디는 영문 대소문자, 숫자, 특수문자만 사용할 수 있습니다.")
 
                 password.isBlank() ->
-                    showToast("비밀번호를 입력하세요")
+                    showToast("비밀번호를 입력해 주세요.")
 
                 passwordConfirm.isBlank() ->
-                    showToast("비밀번호 확인을 입력하세요")
+                    showToast("비밀번호 확인을 입력해 주세요.")
 
                 password != passwordConfirm ->
-                    showToast("비밀번호가 일치하지 않습니다")
+                    showToast("비밀번호가 일치하지 않습니다.")
 
                 // 기존 length < 8 메시지 유지하고 싶으면 먼저 두고,
                 // "모두 포함"은 그 다음 체크해도 됨
                 password.length < 8 ->
-                    showToast("비밀번호는 8자리 이상으로 입력하세요")
+                    showToast("비밀번호는 8자리 이상으로 입력해 주세요.")
 
                 !PASSWORD_REGEX.matches(password) ->
-                    showToast("비밀번호는 영문, 숫자, 특수문자를 모두 포함해야 합니다")
+                    showToast("비밀번호는 영문, 숫자, 특수문자를 모두 포함해야 합니다.")
 
                 nickname.isBlank() ->
-                    showToast("닉네임을 입력하세요")
+                    showToast("닉네임을 입력해 주세요.")
 
                 nickname.length > 10 ->
                     showToast("닉네임은 최대 10자까지 가능합니다.")
@@ -123,25 +123,25 @@ class SignUpFragment :
                     showToast("닉네임에는 특수문자를 사용할 수 없습니다.")
 
                 heightText.isBlank() ->
-                    showToast("키를 입력하세요")
+                    showToast("키를 입력해 주세요.")
 
                 height == null ->
-                    showToast("키를 입력하세요")
+                    showToast("키를 입력해 주세요.")
 
                 (height < 100 || height > 250) ->
-                    showToast("키는 100~250 범위로 입력하세요")
+                    showToast("키는 100~250 범위로 입력해 주세요.")
 
                 weightText.isBlank() ->
-                    showToast("몸무게를 입력하세요")
+                    showToast("몸무게를 입력해 주세요.")
 
                 weight == null ->
-                    showToast("몸무게를 입력하세요")
+                    showToast("몸무게를 입력해 주세요.")
 
                 (weight < 20 || weight > 200) ->
-                    showToast("몸무게는 20~200 범위로 입력하세요")
+                    showToast("몸무게는 20~200 범위로 입력해 주세요.")
 
                 selectedGender == null ->
-                    showToast("성별을 선택하세요")
+                    showToast("성별을 선택해 주세요.")
 
                 else -> {
                     signUpViewModel.signUp(
@@ -197,3 +197,6 @@ class SignUpFragment :
         }
     }
 }
+
+
+
