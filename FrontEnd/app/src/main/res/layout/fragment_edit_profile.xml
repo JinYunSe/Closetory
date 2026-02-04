@@ -321,7 +321,7 @@
                 android:layout_marginStart="12dp"
                 android:layout_weight="1"
                 android:text="취소"
-                android:textColor="#0A0F18"
+                android:textColor="@color/main_color"
                 android:textStyle="bold"
                 android:textSize="12sp"
                 android:padding="4dp"
