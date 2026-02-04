@@ -24,16 +24,17 @@
             android:id="@+id/tv_only_my_cloth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="내 옷만"
-            android:textSize="14sp" />
+            android:layout_marginEnd="0dp"
+            android:textColor="@color/main_color"
+            android:text="내 옷만 보기"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/sw_only_my_cloth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="0dp"
             android:layout_marginEnd="8dp" />
 
         <ImageButton

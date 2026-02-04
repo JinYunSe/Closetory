@@ -44,7 +44,7 @@
         android:background="@color/main_color"
         android:gravity="center"
         android:padding="12dp"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/white"
         android:textSize="14sp"
         android:textStyle="bold"
         tools:text="2026-01-20"
