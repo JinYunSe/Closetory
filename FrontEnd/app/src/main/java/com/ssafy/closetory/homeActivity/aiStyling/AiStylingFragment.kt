@@ -375,30 +375,6 @@ class AiStylingFragment :
     private fun setupMouseWheelScroll() {
         binding.root.isFocusableInTouchMode = true
         binding.root.requestFocus()
-
-        binding.root.setOnGenericMotionListener { _, event ->
-            if (event.action == MotionEvent.ACTION_SCROLL &&
-                event.isFromSource(InputDevice.SOURCE_CLASS_POINTER)
-            ) {
-                val scroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL)
-                val dy = (-scroll * 80).roundToInt()
-
-                val sv = binding.svAiMessage
-                if ((dy > 0 && sv.canScrollVertically(1)) || (dy < 0 && sv.canScrollVertically(-1))) {
-                    sv.scrollBy(0, dy)
-                    true
-                } else {
-                    false
-                }
-            } else {
-                false
-            }
-        }
-
-        binding.svAiMessage.setOnTouchListener { v, _ ->
-            v.parent.requestDisallowInterceptTouchEvent(true)
-            false
-        }
     }
 
     override fun onPause() {
