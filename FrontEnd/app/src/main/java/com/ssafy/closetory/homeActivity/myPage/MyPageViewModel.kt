@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.ApplicationClass
+import com.ssafy.closetory.dto.CodyRepositoryResponse
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.StatisticsResponse
 import com.ssafy.closetory.dto.Top3ClothesResponse
@@ -17,6 +18,8 @@ import kotlinx.coroutines.launch
 private const val TAG = "MyPageViewModel_싸피"
 
 class MyPageViewModel : ViewModel() {
+    private val _recentCody = MutableLiveData<List<CodyRepositoryResponse>>()
+    val recentCody: LiveData<List<CodyRepositoryResponse>> = _recentCody
 
     private val repository = MyPageRepository()
 
@@ -151,6 +154,35 @@ class MyPageViewModel : ViewModel() {
                 Log.e(TAG, "색상 통계 예외 발생 : ${e.message}")
                 _message.emit(e.message ?: "네트워크 오류 발생")
                 _colorStatistics.value = emptyList()
+            }
+        }
+    }
+
+    fun getRecentCody() {
+        viewModelScope.launch {
+            try {
+                val res = repository.getRecentCody()
+
+                if (res.isSuccessful) {
+                    val data = res.body()?.data ?: emptyList()
+
+                    // 날짜 있는 것만 필터링 + 날짜 기준 내림차순 정렬 + 최근 3개만
+                    val recentThree = data
+                        .filter { !it.date.isNullOrBlank() }
+                        .sortedByDescending { it.date }
+                        .take(3)
+
+                    Log.d(TAG, "최근 코디 조회 성공: ${recentThree.size}개")
+                    _recentCody.value = recentThree
+                } else {
+                    val message = res.body()?.errorMessage ?: "최근 코디 조회 실패"
+                    _recentCody.value = emptyList()
+                    _message.emit(message)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "최근 코디 조회 예외 발생: ${e.message}", e)
+                _recentCody.value = emptyList()
+                _message.emit(e.message ?: "네트워크 오류 발생")
             }
         }
     }
