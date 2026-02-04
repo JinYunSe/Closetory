@@ -79,13 +79,9 @@ class PostRepository {
         safeResponseCall { service.deleteClothesRental(clothesId) }
 
     // -------------------------
-    // Comments (✅ 수정: 단순화 및 일관성 개선)
+    // Comments (✅ FIX: 서버가 List<CommentDto>를 직접 반환)
     // -------------------------
-    suspend fun getComments(postId: Int): ApiResponse<CommentListResponse> {
-        val normalizeList = safeApiCall { service.getComments(postId) }
-
-        return normalizeList // ✅ data=null이면 emptyList로 통일
-    }
+    suspend fun getComments(postId: Int): ApiResponse<List<CommentDto>> = safeApiCall { service.getComments(postId) }
 
     suspend fun createComment(postId: Int, content: String): ApiResponse<CommentCreateResponse> = safeResponseCall {
         val request = CommentCreateRequest(content)
@@ -145,13 +141,5 @@ class PostRepository {
             errorMessage = e.message ?: "네트워크 오류",
             data = null
         )
-    }
-
-    // ✅ 리스트 응답은 data=null이면 emptyList로 바꿔서 UI NPE 방지
-    private fun <T> ApiResponse<List<T>>.normalizeList(): ApiResponse<List<T>> {
-        if (this.httpStatusCode in 200..299) {
-            return this.copy(data = this.data ?: emptyList())
-        }
-        return this
     }
 }

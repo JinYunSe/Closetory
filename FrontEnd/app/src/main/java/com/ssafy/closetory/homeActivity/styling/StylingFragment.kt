@@ -85,7 +85,7 @@ class StylingFragment :
         accAdapter = ClothesAdapter().apply {
             onItemClick = { item ->
                 Log.d(TAG, "소품류 클릭: clothesId=${item.clothesId}")
-                addItemToSlot("ACC", item, binding.ivSlotAcc, binding.btnRemoveAcc)
+                addItemToSlot("ACCESSORY", item, binding.ivSlotAcc, binding.btnRemoveAcc)
                 updateStageAfterSelection()
             }
         }
@@ -309,7 +309,7 @@ class StylingFragment :
         }
 
         binding.btnRemoveAcc.setOnClickListener {
-            removeItemFromSlot("ACC", binding.ivSlotAcc, binding.btnRemoveAcc)
+            removeItemFromSlot("ACCESSORY", binding.ivSlotAcc, binding.btnRemoveAcc)
         }
 
         binding.btnRemoveBag.setOnClickListener {
@@ -507,7 +507,7 @@ class StylingFragment :
         removeItemFromSlot("TOP", binding.ivSlotTop, binding.btnRemoveTop)
         removeItemFromSlot("BOTTOM", binding.ivSlotBottom, binding.btnRemoveBottom)
         removeItemFromSlot("OUTER", binding.ivSlotOuter, binding.btnRemoveOuter)
-        removeItemFromSlot("ACC", binding.ivSlotAcc, binding.btnRemoveAcc)
+        removeItemFromSlot("ACCESSORY", binding.ivSlotAcc, binding.btnRemoveAcc)
         removeItemFromSlot("BAG", binding.ivSlotBag, binding.btnRemoveBag)
         removeItemFromSlot("SHOES", binding.ivSlotShoes, binding.btnRemoveShoes)
 
@@ -528,7 +528,7 @@ class StylingFragment :
             Triple("TOP", binding.ivSlotTop, binding.btnRemoveTop),
             Triple("BOTTOM", binding.ivSlotBottom, binding.btnRemoveBottom),
             Triple("OUTER", binding.ivSlotOuter, binding.btnRemoveOuter),
-            Triple("ACC", binding.ivSlotAcc, binding.btnRemoveAcc),
+            Triple("ACCESSORY", binding.ivSlotAcc, binding.btnRemoveAcc),
             Triple("BAG", binding.ivSlotBag, binding.btnRemoveBag),
             Triple("SHOES", binding.ivSlotShoes, binding.btnRemoveShoes)
         )
@@ -554,7 +554,7 @@ class StylingFragment :
             viewModel.selectedSlots["BOTTOM"]?.clothesId ?: -1,
             viewModel.selectedSlots["SHOES"]?.clothesId ?: -1,
             viewModel.selectedSlots["OUTER"]?.clothesId ?: -1,
-            viewModel.selectedSlots["ACC"]?.clothesId ?: -1,
+            viewModel.selectedSlots["ACCESSORY"]?.clothesId ?: -1,
             viewModel.selectedSlots["BAG"]?.clothesId ?: -1
         )
 

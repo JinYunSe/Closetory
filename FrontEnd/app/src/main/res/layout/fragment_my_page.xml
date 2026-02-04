@@ -65,7 +65,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
-                        android:background="@color/gray_300"
+                        android:background="@color/gray_500"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.Circle" />
                 </FrameLayout>
 
@@ -291,6 +291,14 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTop3ClothesSubtitle"/>
 
+            <!-- Top3 섹션 하단 Barrier (rvTop3Clothes와 tvEmptyTop3 중 더 아래 있는 것 기준) -->
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrierTop3Bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="rvTop3Clothes,tvEmptyTop3" />
+
             <!-- 통계 -->
             <TextView
                 android:id="@+id/tvStatsTitle"
@@ -302,7 +310,7 @@
                 android:textStyle="bold"
                 android:textColor="#0A0F18"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rvTop3Clothes" />
+                app:layout_constraintTop_toBottomOf="@id/barrierTop3Bottom" />
 
             <TextView
                 android:id="@+id/tvPieTagSubtitle"

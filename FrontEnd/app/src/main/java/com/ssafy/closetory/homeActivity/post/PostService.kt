@@ -81,7 +81,7 @@ interface PostService {
     // Comments
     // -------------------------
     @GET("posts/{postId}/comments")
-    suspend fun getComments(@Path("postId") postId: Int): ApiResponse<CommentListResponse>
+    suspend fun getComments(@Path("postId") postId: Int): ApiResponse<List<CommentDto>>
 
     @POST("posts/{postId}/comments")
     suspend fun createComment(
