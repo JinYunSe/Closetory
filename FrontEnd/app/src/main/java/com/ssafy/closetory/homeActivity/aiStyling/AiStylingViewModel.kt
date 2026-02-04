@@ -101,7 +101,6 @@ class AiStylingViewModel : ViewModel() {
                     Log.e(TAG, " AI 추천 실패: $errorMsg")
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "네트워크 오류가 발생했습니다: ${e.message}"
                 Log.e(TAG, " AI 추천 예외", e)
             } finally {
                 _isLoading.value = false
@@ -165,7 +164,6 @@ class AiStylingViewModel : ViewModel() {
                     Log.e(TAG, " 가상피팅 실패: $errorMsg")
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "네트워크 오류: ${e.message}"
                 Log.e(TAG, " 가상피팅 예외", e)
             } finally {
                 _isLoading.value = false
@@ -225,7 +223,6 @@ class AiStylingViewModel : ViewModel() {
                     Log.e(TAG, " 룩 저장 실패: ${response.code()}")
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "네트워크 오류: ${e.message}"
                 Log.e(TAG, "룩 저장 예외", e)
             } finally {
                 _isLoading.value = false

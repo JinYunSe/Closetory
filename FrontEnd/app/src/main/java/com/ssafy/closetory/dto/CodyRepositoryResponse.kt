@@ -7,7 +7,7 @@ data class CodyRepositoryResponse(
     val lookId: Int,
     val photoUrl: String,
     val date: String?,
-    @SerializedName("reason")
+    @SerializedName(value = "aiReason", alternate = ["reason"])
     val aiReason: String?,
     val onlyMine: Boolean
 )

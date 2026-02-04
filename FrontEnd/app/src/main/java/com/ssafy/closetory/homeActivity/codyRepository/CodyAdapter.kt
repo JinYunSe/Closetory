@@ -68,40 +68,23 @@ class CodyAdapter(private val onItemClick: (CodyRepositoryResponse) -> Unit) :
                 .error(R.drawable.error)
                 .into(binding.ivCody)
 
-            // ✅ 날짜 표시 (안전하게 포맷팅)
-            val formattedDate = formatDate(item.date)
-
-            if (formattedDate == "-" || formattedDate.isBlank()) {
+            if (item.date.isNullOrEmpty()) {
                 // 날짜가 없으면 "미등록" 표시
                 binding.tvCodyDate.text = "미등록"
                 binding.tvCodyDate.visibility = android.view.View.VISIBLE
-                binding.tvCodyDate.setTypeface(null, Typeface.NORMAL)
-                binding.tvCodyDate.setTextColor(
-                    androidx.core.content.ContextCompat.getColor(
-                        binding.root.context,
-                        android.R.color.darker_gray
-                    )
-                )
             } else {
                 // 날짜가 있으면 정상 표시
-                binding.tvCodyDate.text = formattedDate
+                binding.tvCodyDate.text = item.date
                 binding.tvCodyDate.visibility = android.view.View.VISIBLE
-                binding.tvCodyDate.setTypeface(null, Typeface.BOLD)
-                binding.tvCodyDate.setTextColor(
-                    androidx.core.content.ContextCompat.getColor(
-                        binding.root.context,
-                        R.color.black
-                    )
-                )
             }
 
-            Log.d(TAG, "📅 날짜 표시: 원본='${item.date}' → 표시='$formattedDate'")
-
-            // "내 옷만" 배지 표시 여부
+            // 자물쇠 배지 표시 여부
             binding.ivOnlyMineBadge.visibility = if (item.onlyMine) {
-                android.view.View.VISIBLE
-            } else {
+                // 내 옷의 경우 자물쇠 안 보이게 처리
                 android.view.View.GONE
+            } else {
+                // 남의 옷이 포함 돼 있으면 자물쇠 보이게 처리
+                android.view.View.VISIBLE
             }
 
             // 클릭 이벤트

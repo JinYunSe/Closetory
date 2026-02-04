@@ -52,7 +52,6 @@ class RegistrationClothesViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.d(TAG, "removeImageBackground Error: ${e.message}", e)
-                _message.emit("네트워크 오류 발생")
             }
         }
     }
@@ -119,7 +118,6 @@ class RegistrationClothesViewModel : ViewModel() {
                     _message.emit(res.body()?.errorMessage ?: "수정 실패")
                 }
             } catch (e: Exception) {
-                _message.emit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -136,7 +134,6 @@ class RegistrationClothesViewModel : ViewModel() {
                     _message.emit(res.body()?.errorMessage ?: "개선 실패")
                 }
             } catch (e: Exception) {
-                _message.emit(e.message ?: "네트워크 오류")
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.mypage
+﻿package com.ssafy.closetory.homeActivity.mypage
 
 import android.content.Intent
 import android.graphics.Color
@@ -68,7 +68,7 @@ class MyPageFragment :
 
         userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
         if (userId == -1) {
-            showToast("유저 정보가 없습니다. 다시 로그인 해주세요.")
+            showToast("사용자 정보가 없습니다. 다시 로그인해 주세요.")
             moveToLogin()
             return
         }
@@ -262,7 +262,7 @@ class MyPageFragment :
         btnConfirm.setOnClickListener {
             val password = etPassword.text.toString()
             if (password.isBlank()) {
-                showToast("비밀번호를 입력해주세요.")
+                showToast("비밀번호를 입력해 주세요.")
                 return@setOnClickListener
             }
             myPageViewModel.checkPassword(password)
@@ -370,13 +370,13 @@ class MyPageFragment :
         btnConfirm.setOnClickListener {
             val password = etPassword.text.toString()
             if (password.isBlank()) {
-                Toast.makeText(requireContext(), "비밀번호를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "비밀번호를 입력해 주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             val uid = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
             if (uid == -1) {
-                Toast.makeText(requireContext(), "유저 정보가 없습니다. 다시 로그인 해주세요.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "사용자 정보가 없습니다. 다시 로그인해 주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -613,3 +613,4 @@ class MyPageFragment :
         null
     }
 }
+

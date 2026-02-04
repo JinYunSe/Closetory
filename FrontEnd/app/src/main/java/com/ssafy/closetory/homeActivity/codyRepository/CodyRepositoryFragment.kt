@@ -35,36 +35,17 @@ class CodyRepositoryFragment :
 
         Log.d(TAG, "CodyRepositoryFragment onViewCreated")
 
-        // BalloonTooltip 초기화
         val homeActivity = requireActivity() as? HomeActivity
-        homeActivity?.let {
-            helpTooltip = BalloonTooltip(it)
-        }
+        homeActivity?.let { helpTooltip = BalloonTooltip(it) }
 
         setupRecyclerView()
         setupListeners()
         setupObservers()
 
-        // 페이지 진입 시 룩 목록 로드
         viewModel.getLooks()
-
-        // 도움말 버튼 설정
-        binding.btnClosetoryGuide.setOnClickListener { v ->
-            helpTooltip?.show(
-                anchor = v,
-                message = """
-                    👕 우측 상단에 로고 뱃지가 있는 코디만
-                    캘린더에 등록할 수 있어요.
-                    코디를 선택하면 상세 화면에서
-                    날짜를 선택하고 등록할 수 있습니다.
-                """.trimIndent(),
-                autoDismissMs = 3500
-            )
-        }
     }
 
     override fun onDestroyView() {
-        // 툴팁 정리
         helpTooltip?.dismiss()
         helpTooltip = null
         super.onDestroyView()
@@ -72,32 +53,25 @@ class CodyRepositoryFragment :
 
     private fun setupRecyclerView() {
         binding.rvCodyRepository.apply {
-            layoutManager = GridLayoutManager(requireContext(), 3)
+            layoutManager = GridLayoutManager(requireContext(), 2)
             adapter = codyAdapter
         }
     }
 
     private fun setupListeners() {
-        binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
-        }
+        binding.btnBack.setOnClickListener { findNavController().popBackStack() }
     }
 
     private fun setupObservers() {
-        // 목록 데이터 관찰
         viewModel.looks.observe(viewLifecycleOwner) { list ->
             Log.d(TAG, "룩 목록 업데이트 - ${list.size}개")
             codyAdapter.submitItems(list)
         }
 
-        // 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             Log.d(TAG, "로딩 상태: $isLoading")
-            // 로딩 UI가 있다면 여기서 처리
-            // binding.progressBar.isVisible = isLoading
         }
 
-        // 에러 메시지 관찰
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Log.e(TAG, "에러 발생: $it")
@@ -108,18 +82,20 @@ class CodyRepositoryFragment :
     }
 
     private fun onClickCody(item: CodyRepositoryResponse) {
-        Log.d(TAG, "코디 클릭 - lookId: ${item.lookId}")
+        Log.d(
+            TAG,
+            "코디 클릭 - lookId=${item.lookId}, onlyMine=${item.onlyMine}, aiReasonLen=${item.aiReason?.length ?: 0}"
+        )
 
-        // 상세 페이지로 이동
         val bundle = Bundle().apply {
             putInt("lookId", item.lookId)
             putString("photoUrl", item.photoUrl)
-            putString("date", item.date)
-            putString("aiReason", item.aiReason)
+            putString("date", item.date ?: "")
+            // ✅ null 방어 (null이면 상세에서 getString 시 null로 떨어질 수 있음)
+            putString("aiReason", item.aiReason ?: "")
             putBoolean("onlyMine", item.onlyMine)
         }
 
-        // ✅ 상세 페이지로 네비게이션
         findNavController().navigate(R.id.navigation_cody_detail, bundle)
     }
 }

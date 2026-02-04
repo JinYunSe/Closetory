@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.tagOnboarding
+﻿package com.ssafy.closetory.homeActivity.tagOnboarding
 
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -60,7 +60,7 @@ class TagOnboardingFragment : Fragment(R.layout.fragment_tag_onboarding) {
         binding.btnFinish.setOnClickListener {
             // 선택 개수 방어(버튼 enabled로도 막지만 한번 더)
             if (selected.size < 3) {
-                Toast.makeText(requireContext(), "최소 3개 이상 선택해 주세요", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "최소 3개 이상 선택해 주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -110,7 +110,6 @@ class TagOnboardingFragment : Fragment(R.layout.fragment_tag_onboarding) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.submitSuccess.collect {
-                    Toast.makeText(requireContext(), "선호 태그 선택 완료", Toast.LENGTH_SHORT).show()
 
                     // 온보딩 완료 저장
                     ApplicationClass.sharedPreferences.setOnboardingDone(userId, true)
@@ -144,3 +143,4 @@ class TagOnboardingFragment : Fragment(R.layout.fragment_tag_onboarding) {
         _binding = null
     }
 }
+

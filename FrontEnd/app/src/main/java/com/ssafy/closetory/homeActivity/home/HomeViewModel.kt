@@ -52,7 +52,6 @@ class HomeViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "홈 룩 목록 조회 : ${e.message}")
-                _message.emit(e.message ?: "네트워크 오류 발생")
             }
         }
     }

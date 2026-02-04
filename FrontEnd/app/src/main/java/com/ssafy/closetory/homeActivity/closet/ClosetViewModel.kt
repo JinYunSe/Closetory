@@ -59,7 +59,6 @@ class ClosetViewModel : ViewModel() {
                     _message.emit(body?.errorMessage!!)
                 }
             } catch (e: Exception) {
-                _message.emit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -82,7 +81,6 @@ class ClosetViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "추천 옷 결과 조회 예외 발생 : ${e.message}")
-                _message.emit("상세 조회 추천 옷 예외 발생 : ${e.message ?: "네트워크 오류"}")
             }
         }
     }
@@ -113,7 +111,6 @@ class ClosetViewModel : ViewModel() {
                     _message.emit(errorMessage)
                 }
             } catch (e: Exception) {
-                _message.emit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -130,7 +127,6 @@ class ClosetViewModel : ViewModel() {
                     _deleteSuccess.emit(false)
                 }
             } catch (e: Exception) {
-                _message.emit(e.message ?: "네트워크 오류")
             }
         }
     }
@@ -151,7 +147,6 @@ class ClosetViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "옷 대여 취소 예외 발생 : ${e.message}")
-                _message.emit(e.message ?: "네트워크 오류 발생")
             }
         }
     }
@@ -172,7 +167,6 @@ class ClosetViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "옷 대여 예외 발생 : ${e.message}")
-                _message.emit(e.message ?: "네트워크 오류 발생")
             }
         }
     }

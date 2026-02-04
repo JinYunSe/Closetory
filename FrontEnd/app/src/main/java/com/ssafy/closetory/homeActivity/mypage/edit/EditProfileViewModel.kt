@@ -62,7 +62,6 @@ class EditProfileViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "loadUserProfile exception", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
             } finally {
                 _isLoading.tryEmit(false)
             }
@@ -116,7 +115,6 @@ class EditProfileViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "updateProfileMultipart exception", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
             } finally {
                 _isLoading.tryEmit(false)
             }
@@ -152,7 +150,6 @@ class EditProfileViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "changePassword exception", e)
-                _message.tryEmit(e.message ?: "네트워크 오류")
             } finally {
                 _isLoading.tryEmit(false)
             }
