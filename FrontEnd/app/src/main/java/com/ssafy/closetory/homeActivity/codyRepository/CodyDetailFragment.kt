@@ -140,7 +140,7 @@ class CodyDetailFragment :
      */
     private fun setupUI() {
         // 이미지 로딩
-        val fullImageUrl = if (photoUrl.startsWith("http")) {
+        val fullphotoUrl = if (photoUrl.startsWith("http")) {
             photoUrl
         } else {
             val clean = photoUrl.removePrefix("/")
@@ -148,7 +148,7 @@ class CodyDetailFragment :
         }
 
         Glide.with(this)
-            .load(fullImageUrl)
+            .load(fullphotoUrl)
             .centerCrop()
             .placeholder(R.drawable.bg_slot_empty)
             .error(R.drawable.error)

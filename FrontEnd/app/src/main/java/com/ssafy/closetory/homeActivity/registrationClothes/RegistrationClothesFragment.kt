@@ -371,7 +371,7 @@ class RegistrationClothesFragment :
         }
 
         binding.btnRegistrationClothes.setOnClickListener {
-            val maskedUrl = viewModel.maskedImageUrl.value
+            val maskedUrl = viewModel.maskedphotoUrl.value
             val tags = TagOptions.getSelectedTag(tagsSection)
             val clothesType = ClothTypeOptions.getClothTypeEnglish(clothTypeSection)
             val seasons = SeasonOptions.getSelectedSeason(seasonSection)
@@ -549,7 +549,7 @@ class RegistrationClothesFragment :
 
     @SuppressLint("CheckResult")
     private fun registerObserve() {
-        viewModel.maskedImageUrl.observe(viewLifecycleOwner) { url ->
+        viewModel.maskedphotoUrl.observe(viewLifecycleOwner) { url ->
             if (url.isNullOrBlank()) return@observe
 
             // 이 observe 실행 시점의 토큰 캡처
@@ -592,7 +592,7 @@ class RegistrationClothesFragment :
                         // ✅ URL 기준으로 무조건 autoSelect 수행
                         autoSelectApplied = false
                         lastAutoSelectUrl = null
-                        autoSelectFromImageUrl(url)
+                        autoSelectFromphotoUrl(url)
 
                         return false
                     }
@@ -644,7 +644,7 @@ class RegistrationClothesFragment :
         return true
     }
 
-    private fun autoSelectFromImageUrl(url: String) {
+    private fun autoSelectFromphotoUrl(url: String) {
         if (!shouldAutoSelect(url)) return
 
         autoSelectApplied = true

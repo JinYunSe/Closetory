@@ -37,8 +37,8 @@ class AiStylingViewModel : ViewModel() {
     private val _aiReason = MutableLiveData<String?>()
     val aiReason: LiveData<String?> = _aiReason
 
-    private val _aiImageUrl = MutableLiveData<String?>()
-    val aiImageUrl: LiveData<String?> = _aiImageUrl
+    private val _aiphotoUrl = MutableLiveData<String?>()
+    val aiphotoUrl: LiveData<String?> = _aiphotoUrl
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
@@ -146,11 +146,11 @@ class AiStylingViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null && body.httpStatusCode == 201 && body.data != null) {
-                        _aiImageUrl.value = body.data.aiImageUrl
+                        _aiphotoUrl.value = body.data.aiphotoUrl
                         _successMessage.value = body.responseMessage ?: "가상 피팅 성공"
                         _stage.value = AiStylingStage.FITTING_DONE
 
-                        Log.d(TAG, " 가상피팅 성공 / url=${body.data.aiImageUrl}")
+                        Log.d(TAG, " 가상피팅 성공 / url=${body.data.aiphotoUrl}")
                     } else {
                         _errorMessage.value = body?.errorMessage ?: "가상피팅 결과가 비어있습니다."
                         Log.e(TAG, " 가상피팅 실패: Body 또는 데이터 null")
@@ -184,8 +184,8 @@ class AiStylingViewModel : ViewModel() {
             return
         }
 
-        val aiImageUrl = _aiImageUrl.value
-        if (aiImageUrl.isNullOrBlank()) {
+        val aiphotoUrl = _aiphotoUrl.value
+        if (aiphotoUrl.isNullOrBlank()) {
             _errorMessage.value = "AI 이미지가 아직 생성되지 않았습니다. 먼저 가상 피팅을 진행해 주세요."
             return
         }
@@ -206,7 +206,7 @@ class AiStylingViewModel : ViewModel() {
                 val clothesIds = coordination.clothesIdList.map { it.clothesId }
                 val request = SaveLookRequest(
                     clothesIdList = clothesIds,
-                    aiImageUrl = aiImageUrl,
+                    aiphotoUrl = aiphotoUrl,
                     aiReason = _aiReason.value
                 )
 
@@ -245,7 +245,7 @@ class AiStylingViewModel : ViewModel() {
 
         _aiCoordination.value = null
         _aiReason.value = null
-        _aiImageUrl.value = null
+        _aiphotoUrl.value = null
         _stage.value = AiStylingStage.RECOMMEND
         _isLoading.value = false
         _loadingType.value = null

@@ -22,15 +22,15 @@ class RegistrationClothesViewModel : ViewModel() {
     val message: SharedFlow<String?> = _message
 
     // 배경 제거된 이미지
-    private val _maskedImageUrl = MutableLiveData<String?>()
-    val maskedImageUrl: LiveData<String?> = _maskedImageUrl
+    private val _maskedphotoUrl = MutableLiveData<String?>()
+    val maskedphotoUrl: LiveData<String?> = _maskedphotoUrl
 
     // 등록/수정 성공의 경우 clothesId를 이용해 상세 페이지 이동
     private val _navigateToDetail = MutableSharedFlow<Int>(replay = 0)
     val navigateToDetail: SharedFlow<Int> = _navigateToDetail
 
     fun clearMaskedUrl() {
-        _maskedImageUrl.value = null
+        _maskedphotoUrl.value = null
     }
 
     fun removeImageBackground(clothesPhoto: MultipartBody.Part) {
@@ -45,7 +45,7 @@ class RegistrationClothesViewModel : ViewModel() {
                         _message.emit("마스킹 응답이 비었습니다.")
                         return@launch
                     }
-                    _maskedImageUrl.value = url
+                    _maskedphotoUrl.value = url
                 } else {
                     _message.emit(res.body()?.errorMessage ?: "마스킹 실패")
                 }

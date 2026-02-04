@@ -78,7 +78,7 @@ class AiStylingFragment :
         }
 
         // AI 가상피팅 이미지
-        viewModel.aiImageUrl.observe(viewLifecycleOwner) { url ->
+        viewModel.aiphotoUrl.observe(viewLifecycleOwner) { url ->
             if (url.isNullOrBlank()) return@observe
 
             // 가상피팅 완료 시 팝업 열기

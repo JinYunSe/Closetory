@@ -17,7 +17,7 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:background="@drawable/bg_switch_group"
+            android:background="@drawable/bg_login_input"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="8dp">
@@ -106,7 +106,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layout_slots"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_login_input">
 
             <!-- 상의 슬롯 -->
             <FrameLayout
@@ -122,7 +123,7 @@
                     android:id="@+id/iv_slot_top"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/bg_slot_empty"
+                    android:background="@drawable/bg_login_input"
                     android:scaleType="centerInside" />
 
                 <ImageButton
@@ -148,7 +149,7 @@
                     android:id="@+id/iv_slot_outer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/bg_slot_empty"
+                    android:background="@drawable/bg_login_input"
                     android:scaleType="centerInside" />
 
                 <ImageButton
@@ -174,7 +175,7 @@
                     android:id="@+id/iv_slot_acc"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/bg_slot_empty"
+                    android:background="@drawable/bg_login_input"
                     android:scaleType="centerInside" />
 
                 <ImageButton
@@ -201,7 +202,7 @@
                     android:id="@+id/iv_slot_bottom"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/bg_slot_empty"
+                    android:background="@drawable/bg_login_input"
                     android:scaleType="centerInside" />
 
                 <ImageButton
@@ -227,7 +228,7 @@
                     android:id="@+id/iv_slot_bag"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/bg_slot_empty"
+                    android:background="@drawable/bg_login_input"
                     android:scaleType="centerInside" />
 
                 <ImageButton
@@ -254,7 +255,7 @@
                     android:id="@+id/iv_slot_shoes"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/bg_slot_empty"
+                    android:background="@drawable/bg_login_input"
                     android:scaleType="centerInside" />
 
                 <ImageButton
@@ -371,7 +372,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_register"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="55dp"
                 android:text="✨AI 코디추천"
                 android:background="@drawable/bg_aicodybutton"
                 android:textColor="@android:color/white"

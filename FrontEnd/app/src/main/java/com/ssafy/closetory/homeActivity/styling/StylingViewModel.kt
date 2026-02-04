@@ -45,8 +45,8 @@ class StylingViewModel : ViewModel() {
     private val _stage = MutableLiveData(StylingStage.SELECTING)
     val stage: LiveData<StylingStage> = _stage
 
-    private val _aiImageUrl = MutableLiveData<String?>()
-    val aiImageUrl: LiveData<String?> = _aiImageUrl
+    private val _aiphotoUrl = MutableLiveData<String?>()
+    val aiphotoUrl: LiveData<String?> = _aiphotoUrl
 
     private val _closetData = MutableLiveData<ClosetResponse?>()
     val closetData: LiveData<ClosetResponse?> = _closetData
@@ -124,7 +124,7 @@ class StylingViewModel : ViewModel() {
         fittingJob = viewModelScope.launch {
             _isLoading.value = true
             _loadingType.value = LoadingType.FITTING
-            _aiImageUrl.value = null
+            _aiphotoUrl.value = null
 
             try {
                 Log.d(TAG, "🎬 가상피팅 시작 (타임아웃 3분)")
@@ -140,18 +140,18 @@ class StylingViewModel : ViewModel() {
                     Log.d(TAG, "📦 응답 body: $body")
 
                     if (body != null && body.httpStatusCode == 201 && body.data != null) {
-                        val imageUrl = body.data.aiImageUrl
+                        val photoUrl = body.data.aiphotoUrl
 
-                        if (!imageUrl.isNullOrBlank()) {
-                            _aiImageUrl.value = imageUrl
+                        if (!photoUrl.isNullOrBlank()) {
+                            _aiphotoUrl.value = photoUrl
                             _successMessage.value = body.responseMessage ?: "가상 피팅 성공!"
                             _stage.value = StylingStage.FITTING_DONE
 
                             Log.d(TAG, "✅ 가상피팅 성공!")
-                            Log.d(TAG, "🖼️ 이미지 URL: $imageUrl")
+                            Log.d(TAG, "🖼️ 이미지 URL: $photoUrl")
                         } else {
                             _errorMessage.value = "AI 이미지 URL이 비어있습니다."
-                            Log.e(TAG, "❌ aiImageUrl이 null 또는 빈 값")
+                            Log.e(TAG, "❌ aiphotoUrl이 null 또는 빈 값")
                         }
                     } else {
                         _errorMessage.value = body?.errorMessage ?: "가상피팅 결과가 비어있습니다."
@@ -198,8 +198,8 @@ class StylingViewModel : ViewModel() {
             return
         }
 
-        val aiImageUrl = _aiImageUrl.value
-        if (aiImageUrl.isNullOrBlank()) {
+        val aiphotoUrl = _aiphotoUrl.value
+        if (aiphotoUrl.isNullOrBlank()) {
             _errorMessage.value = "AI 이미지가 없습니다. 먼저 가상 피팅을 진행해 주세요."
             return
         }
@@ -219,7 +219,7 @@ class StylingViewModel : ViewModel() {
 
                 val request = SaveLookRequest(
                     clothesIdList = clothesIdList.filter { it != -1 },
-                    aiImageUrl = aiImageUrl,
+                    aiphotoUrl = aiphotoUrl,
                     aiReason = null // 직접 코디는 AI 이유 없음
                 )
 
@@ -235,7 +235,7 @@ class StylingViewModel : ViewModel() {
                     // ✅ 핵심: 전체 초기화(resetAll) 금지
                     // 등록 완료 후에는 "가상피팅 결과만" 지우고,
                     // 다시 가상피팅 가능한 상태(FITTING_READY)로 돌려준다.
-                    _aiImageUrl.value = null
+                    _aiphotoUrl.value = null
                     _stage.value = StylingStage.FITTING_READY
 
                     // (선택) 남아있는 로딩/에러 상태 정리
@@ -272,7 +272,7 @@ class StylingViewModel : ViewModel() {
         selectedSlots["ACCESSORIES"] = null
         selectedSlots["BAG"] = null
 
-        _aiImageUrl.value = null
+        _aiphotoUrl.value = null
         _stage.value = StylingStage.SELECTING
         _isLoading.value = false
         _loadingType.value = null
@@ -302,12 +302,12 @@ class StylingViewModel : ViewModel() {
      */
     fun resetAfterFittingDoneIfNeeded() {
         val isDone = _stage.value == StylingStage.FITTING_DONE
-        val hasResult = !_aiImageUrl.value.isNullOrBlank()
+        val hasResult = !_aiphotoUrl.value.isNullOrBlank()
 
         if (!isDone || !hasResult) return
 
         _stage.value = StylingStage.FITTING_READY
-        _aiImageUrl.value = null
+        _aiphotoUrl.value = null
         _loadingType.value = null
         _isLoading.value = false
         _errorMessage.value = null
@@ -332,7 +332,7 @@ class StylingViewModel : ViewModel() {
         selectedSlots["ACCESSORIES"] = null
         selectedSlots["BAG"] = null
 
-        _aiImageUrl.value = null
+        _aiphotoUrl.value = null
         _stage.value = StylingStage.SELECTING
         _isLoading.value = false
         _loadingType.value = null
@@ -370,7 +370,7 @@ class StylingViewModel : ViewModel() {
     }
 
     fun clearAiFittingResult() {
-        _aiImageUrl.value = null
+        _aiphotoUrl.value = null
         _stage.value = StylingStage.FITTING_READY
         Log.d(TAG, "🗑️ AI 가상 피팅 결과 초기화")
     }
