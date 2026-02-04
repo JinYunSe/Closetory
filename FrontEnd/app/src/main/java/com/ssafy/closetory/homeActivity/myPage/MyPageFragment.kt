@@ -52,7 +52,7 @@ class MyPageFragment :
     ) {
 
     private lateinit var top3Adapter: Top3ClothesAdapter
-
+    private lateinit var recentCodyAdapter: RecentCodyAdapter
     private val myPageViewModel: MyPageViewModel by viewModels()
     private val signoutViewModel: SignoutViewModel by viewModels()
 
@@ -75,6 +75,7 @@ class MyPageFragment :
         myPageViewModel.getTagsStatistics(userId)
         myPageViewModel.getColorsStatistics(userId)
         myPageViewModel.getTop3Clothes(userId)
+        myPageViewModel.getRecentCody() // 최근 코디 조회
 
         observeUserProfile()
         loadUserProfile()
@@ -102,6 +103,13 @@ class MyPageFragment :
         top3Adapter = Top3ClothesAdapter()
         binding.rvTop3Clothes.apply {
             adapter = top3Adapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        // 최근 코디
+        recentCodyAdapter = RecentCodyAdapter()
+        binding.rvRecentCody.apply {
+            adapter = recentCodyAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         }
     }
@@ -270,6 +278,18 @@ class MyPageFragment :
         // 색상 통계 수신
         myPageViewModel.colorStatistics.observe(viewLifecycleOwner) { list ->
             updatePieColor(list)
+        }
+
+        // 최근 코디 수신
+        myPageViewModel.recentCody.observe(viewLifecycleOwner) { codyList ->
+            if (codyList.isEmpty()) {
+                binding.rvRecentCody.visibility = View.GONE
+                binding.tvEmptyRecentCody.visibility = View.VISIBLE
+            } else {
+                binding.rvRecentCody.visibility = View.VISIBLE
+                binding.tvEmptyRecentCody.visibility = View.GONE
+                recentCodyAdapter.submitList(codyList)
+            }
         }
     }
 

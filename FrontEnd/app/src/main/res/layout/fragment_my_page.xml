@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootMyPage"
@@ -14,72 +12,69 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/containerMyPage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <!-- 상단 제목 -->
+            <!--  상단 제목  -->
             <TextView
                 android:id="@+id/tvMyPageTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="마이페이지"
+                android:textColor="#0A0F18"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#0A0F18"
-                android:layout_marginBottom="8dp"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/boxPhoto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@id/tvMyPageTitle"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <!-- 프로필 동그라미 -->
+                app:layout_constraintTop_toBottomOf="@id/tvMyPageTitle">
+                <!--  프로필 동그라미  -->
                 <FrameLayout
                     android:id="@+id/profileCircle"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
+                    android:layout_marginStart="6dp"
                     android:background="@drawable/bg_circle_gray"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/bodyPhotoBox"
                     app:layout_constraintHorizontal_chainStyle="spread"
-                    android:layout_marginStart="6dp">
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivProfile"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
                         android:background="@color/gray_500"
+                        android:scaleType="centerCrop"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.Circle" />
                 </FrameLayout>
-
-                <!-- 전신 사진 -->
+                <!--  전신 사진  -->
                 <FrameLayout
                     android:id="@+id/bodyPhotoBox"
                     android:layout_width="96dp"
                     android:layout_height="120dp"
+                    android:layout_marginEnd="6dp"
                     android:background="@drawable/bg_square_gray"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/profileCircle"
                     app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginEnd="6dp">
+                    app:layout_constraintStart_toEndOf="@id/profileCircle"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
                         android:id="@+id/ivBodyPhoto"
@@ -87,31 +82,29 @@
                         android:layout_height="match_parent"
                         android:scaleType="fitCenter" />
                 </FrameLayout>
-
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- 닉네임 -->
+            <!--  닉네임  -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/boxNickname"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/boxHeight"
-                app:layout_constraintTop_toBottomOf="@id/boxPhoto"
-                app:layout_constraintHorizontal_weight="2">
+                app:layout_constraintHorizontal_weight="2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/boxPhoto">
 
                 <TextView
                     android:id="@+id/tvNicknameLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="닉네임"
+                    android:textColor="#0A0F18"
                     android:textSize="12sp"
                     android:textStyle="bold"
-                    android:textColor="#0A0F18"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tvNickname"
@@ -122,36 +115,35 @@
                     android:gravity="center_vertical"
                     android:paddingStart="8dp"
                     android:text="-"
+                    android:textColor="#0A0F18"
                     android:textSize="12sp"
                     android:textStyle="bold"
-                    android:textColor="#0A0F18"
-                    app:layout_constraintTop_toBottomOf="@id/tvNicknameLabel"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/tvNicknameLabel" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- 키 -->
+            <!--  키  -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/boxHeight"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
-                app:layout_constraintStart_toEndOf="@id/boxNickname"
                 app:layout_constraintEnd_toStartOf="@id/boxWeight"
-                app:layout_constraintTop_toBottomOf="@id/boxPhoto"
-                app:layout_constraintHorizontal_weight="1">
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@id/boxNickname"
+                app:layout_constraintTop_toBottomOf="@id/boxPhoto">
 
                 <TextView
                     android:id="@+id/tvHeightLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="키"
+                    android:textColor="#0A0F18"
                     android:textSize="12sp"
                     android:textStyle="bold"
-                    android:textColor="#0A0F18"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tvHeight"
@@ -162,35 +154,34 @@
                     android:gravity="center_vertical"
                     android:paddingStart="8dp"
                     android:text="-"
+                    android:textColor="#0A0F18"
                     android:textSize="12sp"
                     android:textStyle="bold"
-                    android:textColor="#0A0F18"
-                    app:layout_constraintTop_toBottomOf="@id/tvHeightLabel"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/tvHeightLabel" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- 몸무게 -->
+            <!--  몸무게  -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/boxWeight"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:layout_constraintStart_toEndOf="@id/boxHeight"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/boxPhoto"
-                app:layout_constraintHorizontal_weight="1">
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@id/boxHeight"
+                app:layout_constraintTop_toBottomOf="@id/boxPhoto">
 
                 <TextView
                     android:id="@+id/tvWeightLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="몸무게"
+                    android:textColor="#0A0F18"
                     android:textSize="12sp"
                     android:textStyle="bold"
-                    android:textColor="#0A0F18"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tvWeight"
@@ -201,12 +192,12 @@
                     android:gravity="center_vertical"
                     android:paddingStart="8dp"
                     android:text="-"
+                    android:textColor="#0A0F18"
                     android:textSize="12sp"
                     android:textStyle="bold"
-                    android:textColor="#0A0F18"
-                    app:layout_constraintTop_toBottomOf="@id/tvWeightLabel"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/tvWeightLabel" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
@@ -217,25 +208,24 @@
                 android:background="@drawable/bg_login_button_main_color"
                 android:backgroundTint="@null"
                 android:gravity="center"
+                android:padding="4dp"
                 android:text="회원정보 수정"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:padding="4dp"
-                app:layout_constraintTop_toBottomOf="@id/boxNickname"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <!-- 코디 히스토리 -->
+                app:layout_constraintTop_toBottomOf="@id/boxNickname" />
+            <!--  코디 히스토리  -->
             <TextView
                 android:id="@+id/tvHistoryTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="코디 히스토리"
+                android:textColor="#0A0F18"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#0A0F18"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvEditProfile" />
 
@@ -244,25 +234,80 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="더보기"
-                android:textSize="12sp"
                 android:textColor="#0A0F18"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@id/tvHistoryTitle"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tvHistoryTitle"
-                app:layout_constraintBottom_toBottomOf="@id/tvHistoryTitle" />
-
-            <!-- Top3 옷 섹션 -->
+                app:layout_constraintTop_toTopOf="@id/tvHistoryTitle" />
+            <!--  최근 코디 섹션  -->
+            <TextView
+                android:id="@+id/tvRecentCodySubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="최근 코디"
+                android:textColor="#0A0F18"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvHistoryTitle" />
+            <!--  최근 코디 RecyclerView  -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRecentCody"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvRecentCodySubtitle"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_top3_clothes" />
+            <!--  최근 코디 빈 상태 메시지  -->
+            <TextView
+                android:id="@+id/tvEmptyRecentCody"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="최근 코디 기록이 없습니다."
+                android:textColor="#8A93A3"
+                android:textSize="12sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvRecentCodySubtitle" />
+            <!--  최근 코디 섹션 하단 Barrier  -->
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrierRecentCodyBottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="rvRecentCody,tvEmptyRecentCody" />
+            <!--  통계  -->
+            <TextView
+                android:id="@+id/tvStatsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="통계"
+                android:textColor="#0A0F18"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/barrierRecentCodyBottom" />
+            <!--  Top3 옷 섹션  -->
             <TextView
                 android:id="@+id/tvTop3ClothesSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="이번달에 가장 자주 입은 옷 Top 3"
-                android:textSize="12sp"
                 android:textColor="#0A0F18"
+                android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvHistoryTitle" />
+                app:layout_constraintTop_toBottomOf="@id/tvStatsTitle" />
 
-            <!-- Top3 RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTop3Clothes"
                 android:layout_width="0dp"
@@ -270,92 +315,79 @@
                 android:layout_marginTop="8dp"
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTop3ClothesSubtitle"
-                tools:listitem="@layout/item_top3_clothes"
-                tools:itemCount="3"/>
-
-            <!-- 빈 상태 메시지 -->
+                tools:itemCount="3"
+                tools:listitem="@layout/item_top3_clothes" />
+            <!--  (Top3 비어있을 때)  -->
             <TextView
                 android:id="@+id/tvEmptyTop3"
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_marginTop="8dp"
-                android:text="이번 달 착용 기록이 없습니다.\n코디하러 가보세요!"
-                android:textSize="12sp"
-                android:textColor="#8A93A3"
                 android:gravity="center"
+                android:text="이번 달 착용 기록이 없습니다.\n코디하러 가보세요!"
+                android:textColor="#8A93A3"
+                android:textSize="12sp"
                 android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTop3ClothesSubtitle"/>
-
-            <!-- Top3 섹션 하단 Barrier (rvTop3Clothes와 tvEmptyTop3 중 더 아래 있는 것 기준) -->
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTop3ClothesSubtitle" />
+            <!--  Top3 아래 기준(리스트/빈상태 중 더 아래 기준)  -->
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/barrierTop3Bottom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="bottom"
                 app:constraint_referenced_ids="rvTop3Clothes,tvEmptyTop3" />
-
-            <!-- 통계 -->
+            <!--  태그/색상 Top5 제목을 한 줄로  -->
             <TextView
-                android:id="@+id/tvStatsTitle"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvPieTagSubtitle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="통계"
-                android:textSize="16sp"
-                android:textStyle="bold"
+                android:layout_marginTop="12dp"
+                android:text="이번 달 나의 사용 태그 Top 5"
                 android:textColor="#0A0F18"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/tvPieColorSubtitle"
+                app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/barrierTop3Bottom" />
 
             <TextView
-                android:id="@+id/tvPieTagSubtitle"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvPieColorSubtitle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="이번 달 나의 사용 태그 Top 5"
-                android:textSize="12sp"
+                android:layout_marginTop="12dp"
+                android:gravity="end"
+                android:text="이번 달 나의 사용 색상 Top 5"
                 android:textColor="#0A0F18"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvStatsTitle" />
-
-            <!-- 태그 PieChart (그대로) -->
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@id/tvPieTagSubtitle"
+                app:layout_constraintTop_toBottomOf="@id/barrierTop3Bottom" />
+            <!--  PieChart 2개 나란히  -->
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/pieTag"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="2dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="4dp"
                 android:background="@drawable/bg_login_input"
                 app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/pieColor"
-                app:layout_constraintTop_toBottomOf="@id/tvPieTagSubtitle"
-                app:layout_constraintHorizontal_weight="1" />
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvPieTagSubtitle" />
 
-            <TextView
-                android:id="@+id/tvPieColorSubtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginStart="4dp"
-                android:text="이번 달 나의 사용 색상 Top 5"
-                android:textSize="12sp"
-                android:textColor="#0A0F18"
-                app:layout_constraintStart_toEndOf="@id/pieTag"
-                app:layout_constraintTop_toBottomOf="@id/tvStatsTitle" />
-
-            <!-- 색상 PieChart (그대로) -->
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/pieColor"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginStart="2dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="6dp"
                 android:background="@drawable/bg_login_input"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -369,60 +401,57 @@
                 android:layout_height="wrap_content"
                 app:barrierDirection="bottom"
                 app:constraint_referenced_ids="pieTag,pieColor" />
-
-            <!-- 하단 버튼 (회원가입 톤: MaterialButton) -->
+            <!--  하단 버튼 (회원가입 톤: MaterialButton)  -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSignout"
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="8dp"
-                android:text="회원탈퇴"
-                android:textStyle="bold"
-                android:textSize="12sp"
-                android:textColor="@android:color/white"
-                android:padding="4dp"
-                app:backgroundTint="@color/main_color"
-                app:cornerRadius="8dp"
-                app:rippleColor="#1A000000"
-                android:stateListAnimator="@null"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                app:layout_constraintStart_toStartOf="parent"
+                android:padding="4dp"
+                android:stateListAnimator="@null"
+                android:text="회원탈퇴"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/main_color"
+                app:cornerRadius="8dp"
                 app:layout_constraintEnd_toStartOf="@id/btnLogout"
                 app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintTop_toBottomOf="@id/barrierPieBottom" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/barrierPieBottom"
+                app:rippleColor="#1A000000" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="24dp"
-                android:text="로그아웃"
-                android:textStyle="bold"
-                android:textSize="12sp"
-                android:textColor="@android:color/white"
-                android:padding="4dp"
-                app:backgroundTint="@color/main_color"
-                app:cornerRadius="8dp"
-                app:rippleColor="#1A000000"
-                android:stateListAnimator="@null"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                app:layout_constraintStart_toEndOf="@id/btnSignout"
+                android:padding="4dp"
+                android:stateListAnimator="@null"
+                android:text="로그아웃"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/main_color"
+                app:cornerRadius="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintTop_toBottomOf="@id/barrierPieBottom" />
+                app:layout_constraintStart_toEndOf="@id/btnSignout"
+                app:layout_constraintTop_toBottomOf="@id/barrierPieBottom"
+                app:rippleColor="#1A000000" />
 
             <View
                 android:id="@+id/bottomSpacer"
                 android:layout_width="0dp"
                 android:layout_height="24dp"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/btnLogout" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
