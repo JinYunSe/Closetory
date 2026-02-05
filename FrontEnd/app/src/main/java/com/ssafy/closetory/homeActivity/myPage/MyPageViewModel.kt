@@ -82,106 +82,106 @@ class MyPageViewModel : ViewModel() {
                 Log.d(TAG, "checkPassword 예외 : ${e.message}")
             }
         }
+    }
 
-        fun logout() {
-            viewModelScope.launch {
-                try {
-                    val res = repository.logout()
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                val res = repository.logout()
 
-                    if (res.isSuccessful) {
-                        val body = res.body()
-                        _logoutSuccess.emit(true)
-                        _message.emit(body?.responseMessage ?: "로그아웃 성공")
+                if (res.isSuccessful) {
+                    val body = res.body()
+                    _logoutSuccess.emit(true)
+                    _message.emit(body?.responseMessage ?: "로그아웃 성공")
 
-                        ApplicationClass.authManager.clearToken()
-                        ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
-                    } else {
-                        _logoutSuccess.emit(false)
-                        _message.emit(res.body()?.errorMessage ?: "로그아웃 실패")
-                    }
-                } catch (e: Exception) {
+                    ApplicationClass.authManager.clearToken()
+                    ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
+                } else {
                     _logoutSuccess.emit(false)
-                    _message.emit("로그아웃 실패")
+                    _message.emit(res.body()?.errorMessage ?: "로그아웃 실패")
                 }
+            } catch (e: Exception) {
+                _logoutSuccess.emit(false)
+                _message.emit("로그아웃 실패")
             }
         }
+    }
 
-        fun getTagsStatistics(userId: Int) {
-            viewModelScope.launch {
-                try {
-                    val res = repository.getTagsStatistics(userId)
+    fun getTagsStatistics(userId: Int) {
+        viewModelScope.launch {
+            try {
+                val res = repository.getTagsStatistics(userId)
 
-                    if (res.isSuccessful) {
-                        _tagsStatistics.value = res.body()?.data ?: emptyList()
-                    } else {
-                        _tagsStatistics.value = emptyList()
-                        _message.emit(res.body()?.errorMessage ?: "태그 통계 조회 실패")
-                    }
-                } catch (e: Exception) {
+                if (res.isSuccessful) {
+                    _tagsStatistics.value = res.body()?.data ?: emptyList()
+                } else {
                     _tagsStatistics.value = emptyList()
-                    _message.emit("태그 통계 조회 실패")
+                    _message.emit(res.body()?.errorMessage ?: "태그 통계 조회 실패")
                 }
+            } catch (e: Exception) {
+                _tagsStatistics.value = emptyList()
+                _message.emit("태그 통계 조회 실패")
             }
         }
+    }
 
-        fun getColorsStatistics(userId: Int) {
-            viewModelScope.launch {
-                try {
-                    val res = repository.getColorsStatistics(userId)
+    fun getColorsStatistics(userId: Int) {
+        viewModelScope.launch {
+            try {
+                val res = repository.getColorsStatistics(userId)
 
-                    if (res.isSuccessful) {
-                        _colorStatistics.value = res.body()?.data ?: emptyList()
-                    } else {
-                        _colorStatistics.value = emptyList()
-                        _message.emit(res.body()?.errorMessage ?: "색상 통계 조회 실패")
-                    }
-                } catch (e: Exception) {
+                if (res.isSuccessful) {
+                    _colorStatistics.value = res.body()?.data ?: emptyList()
+                } else {
                     _colorStatistics.value = emptyList()
-                    _message.emit("색상 통계 조회 실패")
+                    _message.emit(res.body()?.errorMessage ?: "색상 통계 조회 실패")
                 }
+            } catch (e: Exception) {
+                _colorStatistics.value = emptyList()
+                _message.emit("색상 통계 조회 실패")
             }
         }
+    }
 
-        fun getRecentCody() {
-            viewModelScope.launch {
-                try {
-                    val res = repository.getRecentCody()
+    fun getRecentCody() {
+        viewModelScope.launch {
+            try {
+                val res = repository.getRecentCody()
 
-                    if (res.isSuccessful) {
-                        val data = res.body()?.data ?: emptyList()
+                if (res.isSuccessful) {
+                    val data = res.body()?.data ?: emptyList()
 
-                        val recentThree = data
-                            .filter { !it.date.isNullOrBlank() }
-                            .sortedByDescending { it.date }
-                            .take(3)
+                    val recentThree = data
+                        .filter { !it.date.isNullOrBlank() }
+                        .sortedByDescending { it.date }
+                        .take(3)
 
-                        _recentCody.value = recentThree
-                    } else {
-                        val message = res.body()?.errorMessage ?: "최근 코디 조회 실패"
-                        _recentCody.value = emptyList()
-                        _message.emit(message)
-                    }
-                } catch (e: Exception) {
+                    _recentCody.value = recentThree
+                } else {
+                    val message = res.body()?.errorMessage ?: "최근 코디 조회 실패"
                     _recentCody.value = emptyList()
-                    _message.emit("최근 코디 조회 실패")
+                    _message.emit(message)
                 }
+            } catch (e: Exception) {
+                _recentCody.value = emptyList()
+                _message.emit("최근 코디 조회 실패")
             }
         }
+    }
 
-        fun getTop3Clothes(userId: Int) {
-            viewModelScope.launch {
-                try {
-                    val res = repository.getTop3Clothes(userId)
-                    if (res.isSuccessful) {
-                        _top3Clothes.value = res.body()?.data ?: emptyList()
-                    } else {
-                        _top3Clothes.value = emptyList()
-                        _message.emit(res.body()?.errorMessage ?: "Top3 조회 실패")
-                    }
-                } catch (e: Exception) {
+    fun getTop3Clothes(userId: Int) {
+        viewModelScope.launch {
+            try {
+                val res = repository.getTop3Clothes(userId)
+                if (res.isSuccessful) {
+                    _top3Clothes.value = res.body()?.data ?: emptyList()
+                } else {
                     _top3Clothes.value = emptyList()
-                    _message.emit("Top3 조회 실패")
+                    _message.emit(res.body()?.errorMessage ?: "Top3 조회 실패")
                 }
+            } catch (e: Exception) {
+                _top3Clothes.value = emptyList()
+                _message.emit("Top3 조회 실패")
             }
         }
     }
