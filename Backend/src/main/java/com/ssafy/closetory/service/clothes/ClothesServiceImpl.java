@@ -11,6 +11,10 @@ import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
 import com.ssafy.closetory.repository.projection.ClothesRecommendRow;
 import com.ssafy.closetory.service.s3.S3ImageService;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -305,5 +309,40 @@ public class ClothesServiceImpl implements ClothesService {
       throw new ConflictException("저장되지 않은 옷입니다.");
     }
     saveRepository.deleteById(saveId);
+  }
+
+  @Override
+  public String createEditingImage(String photoUrl) {
+    try {
+
+      byte[] imageByte = downloadImageFromUrl(photoUrl);
+
+      MultipartBodyBuilder builder = new MultipartBodyBuilder();
+
+      builder.part("image", new ByteArrayResource(imageByte))
+        .filename("clothes.png");
+
+      byte[] response =
+        fastApiWebClient
+          .post()
+          .uri("/editing")
+          .body(BodyInserters.fromMultipartData(builder.build()))
+          .retrieve()
+          .bodyToMono(byte[].class)
+          .block();
+
+      s3ImageService.deleteByUrl(photoUrl);
+      return s3ImageService.upload(response, "result.png");
+    } catch (Exception e) {
+      throw new RuntimeException("AI 서버와 통신 중 오류가 발생했습니다.");
+    }
+  }
+
+  private byte[] downloadImageFromUrl(String fileUrl) throws IOException {
+    URL url = new URL(fileUrl);
+
+    try (InputStream in = url.openStream()) {
+      return in.readAllBytes();
+    }
   }
 }

@@ -336,6 +336,7 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
+  @Transactional
   public UpdateCommentResponse updateComment(
       Integer postId, Integer commentId, CommentRequest request, Integer userId) {
     Comment comment = findComment(postId, commentId, userId);
@@ -345,6 +346,7 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
+  @Transactional
   public void deleteComment(Integer postId, Integer commentId, Integer userId) {
     Comment comment = findComment(postId, commentId, userId);
 

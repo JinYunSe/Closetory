@@ -84,9 +84,9 @@ public class ClothesController {
   public ResponseEntity<ApiResponse<Map<String, String>>> maskingImage(
       @RequestParam("clothesPhoto") MultipartFile file, @AuthenticationPrincipal Integer userId)
       throws IOException {
-    String maskedImageUrl = clothesService.createMaskingImage(file.getBytes());
+    String photoUrl = clothesService.createMaskingImage(file.getBytes());
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponse.ok(201, "옷 누끼 따기 성공", Map.of("maskedImageUrl", maskedImageUrl)));
+        .body(ApiResponse.ok(201, "옷 누끼 따기 성공", Map.of("photoUrl", photoUrl)));
   }
 
   @GetMapping("/{clothesId}/recommend")
@@ -116,5 +116,16 @@ public class ClothesController {
       @PathVariable Integer clothesId, @AuthenticationPrincipal Integer userId) {
     clothesService.unsaveClothes(clothesId, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(200, "다른 사람 옷 저장 취소 성공", null));
+  }
+
+  @PostMapping("/editing")
+  @Operation(summary = "옷 보정하기")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<ApiResponse<Map<String, String>>> editingImage(
+    @RequestParam("photoUrl") String photoUrl
+  ) {
+    String result = clothesService.createEditingImage(photoUrl);
+    return ResponseEntity.status(HttpStatus.CREATED)
+      .body(ApiResponse.ok(201, "옷 보정 하기 성공", Map.of("photoUrl",result)));
   }
 }
