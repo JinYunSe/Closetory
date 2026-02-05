@@ -1,6 +1,5 @@
-package com.ssafy.closetory.homeActivity.mypage
+﻿package com.ssafy.closetory.homeActivity.mypage
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,8 +13,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-
-private const val TAG = "MyPageViewModel_싸피"
 
 class MyPageViewModel : ViewModel() {
     private val _recentCody = MutableLiveData<List<CodyRepositoryResponse>>()
@@ -41,17 +38,13 @@ class MyPageViewModel : ViewModel() {
     private val _colorStatistics = MutableLiveData<List<StatisticsResponse>>()
     val colorStatistics: LiveData<List<StatisticsResponse>> = _colorStatistics
 
-    // ✅ 코디 히스토리(Top3 착용 옷) LiveData 추가
     private val _top3Clothes = MutableLiveData<List<Top3ClothesResponse>>()
     val top3Clothes: LiveData<List<Top3ClothesResponse>> = _top3Clothes
 
     fun loadUserProfile(userId: Int) {
-        Log.d(TAG, "loadUserProfile: ViewModel_loadUserProfile 실행")
         viewModelScope.launch {
             try {
                 val res = repository.getUserProfile(userId)
-
-                Log.d(TAG, "getUserProfile code=${res.code()} body=${res.body()} err=${res.errorBody()?.string()}")
 
                 if (res.isSuccessful) {
                     val data = res.body()?.data
@@ -64,29 +57,28 @@ class MyPageViewModel : ViewModel() {
                     _message.emit(res.body()?.errorMessage ?: "회원정보 조회 실패")
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "loadUserProfile error", e)
+                _message.emit("회원정보 조회 실패")
             }
         }
     }
 
     fun checkPassword(password: String) {
         val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: return
-        Log.d(TAG, "checkPassword: userId : $userId")
 
         viewModelScope.launch {
-            val res = repository.checkPassword(userId, password)
+            try {
+                val res = repository.checkPassword(userId, password)
 
-            Log.d(TAG, "httpStatus: ${res.httpStatusCode}")
-            Log.d(TAG, "responseMessage: ${res.responseMessage}")
-            Log.d(TAG, "errorMessage: ${res.errorMessage}")
-            Log.d(TAG, "data: ${res.data}")
-
-            if (res.httpStatusCode == 200) {
-                _passwordVerified.emit(true)
-                _message.emit(res.responseMessage ?: "확인되었습니다.")
-            } else {
+                if (res.httpStatusCode == 200) {
+                    _passwordVerified.emit(true)
+                    _message.emit(res.responseMessage ?: "비밀번호 확인 완료")
+                } else {
+                    _passwordVerified.emit(false)
+                    _message.emit(res.errorMessage ?: "비밀번호가 일치하지 않습니다.")
+                }
+            } catch (e: Exception) {
                 _passwordVerified.emit(false)
-                _message.emit(res.errorMessage ?: "비밀번호가 올바르지 않습니다.")
+                _message.emit("비밀번호 확인에 실패했습니다.")
             }
         }
     }
@@ -95,10 +87,6 @@ class MyPageViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val res = repository.logout()
-
-                Log.d("DEBUG", "################")
-                Log.d("LOGOUT_FLOW", "response body = ${res.body()}")
-                Log.d("DEBUG", "################")
 
                 if (res.isSuccessful) {
                     val body = res.body()
@@ -112,8 +100,8 @@ class MyPageViewModel : ViewModel() {
                     _message.emit(res.body()?.errorMessage ?: "로그아웃 실패")
                 }
             } catch (e: Exception) {
-                Log.e("LOGOUT_FLOW", "logout() 예외 발생 ${e.message}", e)
                 _logoutSuccess.emit(false)
+                _message.emit("로그아웃 실패")
             }
         }
     }
@@ -130,8 +118,8 @@ class MyPageViewModel : ViewModel() {
                     _message.emit(res.body()?.errorMessage ?: "태그 통계 조회 실패")
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "태그 통계 예외 발생 : ${e.message}")
                 _tagsStatistics.value = emptyList()
+                _message.emit("태그 통계 조회 실패")
             }
         }
     }
@@ -148,8 +136,8 @@ class MyPageViewModel : ViewModel() {
                     _message.emit(res.body()?.errorMessage ?: "색상 통계 조회 실패")
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "색상 통계 예외 발생 : ${e.message}")
                 _colorStatistics.value = emptyList()
+                _message.emit("색상 통계 조회 실패")
             }
         }
     }
@@ -162,13 +150,11 @@ class MyPageViewModel : ViewModel() {
                 if (res.isSuccessful) {
                     val data = res.body()?.data ?: emptyList()
 
-                    // 날짜 있는 것만 필터링 + 날짜 기준 내림차순 정렬 + 최근 3개만
                     val recentThree = data
                         .filter { !it.date.isNullOrBlank() }
                         .sortedByDescending { it.date }
                         .take(3)
 
-                    Log.d(TAG, "최근 코디 조회 성공: ${recentThree.size}개")
                     _recentCody.value = recentThree
                 } else {
                     val message = res.body()?.errorMessage ?: "최근 코디 조회 실패"
@@ -176,13 +162,12 @@ class MyPageViewModel : ViewModel() {
                     _message.emit(message)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "최근 코디 조회 예외 발생: ${e.message}", e)
                 _recentCody.value = emptyList()
+                _message.emit("최근 코디 조회 실패")
             }
         }
     }
 
-    // ✅ Top3 착용 옷 조회 추가
     fun getTop3Clothes(userId: Int) {
         viewModelScope.launch {
             try {
@@ -194,8 +179,8 @@ class MyPageViewModel : ViewModel() {
                     _message.emit(res.body()?.errorMessage ?: "Top3 조회 실패")
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "getTop3Clothes 예외 발생 : ${e.message}", e)
                 _top3Clothes.value = emptyList()
+                _message.emit("Top3 조회 실패")
             }
         }
     }

@@ -107,4 +107,18 @@
         app:layout_constraintTop_toBottomOf="@+id/tab_closet"
         tools:listitem="@layout/item_clothes"
         />
+
+    <TextView
+        android:id="@+id/tv_empty_closet"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="조건에 맞는 옷이 없어요. 필터를 변경하거나 옷을 추가해보세요."
+        android:textColor="#8A93A3"
+        android:textSize="13sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/gl_closet"
+        app:layout_constraintEnd_toEndOf="@id/gl_closet"
+        app:layout_constraintStart_toStartOf="@id/gl_closet"
+        app:layout_constraintTop_toTopOf="@id/gl_closet" />
 </androidx.constraintlayout.widget.ConstraintLayout>

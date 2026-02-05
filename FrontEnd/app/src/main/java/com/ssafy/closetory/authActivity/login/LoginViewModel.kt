@@ -1,8 +1,7 @@
-// LoginViewModel.kt
+﻿// LoginViewModel.kt
 
 package com.ssafy.closetory.authActivity.login
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.dto.LoginRequest
@@ -11,8 +10,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-
-private const val TAG = "LoginViewModel_싸피"
 
 class LoginViewModel : ViewModel() {
 
@@ -29,10 +26,6 @@ class LoginViewModel : ViewModel() {
             try {
                 val request = LoginRequest(username, password)
                 val res = repository.login(request)
-
-                Log.d(TAG, "HTTP code = ${res.code()}")
-                Log.d(TAG, "body = ${res.body()}")
-
                 val body = res.body()
 
                 if (res.isSuccessful) {
@@ -46,11 +39,11 @@ class LoginViewModel : ViewModel() {
                     }
                 } else {
                     _message.emit(
-                        body?.errorMessage ?: "로그인 실패"
+                        body?.errorMessage ?: "로그인에 실패했습니다."
                     )
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "login() 예외 발생: ${e.message}", e)
+                _message.emit("로그인에 실패했습니다.")
             }
         }
     }

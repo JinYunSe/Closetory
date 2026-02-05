@@ -194,6 +194,14 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
             else -> emptyList()
         }
         clothAdapter.submitList(list)
+
+        if (list.isEmpty()) {
+            binding.glCloset.visibility = View.GONE
+            binding.tvEmptyCloset.visibility = View.VISIBLE
+        } else {
+            binding.glCloset.visibility = View.VISIBLE
+            binding.tvEmptyCloset.visibility = View.GONE
+        }
     }
 
     private fun observeRefreshSignal() {

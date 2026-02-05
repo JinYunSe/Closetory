@@ -431,7 +431,7 @@ class MyPageFragment :
         dataSet.setDrawValues(true)
         dataSet.yValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE
         dataSet.xValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE
-        dataSet.sliceSpace = 1f
+        dataSet.sliceSpace = 3f
         dataSet.selectionShift = 6f
     }
 

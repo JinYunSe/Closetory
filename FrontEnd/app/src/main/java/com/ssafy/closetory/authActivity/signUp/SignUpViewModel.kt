@@ -1,14 +1,11 @@
 ﻿package com.ssafy.closetory.authActivity.signUp
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.closetory.dto.SignUpRequest
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
-
-private const val TAG = "SignUpViewModel_싸피"
 
 class SignUpViewModel : ViewModel() {
 
@@ -43,11 +40,8 @@ class SignUpViewModel : ViewModel() {
                     weight = weight,
                     alarmEnabled = alarmEnabled
                 )
-                Log.d(TAG, "signUp Request : $request ")
                 val res = repository.signUp(request)
                 val body = res.body()
-
-                Log.d("SIGNUP_FLOW", "HTTP code=${res.code()}, body=$body")
 
                 if (res.isSuccessful) {
                     _signUpSuccess.emit(true)
@@ -59,10 +53,9 @@ class SignUpViewModel : ViewModel() {
                     )
                 }
             } catch (e: Exception) {
-                Log.e("SIGNUP_FLOW", "signUp() 예외 발생 ${e.message}", e)
+                _message.emit("회원가입에 실패했습니다.")
                 _signUpSuccess.emit(false)
             }
         }
     }
 }
-

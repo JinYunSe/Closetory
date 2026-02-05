@@ -343,9 +343,9 @@ class RegistrationClothesFragment :
             if (!hasPhotoForGuide) {
                 photoGuideTooltip?.show(
                     anchor = v,
-                    message = """옷이 잘 보이도록 정면에서 촬영해 주세요.
-배경은 최대한 단순하게 정리해 주세요.
-자동 추정은 정확하지 않을 수 있으니
+                    message = """1. 옷이 잘 보이도록 정면에서 촬영해 주세요.
+2. 배경은 옷과 잘 구분되게 해주세요.
+3. 자동 추정은 정확하지 않을 수 있으니
 꼭 확인해 주세요.""",
                     autoDismissMs = 5000
                 )
