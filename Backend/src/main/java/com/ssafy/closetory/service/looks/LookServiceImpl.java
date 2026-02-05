@@ -99,6 +99,9 @@ public class LookServiceImpl implements LookService {
       }
     }
 
+    builder.part("height",(int) user.getHeight());
+    builder.part("weight",(int) user.getWeight());
+
     try {
       byte[] response =
           fastApiWebClient
@@ -162,17 +165,16 @@ public class LookServiceImpl implements LookService {
     Pageable limit = PageRequest.of(0, 10);
     List<Post> posts;
 
-    // true, false에 따라 참고하는 게시글이 달라짐
-    // true : 내가 원하는 코디, false : 나에게 어울리는 코디
     if (request.isPersonalized() == true) {
-      posts = postRepository.findLikedPostsByUserId(userId, limit);
+      posts = postRepository.findLikedPostsByUserIdAndFavoriteTags(userId, limit);
+
+      if (posts.isEmpty()) {
+        posts = postRepository.findLikedPostsByUserId(userId,limit);
+      }
     } else {
       posts = postRepository.findWrittenPostsByUserId(userId, limit);
     }
 
-    // error 발생
-    // '내가 원하는 코디'의 경우, 좋아요를 누른 게시글이 없는 경우
-    // '나에게 어울리는 코디'의 경우, 내가 작성한 게시글이 없는 경우
     if (posts.isEmpty()) {
       posts = postRepository.findPostsByViews(limit);
       if (posts.isEmpty()) {
@@ -180,8 +182,6 @@ public class LookServiceImpl implements LookService {
       }
     }
 
-    // 상위 10개의 게시글 중, 랜덤하게 선택
-    // 상위 5개는 동일하게 15%, 하위 5개는 동일 X
     Random random = new Random();
     int percent = random.nextInt(100);
 
@@ -290,7 +290,7 @@ public class LookServiceImpl implements LookService {
     Look look =
         Look.builder()
             .userId(userId)
-            .photoUrl(request.aiImageUrl())
+            .photoUrl(request.aiPhotoUrl())
             .reason(request.aiReason())
             .build();
 

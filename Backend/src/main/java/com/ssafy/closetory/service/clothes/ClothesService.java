@@ -24,4 +24,6 @@ public interface ClothesService {
   void saveClothes(Integer clothesId, Integer userId);
 
   void unsaveClothes(Integer clothesId, Integer userId);
+
+  String createEditingImage(String imageUrl);
 }

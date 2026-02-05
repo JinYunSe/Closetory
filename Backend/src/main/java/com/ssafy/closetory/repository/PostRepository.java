@@ -90,4 +90,21 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
   @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query("update Post p set p.views = p.views + 1 where p.id = :postId")
   void increaseViews(@Param("postId") Integer postId);
+
+  @Query("""
+      SELECT DISTINCT p
+      FROM Likes l
+      JOIN l.post p
+      JOIN p.clothes c
+      JOIN c.tags t
+      WHERE l.user.id = :userId
+        AND p.deletedAt IS NULL
+        AND t.id IN (
+            SELECT uft.id.tagId
+            FROM UserFavoriteTag uft
+            WHERE uft.id.userId = :userId
+        )
+      ORDER BY (p.views * 0.5 + CAST(function('DATEDIFF', CURRENT_DATE, p.createdAt) AS INTEGER) * -1 * 10) DESC
+      """)
+  List<Post> findLikedPostsByUserIdAndFavoriteTags(@Param("userId") Integer userId, Pageable pageable);
 }

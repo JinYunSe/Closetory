@@ -24,9 +24,9 @@ public class LooksController {
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<Map<String, String>>> requestFitting(
       @RequestBody VirtualFittingRequest request, @AuthenticationPrincipal Integer userId) {
-    String aiImageUrl = lookService.requestFitting(userId, request);
+    String aiPhotoUrl = lookService.requestFitting(userId, request);
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponse.ok(201, "가상 피팅 성공", Map.of("aiImageUrl", aiImageUrl)));
+        .body(ApiResponse.ok(201, "가상 피팅 성공", Map.of("aiPhotoUrl", aiPhotoUrl)));
   }
 
   @PostMapping("/ai/recommendation")

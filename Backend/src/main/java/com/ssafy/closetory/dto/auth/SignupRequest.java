@@ -12,7 +12,7 @@ public record SignupRequest(
     message = "아이디는 영문 대소문자, 숫자, 특수문자만 사용할 수 있습니다."
   )
   String username, // 아이디
-  @NotBlank@NotBlank(message = "비밀번호는 필수입니다.")
+  @NotBlank(message = "비밀번호는 필수입니다.")
   @Pattern(
     regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$",
     message = "비밀번호는 영문 대소문자, 숫자, 특수문자를 모두 포함해야 합니다."
