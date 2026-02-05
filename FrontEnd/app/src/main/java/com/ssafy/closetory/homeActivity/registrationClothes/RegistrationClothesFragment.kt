@@ -546,7 +546,7 @@ class RegistrationClothesFragment :
     private fun updatePhotoGuideIcon(hasPhoto: Boolean) {
         hasPhotoForGuide = hasPhoto
         val iconRes = if (hasPhoto) {
-            R.drawable.ic_clothes_alteration
+            R.drawable.ic_magic_bar
         } else {
             R.drawable.baseline_help_24
         }
