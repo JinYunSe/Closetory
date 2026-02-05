@@ -146,14 +146,14 @@ class MyPageFragment :
 
     private fun bindProfileImage(url: String?) {
         if (url.isNullOrBlank()) {
-            binding.ivProfile.setImageResource(R.drawable.ic_profile_default)
+            binding.ivProfile.setImageResource(R.drawable.ic_my_page)
             return
         }
 
         com.bumptech.glide.Glide.with(this)
             .load(url)
-            .placeholder(R.drawable.ic_profile_default)
-            .error(R.drawable.ic_profile_default)
+            .placeholder(R.drawable.ic_my_page)
+            .error(R.drawable.ic_my_page)
             .into(binding.ivProfile)
     }
 
