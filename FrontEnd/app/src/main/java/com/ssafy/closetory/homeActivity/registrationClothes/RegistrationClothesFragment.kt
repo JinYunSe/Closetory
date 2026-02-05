@@ -431,12 +431,20 @@ class RegistrationClothesFragment :
 
     private fun clothesAlteration() {
         val photoUrl = maskedPhotoUrl ?: viewModel.imageUrl.value
+
+        Log.d(TAG, "옷 보정 요청 phtoUrl : $photoUrl")
+
         if (photoUrl.isNullOrBlank()) {
             showToast("사진을 먼저 등록해 주세요.")
             return
         }
 
         // 옷 개선 요청 (선택 옵션)
+        isMaskingInProgress = true
+        binding.btnRegistrationClothes.isEnabled = false
+        showPhotoPlaceholder("옷 보정 중...")
+        Glide.with(binding.imbtnRegistrationClothes).clear(binding.imbtnRegistrationClothes)
+        binding.imbtnRegistrationClothes.setImageDrawable(null)
         photoRequestToken = System.currentTimeMillis()
         viewModel.requestClothesAlteration(photoUrl)
     }
@@ -538,7 +546,7 @@ class RegistrationClothesFragment :
     private fun updatePhotoGuideIcon(hasPhoto: Boolean) {
         hasPhotoForGuide = hasPhoto
         val iconRes = if (hasPhoto) {
-            R.drawable.pngwing_exclamation_mark
+            R.drawable.ic_clothes_alteration
         } else {
             R.drawable.baseline_help_24
         }
@@ -585,13 +593,18 @@ class RegistrationClothesFragment :
     private fun registerObserve() {
         viewModel.imageUrl.observe(viewLifecycleOwner) { url ->
             if (url.isNullOrBlank()) return@observe
-            maskedPhotoUrl = url
+            val finalUrl = if (url.startsWith("http")) {
+                url
+            } else {
+                "${ApplicationClass.API_BASE_URL}${url.removePrefix("/")}"
+            }
+            maskedPhotoUrl = finalUrl
 
             // 이 observe 실행 시점의 토큰 캡처
             val tokenAtRequest = photoRequestToken
 
             Glide.with(binding.imbtnRegistrationClothes)
-                .load(url)
+                .load(finalUrl)
                 .listener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(
                         e: GlideException?,
@@ -629,7 +642,7 @@ class RegistrationClothesFragment :
                         // ✅ URL 기준으로 무조건 autoSelect 수행
                         autoSelectApplied = false
                         lastAutoSelectUrl = null
-                        autoSelectFromImageUrl(url)
+                        autoSelectFromImageUrl(finalUrl)
 
                         return false
                     }
@@ -1049,4 +1062,3 @@ class RegistrationClothesFragment :
         return sqrt(dl * dl + da * da + db * db)
     }
 }
-
