@@ -113,7 +113,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="조건에 맞는 옷이 없어요. 필터를 변경하거나 옷을 추가해보세요."
+        android:text="조건에 맞는 옷이 없어요.\n필터를 변경하거나 옷을 추가해보세요."
         android:textColor="#8A93A3"
         android:textSize="13sp"
         android:visibility="gone"

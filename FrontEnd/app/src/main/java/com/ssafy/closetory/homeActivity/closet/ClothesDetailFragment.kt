@@ -147,10 +147,13 @@ class ClothesDetailFragment :
             if (item.isMine == true) {
                 binding.editLinearLayout.visibility = View.VISIBLE
                 binding.ibtnEdit.visibility = View.VISIBLE
+                binding.tvRecommendTitle.visibility = View.VISIBLE
             } else {
                 isRental = true
                 binding.editLinearLayout.visibility = View.GONE
                 binding.tvRecommendTitle.visibility = View.GONE
+                binding.rvRecommend.visibility = View.GONE
+                binding.tvRecommendEmpty.visibility = View.GONE
                 binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
             }
         }
@@ -185,6 +188,10 @@ class ClothesDetailFragment :
 
         closetViewModel.recommendedClothes.observe(viewLifecycleOwner) { list ->
             recommendAdapter.submitList(list)
+            val isEmpty = list.isNullOrEmpty()
+            binding.rvRecommend.visibility = View.VISIBLE
+            binding.tvRecommendEmpty.visibility =
+                if (isEmpty && currentItem?.isMine == true) View.VISIBLE else View.GONE
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
