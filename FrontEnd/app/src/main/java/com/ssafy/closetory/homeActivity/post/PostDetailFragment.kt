@@ -196,8 +196,8 @@ class PostDetailFragment :
 
                         Glide.with(this@PostDetailFragment)
                             .load(detail.profilePhotoUrl)
-                            .placeholder(R.drawable.placeholder)
-                            .error(R.drawable.placeholder)
+                            .placeholder(R.drawable.ic_my_page)
+                            .error(R.drawable.ic_my_page)
                             .into(binding.ivProfile)
 
                         Glide.with(this@PostDetailFragment)

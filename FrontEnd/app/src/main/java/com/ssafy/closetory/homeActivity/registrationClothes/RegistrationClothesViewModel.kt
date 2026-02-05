@@ -125,15 +125,20 @@ class RegistrationClothesViewModel : ViewModel() {
     fun requestClothesAlteration(photoUrl: String) {
         viewModelScope.launch {
             try {
+                Log.d(TAG, "옷 보정 요청 viewModel : $photoUrl")
+
                 val res = repository.requestClothesAlteration(PhotoUrlDto(photoUrl))
 
                 if (res.isSuccessful) {
+                    Log.d(TAG, "requestClothesAlteration 성공 : ${res.body()?.data?.photoUrl}")
                     val editedImage = res.body()?.data?.photoUrl
                     _imageUrl.value = editedImage
                 } else {
+                    Log.d(TAG, "requestClothesAlteration 실패 : ")
                     _message.emit(res.body()?.errorMessage ?: "개선 실패")
                 }
             } catch (e: Exception) {
+                Log.d(TAG, "requestClothesAlteration 예외 : ${e.message}")
             }
         }
     }
