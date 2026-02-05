@@ -33,7 +33,7 @@
             android:id="@+id/postInfoContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/gray_300"
+            android:background="#77E0E0E0"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:paddingTop="10dp"
@@ -98,30 +98,12 @@
                     android:textSize="8sp"
                     tools:text="10"  />
 
-                <TextView
-                    android:id="@+id/tvViewsIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="👀"
-                    android:textSize="8sp"
-                    android:layout_marginStart="6dp" />
-
-                <TextView
-                    android:id="@+id/tvViews"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="2dp"
-                    android:textColor="#000000"
-                    android:textSize="8sp"
-                    tools:text="10" />
-
-                <TextView
-                    android:id="@+id/tvLikesIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <ImageView
+                    android:id="@+id/ivLikesIcon"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
                     android:layout_marginStart="6dp"
-                    android:text="❤️"
-                    android:textSize="8sp" />
+                    android:src="@drawable/heart_red"/>
 
                 <TextView
                     android:id="@+id/tvLikes"

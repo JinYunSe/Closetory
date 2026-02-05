@@ -76,6 +76,8 @@ class MyPageViewModel : ViewModel() {
         viewModelScope.launch {
             val res = repository.checkPassword(userId, password)
 
+            Log.d(TAG, "checkPassword 동작 확인: $res")
+
             Log.d(TAG, "httpStatus: ${res.httpStatusCode}")
             Log.d(TAG, "responseMessage: ${res.responseMessage}")
             Log.d(TAG, "errorMessage: ${res.errorMessage}")

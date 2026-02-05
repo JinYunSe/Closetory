@@ -58,7 +58,7 @@
     <!-- 요일 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvWeeklist"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:overScrollMode="never"
         android:layout_marginTop="8dp" />
@@ -66,7 +66,7 @@
     <!-- 날짜 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvCalendar"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:overScrollMode="never"
         android:layout_marginTop="6dp" />
