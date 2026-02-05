@@ -15,7 +15,7 @@
 
     <!--달력-->
     <dimen name="gridWidth">44dp</dimen>
-    <dimen name="gridHeight">32dp</dimen>
+    <dimen name="gridHeight">24dp</dimen>
     <dimen name="gridMargin">2dp</dimen>
     <dimen name="textSize">14sp</dimen>
 
