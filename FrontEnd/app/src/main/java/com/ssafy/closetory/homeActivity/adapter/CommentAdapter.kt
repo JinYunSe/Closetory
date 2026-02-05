@@ -31,8 +31,8 @@ class CommentAdapter(
             // 프로필 이미지 로드
             Glide.with(binding.root.context)
                 .load(comment.profileImage)
-                .placeholder(R.drawable.ic_profile_default)
-                .error(R.drawable.ic_profile_default)
+                .placeholder(R.drawable.ic_my_page)
+                .error(R.drawable.ic_my_page)
                 .circleCrop()
                 .into(binding.ivProfile)
 

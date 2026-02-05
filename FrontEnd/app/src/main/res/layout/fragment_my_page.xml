@@ -1,4 +1,4 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+﻿<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootMyPage"
@@ -401,7 +401,7 @@
                 android:layout_height="wrap_content"
                 app:barrierDirection="bottom"
                 app:constraint_referenced_ids="pieTag,pieColor" />
-            <!--  하단 버튼 (회원가입 톤: MaterialButton)  -->
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSignout"
                 android:layout_width="0dp"
@@ -413,10 +413,12 @@
                 android:padding="4dp"
                 android:stateListAnimator="@null"
                 android:text="회원탈퇴"
-                android:textColor="@android:color/white"
+                android:textColor="@color/sunColor"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                app:backgroundTint="@color/main_color"
+                app:backgroundTint="@android:color/white"
+                app:strokeColor="@color/sunColor"
+                app:strokeWidth="1dp"
                 app:cornerRadius="8dp"
                 app:layout_constraintEnd_toStartOf="@id/btnLogout"
                 app:layout_constraintHorizontal_weight="1"
