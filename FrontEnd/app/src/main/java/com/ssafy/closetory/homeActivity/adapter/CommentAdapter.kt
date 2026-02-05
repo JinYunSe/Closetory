@@ -12,7 +12,7 @@ import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.ItemCommentBinding
 import com.ssafy.closetory.dto.CommentDto
-import kotlin.math.log
+import com.ssafy.closetory.util.DateTimeFormat
 
 private val TAG = "CommentAdapter_싸피"
 class CommentAdapter(
@@ -26,13 +26,13 @@ class CommentAdapter(
         fun bind(comment: CommentDto) {
             binding.tvNickname.text = comment.nickname
             binding.tvContent.text = comment.content
-            binding.tvCreatedAt.text = comment.createdAt
+            binding.tvCreatedAt.text = DateTimeFormat.formatCreatedAt(comment.createdAt)
 
             // 프로필 이미지 로드
             Glide.with(binding.root.context)
                 .load(comment.profileImage)
-                .placeholder(R.drawable.ic_profile_default)
-                .error(R.drawable.ic_profile_default)
+                .placeholder(R.drawable.ic_my_page)
+                .error(R.drawable.ic_my_page)
                 .circleCrop()
                 .into(binding.ivProfile)
 

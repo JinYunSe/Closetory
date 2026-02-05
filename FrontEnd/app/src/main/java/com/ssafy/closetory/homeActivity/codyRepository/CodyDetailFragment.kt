@@ -328,7 +328,7 @@ class CodyDetailFragment :
     private fun renderMonth() {
         val year = calendar.get(Calendar.YEAR)
         val month0 = calendar.get(Calendar.MONTH)
-        calBinding.tvMonth.text = "%04d년%02d월".format(year, month0 + 1)
+        calBinding.tvMonth.text = "%04d년 %02d월".format(year, month0 + 1)
 
         val days = build42Days(year, month0)
         calendarAdapter.submitList(days)

@@ -124,7 +124,7 @@ class ClothesDetailFragment :
                 .into(binding.ivPhoto)
 
             binding.tvType.text = ClothTypeOptions.englishToKorean(item.clothesType)
-            binding.tvSeasons.text = item.seasons?.joinToString(" · ")
+            binding.tvSeasons.text = formatSeasons(item.seasons)
             binding.tvColor.text = ColorOptions.englishToKorean(item.color)
 
             // tags chip
@@ -151,10 +151,13 @@ class ClothesDetailFragment :
             if (item.isMine == true) {
                 binding.editLinearLayout.visibility = View.VISIBLE
                 binding.ibtnEdit.visibility = View.VISIBLE
+                binding.tvRecommendTitle.visibility = View.VISIBLE
             } else {
                 isRental = true
                 binding.editLinearLayout.visibility = View.GONE
                 binding.tvRecommendTitle.visibility = View.GONE
+                binding.rvRecommend.visibility = View.GONE
+                binding.tvRecommendEmpty.visibility = View.GONE
                 binding.ibtnBookmark.setImageResource(R.drawable.baseline_bookmark_24)
             }
         }
@@ -189,6 +192,10 @@ class ClothesDetailFragment :
 
         closetViewModel.recommendedClothes.observe(viewLifecycleOwner) { list ->
             recommendAdapter.submitList(list)
+            val isEmpty = list.isNullOrEmpty()
+            binding.rvRecommend.visibility = View.VISIBLE
+            binding.tvRecommendEmpty.visibility =
+                if (isEmpty && currentItem?.isMine == true) View.VISIBLE else View.GONE
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -231,5 +238,23 @@ class ClothesDetailFragment :
             R.id.action_clothes_detail_to_registration,
             bundle
         )
+    }
+
+    private fun formatSeasons(seasons: List<String>?): String {
+        if (seasons.isNullOrEmpty()) return ""
+
+        val codeToLabel = mapOf(
+            1 to "봄",
+            2 to "여름",
+            3 to "가을",
+            4 to "겨울"
+        )
+
+        return seasons
+            .mapNotNull { SeasonOptions.toCode(it) }
+            .distinct()
+            .sorted()
+            .mapNotNull { codeToLabel[it] }
+            .joinToString(" · ")
     }
 }

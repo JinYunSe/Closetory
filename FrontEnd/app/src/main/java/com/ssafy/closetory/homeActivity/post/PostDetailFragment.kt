@@ -23,6 +23,7 @@ import com.ssafy.closetory.dto.CommentDto
 import com.ssafy.closetory.homeActivity.adapter.CommentAdapter
 import com.ssafy.closetory.homeActivity.adapter.PostDetailItemAdapter
 import com.ssafy.closetory.homeActivity.post.create.PostCreateFragment
+import com.ssafy.closetory.util.DateTimeFormat
 import kotlinx.coroutines.launch
 
 class PostDetailFragment :
@@ -183,6 +184,7 @@ class PostDetailFragment :
 
                         binding.tvTitle.text = detail.title
                         binding.tvAuthor.text = detail.nickname
+                        binding.tvCreatedAt.text = DateTimeFormat.formatCreatedAt(detail.createdAt)
                         binding.tvContent.text = detail.content
                         binding.tvViews.text = detail.views.toString()
                         binding.tvLikes.text = detail.likeCount.toString()
@@ -196,8 +198,8 @@ class PostDetailFragment :
 
                         Glide.with(this@PostDetailFragment)
                             .load(detail.profilePhotoUrl)
-                            .placeholder(R.drawable.placeholder)
-                            .error(R.drawable.placeholder)
+                            .placeholder(R.drawable.ic_my_page)
+                            .error(R.drawable.ic_my_page)
                             .into(binding.ivProfile)
 
                         Glide.with(this@PostDetailFragment)
@@ -271,6 +273,7 @@ class PostDetailFragment :
         PostPhotoDialogFragment.newInstance(url)
             .show(parentFragmentManager, "post_photo_dialog")
     }
+
 
     /**
      * ✅ 댓글 수정 다이얼로그

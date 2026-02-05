@@ -146,14 +146,14 @@ class MyPageFragment :
 
     private fun bindProfileImage(url: String?) {
         if (url.isNullOrBlank()) {
-            binding.ivProfile.setImageResource(R.drawable.ic_profile_default)
+            binding.ivProfile.setImageResource(R.drawable.ic_my_page)
             return
         }
 
         com.bumptech.glide.Glide.with(this)
             .load(url)
-            .placeholder(R.drawable.ic_profile_default)
-            .error(R.drawable.ic_profile_default)
+            .placeholder(R.drawable.ic_my_page)
+            .error(R.drawable.ic_my_page)
             .into(binding.ivProfile)
     }
 
@@ -210,13 +210,6 @@ class MyPageFragment :
                     authManager.clearToken()
                     ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
                     ApplicationClass.sharedPreferences.clearUserNickName()
-
-                    Log.d(
-                        TAG,
-                        "로그아웃 이후 값 확인 : userNickName=${ApplicationClass.sharedPreferences.getUserNickName()}, userId=${ApplicationClass.sharedPreferences.getUserId(
-                            ApplicationClass.USERID
-                        )}"
-                    )
 
                     val intent = Intent(requireContext(), AuthActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -325,12 +318,12 @@ class MyPageFragment :
                 ApplicationClass.sharedPreferences.clearUserNickName()
                 ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
 
-                Log.d(
-                    TAG,
-                    "회원 탈퇴 이후 값 확인 : userNickName=${ApplicationClass.sharedPreferences.getUserNickName()}, userId=${ApplicationClass.sharedPreferences.getUserId(
-                        ApplicationClass.USERID
-                    )}"
-                )
+//                Log.d(
+//                    TAG,
+//                    "회원 탈퇴 이후 값 확인 : userNickName=${ApplicationClass.sharedPreferences.getUserNickName()}, userId=${ApplicationClass.sharedPreferences.getUserId(
+//                        ApplicationClass.USERID
+//                    )}"
+//                )
 
                 moveToLogin()
             }
@@ -400,7 +393,24 @@ class MyPageFragment :
     private fun applyPieCommon(pieChart: PieChart) {
         pieChart.description.isEnabled = false
         pieChart.legend.isEnabled = false
+        pieChart.setNoDataText("")
+        pieChart.setNoDataTextColor(Color.BLACK)
         pieChart.setUsePercentValues(true)
+
+        val borderColor = requireContext().getColor(R.color.gray_300)
+        val borderWidth = 2.5f
+        val renderer = pieChart.renderer
+        if (renderer is com.ssafy.closetory.util.PieSliceBorderRenderer) {
+            renderer.updateBorder(borderColor, borderWidth)
+        } else {
+            pieChart.renderer = com.ssafy.closetory.util.PieSliceBorderRenderer(
+                pieChart,
+                pieChart.animator,
+                pieChart.viewPortHandler,
+                borderColor,
+                borderWidth
+            )
+        }
 
         pieChart.setDrawEntryLabels(false)
         pieChart.setDrawCenterText(false)
@@ -421,7 +431,7 @@ class MyPageFragment :
         dataSet.setDrawValues(true)
         dataSet.yValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE
         dataSet.xValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE
-        dataSet.sliceSpace = 1f
+        dataSet.sliceSpace = 3f
         dataSet.selectionShift = 6f
     }
 
@@ -461,9 +471,11 @@ class MyPageFragment :
 
         if (entries.isEmpty()) {
             pieChart.data = null
+            binding.tvPieTagEmpty.visibility = View.VISIBLE
             pieChart.invalidate()
             return
         }
+        binding.tvPieTagEmpty.visibility = View.GONE
 
         val dataSet = PieDataSet(entries, "").apply {
             colors = MutableList(entries.size) { idx ->
@@ -521,9 +533,11 @@ class MyPageFragment :
 
         if (entries.isEmpty()) {
             pieChart.data = null
+            binding.tvPieColorEmpty.visibility = View.VISIBLE
             pieChart.invalidate()
             return
         }
+        binding.tvPieColorEmpty.visibility = View.GONE
 
         val dataSet = PieDataSet(entries, "")
 
@@ -613,4 +627,3 @@ class MyPageFragment :
         null
     }
 }
-
