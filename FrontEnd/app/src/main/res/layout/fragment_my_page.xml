@@ -369,38 +369,70 @@
                 app:layout_constraintStart_toEndOf="@id/tvPieTagSubtitle"
                 app:layout_constraintTop_toBottomOf="@id/barrierTop3Bottom" />
             <!--  PieChart 2개 나란히  -->
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/pieTag"
+            <FrameLayout
+                android:id="@+id/pieTagContainer"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginTop="6dp"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/bg_login_input"
                 app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintEnd_toStartOf="@id/pieColor"
+                app:layout_constraintEnd_toStartOf="@id/pieColorContainer"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvPieTagSubtitle" />
+                app:layout_constraintTop_toBottomOf="@id/tvPieTagSubtitle">
 
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/pieColor"
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/pieTag"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_login_input" />
+
+                <TextView
+                    android:id="@+id/tvPieTagEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="이번 달 착용 기록이 없습니다.\n코디하러 가보세요!"
+                    android:textColor="#8A93A3"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/pieColorContainer"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="6dp"
-                android:background="@drawable/bg_login_input"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toEndOf="@id/pieTag"
-                app:layout_constraintTop_toBottomOf="@id/tvPieColorSubtitle" />
+                app:layout_constraintStart_toEndOf="@id/pieTagContainer"
+                app:layout_constraintTop_toBottomOf="@id/tvPieColorSubtitle">
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/pieColor"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_login_input" />
+
+                <TextView
+                    android:id="@+id/tvPieColorEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="이번 달 착용 기록이 없습니다.\n코디하러 가보세요!"
+                    android:textColor="#8A93A3"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+            </FrameLayout>
 
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/barrierPieBottom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="bottom"
-                app:constraint_referenced_ids="pieTag,pieColor" />
+                app:constraint_referenced_ids="pieTagContainer,pieColorContainer" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSignout"

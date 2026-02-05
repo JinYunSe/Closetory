@@ -400,6 +400,8 @@ class MyPageFragment :
     private fun applyPieCommon(pieChart: PieChart) {
         pieChart.description.isEnabled = false
         pieChart.legend.isEnabled = false
+        pieChart.setNoDataText("")
+        pieChart.setNoDataTextColor(Color.BLACK)
         pieChart.setUsePercentValues(true)
 
         pieChart.setDrawEntryLabels(false)
@@ -461,9 +463,11 @@ class MyPageFragment :
 
         if (entries.isEmpty()) {
             pieChart.data = null
+            binding.tvPieTagEmpty.visibility = View.VISIBLE
             pieChart.invalidate()
             return
         }
+        binding.tvPieTagEmpty.visibility = View.GONE
 
         val dataSet = PieDataSet(entries, "").apply {
             colors = MutableList(entries.size) { idx ->
@@ -521,9 +525,11 @@ class MyPageFragment :
 
         if (entries.isEmpty()) {
             pieChart.data = null
+            binding.tvPieColorEmpty.visibility = View.VISIBLE
             pieChart.invalidate()
             return
         }
+        binding.tvPieColorEmpty.visibility = View.GONE
 
         val dataSet = PieDataSet(entries, "")
 
@@ -613,4 +619,3 @@ class MyPageFragment :
         null
     }
 }
-
