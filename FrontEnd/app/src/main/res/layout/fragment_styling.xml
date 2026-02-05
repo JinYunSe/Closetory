@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,15 +17,29 @@
         android:layout_marginStart="1dp"
         android:layout_marginTop="1dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_back"
+        <FrameLayout
             android:layout_width="55dp"
             android:layout_height="48dp"
-            android:background="@drawable/bg_login_input"
-            android:text="&lt;"
-            app:backgroundTint="@color/white"
-            android:textColor="#000000"
-            />
+            android:background="@drawable/bg_login_input">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_back"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                android:text="&lt;"
+                android:textColor="#000000"
+
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+
+                android:elevation="0dp"
+                android:translationZ="0dp"
+                android:stateListAnimator="@null"
+
+                app:backgroundTint="@android:color/transparent"
+                app:strokeWidth="0dp" />
+        </FrameLayout>
 
         <Space
             android:layout_width="0dp"
@@ -47,11 +64,11 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:gravity="center"
+                android:layout_weight="0.8"
+                android:gravity="center|end"
                 android:text="모든 옷"
                 android:textColor="#000000"
-                android:textSize="14sp" />
+                android:textSize="12sp" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switch_switch_owned_only"
@@ -59,6 +76,8 @@
                 android:layout_height="wrap_content"
                 android:showText="false"
                 android:switchMinWidth="48dp"
+                android:scaleX="0.80"
+                android:scaleY="0.80"
                 app:thumbTint="@color/switch_thumb_selector"
                 app:trackTint="@color/switch_track_selector" />
         </LinearLayout>
@@ -67,15 +86,16 @@
     <!-- ⭐ 슬롯 영역 (VideoView 추가됨) -->
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:background="#e9ecef">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingBottom="20dp"
+        android:background="@drawable/bg_login_input">
 
         <!-- ⭐ VideoView 로딩 애니메이션 추가 (AI 페이지와 동일) -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layout_slots"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/bg_login_input"
             >
 
             <FrameLayout
@@ -106,7 +126,7 @@
 
             <FrameLayout
                 android:id="@+id/slot_outer"
-                android:layout_width="100dp"
+                android:layout_width="90dp"
                 android:layout_height="110dp"
                 android:layout_marginEnd="10dp"
                 app:layout_constraintEnd_toStartOf="@+id/slot_top"
@@ -289,6 +309,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_marginTop="8dp"
         android:fillViewport="true"
         android:overScrollMode="never">
 
@@ -408,8 +429,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="55dp"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -440,7 +461,14 @@
             app:backgroundTint="@null"
             android:text="초기화"
             android:textColor="#000000"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+
+            android:elevation="0dp"
+            android:translationZ="0dp"
+            android:stateListAnimator="@null"
+            />
     </LinearLayout>
 
 </LinearLayout>

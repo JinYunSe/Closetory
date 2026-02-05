@@ -51,7 +51,6 @@ class PostListAdapter(private val onItemClick: (PostItemResponse) -> Unit) :
             binding.tvAuthor.text = "${item.nickname}"
 
             // 3) 조회수 / 좋아요 수
-            binding.tvViews.text = item.views.toString()
             binding.tvLikes.text = item.likes.toString()
 
             // 0) 썸네일 이미지
