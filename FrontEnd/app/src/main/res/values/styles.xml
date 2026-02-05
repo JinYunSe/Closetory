@@ -4,8 +4,7 @@
     <style name="CustomTextViewFontStyle"
         parent="@android:style/Widget.DeviceDefault.TextView">
 
-        <item name="android:fontFamily">@font/font_gumiromance</item>
-
+        <item name="android:fontFamily">@font/font_pretendard</item>
     </style>
 
     <style name="ClosetTabText" parent="TextAppearance.MaterialComponents.Button">
