@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="날짜 선택"
-        android:textColor="#A6DAF4"
+        android:textColor="@color/main_color"
         android:textStyle="bold"
         android:gravity="center"
         android:textSize="18sp"

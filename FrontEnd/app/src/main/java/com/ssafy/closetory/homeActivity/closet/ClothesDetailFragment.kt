@@ -80,6 +80,10 @@ class ClothesDetailFragment :
             }
         }
 
+        binding.btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
         binding.ibtnEdit.setOnClickListener {
             MaterialAlertDialogBuilder(homeActivity)
                 .setTitle("옷 정보 수정")
@@ -229,4 +233,3 @@ class ClothesDetailFragment :
         )
     }
 }
-

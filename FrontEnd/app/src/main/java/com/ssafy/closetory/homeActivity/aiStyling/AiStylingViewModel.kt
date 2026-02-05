@@ -60,7 +60,6 @@ class AiStylingViewModel : ViewModel() {
     }
 
     // AI 추천 요청
-
     fun requestAiRecommendation(isPersonalized: Boolean, onlyMine: Boolean) {
         // 이미 실행 중이면 무시
         if (recommendJob?.isActive == true) {
@@ -116,12 +115,13 @@ class AiStylingViewModel : ViewModel() {
         val coordination = _aiCoordination.value
         if (coordination == null) {
             _errorMessage.value = "가상피팅할 코디가 없습니다."
+            Log.e(TAG, "가상피팅 실패: coordination이 null")
             return
         }
 
         // 이미 실행 중이면 무시
         if (fittingJob?.isActive == true) {
-            Log.d(TAG, "가상피팅이 이미 실행 중입니다")
+            Log.w(TAG, "가상피팅이 이미 실행 중입니다 - 중복 호출 차단")
             return
         }
 
@@ -129,47 +129,60 @@ class AiStylingViewModel : ViewModel() {
             _isLoading.value = true
             _loadingType.value = LoadingType.FITTING
 
-            val orderedIds = buildFittingIdList(coordination)
-            val request = AiFittingRequest(clothesIdList = orderedIds)
-
-            val response = repository.requestAiFitting(request)
-
             try {
                 Log.d(TAG, "가상피팅 시작")
 
                 val orderedIds = buildFittingIdList(coordination)
-                val request = AiFittingRequest(clothesIdList = orderedIds)
+                Log.d(TAG, "피팅 요청 ID 리스트: $orderedIds")
 
+                val request = AiFittingRequest(clothesIdList = orderedIds)
                 val response = repository.requestAiFitting(request)
+
+                Log.d(TAG, "API 응답 코드: ${response.code()}")
+                Log.d(TAG, "API 응답 성공 여부: ${response.isSuccessful}")
 
                 if (response.isSuccessful) {
                     val body = response.body()
-                    if (body != null && body.httpStatusCode == 201 && body.data != null) {
-                        _aiphotoUrl.value = body.data.aiphotoUrl
-                        _successMessage.value = body.responseMessage ?: "가상 피팅 성공"
-                        _stage.value = AiStylingStage.FITTING_DONE
+                    Log.d(TAG, "Response Body: $body")
+                    Log.d(TAG, "Body httpStatusCode: ${body?.httpStatusCode}")
+                    Log.d(TAG, "Body data: ${body?.data}")
+                    Log.d(TAG, "Body data.aiPhotoUrl: ${body?.data?.aiPhotoUrl}")
 
-                        Log.d(TAG, " 가상피팅 성공 / url=${body.data.aiphotoUrl}")
+                    if (body != null && body.httpStatusCode == 201 && body.data != null) {
+                        val photoUrl = body.data.aiPhotoUrl
+
+                        if (photoUrl.isNullOrBlank()) {
+                            _errorMessage.value = "가상피팅 이미지 URL이 비어있습니다."
+                            Log.e(TAG, "aiphotoUrl이 null 또는 빈 문자열")
+                        } else {
+                            _aiphotoUrl.value = photoUrl
+                            _successMessage.value = body.responseMessage ?: "가상 피팅 성공"
+                            _stage.value = AiStylingStage.FITTING_DONE
+                            Log.d(TAG, "가상피팅 성공 / url=$photoUrl")
+                        }
                     } else {
-                        _errorMessage.value = body?.errorMessage ?: "가상피팅 결과가 비어있습니다."
-                        Log.e(TAG, " 가상피팅 실패: Body 또는 데이터 null")
+                        val errorMsg = body?.errorMessage ?: "가상피팅 결과가 비어있습니다."
+                        _errorMessage.value = errorMsg
+                        Log.e(TAG, "가상피팅 실패: httpStatusCode=${body?.httpStatusCode}, data=${body?.data}")
                     }
                 } else {
+                    val errorBody = response.errorBody()?.string()
                     val errorMsg = when (response.code()) {
                         400 -> "유효하지 않는 사용자입니다."
                         401 -> "인증 실패 (토큰 만료 등)"
                         else -> "가상피팅에 실패했습니다. (${response.code()})"
                     }
                     _errorMessage.value = errorMsg
-                    Log.e(TAG, " 가상피팅 실패: $errorMsg")
+                    Log.e(TAG, "가상피팅 API 실패: code=${response.code()}, error=$errorBody")
                 }
             } catch (e: Exception) {
-                Log.e(TAG, " 가상피팅 예외", e)
+                _errorMessage.value = "가상피팅 중 오류가 발생했습니다: ${e.message}"
+                Log.e(TAG, "가상피팅 예외 발생", e)
             } finally {
                 _isLoading.value = false
                 _loadingType.value = null
                 fittingJob = null
-                Log.d(TAG, "가상피팅 종료")
+                Log.d(TAG, "가상피팅 작업 종료")
             }
         }
     }
