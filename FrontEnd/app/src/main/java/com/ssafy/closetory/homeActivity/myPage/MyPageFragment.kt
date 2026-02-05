@@ -211,13 +211,6 @@ class MyPageFragment :
                     ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
                     ApplicationClass.sharedPreferences.clearUserNickName()
 
-                    Log.d(
-                        TAG,
-                        "로그아웃 이후 값 확인 : userNickName=${ApplicationClass.sharedPreferences.getUserNickName()}, userId=${ApplicationClass.sharedPreferences.getUserId(
-                            ApplicationClass.USERID
-                        )}"
-                    )
-
                     val intent = Intent(requireContext(), AuthActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
@@ -325,12 +318,12 @@ class MyPageFragment :
                 ApplicationClass.sharedPreferences.clearUserNickName()
                 ApplicationClass.sharedPreferences.clearUserId(ApplicationClass.USERID)
 
-                Log.d(
-                    TAG,
-                    "회원 탈퇴 이후 값 확인 : userNickName=${ApplicationClass.sharedPreferences.getUserNickName()}, userId=${ApplicationClass.sharedPreferences.getUserId(
-                        ApplicationClass.USERID
-                    )}"
-                )
+//                Log.d(
+//                    TAG,
+//                    "회원 탈퇴 이후 값 확인 : userNickName=${ApplicationClass.sharedPreferences.getUserNickName()}, userId=${ApplicationClass.sharedPreferences.getUserId(
+//                        ApplicationClass.USERID
+//                    )}"
+//                )
 
                 moveToLogin()
             }
@@ -403,6 +396,21 @@ class MyPageFragment :
         pieChart.setNoDataText("")
         pieChart.setNoDataTextColor(Color.BLACK)
         pieChart.setUsePercentValues(true)
+
+        val borderColor = requireContext().getColor(R.color.gray_300)
+        val borderWidth = 2.5f
+        val renderer = pieChart.renderer
+        if (renderer is com.ssafy.closetory.util.PieSliceBorderRenderer) {
+            renderer.updateBorder(borderColor, borderWidth)
+        } else {
+            pieChart.renderer = com.ssafy.closetory.util.PieSliceBorderRenderer(
+                pieChart,
+                pieChart.animator,
+                pieChart.viewPortHandler,
+                borderColor,
+                borderWidth
+            )
+        }
 
         pieChart.setDrawEntryLabels(false)
         pieChart.setDrawCenterText(false)
