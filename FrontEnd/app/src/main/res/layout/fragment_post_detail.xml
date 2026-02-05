@@ -71,6 +71,18 @@
                     app:layout_constraintTop_toTopOf="@id/ivProfile"
                     app:layout_constraintBottom_toBottomOf="@id/ivProfile" />
 
+                <TextView
+                    android:id="@+id/tvCreatedAt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="2dp"
+                    android:text="2026-02-05 12:34"
+                    android:textColor="@color/gray_500"
+                    android:textSize="10sp"
+                    app:layout_constraintStart_toEndOf="@id/ivProfile"
+                    app:layout_constraintTop_toBottomOf="@id/tvAuthor" />
+
                 <!-- 우측: 조회수/좋아요 -->
                 <LinearLayout
                     android:id="@+id/layoutStats"

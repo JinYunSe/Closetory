@@ -12,7 +12,7 @@ import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.databinding.ItemCommentBinding
 import com.ssafy.closetory.dto.CommentDto
-import kotlin.math.log
+import com.ssafy.closetory.util.DateTimeFormat
 
 private val TAG = "CommentAdapter_싸피"
 class CommentAdapter(
@@ -26,7 +26,7 @@ class CommentAdapter(
         fun bind(comment: CommentDto) {
             binding.tvNickname.text = comment.nickname
             binding.tvContent.text = comment.content
-            binding.tvCreatedAt.text = formatCreatedAt(comment.createdAt)
+            binding.tvCreatedAt.text = DateTimeFormat.formatCreatedAt(comment.createdAt)
 
             // 프로필 이미지 로드
             Glide.with(binding.root.context)
@@ -80,17 +80,6 @@ class CommentAdapter(
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
         holder.bind(getItem(position))
-    }
-
-    private fun formatCreatedAt(raw: String?): String {
-        if (raw.isNullOrBlank()) return ""
-        val s = raw.trim().replace("T", " ")
-        val spaceIdx = s.indexOf(' ')
-        if (spaceIdx == -1) return s
-        val datePart = s.substring(0, spaceIdx)
-        val timePart = s.substring(spaceIdx + 1)
-        val hhmm = timePart.take(5)
-        return if (hhmm.length == 5) "$datePart $hhmm" else s
     }
 
     private class CommentDiffCallback : DiffUtil.ItemCallback<CommentDto>() {
