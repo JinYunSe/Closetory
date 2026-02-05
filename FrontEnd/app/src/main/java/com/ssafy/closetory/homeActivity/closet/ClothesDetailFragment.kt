@@ -120,7 +120,7 @@ class ClothesDetailFragment :
                 .into(binding.ivPhoto)
 
             binding.tvType.text = ClothTypeOptions.englishToKorean(item.clothesType)
-            binding.tvSeasons.text = item.seasons?.joinToString(" · ")
+            binding.tvSeasons.text = formatSeasons(item.seasons)
             binding.tvColor.text = ColorOptions.englishToKorean(item.color)
 
             // tags chip
@@ -234,6 +234,24 @@ class ClothesDetailFragment :
             R.id.action_clothes_detail_to_registration,
             bundle
         )
+    }
+
+    private fun formatSeasons(seasons: List<String>?): String {
+        if (seasons.isNullOrEmpty()) return ""
+
+        val codeToLabel = mapOf(
+            1 to "봄",
+            2 to "여름",
+            3 to "가을",
+            4 to "겨울"
+        )
+
+        return seasons
+            .mapNotNull { SeasonOptions.toCode(it) }
+            .distinct()
+            .sorted()
+            .mapNotNull { codeToLabel[it] }
+            .joinToString(" · ")
     }
 }
 

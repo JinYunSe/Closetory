@@ -24,16 +24,23 @@ class MyPageRepository {
             EditProfilePasswordCheckRequest(password)
         )
 
-        return if (res.isSuccessful && res.body() != null) {
-            res.body()!!
-        } else {
-            ApiResponse(
-                httpStatusCode = res.code(),
-                responseMessage = null,
-                errorMessage = res.errorBody()?.string(),
-                data = null
-            )
+        // 성공이면 그냥 body()
+        res.body()?.let { return it }
+
+        // 실패면 errorBody를 ApiResponse<Unit>로 파싱 시도
+        val converter = ApplicationClass.retrofit
+            .responseBodyConverter<ApiResponse<Unit>>(ApiResponse::class.java, emptyArray())
+
+        val parsedError: ApiResponse<Unit>? = res.errorBody()?.let { body ->
+            runCatching { converter.convert(body) }.getOrNull()
         }
+
+        return parsedError ?: ApiResponse(
+            httpStatusCode = res.code(),
+            responseMessage = null,
+            errorMessage = "비밀번호가 올바르지 않습니다.", // 파싱 실패시 fallback
+            data = null
+        )
     }
 
     suspend fun logout() = service.logout()

@@ -9,11 +9,10 @@
         android:id="@+id/card_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:cardCornerRadius="18dp"
+        app:cardCornerRadius="12dp"
         app:cardUseCompatPadding="false"
         app:cardPreventCornerOverlap="false"
         app:cardElevation="0dp"
-        app:strokeWidth="0dp"
         app:cardBackgroundColor="@android:color/transparent">
 
         <FrameLayout
