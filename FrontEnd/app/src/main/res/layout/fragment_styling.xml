@@ -432,8 +432,7 @@
             android:layout_weight="1"
             android:text="AI 가상피팅"
             android:background="@drawable/bg_login_button_black"
-            android:textColor="@android:color/white"
-            app:backgroundTint="@null"
+            android:textColor="@color/styling_text_color"
             app:icon="@drawable/img_ai_logo"
             app:iconSize="18dp"
             app:iconGravity="textStart"/>
