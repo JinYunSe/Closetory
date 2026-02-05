@@ -409,7 +409,7 @@ class StylingFragment :
             StylingStage.SELECTING -> {
                 binding.btnStylingRegister.text = "AI 가상피팅"
                 binding.btnStylingRegister.isEnabled = false
-                binding.btnStylingRegister.alpha = 0.4f
+                binding.btnStylingRegister.alpha = 0.6f
             }
 
             StylingStage.FITTING_READY -> {
@@ -644,4 +644,3 @@ class StylingFragment :
         // Fragment 파괴 시에는 초기화하지 않음
     }
 }
-
