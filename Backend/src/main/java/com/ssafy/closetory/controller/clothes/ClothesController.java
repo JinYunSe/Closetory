@@ -122,9 +122,9 @@ public class ClothesController {
   @Operation(summary = "옷 보정하기")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<Map<String, String>>> editingImage(
-    @RequestParam("photoUrl") String photoUrl
+    @RequestBody ClothesEditingRequest request
   ) {
-    String result = clothesService.createEditingImage(photoUrl);
+    String result = clothesService.createEditingImage(request.photoUrl());
     return ResponseEntity.status(HttpStatus.CREATED)
       .body(ApiResponse.ok(201, "옷 보정 하기 성공", Map.of("photoUrl",result)));
   }
