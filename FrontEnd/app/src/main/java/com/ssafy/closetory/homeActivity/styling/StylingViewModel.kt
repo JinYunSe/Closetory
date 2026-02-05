@@ -139,15 +139,15 @@ class StylingViewModel : ViewModel() {
                     Log.d(TAG, "📦 응답 body: $body")
 
                     if (body != null && body.httpStatusCode == 201 && body.data != null) {
-                        val photoUrl = body.data.aiphotoUrl
+                        val photoUrl = body.data.aiPhotoUrl
 
                         if (!photoUrl.isNullOrBlank()) {
                             _aiphotoUrl.value = photoUrl
                             _successMessage.value = body.responseMessage ?: "가상 피팅 성공!"
                             _stage.value = StylingStage.FITTING_DONE
 
-                            Log.d(TAG, "✅ 가상피팅 성공!")
-                            Log.d(TAG, "🖼️ 이미지 URL: $photoUrl")
+                            Log.d(TAG, "가상피팅 성공!")
+                            Log.d(TAG, "이미지 URL: $photoUrl")
                         } else {
                             _errorMessage.value = "AI 이미지 URL이 비어있습니다."
                             Log.e(TAG, "❌ aiphotoUrl이 null 또는 빈 값")
@@ -385,5 +385,3 @@ class StylingViewModel : ViewModel() {
         Log.d(TAG, "🧹 ViewModel cleared - 모든 Job 취소")
     }
 }
-
-

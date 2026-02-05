@@ -22,28 +22,45 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:gravity="end"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="16dp"
-            >
+            android:gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="16dp">
 
+            <!-- 뒤로가기 버튼 -->
+            <TextView
+                android:id="@+id/btn_back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="뒤로가기"
+                android:gravity="center"
+                android:text="&lt;"
+                android:textColor="@color/main_color"
+                android:textSize="20sp"/>
+
+            <!-- 중앙 공간 -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+
+            <!-- 수정 버튼 -->
             <ImageButton
                 android:id="@+id/ibtn_edit"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:layout_marginEnd="4dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="수정"
                 android:scaleType="centerInside"
                 android:src="@drawable/baseline_edit_24" />
 
+            <!-- 삭제 버튼 -->
             <ImageButton
                 android:id="@+id/ibtn_delete"
-                android:layout_width="30dp"
+                android:layout_width="25dp"
                 android:layout_height="30dp"
                 android:layout_marginStart="4dp"
-                android:layout_marginEnd="16dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="삭제"
                 android:scaleType="centerInside"
@@ -85,8 +102,8 @@
                         android:id="@+id/iv_photo"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#E6E6E6"
-                        android:scaleType="centerCrop"
+                        android:background="#FFFFFF"
+                        android:scaleType="fitCenter"
                         tools:src="@tools:sample/backgrounds/scenic" />
 
                     <ImageButton

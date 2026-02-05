@@ -69,8 +69,8 @@
 
     <ImageView
         android:id="@+id/iv_edit"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="4dp"
         android:src="@drawable/baseline_edit_24"
@@ -79,8 +79,8 @@
 
     <ImageView
         android:id="@+id/iv_delete"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="20dp"
+        android:layout_height="25dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="4dp"
         android:src="@drawable/baseline_delete_24"
