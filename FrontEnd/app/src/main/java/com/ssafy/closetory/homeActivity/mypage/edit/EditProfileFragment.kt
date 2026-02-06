@@ -173,12 +173,12 @@ class EditProfileFragment :
         ApplicationClass.sharedPreferences.putBodyPhotoUrl(user.bodyPhotoUrl)
 
         if (user.profilePhotoUrl.isNullOrBlank()) {
-            binding.imgProfile.setImageResource(R.drawable.ic_profile_default)
+            binding.imgProfile.setImageResource(R.drawable.ic_my_page_fill)
         } else {
             Glide.with(this)
                 .load(user.profilePhotoUrl)
-                .placeholder(R.drawable.ic_profile_default)
-                .error(R.drawable.ic_profile_default)
+                .placeholder(R.drawable.ic_my_page_fill)
+                .error(R.drawable.ic_my_page_fill)
                 .into(binding.imgProfile)
         }
 
@@ -488,4 +488,3 @@ class EditProfileFragment :
         return !isVisible
     }
 }
-

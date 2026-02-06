@@ -44,7 +44,7 @@ class Top3ClothesAdapter : ListAdapter<Top3ClothesResponse, Top3ClothesAdapter.T
             }
 
             // 착용 횟수 표시
-            binding.tvUsageCount.text = "${item.usageCount}회"
+            binding.tvUsageCount.text = "${item.usageCount}회 착용"
 
             // 옷 이미지 로드
             Glide.with(binding.root.context)

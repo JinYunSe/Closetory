@@ -48,6 +48,9 @@ class StylingFragment :
         observeViewModel()
         setupBackPressHandler()
 
+        restoreSlotsFromViewModel()
+        viewModel.syncStageWithCurrentState()
+
         viewModel.loadClothItems(onlyMine = false)
     }
 
@@ -223,12 +226,12 @@ class StylingFragment :
             }
 
             StylingStage.FITTING_DONE -> {
-                // 등록 (저장)
-                saveLook()
+                // 자동 저장 이후: 코디 히스토리로 이동
+                navigateToLookStorage()
             }
 
             StylingStage.SAVED -> {
-                // 🆕 저장 완료 후 - 코디저장소로 이동
+                // 저장 완료 후 - 코디저장소로 이동
                 navigateToLookStorage()
             }
         }
@@ -291,7 +294,7 @@ class StylingFragment :
     }
 
     private fun updateSwitchText(isChecked: Boolean) {
-        binding.tvSwitchOwnedOnly.text = if (isChecked) "내 옷만" else "모든 옷"
+        binding.tvSwitchOwnedOnly.text = "내 옷만"
     }
 
     /**
@@ -334,6 +337,7 @@ class StylingFragment :
             if (photoUrl != null) {
                 Log.d(TAG, "AiphotoUrl 수신: $photoUrl")
                 showAiFittingResult(photoUrl)
+                autoSaveLookIfNeeded()
             }
         }
 
@@ -377,18 +381,18 @@ class StylingFragment :
 
         when (stage) {
             StylingStage.SELECTING -> {
-                binding.btnStylingRegister.text = "AI 가상피팅"
+                binding.btnStylingRegister.text = "가상 피팅"
                 binding.btnStylingRegister.isEnabled = false
                 binding.btnStylingRegister.alpha = 0.6f
             }
 
             StylingStage.FITTING_READY -> {
                 if (isLoading) {
-                    binding.btnStylingRegister.text = "가상피팅중"
+                    binding.btnStylingRegister.text = "피팅 중"
                     binding.btnStylingRegister.isEnabled = false
                     binding.btnStylingRegister.alpha = 0.5f
                 } else {
-                    binding.btnStylingRegister.text = "AI 가상피팅"
+                    binding.btnStylingRegister.text = "가상 피팅"
                     binding.btnStylingRegister.isEnabled = true
                     binding.btnStylingRegister.alpha = 1.0f
                 }
@@ -400,7 +404,7 @@ class StylingFragment :
                     binding.btnStylingRegister.isEnabled = false
                     binding.btnStylingRegister.alpha = 0.5f
                 } else {
-                    binding.btnStylingRegister.text = "등록"
+                    binding.btnStylingRegister.text = "히스토리"
                     binding.btnStylingRegister.isEnabled = true
                     binding.btnStylingRegister.alpha = 1.0f
                 }
@@ -408,7 +412,7 @@ class StylingFragment :
 
             StylingStage.SAVED -> {
                 // 🆕 저장 완료 상태 - 코디 저장소 가기
-                binding.btnStylingRegister.text = "📦 코디 저장소 가기"
+                binding.btnStylingRegister.text = "히스토리"
                 binding.btnStylingRegister.isEnabled = true
                 binding.btnStylingRegister.alpha = 1.0f
             }
@@ -421,6 +425,43 @@ class StylingFragment :
     private fun updateStageAfterSelection() {
         val hasSelection = viewModel.selectedSlots.values.any { it != null }
         viewModel.updateStageAfterSelection(hasSelection)
+    }
+
+    private fun restoreSlotsFromViewModel() {
+        val slots = listOf(
+            Triple("TOP", binding.ivSlotTop, binding.btnRemoveTop),
+            Triple("BOTTOM", binding.ivSlotBottom, binding.btnRemoveBottom),
+            Triple("SHOES", binding.ivSlotShoes, binding.btnRemoveShoes),
+            Triple("OUTER", binding.ivSlotOuter, binding.btnRemoveOuter),
+            Triple("ACCESSORIES", binding.ivSlotAcc, binding.btnRemoveAcc),
+            Triple("BAG", binding.ivSlotBag, binding.btnRemoveBag)
+        )
+
+        slots.forEach { (type, imageView, removeButton) ->
+            val item = viewModel.selectedSlots[type]
+            if (item == null) {
+                Glide.with(this).clear(imageView)
+                imageView.setImageDrawable(null)
+                imageView.setBackgroundResource(R.drawable.bg_slot_empty)
+                removeButton.visibility = View.GONE
+            } else {
+                val photoUrl = if (item.photoUrl.startsWith("http")) {
+                    item.photoUrl
+                } else {
+                    "${ApplicationClass.API_BASE_URL}${item.photoUrl}"
+                }
+
+                Glide.with(this)
+                    .load(photoUrl)
+                    .placeholder(R.drawable.bg_slot_empty)
+                    .error(R.drawable.bg_slot_empty)
+                    .centerInside()
+                    .into(imageView)
+
+                imageView.background = null
+                removeButton.visibility = View.VISIBLE
+            }
+        }
     }
 
     /**
@@ -541,6 +582,22 @@ class StylingFragment :
         viewModel.saveLook(clothesIdList)
     }
 
+    private fun autoSaveLookIfNeeded() {
+        val clothesIdList = listOf(
+            viewModel.selectedSlots["TOP"]?.clothesId ?: -1,
+            viewModel.selectedSlots["BOTTOM"]?.clothesId ?: -1,
+            viewModel.selectedSlots["SHOES"]?.clothesId ?: -1,
+            viewModel.selectedSlots["OUTER"]?.clothesId ?: -1,
+            viewModel.selectedSlots["ACCESSORIES"]?.clothesId ?: -1,
+            viewModel.selectedSlots["BAG"]?.clothesId ?: -1
+        )
+
+        if (clothesIdList.all { it == -1 }) return
+
+        Log.d(TAG, "autoSaveLook 호출: $clothesIdList")
+        viewModel.saveLook(clothesIdList, autoSave = true)
+    }
+
     /**
      * AI 가상피팅 요청
      */
@@ -580,20 +637,14 @@ class StylingFragment :
         val storedBodyPhotoUrl = ApplicationClass.sharedPreferences.getBodyPhotoUrl()
         val bodyPhotoUrl = cachedBodyPhotoUrl ?: storedBodyPhotoUrl
 
-        if (profile == null && !bodyPhotoUrl.isNullOrBlank()) {
-            return true
-        }
+        if (!bodyPhotoUrl.isNullOrBlank()) return true
 
         if (profile == null) {
             val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
             if (userId != -1) {
                 myPageViewModel.loadUserProfile(userId)
             }
-            Toast.makeText(requireContext(), "프로필 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
-            return false
         }
-
-        if (!bodyPhotoUrl.isNullOrBlank()) return true
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("전신 사진 필요")
@@ -652,7 +703,6 @@ class StylingFragment :
 
     override fun onStop() {
         super.onStop()
-        viewModel.resetAfterFittingDoneIfNeeded()
     }
 
     override fun onDestroyView() {

@@ -59,7 +59,7 @@
                     android:id="@+id/nav_icon_home"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_home_black_24dp"
+                    android:src="@drawable/ic_home_selector"
                     />
 
                 <TextView
@@ -85,7 +85,7 @@
                     android:id="@+id/nav_icon_closet"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_closet"
+                    android:src="@drawable/ic_closet_selector"
                     />
 
                 <TextView
@@ -117,7 +117,7 @@
                     android:id="@+id/nav_icon_styling"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_cody"
+                    android:src="@drawable/ic_cody_selector"
                     />
 
                 <TextView
@@ -143,7 +143,7 @@
                     android:id="@+id/nav_icon_my_page"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_my_page" />
+                    android:src="@drawable/ic_my_page_selector" />
 
                 <TextView
                     android:id="@+id/nav_text_my_page"
