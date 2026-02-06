@@ -6,5 +6,5 @@ import java.util.function.Supplier;
 public interface StatsCacheService {
   <T> T getOrLoad(String key, long ttlSeconds, TypeReference<T> typeRef, Supplier<T> loader);
 
-  void evictMonthlyStats(Integer userId, String yyyyMM);
+  void evictToday(Integer userId);
 }

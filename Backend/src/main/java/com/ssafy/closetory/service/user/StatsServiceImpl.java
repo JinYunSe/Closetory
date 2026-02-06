@@ -29,19 +29,19 @@ public class StatsServiceImpl implements StatsService {
     if (!userId.equals(authUserId)) {
       throw new ForbiddenException("자신의 통계만 볼 수 있습니다.");
     }
-    String yyyyMM = StatsCacheKey.yyyyMM(LocalDate.now());
-    String key = StatsCacheKey.top3(userId, yyyyMM);
-    long ttl = StatsCacheKey.ttlSecondsUntilNextMonthStart();
+
+    LocalDate today = LocalDate.now();
+    String date = StatsCacheKey.date(today);
+    String key = StatsCacheKey.top3(userId, date);
+    long ttl = StatsCacheKey.ttlSecondsUntilTomorrowStart();
 
     return statsCacheService.getOrLoad(
         key,
         ttl,
         new TypeReference<List<Top3Item>>() {},
         () -> {
-          LocalDate start = LocalDate.now().withDayOfMonth(1);
-          LocalDate end = start.plusMonths(1);
-
-          List<Top3Row> rows = lookRepository.findTop3ThisMonth(userId, start, end);
+          DateRange range = rolling30Range(today);
+          List<Top3Row> rows = lookRepository.findTop3Between(userId, range.start(), range.end());
           int[] rank = {1};
           return rows.stream()
               .map(
@@ -57,19 +57,19 @@ public class StatsServiceImpl implements StatsService {
       throw new ForbiddenException("자신의 통계만 볼 수 있습니다.");
     }
 
-    String yyyyMM = StatsCacheKey.yyyyMM(LocalDate.now());
-    String key = StatsCacheKey.tagRatio(userId, yyyyMM);
-    long ttl = StatsCacheKey.ttlSecondsUntilNextMonthStart();
+    LocalDate today = LocalDate.now();
+    String date = StatsCacheKey.date(today);
+    String key = StatsCacheKey.tagRatio(userId, date);
+    long ttl = StatsCacheKey.ttlSecondsUntilTomorrowStart();
 
     return statsCacheService.getOrLoad(
         key,
         ttl,
         new TypeReference<List<TagStatsItem>>() {},
         () -> {
-          LocalDate start = LocalDate.now().withDayOfMonth(1);
-          LocalDate end = start.plusMonths(1);
-
-          List<StatsRow> rows = lookRepository.findTagStatsThisMonth(userId, start, end);
+          DateRange range = rolling30Range(today);
+          List<StatsRow> rows =
+              lookRepository.findTagStatsBetween(userId, range.start(), range.end());
           return rows.stream().map(r -> new TagStatsItem(r.getName(), r.getPercentage())).toList();
         });
   }
@@ -80,22 +80,30 @@ public class StatsServiceImpl implements StatsService {
       throw new ForbiddenException("자신의 통계만 볼 수 있습니다.");
     }
 
-    String yyyyMM = StatsCacheKey.yyyyMM(LocalDate.now());
-    String key = StatsCacheKey.colorRatio(userId, yyyyMM);
-    long ttl = StatsCacheKey.ttlSecondsUntilNextMonthStart();
+    LocalDate today = LocalDate.now();
+    String date = StatsCacheKey.date(today);
+    String key = StatsCacheKey.colorRatio(userId, date);
+    long ttl = StatsCacheKey.ttlSecondsUntilTomorrowStart();
 
     return statsCacheService.getOrLoad(
         key,
         ttl,
         new TypeReference<List<ColorStatsItem>>() {},
         () -> {
-          LocalDate start = LocalDate.now().withDayOfMonth(1);
-          LocalDate end = start.plusMonths(1);
-
-          List<StatsRow> rows = lookRepository.findColorStatsThisMonth(userId, start, end);
+          DateRange range = rolling30Range(today);
+          List<StatsRow> rows =
+              lookRepository.findColorStatsBetween(userId, range.start(), range.end());
           return rows.stream()
               .map(r -> new ColorStatsItem(r.getName(), r.getPercentage()))
               .toList();
         });
   }
+
+  private DateRange rolling30Range(LocalDate today) {
+    LocalDate start = today.minusDays(29);
+    LocalDate end = today.plusDays(1);
+    return new DateRange(start, end);
+  }
+
+  private record DateRange(LocalDate start, LocalDate end) {}
 }

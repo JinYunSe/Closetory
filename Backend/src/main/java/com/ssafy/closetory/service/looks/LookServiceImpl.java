@@ -15,7 +15,6 @@ import com.ssafy.closetory.exception.common.BadRequestException;
 import com.ssafy.closetory.exception.common.ForbiddenException;
 import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
-import com.ssafy.closetory.service.cache.StatsCacheKey;
 import com.ssafy.closetory.service.cache.StatsCacheService;
 import com.ssafy.closetory.service.clothes.ClothesService;
 import com.ssafy.closetory.service.s3.S3ImageService;
@@ -102,8 +101,8 @@ public class LookServiceImpl implements LookService {
       }
     }
 
-    builder.part("height",(int) user.getHeight());
-    builder.part("weight",(int) user.getWeight());
+    builder.part("height", (int) user.getHeight());
+    builder.part("weight", (int) user.getWeight());
 
     try {
       byte[] response =
@@ -172,7 +171,7 @@ public class LookServiceImpl implements LookService {
       posts = postRepository.findLikedPostsByUserIdAndFavoriteTags(userId, limit);
 
       if (posts.isEmpty()) {
-        posts = postRepository.findLikedPostsByUserId(userId,limit);
+        posts = postRepository.findLikedPostsByUserId(userId, limit);
       }
     } else {
       posts = postRepository.findWrittenPostsByUserId(userId, limit);
@@ -419,8 +418,6 @@ public class LookServiceImpl implements LookService {
       throw new ForbiddenException("자신의 룩만 수정할 수 있습니다.");
     }
 
-    LocalDate oldDate = look.getDate();
-
     lookRepository
         .findByUserIdAndDate(userId, request.date())
         .ifPresent(lookOnSameDate -> lookOnSameDate.setDate(null));
@@ -437,7 +434,7 @@ public class LookServiceImpl implements LookService {
 
     look.setDate(request.date());
 
-    evictMonthlyStats(userId, oldDate, request.date());
+    statsCacheService.evictToday(userId);
   }
 
   @Override
@@ -459,16 +456,7 @@ public class LookServiceImpl implements LookService {
     lookRepository.delete(look);
 
     if (date != null) {
-      evictMonthlyStats(userId, date, null);
-    }
-  }
-
-  private void evictMonthlyStats(Integer userId, LocalDate oldDate, LocalDate newDate) {
-    if (oldDate != null) {
-      statsCacheService.evictMonthlyStats(userId, StatsCacheKey.yyyyMM(oldDate));
-    }
-    if (newDate != null) {
-      statsCacheService.evictMonthlyStats(userId, StatsCacheKey.yyyyMM(newDate));
+      statsCacheService.evictToday(userId);
     }
   }
 }
