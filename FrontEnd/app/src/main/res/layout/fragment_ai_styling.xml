@@ -310,11 +310,12 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!--  AI 추천 로딩 애니메이션 (슬롯 영역 중앙)  -->
-        <VideoView
+        <ImageView
             android:id="@+id/vv_ai_loading"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:layout_gravity="center"
+            android:scaleType="centerInside"
             android:visibility="gone"/>
 
         <!--  가상피팅 결과 팝업  -->
@@ -343,11 +344,12 @@
                 android:src="@drawable/ic_cancel"/>
 
             <!--  AI 가상피팅 로딩 애니메이션  -->
-            <VideoView
+            <ImageView
                 android:id="@+id/vv_ai_fitting"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_gravity="center"
+                android:scaleType="centerInside"
                 android:visibility="gone"/>
 
         </FrameLayout>

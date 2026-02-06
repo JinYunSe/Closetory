@@ -82,6 +82,11 @@ android {
 }
 
 dependencies {
+
+    // Glide for GIF
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
     // 비디오 의존성
     implementation("com.airbnb.android:lottie:6.1.0")
 
