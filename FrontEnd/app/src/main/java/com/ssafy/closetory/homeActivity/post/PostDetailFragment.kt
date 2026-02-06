@@ -108,6 +108,11 @@ class PostDetailFragment :
 
     private fun setupCommentsRecycler() {
         commentAdapter = CommentAdapter(
+            onProfileClick = { url ->
+                if (url.isNullOrBlank()) return@CommentAdapter
+                PostPhotoDialogFragment.newInstance(url.trim())
+                    .show(parentFragmentManager, "comment_profile_dialog")
+            },
             onEditClick = { comment -> showEditCommentDialog(comment) },
             onDeleteClick = { comment -> confirmDeleteComment(comment) }
         )
