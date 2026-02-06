@@ -11,7 +11,7 @@
         <item name="android:maxLines">2</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">none</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">10sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 

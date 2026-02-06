@@ -75,19 +75,20 @@
                 android:id="@+id/llStats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
+                android:layout_gravity="center_vertical"
                 android:orientation="horizontal"
                 android:layout_marginTop="8dp"
+                android:padding="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 app:layout_constraintBottom_toBottomOf="parent">
 
-                <TextView
-                    android:id="@+id/tvCommentIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="💬"
-                    android:textSize="10sp" />
+                <ImageView
+                    android:id="@+id/ivCommentIcon"
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:layout_marginStart="6dp"
+                    android:src="@drawable/comment_empty"/>
 
                 <TextView
                     android:id="@+id/tvCommentCount"
@@ -96,6 +97,7 @@
                     android:layout_marginStart="2dp"
                     android:textColor="#000000"
                     android:textSize="10sp"
+                    android:includeFontPadding="false"
                     tools:text="10"  />
 
                 <ImageView
@@ -112,6 +114,7 @@
                     android:layout_marginStart="2dp"
                     android:textColor="#000000"
                     android:textSize="10sp"
+                    android:includeFontPadding="false"
                     tools:text="10" />
 
             </LinearLayout>
