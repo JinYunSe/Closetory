@@ -667,20 +667,14 @@ class StylingFragment :
         val storedBodyPhotoUrl = ApplicationClass.sharedPreferences.getBodyPhotoUrl()
         val bodyPhotoUrl = cachedBodyPhotoUrl ?: storedBodyPhotoUrl
 
-        if (profile == null && !bodyPhotoUrl.isNullOrBlank()) {
-            return true
-        }
+        if (!bodyPhotoUrl.isNullOrBlank()) return true
 
         if (profile == null) {
             val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
             if (userId != -1) {
                 myPageViewModel.loadUserProfile(userId)
             }
-            Toast.makeText(requireContext(), "프로필 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
-            return false
         }
-
-        if (!bodyPhotoUrl.isNullOrBlank()) return true
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("전신 사진 필요")

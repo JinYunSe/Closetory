@@ -50,7 +50,6 @@
                     android:id="@+id/imgProfile"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#E0E0E0"
                     android:contentDescription="프로필 사진"
                     android:scaleType="centerCrop"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.Circle" />
@@ -68,7 +67,6 @@
                     android:id="@+id/imgBody"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#E0E0E0"
                     android:contentDescription="전신 사진"
                     android:scaleType="fitCenter" />
             </FrameLayout>
