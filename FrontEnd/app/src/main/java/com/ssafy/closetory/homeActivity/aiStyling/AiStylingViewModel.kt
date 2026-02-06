@@ -37,8 +37,8 @@ class AiStylingViewModel : ViewModel() {
     private val _aiReason = MutableLiveData<String?>()
     val aiReason: LiveData<String?> = _aiReason
 
-    private val _aiphotoUrl = MutableLiveData<String?>()
-    val aiphotoUrl: LiveData<String?> = _aiphotoUrl
+    private val _aiPhotoUrl = MutableLiveData<String?>()
+    val aiPhotoUrl: LiveData<String?> = _aiPhotoUrl
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
@@ -78,10 +78,13 @@ class AiStylingViewModel : ViewModel() {
 
                 if (response.isSuccessful) {
                     val body = response.body()
-                    if (body != null && body.httpStatusCode == 201 && body.data != null) {
-                        _aiCoordination.value = body.data
-                        _aiReason.value = body.data.aiReason
-                        _successMessage.value = body.responseMessage ?: "AI 코디가 완성 됐습니다"
+                    val isOk = body != null &&
+                        body.data != null &&
+                        (body.httpStatusCode in 200..299)
+                    if (isOk) {
+                        _aiCoordination.value = body?.data
+                        _aiReason.value = body?.data?.aiReason
+                        _successMessage.value = body?.responseMessage ?: "AI 코디가 완성 됐습니다"
                         _stage.value = AiStylingStage.FITTING_READY
 
                         Log.d(TAG, " AI 추천 성공 / stage=FITTING_READY")
@@ -100,6 +103,7 @@ class AiStylingViewModel : ViewModel() {
                     Log.e(TAG, " AI 추천 실패: $errorMsg")
                 }
             } catch (e: Exception) {
+                _errorMessage.value = "AI recommendation error: ${e.message}"
                 Log.e(TAG, " AI 추천 예외", e)
             } finally {
                 _isLoading.value = false
@@ -133,6 +137,11 @@ class AiStylingViewModel : ViewModel() {
                 Log.d(TAG, "가상피팅 시작")
 
                 val orderedIds = buildFittingIdList(coordination)
+                if (orderedIds.any { it == -1 }) {
+                    _errorMessage.value = "Missing clothesId in fitting list."
+                    Log.e(TAG, "???? ??: missing clothesId in list $orderedIds")
+                    return@launch
+                }
                 Log.d(TAG, "피팅 요청 ID 리스트: $orderedIds")
 
                 val request = AiFittingRequest(clothesIdList = orderedIds)
@@ -148,14 +157,14 @@ class AiStylingViewModel : ViewModel() {
                     Log.d(TAG, "Body data: ${body?.data}")
                     Log.d(TAG, "Body data.aiPhotoUrl: ${body?.data?.aiPhotoUrl}")
 
-                    if (body != null && body.httpStatusCode == 201 && body.data != null) {
+                    if (body != null && body.data != null && (body.httpStatusCode in 200..299)) {
                         val photoUrl = body.data.aiPhotoUrl
 
                         if (photoUrl.isNullOrBlank()) {
                             _errorMessage.value = "가상피팅 이미지 URL이 비어있습니다."
-                            Log.e(TAG, "aiphotoUrl이 null 또는 빈 문자열")
+                            Log.e(TAG, "aiPhotoUrl이 null 또는 빈 문자열")
                         } else {
-                            _aiphotoUrl.value = photoUrl
+                            _aiPhotoUrl.value = photoUrl
                             _successMessage.value = body.responseMessage ?: "가상 피팅 성공"
                             _stage.value = AiStylingStage.FITTING_DONE
                             Log.d(TAG, "가상피팅 성공 / url=$photoUrl")
@@ -195,8 +204,8 @@ class AiStylingViewModel : ViewModel() {
             return
         }
 
-        val aiphotoUrl = _aiphotoUrl.value
-        if (aiphotoUrl.isNullOrBlank()) {
+	    val aiPhotoUrl = _aiPhotoUrl.value
+	    if (aiPhotoUrl.isNullOrBlank()) {
             _errorMessage.value = "AI 이미지가 아직 생성되지 않았습니다. 먼저 가상 피팅을 진행해 주세요."
             return
         }
@@ -217,7 +226,7 @@ class AiStylingViewModel : ViewModel() {
                 val clothesIds = coordination.clothesIdList.map { it.clothesId }
                 val request = SaveLookRequest(
                     clothesIdList = clothesIds,
-                    aiphotoUrl = aiphotoUrl,
+	                    aiPhotoUrl = aiPhotoUrl,
                     aiReason = _aiReason.value
                 )
 
@@ -255,7 +264,7 @@ class AiStylingViewModel : ViewModel() {
 
         _aiCoordination.value = null
         _aiReason.value = null
-        _aiphotoUrl.value = null
+        _aiPhotoUrl.value = null
         _stage.value = AiStylingStage.RECOMMEND
         _isLoading.value = false
         _loadingType.value = null
@@ -269,7 +278,12 @@ class AiStylingViewModel : ViewModel() {
         saveJob?.isActive == true
 
     private fun buildFittingIdList(coordination: AiCoordinationResponse): List<Int> {
-        val map = coordination.clothesIdList.associateBy { it.clothesType.uppercase() }
+        val map = coordination.clothesIdList.associateBy { type ->
+            when (type.clothesType.uppercase()) {
+                "ACC" -> "ACCESSORIES"
+                else -> type.clothesType.uppercase()
+            }
+        }
         val order = listOf("TOP", "BOTTOM", "SHOES", "OUTER", "ACCESSORIES", "BAG")
         return order.map { type -> map[type]?.clothesId ?: -1 }
     }

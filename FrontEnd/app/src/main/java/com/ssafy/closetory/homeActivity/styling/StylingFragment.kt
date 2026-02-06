@@ -360,7 +360,7 @@ class StylingFragment :
         }
 
         // AI 가상 피팅 결과 관찰
-        viewModel.aiphotoUrl.observe(viewLifecycleOwner) { photoUrl ->
+        viewModel.aiPhotoUrl.observe(viewLifecycleOwner) { photoUrl ->
             if (photoUrl != null) {
                 Log.d(TAG, "AiphotoUrl 수신: $photoUrl")
                 showAiFittingResult(photoUrl)
@@ -557,6 +557,12 @@ class StylingFragment :
 
         Log.d(TAG, "전송할 clothesIdList: $clothesIdList")
 
+        // TOP, BOTTOM, SHOES는 필수
+        if (clothesIdList[0] == -1 || clothesIdList[1] == -1 || clothesIdList[2] == -1) {
+            Toast.makeText(requireContext(), "상의, 하의, 신발은 필수로 선택해 주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (clothesIdList.all { it == -1 }) {
             Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해 주세요.", Toast.LENGTH_SHORT).show()
             return
@@ -576,11 +582,17 @@ class StylingFragment :
             viewModel.selectedSlots["BOTTOM"]?.clothesId ?: -1,
             viewModel.selectedSlots["SHOES"]?.clothesId ?: -1,
             viewModel.selectedSlots["OUTER"]?.clothesId ?: -1,
-            viewModel.selectedSlots["ACC"]?.clothesId ?: -1,
+            viewModel.selectedSlots["ACCESSORIES"]?.clothesId ?: -1,
             viewModel.selectedSlots["BAG"]?.clothesId ?: -1
         )
 
-        Log.d(TAG, "AI 피팅 요청 clothesIdList: $clothesIdList")
+        Log.d(TAG, "AI 피팅 요청 clothesIdList 요소: $clothesIdList")
+
+        // TOP, BOTTOM, SHOES는 필수
+        if (clothesIdList[0] == -1 || clothesIdList[1] == -1 || clothesIdList[2] == -1) {
+            Toast.makeText(requireContext(), "상의, 하의, 신발은 필수로 선택해 주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         if (clothesIdList.all { it == -1 }) {
             Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해 주세요.", Toast.LENGTH_SHORT).show()
