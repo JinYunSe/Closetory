@@ -42,7 +42,7 @@ class AiStylingFragment :
 
     private fun setupUI() {
         binding.tvStyleMode.text = if (binding.switchStyleMode.isChecked) "선호 룩" else "추천 룩"
-        binding.tvSwitchOwnedOnly.text = if (binding.switchSwitchOwnedOnly.isChecked) "내 옷만" else "모든 옷"
+        binding.tvSwitchOwnedOnly.text = "내 옷만"
         binding.tvAiMessage.text = "AI가 여기에 답변을 해줍니다."
         setupMouseWheelScroll()
     }
@@ -139,7 +139,7 @@ class AiStylingFragment :
         }
 
         binding.switchSwitchOwnedOnly.setOnCheckedChangeListener { _, isChecked ->
-            binding.tvSwitchOwnedOnly.text = if (isChecked) "내 옷만" else "모든 옷"
+            binding.tvSwitchOwnedOnly.text = "내 옷만"
         }
     }
 

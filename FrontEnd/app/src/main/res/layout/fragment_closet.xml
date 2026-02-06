@@ -13,22 +13,44 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:layout_marginTop="8dp"
-        android:gravity="end"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/tab_closet"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+
+        <TextView
+            android:layout_marginStart="16dp"
+            android:id="@+id/tv_total_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/main_color"
+            android:textStyle="bold"
+            android:text="" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/main_color"
+            android:textStyle="bold"
+            android:text="개" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
         <TextView
             android:id="@+id/tv_only_my_cloth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="0dp"
-            android:textColor="@color/main_color"
             android:text="내 옷만 보기"
+            android:textColor="@color/main_color"
             android:textSize="14sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/sw_only_my_cloth"
@@ -63,9 +85,7 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="상의"
-
-            />
+            android:text="상의" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -90,8 +110,7 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="소품류" />
-
+            android:text="악세" />
 
     </com.google.android.material.tabs.TabLayout>
 
@@ -105,8 +124,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tab_closet"
-        tools:listitem="@layout/item_clothes"
-        />
+        tools:listitem="@layout/item_clothes" />
 
     <TextView
         android:id="@+id/tv_empty_closet"

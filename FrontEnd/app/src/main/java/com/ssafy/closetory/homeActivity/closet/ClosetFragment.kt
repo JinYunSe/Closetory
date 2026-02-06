@@ -195,6 +195,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         }
         clothAdapter.submitList(list)
 
+        binding.tvTotalCount.text = list.size.toString()
         binding.glCloset.visibility = View.VISIBLE
         binding.tvEmptyCloset.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
     }

@@ -324,7 +324,7 @@ class StylingFragment :
     }
 
     private fun updateSwitchText(isChecked: Boolean) {
-        binding.tvSwitchOwnedOnly.text = if (isChecked) "내 옷만" else "모든 옷"
+        binding.tvSwitchOwnedOnly.text = "내 옷만"
     }
 
     /**
