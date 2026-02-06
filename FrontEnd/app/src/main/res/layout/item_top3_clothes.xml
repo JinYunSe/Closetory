@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                app:strokeWidth="1dp"
+                app:strokeWidth="1.5dp"
                 app:strokeColor="@color/gray_300"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayClosetoryMediumRounded"/>
 

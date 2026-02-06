@@ -89,8 +89,8 @@ class MyPageFragment :
         observeUserProfile()
         loadUserProfile()
 
-        binding.btnLogout.setOnClickListener { showLogoutDialog() }
-        binding.btnSignout.setOnClickListener { showSignoutDialog() }
+        binding.tvLogout.setOnClickListener { showLogoutDialog() }
+        binding.tvSignout.setOnClickListener { showSignoutDialog() }
         binding.tvEditProfile.setOnClickListener { showPasswordCheckDialog() }
 
         binding.btnCodyRepository.setOnClickListener {
