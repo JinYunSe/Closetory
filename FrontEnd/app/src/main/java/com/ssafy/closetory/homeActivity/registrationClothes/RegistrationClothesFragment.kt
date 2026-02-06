@@ -89,6 +89,29 @@ class RegistrationClothesFragment :
     // 새 사진 요청 구분용(늦게 온 maskedUrl 응답 무시)
     private var photoRequestToken: Long = 0L
 
+    private val dotHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private var dotRunnable: Runnable? = null
+    private var dotCount = 0
+
+    private fun startDotsAnimation(base: String) {
+        stopDotsAnimation()
+        dotCount = 0
+        dotRunnable = object : Runnable {
+            override fun run() {
+                dotCount = (dotCount % 3) + 1 // 1..3
+                val dots = ".".repeat(dotCount)
+                showPhotoPlaceholder("$base$dots")
+                dotHandler.postDelayed(this, 400) // 속도 조절 가능 (300~600)
+            }
+        }
+        dotHandler.post(dotRunnable!!)
+    }
+
+    private fun stopDotsAnimation() {
+        dotRunnable?.let { dotHandler.removeCallbacks(it) }
+        dotRunnable = null
+    }
+
     /**
      * 라벨 더 많이 받고 싶으면 threshold 낮추기(노이즈 증가).
      * 필요 없으면 DEFAULT_OPTIONS로 돌려도 됨.
@@ -424,6 +447,7 @@ class RegistrationClothesFragment :
     }
 
     override fun onDestroyView() {
+        stopDotsAnimation()
         photoGuideTooltip?.dismiss()
         photoGuideTooltip = null
         super.onDestroyView()
@@ -442,7 +466,10 @@ class RegistrationClothesFragment :
         // 옷 개선 요청 (선택 옵션)
         isMaskingInProgress = true
         binding.btnRegistrationClothes.isEnabled = false
-        showPhotoPlaceholder("옷 보정 중...")
+
+        // 점 애니메이션(. -> .. -> ...)으로 표시
+        startDotsAnimation("옷 보정 중")
+
         Glide.with(binding.imbtnRegistrationClothes).clear(binding.imbtnRegistrationClothes)
         binding.imbtnRegistrationClothes.setImageDrawable(null)
         photoRequestToken = System.currentTimeMillis()
@@ -499,7 +526,7 @@ class RegistrationClothesFragment :
         binding.btnRegistrationClothes.isEnabled = false
 
         viewModel.clearMaskedUrl()
-        showPhotoPlaceholder("배경 제거 중...")
+        startDotsAnimation("배경 제거 중")
 
         val clothesPhoto = ImageMultipartUtil.uriToCompressedMultipart(
             context = homeActivity,
@@ -612,6 +639,7 @@ class RegistrationClothesFragment :
                         target: Target<Drawable>,
                         isFirstResource: Boolean
                     ): Boolean {
+                        stopDotsAnimation()
                         isMaskingInProgress = false
                         binding.btnRegistrationClothes.isEnabled = false
                         showPhotoPlaceholder("사진 등록")
@@ -629,6 +657,8 @@ class RegistrationClothesFragment :
                     ): Boolean {
                         // ✅ 새 사진이 선택된 뒤에 늦게 온 응답이면 무시
                         if (tokenAtRequest != photoRequestToken) return false
+
+                        stopDotsAnimation()
 
                         isMaskingInProgress = false
                         binding.btnRegistrationClothes.isEnabled = true

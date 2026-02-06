@@ -28,12 +28,19 @@ class Top3ClothesAdapter : ListAdapter<Top3ClothesResponse, Top3ClothesAdapter.T
     inner class Top3ViewHolder(private val binding: ItemTop3ClothesBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Top3ClothesResponse) {
-            // 순위 표시
-            binding.tvRank.text = when (item.rank) {
-                1 -> "1위"
-                2 -> "2위"
-                3 -> "3위"
-                else -> "${item.rank}위"
+            // 순위 뱃지 이미지 (추가)
+            val badgeRes = when (item.rank) {
+                1 -> R.drawable.badge_rank_1
+                2 -> R.drawable.badge_rank_2
+                3 -> R.drawable.badge_rank_3
+                else -> null
+            }
+
+            if (badgeRes != null) {
+                binding.ivRank.visibility = android.view.View.VISIBLE
+                binding.ivRank.setImageResource(badgeRes)
+            } else {
+                binding.ivRank.visibility = android.view.View.GONE
             }
 
             // 착용 횟수 표시

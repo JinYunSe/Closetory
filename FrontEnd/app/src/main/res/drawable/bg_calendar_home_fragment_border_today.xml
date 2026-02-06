@@ -4,5 +4,5 @@
     <stroke
         android:width="3dp"
         android:color="@color/todayBorderColor"/>
-    <corners android:radius="10dp"/>
+    <corners android:radius="4dp"/>
 </shape>

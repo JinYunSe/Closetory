@@ -4,7 +4,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -32,6 +31,7 @@ import com.ssafy.closetory.databinding.FragmentMyPageBinding
 import com.ssafy.closetory.dto.EditProfileInfoResponse
 import com.ssafy.closetory.dto.StatisticsResponse
 import com.ssafy.closetory.homeActivity.mypage.signout.SignoutViewModel
+import com.ssafy.closetory.homeActivity.post.PostPhotoDialogFragment
 import com.ssafy.closetory.util.ColorOptions
 import com.ssafy.closetory.util.auth.AuthManager
 import java.lang.reflect.Field
@@ -59,6 +59,9 @@ class MyPageFragment :
     private lateinit var recentCodyAdapter: RecentCodyAdapter
     private val myPageViewModel: MyPageViewModel by viewModels()
     private val signoutViewModel: SignoutViewModel by viewModels()
+
+    private var profilePhotoUrl: String? = null
+    private var bodyPhotoUrl: String? = null
 
     private var passwordDialog: AlertDialog? = null
     private var userId = -1
@@ -140,8 +143,24 @@ class MyPageFragment :
         binding.tvHeight.text = "${user.height ?: 0} cm"
         binding.tvWeight.text = "${user.weight ?: 0} kg"
 
+        // URL 저장
+        profilePhotoUrl = user.profilePhotoUrl?.trim()
+        bodyPhotoUrl = user.bodyPhotoUrl?.trim()
+
         bindProfileImage(user.profilePhotoUrl)
         bindBodyImage(user.bodyPhotoUrl)
+
+        // 클릭하면 "그냥 사진만" 띄우기 (상세페이지 방식 그대로)
+        binding.ivProfile.setOnClickListener { openPhotoDialogIfExist(profilePhotoUrl) }
+        binding.ivBodyPhoto.setOnClickListener { openPhotoDialogIfExist(bodyPhotoUrl) }
+    }
+
+    // 사진 열기 함수
+    private fun openPhotoDialogIfExist(url: String?) {
+        val src = url?.trim()
+        if (src.isNullOrBlank()) return
+        PostPhotoDialogFragment.newInstance(src)
+            .show(parentFragmentManager, "photo_dialog")
     }
 
     private fun bindProfileImage(url: String?) {
