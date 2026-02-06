@@ -1,4 +1,4 @@
-package com.ssafy.closetory.homeActivity.aiStyling
+﻿package com.ssafy.closetory.homeActivity.aiStyling
 
 import android.net.Uri
 import android.os.Bundle
@@ -13,9 +13,11 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentAiStylingBinding
+import com.ssafy.closetory.homeActivity.mypage.MyPageViewModel
 import kotlin.math.roundToInt
 
 class AiStylingFragment :
@@ -26,6 +28,7 @@ class AiStylingFragment :
 
     // Activity 스코프로 ViewModel 공유
     private val viewModel: AiStylingViewModel by activityViewModels()
+    private val myPageViewModel: MyPageViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -38,7 +41,7 @@ class AiStylingFragment :
     }
 
     private fun setupUI() {
-        binding.tvStyleMode.text = if (binding.switchStyleMode.isChecked) "추구" else "어울림"
+        binding.tvStyleMode.text = if (binding.switchStyleMode.isChecked) "선호 룩" else "추천 룩"
         binding.tvSwitchOwnedOnly.text = if (binding.switchSwitchOwnedOnly.isChecked) "내 옷만" else "모든 옷"
         binding.tvAiMessage.text = "AI가 여기에 답변을 해줍니다."
         setupMouseWheelScroll()
@@ -78,7 +81,7 @@ class AiStylingFragment :
         }
 
         // AI 가상피팅 이미지
-        viewModel.aiphotoUrl.observe(viewLifecycleOwner) { url ->
+        viewModel.aiPhotoUrl.observe(viewLifecycleOwner) { url ->
             if (url.isNullOrBlank()) return@observe
 
             // 가상피팅 완료 시 팝업 열기
@@ -95,6 +98,18 @@ class AiStylingFragment :
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 viewModel.clearSuccessMessage()
+            }
+        }
+
+        // 코디저장소 이동 트리거
+        viewModel.navigateToLookStorage.observe(viewLifecycleOwner) { shouldNavigate ->
+            if (shouldNavigate == true) {
+                try {
+                    findNavController().navigate(R.id.codyRepositoryFragment)
+                    viewModel.onNavigatedToLookStorage()
+                } catch (e: Exception) {
+                    Log.e("AiStyling", "코디저장소 이동 실패", e)
+                }
             }
         }
 
@@ -129,7 +144,7 @@ class AiStylingFragment :
 
         // 스위치 리스너
         binding.switchStyleMode.setOnCheckedChangeListener { _, isChecked ->
-            binding.tvStyleMode.text = if (isChecked) "추구" else "어울림"
+            binding.tvStyleMode.text = if (isChecked) "선호 룩" else "추천 룩"
         }
 
         binding.switchSwitchOwnedOnly.setOnCheckedChangeListener { _, isChecked ->
@@ -231,6 +246,7 @@ class AiStylingFragment :
 
             AiStylingStage.FITTING_READY -> {
                 // 가상피팅만 요청 (팝업은 결과가 나왔을 때 열림)
+                if (!ensureBodyPhotoOrNavigate()) return
                 viewModel.requestAiFitting()
             }
 
@@ -238,6 +254,39 @@ class AiStylingFragment :
                 viewModel.saveCurrentLook()
             }
         }
+    }
+
+    private fun ensureBodyPhotoOrNavigate(): Boolean {
+        val profile = myPageViewModel.getCachedUserProfile()
+        val cachedBodyPhotoUrl = profile?.bodyPhotoUrl
+        val storedBodyPhotoUrl = ApplicationClass.sharedPreferences.getBodyPhotoUrl()
+        val bodyPhotoUrl = cachedBodyPhotoUrl ?: storedBodyPhotoUrl
+
+        if (profile == null && !bodyPhotoUrl.isNullOrBlank()) {
+            return true
+        }
+
+        if (profile == null) {
+            val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
+            if (userId != -1) {
+                myPageViewModel.loadUserProfile(userId)
+            }
+            Toast.makeText(requireContext(), "프로필 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (!bodyPhotoUrl.isNullOrBlank()) return true
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("전신 사진 필요")
+            .setMessage("AI 가상 피팅을 위해 전신 프로필 사진이 필요합니다.\n내 정보에서 등록해 주세요.")
+            .setPositiveButton("내 정보로 이동") { _, _ ->
+                findNavController().navigate(R.id.editProfileFragment)
+            }
+            .setNegativeButton("취소", null)
+            .show()
+
+        return false
     }
 
     private fun updateMainButton() {
@@ -385,3 +434,4 @@ class AiStylingFragment :
         }
     }
 }
+

@@ -70,7 +70,6 @@
                     android:layout_width="96dp"
                     android:layout_height="120dp"
                     android:layout_marginEnd="6dp"
-                    android:background="@drawable/bg_square_gray"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/profileCircle"

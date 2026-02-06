@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 // 순서: Top, Bottom, Shoes, Outer, Accessories, Bag
 data class SaveLookRequest(
     val clothesIdList: List<Int>,
-    @SerializedName("aiphotoUrl")
-    val aiphotoUrl: String,
+    @SerializedName("aiPhotoUrl")
+    val aiPhotoUrl: String,
     val aiReason: String? = null
 )

@@ -1,12 +1,14 @@
 package com.ssafy.closetory.util
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.graphics.Rect
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.graphics.toColorInt
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ssafy.closetory.R
@@ -34,20 +36,20 @@ object ColorOptions {
     }
 
     val items = listOf(
-        ColorItem("BLACK", "블랙", 0xFF000000.toInt()),
-        ColorItem("WHITE", "화이트", 0xFFFFFFFF.toInt()),
-        ColorItem("GRAY", "그레이", 0xFFBDBDBD.toInt()),
-        ColorItem("IVORY", "아이보리", 0xFFFFF8E1.toInt()),
-        ColorItem("NAVY", "네이비", 0xFF1B263B.toInt()),
-        ColorItem("BLUE", "블루", 0xFF1E88E5.toInt()),
-        ColorItem("GREEN", "그린", 0xFF43A047.toInt()),
-        ColorItem("KHAKI", "카키", 0xFFBDB76B.toInt()),
-        ColorItem("BROWN", "브라운", 0xFF8D6E63.toInt()),
-        ColorItem("PINK", "핑크", 0xFFD81B60.toInt()),
-        ColorItem("RED", "레드", 0xFFE53935.toInt()),
-        ColorItem("ORANGE", "오렌지", 0xFFFB8C00.toInt()),
-        ColorItem("YELLOW", "옐로우", 0xFFFDD835.toInt()),
-        ColorItem("PURPLE", "퍼플", 0xFF8E24AA.toInt())
+        ColorItem("BLACK", "블랙", "#000000".toColorInt()),
+        ColorItem("WHITE", "화이트", "#FFFFFF".toColorInt()),
+        ColorItem("GRAY", "그레이", "#BDBDBD".toColorInt()),
+        ColorItem("IVORY", "아이보리", "#E4D0BB".toColorInt()),
+        ColorItem("NAVY", "네이비", "#252f7b".toColorInt()),
+        ColorItem("BLUE", "블루", "#4B6FA2".toColorInt()),
+        ColorItem("GREEN", "그린", "#3F8454".toColorInt()),
+        ColorItem("KHAKI", "카키", "#89ABA7".toColorInt()),
+        ColorItem("BROWN", "브라운", "#8D6E63".toColorInt()),
+        ColorItem("PINK", "핑크", "#FFC3C3".toColorInt()),
+        ColorItem("RED", "레드", "#FF3636".toColorInt()),
+        ColorItem("ORANGE", "오렌지", "#FB8C00".toColorInt()),
+        ColorItem("YELLOW", "옐로우", "#FDE047".toColorInt()),
+        ColorItem("PURPLE", "퍼플", "#BE6CEC".toColorInt())
     )
 
     private val byCode = items.associateBy { it.codeEnglish }

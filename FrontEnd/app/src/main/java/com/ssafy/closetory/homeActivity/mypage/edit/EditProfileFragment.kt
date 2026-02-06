@@ -150,7 +150,10 @@ class EditProfileFragment :
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.updateResult.collect { result ->
-                if (result != null) findNavController().popBackStack()
+                if (result != null) {
+                    loadUserProfile()
+                    findNavController().popBackStack()
+                }
             }
         }
     }
@@ -167,6 +170,7 @@ class EditProfileFragment :
 
         profilePhotoUrl = user.profilePhotoUrl
         bodyPhotoUrl = user.bodyPhotoUrl
+        ApplicationClass.sharedPreferences.putBodyPhotoUrl(user.bodyPhotoUrl)
 
         if (user.profilePhotoUrl.isNullOrBlank()) {
             binding.imgProfile.setImageResource(R.drawable.ic_profile_default)
@@ -484,5 +488,4 @@ class EditProfileFragment :
         return !isVisible
     }
 }
-
 

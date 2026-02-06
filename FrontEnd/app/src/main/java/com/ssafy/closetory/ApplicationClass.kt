@@ -47,7 +47,7 @@ class ApplicationClass : Application() {
 
         val client: OkHttpClient = OkHttpClient.Builder()
             .readTimeout(60000, TimeUnit.MILLISECONDS)
-            .connectTimeout(60000, TimeUnit.MILLISECONDS)
+            .connectTimeout(1800000, TimeUnit.MILLISECONDS)
             // 자동으로 헤더에 token을 붙여 주기
             .addInterceptor(AuthInterceptor())
             .authenticator(TokenAuthenticator(RefreshService.api))

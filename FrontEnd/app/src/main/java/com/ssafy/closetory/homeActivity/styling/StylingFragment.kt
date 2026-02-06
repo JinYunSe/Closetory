@@ -17,6 +17,7 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentStylingBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.homeActivity.adapter.ClothesAdapter
+import com.ssafy.closetory.homeActivity.mypage.MyPageViewModel
 
 private const val TAG = "StylingFragment"
 
@@ -28,6 +29,7 @@ class StylingFragment :
 
     // Activity 스코프 ViewModel
     private val viewModel: StylingViewModel by activityViewModels()
+    private val myPageViewModel: MyPageViewModel by activityViewModels()
 
     private lateinit var topAdapter: ClothesAdapter
     private lateinit var bottomAdapter: ClothesAdapter
@@ -238,10 +240,8 @@ class StylingFragment :
      */
     private fun navigateToLookStorage() {
         try {
-            // 코디저장소 Fragment로 이동 (navigation ID는 프로젝트에 맞게 수정)
-            // 예: findNavController().navigate(R.id.action_styling_to_lookStorage)
-
-            // 임시: 토스트로 안내 (실제로는 위 코드 주석 해제)
+            // 코디저장소 Fragment로 이동
+            findNavController().navigate(R.id.codyRepositoryFragment)
             viewModel.onNavigatedToLookStorage()
 
             Log.d(TAG, "🏪 코디저장소로 이동")
@@ -360,7 +360,7 @@ class StylingFragment :
         }
 
         // AI 가상 피팅 결과 관찰
-        viewModel.aiphotoUrl.observe(viewLifecycleOwner) { photoUrl ->
+        viewModel.aiPhotoUrl.observe(viewLifecycleOwner) { photoUrl ->
             if (photoUrl != null) {
                 Log.d(TAG, "AiphotoUrl 수신: $photoUrl")
                 showAiFittingResult(photoUrl)
@@ -557,6 +557,12 @@ class StylingFragment :
 
         Log.d(TAG, "전송할 clothesIdList: $clothesIdList")
 
+        // TOP, BOTTOM, SHOES는 필수
+        if (clothesIdList[0] == -1 || clothesIdList[1] == -1 || clothesIdList[2] == -1) {
+            Toast.makeText(requireContext(), "상의, 하의, 신발은 필수로 선택해 주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (clothesIdList.all { it == -1 }) {
             Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해 주세요.", Toast.LENGTH_SHORT).show()
             return
@@ -571,16 +577,24 @@ class StylingFragment :
     private fun requestAiFitting() {
         Log.d(TAG, "requestAiFitting 호출")
 
+        if (!ensureBodyPhotoOrNavigate()) return
+
         val clothesIdList = listOf(
             viewModel.selectedSlots["TOP"]?.clothesId ?: -1,
             viewModel.selectedSlots["BOTTOM"]?.clothesId ?: -1,
             viewModel.selectedSlots["SHOES"]?.clothesId ?: -1,
             viewModel.selectedSlots["OUTER"]?.clothesId ?: -1,
-            viewModel.selectedSlots["ACC"]?.clothesId ?: -1,
+            viewModel.selectedSlots["ACCESSORIES"]?.clothesId ?: -1,
             viewModel.selectedSlots["BAG"]?.clothesId ?: -1
         )
 
-        Log.d(TAG, "AI 피팅 요청 clothesIdList: $clothesIdList")
+        Log.d(TAG, "AI 피팅 요청 clothesIdList 요소: $clothesIdList")
+
+        // TOP, BOTTOM, SHOES는 필수
+        if (clothesIdList[0] == -1 || clothesIdList[1] == -1 || clothesIdList[2] == -1) {
+            Toast.makeText(requireContext(), "상의, 하의, 신발은 필수로 선택해 주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         if (clothesIdList.all { it == -1 }) {
             Toast.makeText(requireContext(), "최소 1개 이상의 의류를 선택해 주세요.", Toast.LENGTH_SHORT).show()
@@ -588,6 +602,39 @@ class StylingFragment :
         }
 
         viewModel.requestAiFitting(clothesIdList)
+    }
+
+    private fun ensureBodyPhotoOrNavigate(): Boolean {
+        val profile = myPageViewModel.getCachedUserProfile()
+        val cachedBodyPhotoUrl = profile?.bodyPhotoUrl
+        val storedBodyPhotoUrl = ApplicationClass.sharedPreferences.getBodyPhotoUrl()
+        val bodyPhotoUrl = cachedBodyPhotoUrl ?: storedBodyPhotoUrl
+
+        if (profile == null && !bodyPhotoUrl.isNullOrBlank()) {
+            return true
+        }
+
+        if (profile == null) {
+            val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
+            if (userId != -1) {
+                myPageViewModel.loadUserProfile(userId)
+            }
+            Toast.makeText(requireContext(), "프로필 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (!bodyPhotoUrl.isNullOrBlank()) return true
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("전신 사진 필요")
+            .setMessage("AI 가상 피팅을 위해 전신 프로필 사진이 필요합니다.\n내 정보에서 등록해 주세요.")
+            .setPositiveButton("내 정보로 이동") { _, _ ->
+                findNavController().navigate(R.id.editProfileFragment)
+            }
+            .setNegativeButton("취소", null)
+            .show()
+
+        return false
     }
 
     /**
