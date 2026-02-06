@@ -101,6 +101,18 @@ class AiStylingFragment :
             }
         }
 
+        // 코디저장소 이동 트리거
+        viewModel.navigateToLookStorage.observe(viewLifecycleOwner) { shouldNavigate ->
+            if (shouldNavigate == true) {
+                try {
+                    findNavController().navigate(R.id.codyRepositoryFragment)
+                    viewModel.onNavigatedToLookStorage()
+                } catch (e: Exception) {
+                    Log.e("AiStyling", "코디저장소 이동 실패", e)
+                }
+            }
+        }
+
         // 에러 메시지
         viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
@@ -246,7 +258,13 @@ class AiStylingFragment :
 
     private fun ensureBodyPhotoOrNavigate(): Boolean {
         val profile = myPageViewModel.getCachedUserProfile()
-        val bodyPhotoUrl = profile?.bodyPhotoUrl
+        val cachedBodyPhotoUrl = profile?.bodyPhotoUrl
+        val storedBodyPhotoUrl = ApplicationClass.sharedPreferences.getBodyPhotoUrl()
+        val bodyPhotoUrl = cachedBodyPhotoUrl ?: storedBodyPhotoUrl
+
+        if (profile == null && !bodyPhotoUrl.isNullOrBlank()) {
+            return true
+        }
 
         if (profile == null) {
             val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1

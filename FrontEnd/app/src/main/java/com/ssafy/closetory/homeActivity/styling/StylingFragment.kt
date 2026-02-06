@@ -240,10 +240,8 @@ class StylingFragment :
      */
     private fun navigateToLookStorage() {
         try {
-            // 코디저장소 Fragment로 이동 (navigation ID는 프로젝트에 맞게 수정)
-            // 예: findNavController().navigate(R.id.action_styling_to_lookStorage)
-
-            // 임시: 토스트로 안내 (실제로는 위 코드 주석 해제)
+            // 코디저장소 Fragment로 이동
+            findNavController().navigate(R.id.codyRepositoryFragment)
             viewModel.onNavigatedToLookStorage()
 
             Log.d(TAG, "🏪 코디저장소로 이동")
@@ -608,7 +606,13 @@ class StylingFragment :
 
     private fun ensureBodyPhotoOrNavigate(): Boolean {
         val profile = myPageViewModel.getCachedUserProfile()
-        val bodyPhotoUrl = profile?.bodyPhotoUrl
+        val cachedBodyPhotoUrl = profile?.bodyPhotoUrl
+        val storedBodyPhotoUrl = ApplicationClass.sharedPreferences.getBodyPhotoUrl()
+        val bodyPhotoUrl = cachedBodyPhotoUrl ?: storedBodyPhotoUrl
+
+        if (profile == null && !bodyPhotoUrl.isNullOrBlank()) {
+            return true
+        }
 
         if (profile == null) {
             val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1

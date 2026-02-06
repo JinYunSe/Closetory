@@ -49,6 +49,10 @@ class AiStylingViewModel : ViewModel() {
     private val _successMessage = MutableLiveData<String?>()
     val successMessage: LiveData<String?> = _successMessage
 
+    // 저장 완료 후 코디저장소 이동 트리거
+    private val _navigateToLookStorage = MutableLiveData<Boolean>(false)
+    val navigateToLookStorage: LiveData<Boolean> = _navigateToLookStorage
+
     // 로딩 타입 추적 (어떤 작업이 로딩 중인지)
     private val _loadingType = MutableLiveData<LoadingType?>()
     val loadingType: LiveData<LoadingType?> = _loadingType
@@ -238,8 +242,8 @@ class AiStylingViewModel : ViewModel() {
 
                     Log.d(TAG, "룩 저장 성공")
 
-                    // 저장 성공 후 초기화
-                    resetAll()
+                    // 저장 성공 후 코디저장소 이동 트리거
+                    _navigateToLookStorage.value = true
                 } else {
                     _errorMessage.value = "룩 저장에 실패했습니다. (${response.code()})"
                     Log.e(TAG, " 룩 저장 실패: ${response.code()}")
@@ -270,6 +274,11 @@ class AiStylingViewModel : ViewModel() {
         _loadingType.value = null
 
         Log.d(TAG, "전체 초기화 완료")
+    }
+
+    fun onNavigatedToLookStorage() {
+        _navigateToLookStorage.value = false
+        resetAll()
     }
 
     // 작업이 진행 중인지 확인

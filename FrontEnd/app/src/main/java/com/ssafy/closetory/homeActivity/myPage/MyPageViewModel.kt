@@ -56,6 +56,7 @@ class MyPageViewModel : ViewModel() {
                     val data = res.body()?.data
                     if (data != null) {
                         cachedUserProfile = data
+                        ApplicationClass.sharedPreferences.putBodyPhotoUrl(data.bodyPhotoUrl)
                         _userProfile.emit(data)
                     } else {
                         _message.emit("회원정보를 불러오지 못했습니다.")

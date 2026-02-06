@@ -238,6 +238,7 @@ class StylingViewModel : ViewModel() {
                     _errorMessage.value = null
 
                     Log.d(TAG, " 등록 완료 → SAVED로 전환 (코디 저장소 이동 가능)")
+                    navigateToLookStorage()
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e(TAG, " 룩 저장 실패 - 코드: ${response.code()}, 메시지: $errorBody")
