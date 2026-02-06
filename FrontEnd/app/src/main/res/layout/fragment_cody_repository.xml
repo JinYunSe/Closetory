@@ -26,9 +26,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="코디저장소"
+            android:text="코디 히스토리"
             android:textColor="@color/main_color"
-            android:textSize="20sp"/>
+            android:textSize="20sp" />
     </LinearLayout>
 
     <!-- 안내 문구 -->
