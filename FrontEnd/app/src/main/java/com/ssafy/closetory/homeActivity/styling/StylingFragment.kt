@@ -17,6 +17,7 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentStylingBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.homeActivity.adapter.ClothesAdapter
+import com.ssafy.closetory.homeActivity.aiStyling.AiStylingViewModel
 import com.ssafy.closetory.homeActivity.mypage.MyPageViewModel
 
 private const val TAG = "StylingFragment"
@@ -46,7 +47,6 @@ class StylingFragment :
         setupRecyclerViews()
         setupButtons()
         observeViewModel()
-        setupVideoLoading()
         setupBackPressHandler()
 
         viewModel.loadClothItems(onlyMine = false)
@@ -251,46 +251,17 @@ class StylingFragment :
         }
     }
 
-    // VideoView 초기화 (vv_ai_loading)
-    private fun setupVideoLoading() {
-        val videoUri = Uri.parse(
-            "android.resource://${requireContext().packageName}/${R.raw.vv_ai_fitting_progress}"
-        )
-
-        binding.vvAiLoading.apply {
-            setVideoURI(videoUri)
-
-            setOnPreparedListener { mediaPlayer ->
-                mediaPlayer.isLooping = true
-                mediaPlayer.setVolume(0f, 0f)
-                Log.d(TAG, "비디오 준비 완료")
-            }
-
-            setOnErrorListener { _, what, extra ->
-                Log.e(TAG, "비디오 재생 오류: what=$what, extra=$extra")
-                false
-            }
-        }
-
-        Log.d(TAG, "비디오 로딩 초기화 완료")
-    }
-
     // VideoView 애니메이션 제어 (layout_ai_loading)
     private fun updateVideoAnimation(isLoading: Boolean) {
         if (isLoading) {
             binding.vvAiLoading.visibility = View.VISIBLE
-
-            if (!binding.vvAiLoading.isPlaying) {
-                binding.vvAiLoading.start()
-                Log.d(TAG, "🎬 비디오 재생 시작")
-            }
+            Glide.with(this)
+                .asGif()
+                .load(R.raw.vv_ai_fitting_progress)
+                .into(binding.vvAiLoading)
         } else {
             binding.vvAiLoading.visibility = View.GONE
-
-            if (binding.vvAiLoading.isPlaying) {
-                binding.vvAiLoading.pause()
-                Log.d(TAG, "⏸️ 비디오 일시정지")
-            }
+            Glide.with(this).clear(binding.vvAiLoading)
         }
     }
 
@@ -344,8 +315,8 @@ class StylingFragment :
         // 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             Log.d(TAG, "⏳ isLoading 변경: $isLoading")
-            updateVideoAnimation(isLoading)
             updateMainButton()
+            updateVideoAnimation(isLoading)
         }
 
         // 단계 상태 관찰
@@ -678,7 +649,6 @@ class StylingFragment :
 
     override fun onPause() {
         super.onPause()
-        binding.vvAiLoading.stopPlayback()
     }
 
     override fun onStop() {

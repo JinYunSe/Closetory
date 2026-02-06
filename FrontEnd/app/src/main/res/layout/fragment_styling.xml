@@ -85,9 +85,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layout_slots"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_login_input"
-            >
+            android:layout_height="match_parent">
 
             <FrameLayout
                 android:id="@+id/slot_top"
@@ -244,27 +242,30 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <VideoView
+        <!--  AI 가상피팅 로딩 애니메이션 (슬롯 위에 표시)  -->
+        <ImageView
             android:id="@+id/vv_ai_loading"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:layout_gravity="center"
-            android:visibility="gone" />
+            android:scaleType="centerInside"
+            android:visibility="gone"/>
 
-        <!-- 가상피팅 결과 팝업 -->
+
+        <!--  가상피팅 결과 팝업  -->
         <FrameLayout
             android:id="@+id/layout_ai_fitting"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            android:background="@color/gray_500">
+            android:background="@color/gray_500"
+            android:visibility="gone">
 
             <ImageView
                 android:id="@+id/iv_ai_fitting_result"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerInside"
-                android:contentDescription="AI 가상 피팅 결과" />
+                android:contentDescription="AI 가상 피팅 결과"
+                android:scaleType="centerInside"/>
 
             <ImageButton
                 android:id="@+id/btn_close_ai_fitting"
@@ -273,26 +274,20 @@
                 android:layout_gravity="top|end"
                 android:layout_margin="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_cancel"
-                android:contentDescription="닫기" />
+                android:contentDescription="닫기"
+                android:src="@drawable/ic_cancel"/>
 
-            <!-- ⭐ 가상피팅 팝업 로딩 (별도) -->
-            <FrameLayout
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+            <!--  AI 가상피팅 로딩 애니메이션  -->
+            <ImageView
+                android:id="@+id/vv_ai_fitting"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_gravity="center"
-                android:background="@drawable/bg_circle_fill"
-                android:visibility="gone"
-                android:id="@+id/layout_ai_loading_circle">
+                android:scaleType="centerInside"
+                android:visibility="gone"/>
 
-                <ProgressBar
-                    android:id="@+id/vv_ai_fitting"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_gravity="center"
-                    android:indeterminate="true" />
-            </FrameLayout>
         </FrameLayout>
+
 
     </FrameLayout>
 

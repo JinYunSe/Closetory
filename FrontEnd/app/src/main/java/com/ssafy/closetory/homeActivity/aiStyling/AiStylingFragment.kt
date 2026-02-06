@@ -36,7 +36,6 @@ class AiStylingFragment :
         setupUI()
         setupObservers()
         setupListeners()
-        setupVideoLoading()
         setupBackPressHandler()
     }
 
@@ -326,50 +325,35 @@ class AiStylingFragment :
         }
     }
 
-    private fun setupVideoLoading() {
-        val videoUri = Uri.parse(
-            "android.resource://${requireContext().packageName}/${R.raw.vv_ai_fitting_progress}"
-        )
-
-        // AI 추천 & 가상피팅용 VideoView 설정
-        binding.vvAiLoading.apply {
-            setVideoURI(videoUri)
-
-            setOnPreparedListener { mediaPlayer ->
-                mediaPlayer.isLooping = true
-                mediaPlayer.setVolume(0f, 0f)
-            }
-
-            setOnErrorListener { _, what, extra ->
-                Log.e("AiStyling", "Video error: what=$what, extra=$extra")
-                false
-            }
-        }
-    }
-
     private fun updateVideoAnimation(isLoading: Boolean) {
         val loadingType = viewModel.loadingType.value
 
         when (loadingType) {
             AiStylingViewModel.LoadingType.RECOMMEND -> {
-                // AI 추천 중: 메인 화면의 vvAiLoading 표시
+                // AI 추천 중: 슬롯 위에 GIF 표시
                 if (isLoading) {
                     binding.vvAiLoading.visibility = View.VISIBLE
-                    binding.vvAiLoading.start()
+                    Glide.with(this)
+                        .asGif()
+                        .load(R.raw.vv_ai_fitting_progress)
+                        .into(binding.vvAiLoading)
                 } else {
                     binding.vvAiLoading.visibility = View.GONE
-                    binding.vvAiLoading.stopPlayback()
+                    Glide.with(this).clear(binding.vvAiLoading)
                 }
             }
 
             AiStylingViewModel.LoadingType.FITTING -> {
-                // AI 가상피팅 중: 메인 화면의 vvAiLoading 표시 (팝업은 결과 나올 때 열림)
+                // AI 가상피팅 중: 슬롯 위에 GIF 표시 (팝업은 결과 나올 때 열림)
                 if (isLoading) {
                     binding.vvAiLoading.visibility = View.VISIBLE
-                    binding.vvAiLoading.start()
+                    Glide.with(this)
+                        .asGif()
+                        .load(R.raw.vv_ai_fitting_progress)
+                        .into(binding.vvAiLoading)
                 } else {
                     binding.vvAiLoading.visibility = View.GONE
-                    binding.vvAiLoading.stopPlayback()
+                    Glide.with(this).clear(binding.vvAiLoading)
                 }
             }
 
@@ -378,9 +362,9 @@ class AiStylingFragment :
             }
 
             else -> {
-                // 로딩이 아닌 경우 모든 비디오 정지
+                // 로딩이 아닌 경우 모든 애니메이션 정리
                 binding.vvAiLoading.visibility = View.GONE
-                binding.vvAiLoading.stopPlayback()
+                Glide.with(this).clear(binding.vvAiLoading)
             }
         }
     }
@@ -425,7 +409,6 @@ class AiStylingFragment :
 
     override fun onPause() {
         super.onPause()
-        binding.vvAiLoading.stopPlayback()
 
         // 가상피팅 완료 후 다른 곳으로 이동 시 초기화
         val stage = viewModel.stage.value ?: AiStylingStage.RECOMMEND
@@ -434,4 +417,3 @@ class AiStylingFragment :
         }
     }
 }
-
