@@ -22,17 +22,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageButton
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/imbtn_registration_clothes"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:background="@android:color/transparent"
-                android:backgroundTint="@color/white"
                 android:scaleType="centerInside"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayClosetoryMediumRounded"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"/>
 
             <!-- 사진이 없을 때 보여줄 안내 문구 -->
             <TextView

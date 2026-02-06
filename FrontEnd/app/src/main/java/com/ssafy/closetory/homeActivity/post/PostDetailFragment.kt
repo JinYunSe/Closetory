@@ -37,7 +37,10 @@ class PostDetailFragment :
 
     private lateinit var itemAdapter: PostDetailItemAdapter
     private lateinit var commentAdapter: CommentAdapter
+
+    // 사진 URL 변수 저장
     private var currentPhotoUrl: String? = null
+    private var currentProfilePhotoUrl: String? = null
 
     // 상세를 한 번이라도 로드했으면(조회수 변동), 나갈 때 목록 갱신
     private var shouldRefreshListOnExit: Boolean = false
@@ -59,6 +62,7 @@ class PostDetailFragment :
         observeRefreshFromEdit()
 
         binding.ivPostPhoto.setOnClickListener { openPhotoDialogIfExist() }
+        binding.ivProfile.setOnClickListener { openProfilePhotoDialogIfExist() }
 
         binding.btnUpdate.setOnClickListener {
             val args = PostCreateFragment.newEditArgs(postId)
@@ -79,7 +83,15 @@ class PostDetailFragment :
 
     private fun setupRecycler() {
         itemAdapter = PostDetailItemAdapter(
-            onItemClick = { /* no-op */ },
+            onItemClick = { item ->
+                // ✅ item 안에 옷 이미지 URL 필드명에 맞게 바꿔줘
+                val url = item.photoUrl
+
+                if (url.isNullOrBlank()) return@PostDetailItemAdapter
+
+                PostPhotoDialogFragment.newInstance(url.trim())
+                    .show(parentFragmentManager, "clothes_photo_dialog")
+            },
             onSaveClick = { item ->
                 val clothesId = item.clothesId
                 if (clothesId <= 0) return@PostDetailItemAdapter
@@ -96,6 +108,11 @@ class PostDetailFragment :
 
     private fun setupCommentsRecycler() {
         commentAdapter = CommentAdapter(
+            onProfileClick = { url ->
+                if (url.isNullOrBlank()) return@CommentAdapter
+                PostPhotoDialogFragment.newInstance(url.trim())
+                    .show(parentFragmentManager, "comment_profile_dialog")
+            },
             onEditClick = { comment -> showEditCommentDialog(comment) },
             onDeleteClick = { comment -> confirmDeleteComment(comment) }
         )
@@ -212,6 +229,7 @@ class PostDetailFragment :
                             .into(binding.ivPostPhoto)
 
                         currentPhotoUrl = detail.photoUrl?.trim()
+                        currentProfilePhotoUrl = detail.profilePhotoUrl?.trim()
 
                         val loginUserId =
                             ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID)
@@ -275,6 +293,13 @@ class PostDetailFragment :
         if (url.isNullOrBlank()) return
         PostPhotoDialogFragment.newInstance(url)
             .show(parentFragmentManager, "post_photo_dialog")
+    }
+
+    private fun openProfilePhotoDialogIfExist() {
+        val url = currentProfilePhotoUrl
+        if (url.isNullOrBlank()) return
+        PostPhotoDialogFragment.newInstance(url)
+            .show(parentFragmentManager, "profile_photo_dialog")
     }
 
     /**

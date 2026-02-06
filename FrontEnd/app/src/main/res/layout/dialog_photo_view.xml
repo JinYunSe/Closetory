@@ -1,15 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!-- 게시글 상세 페이지 사진 터치 다이얼로그 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/overlay"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E0E0E0">
+    android:clickable="true"
+    android:focusable="true"
+    android:background="@color/white">
 
-    <io.getstream.photoview.PhotoView
-        android:id="@+id/photoView"
+    <!-- 사진 카드 영역 -->
+    <FrameLayout
+        android:id="@+id/photoCard"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="20dp"
-        android:scaleType="fitCenter" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="24dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@android:color/transparent">
+
+        <io.getstream.photoview.PhotoView
+            android:id="@+id/photoView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter" />
+    </FrameLayout>
+
 </FrameLayout>

@@ -31,9 +31,6 @@ class RecentCodyAdapter : ListAdapter<CodyRepositoryResponse, RecentCodyAdapter.
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: CodyRepositoryResponse) {
-            // 날짜 표시 (tvRank에 날짜)
-            binding.tvRank.text = formatDate(item.date)
-
             // 횟수는 숨김
             binding.tvUsageCount.visibility = View.GONE
 

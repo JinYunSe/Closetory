@@ -102,17 +102,13 @@
                         android:layout_marginEnd="10dp"
                         android:gravity="center_vertical">
 
-                        <TextView
+                        <ImageView
                             android:id="@+id/ivViewsIcon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:gravity="center"
-                            android:includeFontPadding="false"
-                            android:singleLine="true"
-                            android:ellipsize="none"
-                            android:text="👀"
-                            android:textSize="16sp"
-                            android:contentDescription="조회수 아이콘"/>
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:contentDescription="조회수 아이콘"
+                            android:src="@drawable/ic_eye"
+                            android:tint="@color/main_color"/>
 
                         <TextView
                             android:id="@+id/tvViews"
