@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="24dp">
+
+    <!-- 회원 탈퇴 안내 문구 -->
+    <TextView
+        android:id="@+id/tvSignoutTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="정말로 회원 탈퇴하시겠습니까?"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 비밀번호 입력 영역 -->
+    <LinearLayout
+        android:id="@+id/layoutSignoutPassword"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@id/tvSignoutTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_login_input"
+            android:paddingStart="16dp"
+            android:paddingEnd="8dp">
+
+            <!-- 비밀번호 입력 -->
+            <EditText
+                android:id="@+id/etSignoutPassword"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:hint="비밀번호 입력"
+                android:inputType="textPassword"
+                android:textSize="14dp"
+                android:background="@null"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:textColor="#0A0F18"
+                android:textColorHint="#9E9E9E"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnToggleSignoutPassword"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <!-- 비밀번호 보기 / 숨기기 -->
+            <ImageButton
+                android:id="@+id/btnToggleSignoutPassword"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_eye"
+                android:contentDescription="비밀번호 보기/숨기기"
+                android:scaleType="centerInside"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+    <!-- 버튼 영역 -->
+    <LinearLayout
+        android:id="@+id/layoutSignoutButtons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/layoutSignoutPassword"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btnSignoutConfirm"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="탈퇴"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/main_color"
+            android:layout_marginEnd="6dp" />
+
+        <Button
+            android:id="@+id/btnSignoutCancel"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="취소"
+            android:textColor="@color/black"
+            android:backgroundTint="#E0E0E0"
+            android:layout_marginStart="6dp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

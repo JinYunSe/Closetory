@@ -1,24 +1,36 @@
+﻿// LoginFragment.kt
+
 package com.ssafy.closetory.authActivity.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.ssafy.closetory.ApplicationClass
 import com.ssafy.closetory.R
 import com.ssafy.closetory.authActivity.signUp.SignUpFragment
+import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentLoginBinding
 import com.ssafy.closetory.homeActivity.HomeActivity
-import com.ssafy.ssafyfinalproject.baseCode.base.BaseFragment
+import kotlinx.coroutines.launch
 
 private const val TAG = "LoginFragment_싸피"
+private var isLoginPasswordVisible = false
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::bind, R.layout.fragment_login) {
+
+    private val loginViewModel: LoginViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnSignUp.setOnClickListener {
+        // 회원가입 화면 이동
+        binding.tvNoIdToSignup.setOnClickListener {
             Log.d(TAG, "SignUp 이동 버튼 : 동작 유무 확인")
             parentFragmentManager.beginTransaction()
                 .replace(R.id.auth_container, SignUpFragment())
@@ -26,9 +38,67 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::b
                 .commit()
         }
 
+        // 로그인 버튼 클릭 → ViewModel 호출
         binding.btnLogin.setOnClickListener {
-            Log.d(TAG, "HomeActivity 이동 버튼 동작 유무 확인")
-            startActivity(Intent(requireContext(), HomeActivity::class.java))
+            val username = binding.etLoginId.text.toString().trim()
+            val password = binding.etLoginPassword.text.toString().trim()
+
+            if (username.isBlank() || password.isBlank()) {
+                showToast("아이디와 비밀번호를 입력해 주세요.")
+                return@setOnClickListener
+            }
+
+            Log.d("LOGIN_FLOW", "로그인 버튼 클릭: $username / $password")
+            loginViewModel.login(username, password)
+        }
+
+        // ===== SharedFlow collect (emit 기반 이벤트 수신) =====
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                loginViewModel.message.collect { msg ->
+                    Log.d("LOGIN_FLOW", "Fragment에서 message collect됨: $msg")
+                    if (msg.isNotBlank()) showToast(msg)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                loginViewModel.loginData.collect { data ->
+                    val authManager = ApplicationClass.authManager
+                    Log.d(
+                        TAG,
+                        "로그인 동작 확인 : accessToken : ${data.accessToken}, refreshToken : ${data.refreshToken}"
+                    )
+
+                    authManager.saveTokens(data.accessToken, data.refreshToken)
+                    ApplicationClass.sharedPreferences.putUserId(ApplicationClass.USERID, data.userId)
+                    Log.d(TAG, "로그인 성공에 따른 userId 확인 : ${data.userId}")
+
+                    // HomeActivity 이동
+                    Log.d(TAG, "HomeActivity 이동 버튼 동작 유무 확인")
+
+                    val intent = Intent(requireContext(), HomeActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    startActivity(intent)
+                }
+            }
+        }
+
+        // 비밀번호 보이기/숨기기
+        binding.btnToggleLoginPassword.setOnClickListener {
+            isLoginPasswordVisible = !isLoginPasswordVisible
+
+            binding.etLoginPassword.inputType =
+                if (isLoginPasswordVisible) {
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                } else {
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                }
+
+            binding.etLoginPassword.setSelection(binding.etLoginPassword.text?.length ?: 0)
         }
     }
 }
+

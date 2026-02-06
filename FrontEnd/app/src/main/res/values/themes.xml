@@ -2,12 +2,12 @@
     <!-- Base application theme. -->
     <style name="Theme.FrontEnd" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimary">@color/main_color</item>
+        <item name="colorPrimaryVariant">@color/main_color</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorSecondary">@color/main_color</item>
+        <item name="colorSecondaryVariant">@color/main_color</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
@@ -17,8 +17,8 @@
         <!-- Customize your theme here. -->
 
         <!-- ✅ 앱 전체 기본 폰트 적용 -->
-        <item name="android:fontFamily">@font/font_gumiromance</item>
-        <item name="fontFamily">@font/font_gumiromance</item>
+        <item name="android:fontFamily">@font/font_pretendard</item>
+        <item name="fontFamily">@font/font_pretendard</item>
 
     </style>
 </resources>

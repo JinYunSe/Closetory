@@ -1,0 +1,41 @@
+package com.ssafy.closetory.homeActivity.styling
+
+import com.ssafy.closetory.ApplicationClass
+import com.ssafy.closetory.dto.AiFittingRequest
+import com.ssafy.closetory.dto.AiFittingResponse
+import com.ssafy.closetory.dto.ApiResponse
+import com.ssafy.closetory.dto.ClosetResponse
+import com.ssafy.closetory.dto.SaveLookRequest
+import com.ssafy.closetory.homeActivity.closet.ClosetService
+import retrofit2.Response
+
+class StylingRepository {
+
+    // ClosetService 재사용 (옷 조회용)
+    private val closetService: ClosetService =
+        ApplicationClass.retrofit.create(ClosetService::class.java)
+
+    // ⭐ ApplicationClass의 retrofit 그대로 사용 (이미 타임아웃 설정되어 있음!)
+    private val stylingService: StylingService =
+        ApplicationClass.retrofit.create(StylingService::class.java)
+
+    // 의류 리스트 조회 (ClosetService 재사용)
+    suspend fun getClothesList(
+        tags: List<Int>?,
+        color: String?,
+        seasons: List<Int>?,
+        onlyMine: Boolean?
+    ): Response<ApiResponse<ClosetResponse>> = closetService.getClothesList(
+        tags,
+        color,
+        seasons,
+        onlyMine
+    )
+
+    // 룩 저장
+    suspend fun saveLook(request: SaveLookRequest): Response<ApiResponse<Unit>> = stylingService.saveLook(request)
+
+    // AI 가상 피팅 (ApplicationClass의 타임아웃 설정 사용)
+    suspend fun requestAiFitting(request: AiFittingRequest): Response<ApiResponse<AiFittingResponse>> =
+        stylingService.requestAiFitting(request)
+}

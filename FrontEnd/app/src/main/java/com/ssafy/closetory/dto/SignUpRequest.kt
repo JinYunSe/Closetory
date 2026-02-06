@@ -1,0 +1,18 @@
+package com.ssafy.closetory.dto
+
+// 요청 형태
+// {
+//    "loginId" : "ssafy123",
+//    "password" : "ssafy123!",
+//    "nickname" : "김싸피123",
+// }
+data class SignUpRequest(
+    val username: String,
+    val password: String,
+    val passwordConfirm: String,
+    val nickname: String,
+    val gender: String, // "Male" or "Female"
+    val height: Short, // cm
+    val weight: Short, // kg
+    val alarmEnabled: Boolean
+)

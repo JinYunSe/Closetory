@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_week"
+    android:layout_width="@dimen/gridWidth"
+    android:layout_height="@dimen/gridHeight"
+    android:layout_margin="@dimen/gridMargin"
+    android:background="@drawable/bg_week_border"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_day_of_week"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="@color/textColor"
+        android:textStyle="bold"
+        android:textSize="@dimen/textSize" />
+</LinearLayout>

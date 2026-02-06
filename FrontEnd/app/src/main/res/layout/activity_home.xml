@@ -20,7 +20,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottom_bar_container"
         android:layout_width="0dp"
-        android:layout_height="88dp"
+        android:layout_height="72dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
@@ -59,7 +59,7 @@
                     android:id="@+id/nav_icon_home"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_home_black_24dp"
+                    android:src="@drawable/ic_home_selector"
                     />
 
                 <TextView
@@ -85,7 +85,7 @@
                     android:id="@+id/nav_icon_closet"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_dashboard_black_24dp"
+                    android:src="@drawable/ic_closet_selector"
                     />
 
                 <TextView
@@ -117,7 +117,7 @@
                     android:id="@+id/nav_icon_styling"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_notifications_black_24dp"
+                    android:src="@drawable/ic_cody_selector"
                     />
 
                 <TextView
@@ -143,7 +143,7 @@
                     android:id="@+id/nav_icon_my_page"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_nav_dot_selector" />
+                    android:src="@drawable/ic_my_page_selector" />
 
                 <TextView
                     android:id="@+id/nav_text_my_page"
@@ -159,8 +159,7 @@
             android:id="@+id/fab_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/desc_add"
-            android:translationY="-16dp"
+            android:translationY="-8dp"
             app:backgroundTint="@color/black"
             app:elevation="0dp"
             app:pressedTranslationZ="0dp"

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="4dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardClothes"
+        android:layout_width="100dp"
+        android:layout_height="120dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 사진 위에 뱃지/아이콘 얹기용 -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- 사진 -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivClothes"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="@color/gray_300"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayClosetoryMediumRounded"/>
+
+            <!-- 사진 위 좌측 상단 뱃지 -->
+            <ImageView
+                android:id="@+id/ivRank"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="start|top"
+                android:layout_margin="2dp"
+                android:contentDescription="뱃지"
+                android:scaleType="centerInside"
+                android:padding="2dp"/>
+        </FrameLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/tvUsageCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="3회"
+        android:textSize="12sp"
+        android:textColor="@color/main_color"
+        app:layout_constraintTop_toBottomOf="@id/cardClothes"
+        app:layout_constraintStart_toStartOf="@id/cardClothes"
+        app:layout_constraintEnd_toEndOf="@id/cardClothes"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
