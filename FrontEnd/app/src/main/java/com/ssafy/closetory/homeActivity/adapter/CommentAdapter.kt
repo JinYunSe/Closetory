@@ -16,6 +16,8 @@ import com.ssafy.closetory.util.DateTimeFormat
 
 private val TAG = "CommentAdapter_싸피"
 class CommentAdapter(
+
+    private val onProfileClick: (String?) -> Unit = {},
     private val onEditClick: (CommentDto) -> Unit = {},
     private val onDeleteClick: (CommentDto) -> Unit = {}
 ) : ListAdapter<CommentDto, CommentAdapter.CommentViewHolder>(CommentDiffCallback()) {
@@ -36,6 +38,10 @@ class CommentAdapter(
                 .circleCrop()
                 .into(binding.ivProfile)
 
+            // 댓글 프로필 사진 클릭하면 url을 Fragment로 전달
+            binding.ivProfile.setOnClickListener {
+                onProfileClick(comment.profileImage)
+            }
             val isMyComment = comment.isMine
             val userNickName = ApplicationClass.sharedPreferences.getUserNickName()
 
@@ -68,7 +74,6 @@ class CommentAdapter(
             }
         }
     }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
         val binding = ItemCommentBinding.inflate(
             LayoutInflater.from(parent.context),
