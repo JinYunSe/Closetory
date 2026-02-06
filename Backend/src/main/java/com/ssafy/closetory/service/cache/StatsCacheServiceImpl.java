@@ -2,6 +2,7 @@ package com.ssafy.closetory.service.cache;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +41,11 @@ public class StatsCacheServiceImpl implements StatsCacheService {
   }
 
   @Override
-  public void evictMonthlyStats(Integer userId, String yyyyMM) {
-    redisTemplate.delete(StatsCacheKey.top3(userId, yyyyMM));
-    redisTemplate.delete(StatsCacheKey.tagRatio(userId, yyyyMM));
-    redisTemplate.delete(StatsCacheKey.colorRatio(userId, yyyyMM));
+  public void evictToday(Integer userId) {
+    String today = StatsCacheKey.date(LocalDate.now());
+
+    redisTemplate.delete(StatsCacheKey.top3(userId, today));
+    redisTemplate.delete(StatsCacheKey.tagRatio(userId, today));
+    redisTemplate.delete(StatsCacheKey.colorRatio(userId, today));
   }
 }

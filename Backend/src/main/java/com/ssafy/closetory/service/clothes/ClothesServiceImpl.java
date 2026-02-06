@@ -11,7 +11,6 @@ import com.ssafy.closetory.exception.common.NotFoundException;
 import com.ssafy.closetory.repository.*;
 import com.ssafy.closetory.repository.projection.ClothesRecommendRow;
 import com.ssafy.closetory.service.s3.S3ImageService;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -319,17 +318,16 @@ public class ClothesServiceImpl implements ClothesService {
 
       MultipartBodyBuilder builder = new MultipartBodyBuilder();
 
-      builder.part("image", new ByteArrayResource(imageByte))
-        .filename("clothes.png");
+      builder.part("image", new ByteArrayResource(imageByte)).filename("clothes.png");
 
       byte[] response =
-        fastApiWebClient
-          .post()
-          .uri("/editing")
-          .body(BodyInserters.fromMultipartData(builder.build()))
-          .retrieve()
-          .bodyToMono(byte[].class)
-          .block();
+          fastApiWebClient
+              .post()
+              .uri("/editing")
+              .body(BodyInserters.fromMultipartData(builder.build()))
+              .retrieve()
+              .bodyToMono(byte[].class)
+              .block();
 
       s3ImageService.deleteByUrl(photoUrl);
       return s3ImageService.upload(response, "result.png");

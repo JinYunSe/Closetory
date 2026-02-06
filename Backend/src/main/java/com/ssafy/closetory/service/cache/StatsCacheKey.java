@@ -5,34 +5,32 @@ import java.time.format.DateTimeFormatter;
 
 public final class StatsCacheKey {
 
-  private static final DateTimeFormatter YYYYMM = DateTimeFormatter.ofPattern("yyyyMM");
+  private static final DateTimeFormatter YYYYMMDD = DateTimeFormatter.BASIC_ISO_DATE;
   private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
   private StatsCacheKey() {}
 
-  public static String yyyyMM(LocalDate date) {
-    return date.format(YYYYMM);
+  public static String date(LocalDate date) {
+    return date.format(YYYYMMDD);
   }
 
-  public static String top3(Integer userId, String yyyyMM) {
-    return "STATS:TOP3:" + userId + ":" + yyyyMM;
+  public static String top3(Integer userId, String date) {
+    return "STATS:TOP3:" + userId + ":" + date;
   }
 
-  public static String tagRatio(Integer userId, String yyyyMM) {
-    return "STATS:TAG_RATIO:" + userId + ":" + yyyyMM;
+  public static String tagRatio(Integer userId, String date) {
+    return "STATS:TAG_RATIO:" + userId + ":" + date;
   }
 
-  public static String colorRatio(Integer userId, String yyyyMM) {
-    return "STATS:COLOR_RATIO:" + userId + ":" + yyyyMM;
+  public static String colorRatio(Integer userId, String date) {
+    return "STATS:COLOR_RATIO:" + userId + ":" + date;
   }
 
-  // TTL은 다음달 1일 00:00까지 남은 시간으로
-  public static long ttlSecondsUntilNextMonthStart() {
+  // TTL은 내일 00:00까지
+  public static long ttlSecondsUntilTomorrowStart() {
     ZonedDateTime now = ZonedDateTime.now(KST);
-    ZonedDateTime nextMonthStart =
-        now.withDayOfMonth(1).plusMonths(1).toLocalDate().atStartOfDay(KST);
-
-    long seconds = Duration.between(now, nextMonthStart).getSeconds();
+    ZonedDateTime tomorrowStart = now.toLocalDate().plusDays(1).atStartOfDay(KST);
+    long seconds = Duration.between(now, tomorrowStart).getSeconds();
     return Math.max(seconds, 60);
   }
 }

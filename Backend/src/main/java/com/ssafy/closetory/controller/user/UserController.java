@@ -107,32 +107,32 @@ public class UserController {
   }
 
   @GetMapping("/{userId}/stats/top3")
-  @Operation(summary = "이번 달에 가장 자주 입은 옷 Top3")
+  @Operation(summary = "최근 30일 동안 가장 자주 입은 옷 Top3")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<List<Top3Item>>> getTop3(
       @PathVariable Integer userId, @AuthenticationPrincipal Integer authUserId) {
     List<Top3Item> response = statsService.getTop3(userId, authUserId);
     return ResponseEntity.status(HttpStatus.OK)
-        .body(ApiResponse.ok(200, "이번 달에 가장 자주 입은 옷 Top3 조회 성공", response));
+        .body(ApiResponse.ok(200, "최근 30일 동안 가장 자주 입은 옷 Top3 조회 성공", response));
   }
 
   @GetMapping("/{userId}/stats/tag")
-  @Operation(summary = "이번 달 태그별 비중 통계 조회")
+  @Operation(summary = "최근 30일 태그별 비중 통계 조회")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<List<TagStatsItem>>> getTagStats(
       @PathVariable Integer userId, @AuthenticationPrincipal Integer authUserId) {
     List<TagStatsItem> response = statsService.getTagStats(userId, authUserId);
     return ResponseEntity.status(HttpStatus.OK)
-        .body(ApiResponse.ok(200, "이번 달 태그별 비중 통계 조회 성공", response));
+        .body(ApiResponse.ok(200, "최근 30일 태그별 비중 통계 조회 성공", response));
   }
 
   @GetMapping("/{userId}/stats/color")
-  @Operation(summary = "이번 달 색상별 비중 통계 조회")
+  @Operation(summary = "최근 30일 색상별 비중 통계 조회")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ApiResponse<List<ColorStatsItem>>> getColorStats(
       @PathVariable Integer userId, @AuthenticationPrincipal Integer authUserId) {
     List<ColorStatsItem> response = statsService.getColorStats(userId, authUserId);
     return ResponseEntity.status(HttpStatus.OK)
-        .body(ApiResponse.ok(200, "이번 달 색상별 비중 통계 조회 성공", response));
+        .body(ApiResponse.ok(200, "최근 30일 색상별 비중 통계 조회 성공", response));
   }
 }

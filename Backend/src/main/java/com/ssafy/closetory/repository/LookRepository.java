@@ -33,7 +33,7 @@ public interface LookRepository extends JpaRepository<Look, Integer> {
     LIMIT 3
   """,
       nativeQuery = true)
-  List<Top3Row> findTop3ThisMonth(
+  List<Top3Row> findTop3Between(
       @Param("userId") Integer userId,
       @Param("startDate") LocalDate startDate,
       @Param("endDate") LocalDate endDate);
@@ -55,7 +55,7 @@ public interface LookRepository extends JpaRepository<Look, Integer> {
     ORDER BY COUNT(*) DESC, t.id
     """,
       nativeQuery = true)
-  List<StatsRow> findTagStatsThisMonth(
+  List<StatsRow> findTagStatsBetween(
       @Param("userId") Integer userId,
       @Param("startDate") LocalDate startDate,
       @Param("endDate") LocalDate endDate);
@@ -76,7 +76,7 @@ public interface LookRepository extends JpaRepository<Look, Integer> {
     ORDER BY COUNT(*) DESC, c.color
     """,
       nativeQuery = true)
-  List<StatsRow> findColorStatsThisMonth(
+  List<StatsRow> findColorStatsBetween(
       @Param("userId") Integer userId,
       @Param("startDate") LocalDate startDate,
       @Param("endDate") LocalDate endDate);

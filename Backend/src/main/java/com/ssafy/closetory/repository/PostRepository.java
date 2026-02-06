@@ -91,7 +91,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
   @Query("update Post p set p.views = p.views + 1 where p.id = :postId")
   void increaseViews(@Param("postId") Integer postId);
 
-  @Query("""
+  @Query(
+      """
       SELECT DISTINCT p
       FROM Likes l
       JOIN l.post p
@@ -106,5 +107,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
         )
       ORDER BY (p.views * 0.5 + CAST(function('DATEDIFF', CURRENT_DATE, p.createdAt) AS INTEGER) * -1 * 10) DESC
       """)
-  List<Post> findLikedPostsByUserIdAndFavoriteTags(@Param("userId") Integer userId, Pageable pageable);
+  List<Post> findLikedPostsByUserIdAndFavoriteTags(
+      @Param("userId") Integer userId, Pageable pageable);
 }
