@@ -32,6 +32,14 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+  implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+  implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+  implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+  implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+  implementation 'org.springframework.boot:spring-boot-starter-webflux'
+  implementation platform("software.amazon.awssdk:bom:2.25.70")
+  implementation "software.amazon.awssdk:s3"
+  implementation "software.amazon.awssdk:url-connection-client"
   compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
@@ -39,6 +47,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }
 
 tasks.named('test') {
