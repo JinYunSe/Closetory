@@ -52,7 +52,7 @@
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:contentDescription="프로필 사진"
-                    android:src="@drawable/ic_profile_default"
+                    android:src="@drawable/ic_my_page"
                     android:scaleType="centerCrop"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.Circle"
                     app:layout_constraintTop_toTopOf="parent"
