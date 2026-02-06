@@ -3,8 +3,11 @@
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
@@ -274,45 +277,78 @@ class PostDetailFragment :
             .show(parentFragmentManager, "post_photo_dialog")
     }
 
-
     /**
      * ✅ 댓글 수정 다이얼로그
      */
     private fun showEditCommentDialog(comment: CommentDto) {
-        val editText = android.widget.EditText(requireContext()).apply {
-            setText(comment.content)
-            hint = "댓글 내용을 입력해 주세요."
-            setPadding(50, 30, 50, 30)
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_edit_comment, null)
+
+        val etComment = dialogView.findViewById<EditText>(R.id.etComment)
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancel)
+        val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirm)
+
+        // 기존 댓글 내용 설정
+        etComment.setText(comment.content)
+        etComment.setSelection(comment.content.length) // 커서를 끝으로
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        // 배경 투명하게 (모서리 둥글게 보이도록)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
         }
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("댓글 수정")
-            .setView(editText)
-            .setPositiveButton("수정") { _, _ ->
-                val newContent = editText.text.toString().trim()
-                if (newContent.isNotEmpty()) {
-                    Log.d("COMMENT_EDIT", "🔧 댓글 수정 요청: commentId=${comment.commentId}, content=$newContent")
-                    viewModel.updateComment(postId, comment.commentId, newContent)
-                } else {
-                    Toast.makeText(requireContext(), "댓글 내용을 입력해 주세요.", Toast.LENGTH_SHORT).show()
-                }
+        btnConfirm.setOnClickListener {
+            val newContent = etComment.text.toString().trim()
+            if (newContent.isNotEmpty()) {
+                Log.d("COMMENT_EDIT", "🔧 댓글 수정 요청: commentId=${comment.commentId}, content=$newContent")
+                viewModel.updateComment(postId, comment.commentId, newContent)
+                dialog.dismiss()
+            } else {
+                Toast.makeText(requireContext(), "댓글 내용을 입력해 주세요.", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("취소", null)
-            .show()
+        }
+
+        dialog.show()
+
+        // 키보드 자동 표시
+        etComment.requestFocus()
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(etComment, InputMethodManager.SHOW_IMPLICIT)
     }
 
     /**
      * ✅ 댓글 삭제 확인 다이얼로그
      */
     private fun confirmDeleteComment(comment: CommentDto) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("댓글 삭제")
-            .setMessage("정말 삭제할까요?")
-            .setPositiveButton("삭제") { _, _ ->
-                Log.d("COMMENT_DELETE", "🗑️ 댓글 삭제 요청: commentId=${comment.commentId}")
-                viewModel.deleteComment(postId, comment.commentId)
-            }
-            .setNegativeButton("취소", null)
-            .show()
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_delete_comment, null)
+
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancel)
+        val btnDelete = dialogView.findViewById<TextView>(R.id.btnDelete)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        // 배경 투명하게
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnDelete.setOnClickListener {
+            Log.d("COMMENT_DELETE", "🗑️ 댓글 삭제 요청: commentId=${comment.commentId}")
+            viewModel.deleteComment(postId, comment.commentId)
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }
