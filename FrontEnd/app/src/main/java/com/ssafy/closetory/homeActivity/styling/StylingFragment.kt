@@ -17,7 +17,6 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentStylingBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.homeActivity.adapter.ClothesAdapter
-import com.ssafy.closetory.homeActivity.aiStyling.AiStylingViewModel
 import com.ssafy.closetory.homeActivity.mypage.MyPageViewModel
 
 private const val TAG = "StylingFragment"
