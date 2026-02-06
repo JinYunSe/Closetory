@@ -17,6 +17,7 @@ import com.ssafy.closetory.baseCode.base.BaseFragment
 import com.ssafy.closetory.databinding.FragmentStylingBinding
 import com.ssafy.closetory.dto.ClothesItemDto
 import com.ssafy.closetory.homeActivity.adapter.ClothesAdapter
+import com.ssafy.closetory.homeActivity.mypage.MyPageViewModel
 
 private const val TAG = "StylingFragment"
 
@@ -28,6 +29,7 @@ class StylingFragment :
 
     // Activity 스코프 ViewModel
     private val viewModel: StylingViewModel by activityViewModels()
+    private val myPageViewModel: MyPageViewModel by activityViewModels()
 
     private lateinit var topAdapter: ClothesAdapter
     private lateinit var bottomAdapter: ClothesAdapter
@@ -577,6 +579,8 @@ class StylingFragment :
     private fun requestAiFitting() {
         Log.d(TAG, "requestAiFitting 호출")
 
+        if (!ensureBodyPhotoOrNavigate()) return
+
         val clothesIdList = listOf(
             viewModel.selectedSlots["TOP"]?.clothesId ?: -1,
             viewModel.selectedSlots["BOTTOM"]?.clothesId ?: -1,
@@ -600,6 +604,33 @@ class StylingFragment :
         }
 
         viewModel.requestAiFitting(clothesIdList)
+    }
+
+    private fun ensureBodyPhotoOrNavigate(): Boolean {
+        val profile = myPageViewModel.getCachedUserProfile()
+        val bodyPhotoUrl = profile?.bodyPhotoUrl
+
+        if (profile == null) {
+            val userId = ApplicationClass.sharedPreferences.getUserId(ApplicationClass.USERID) ?: -1
+            if (userId != -1) {
+                myPageViewModel.loadUserProfile(userId)
+            }
+            Toast.makeText(requireContext(), "프로필 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (!bodyPhotoUrl.isNullOrBlank()) return true
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("전신 사진 필요")
+            .setMessage("AI 가상 피팅을 위해 전신 프로필 사진이 필요합니다.\n내 정보에서 등록해 주세요.")
+            .setPositiveButton("내 정보로 이동") { _, _ ->
+                findNavController().navigate(R.id.editProfileFragment)
+            }
+            .setNegativeButton("취소", null)
+            .show()
+
+        return false
     }
 
     /**
