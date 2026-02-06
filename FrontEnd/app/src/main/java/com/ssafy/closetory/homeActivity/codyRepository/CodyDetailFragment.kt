@@ -64,11 +64,15 @@ class CodyDetailFragment :
         // 홈 캘린더 데이터 로드
         homeViewModel.getStylingList(true)
 
-        // ✅ 핵심: aiReason이 비어있으면 lookId로 서버 목록에서 다시 채움
+        // 핵심: aiReason이 비어있으면 lookId로 서버 목록에서 다시 채움
         if (aiReason.isNullOrBlank()) {
             Log.w(TAG, "aiReason이 arguments로 안 들어옴 → lookId로 보강 조회 시도: $lookId")
             codyViewModel.getLooks()
         }
+
+        // 코디 상세 페이지에서 캘린더만 패딩 제거하기
+        val calRoot = view.findViewById<View>(R.id.cody_detail_calendar)
+        calRoot.setPadding(0, 0, 0, 0)
     }
 
     private fun receiveArguments() {
