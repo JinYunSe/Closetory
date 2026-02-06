@@ -30,6 +30,7 @@ class StylingViewModel : ViewModel() {
     // 현재 실행 중인 Job 추적
     private var fittingJob: Job? = null
     private var saveJob: Job? = null
+    private var lastSavedAiPhotoUrl: String? = null
 
     // 슬롯 데이터를 ViewModel에 저장 (Fragment 재생성 시에도 유지)
     val selectedSlots = mutableMapOf<String, ClothesItemDto?>(
@@ -138,7 +139,7 @@ class StylingViewModel : ViewModel() {
                     val body = response.body()
                     Log.d(TAG, "📦 응답 body: $body")
 
-                    if (body != null && body.httpStatusCode == 201 && body.data != null) {
+                    if (body != null && body.data != null && (body.httpStatusCode in 200..299)) {
                         val photoUrl = body.data.aiPhotoUrl
 
                         if (!photoUrl.isNullOrBlank()) {
@@ -188,7 +189,7 @@ class StylingViewModel : ViewModel() {
     /**
      * ⭐ 룩 저장 (개선된 UX - 저장 후 초기화하고 코디저장소 이동 가능)
      */
-    fun saveLook(clothesIdList: List<Int>) {
+    fun saveLook(clothesIdList: List<Int>, autoSave: Boolean = false) {
         if (clothesIdList.all { it == -1 }) {
             _errorMessage.value = "최소 1개 이상의 의류를 선택해 주세요."
             return
@@ -197,6 +198,11 @@ class StylingViewModel : ViewModel() {
         val aiPhotoUrl = _aiPhotoUrl.value
         if (aiPhotoUrl.isNullOrBlank()) {
             _errorMessage.value = "AI 이미지가 없습니다. 먼저 가상 피팅을 진행해 주세요."
+            return
+        }
+
+        if (aiPhotoUrl == lastSavedAiPhotoUrl) {
+            Log.d(TAG, "이미 저장된 코디입니다. 중복 저장 방지")
             return
         }
 
@@ -226,19 +232,24 @@ class StylingViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     val body = response.body()
                     Log.d(TAG, " 룩 저장 성공: ${body?.data}")
-                    _successMessage.value = body?.responseMessage ?: "코디가 저장되었습니다!"
+                    if (!autoSave) {
+                        _successMessage.value = body?.responseMessage ?: "코디가 저장되었습니다!"
+                    }
+                    lastSavedAiPhotoUrl = aiPhotoUrl
 
-                    // ✅ 핵심: 전체 초기화(resetAll) 금지
-                    // 등록 완료 후에는 "가상피팅 결과만" 지우고,
-                    // 다시 가상피팅 가능한 상태(FITTING_READY)로 돌려준다.
-                    _aiPhotoUrl.value = null
-                    _stage.value = StylingStage.SAVED
+                    if (!autoSave) {
+                        // ✅ 핵심: 전체 초기화(resetAll) 금지
+                        // 등록 완료 후에는 "가상피팅 결과만" 지우고,
+                        // 다시 가상피팅 가능한 상태(FITTING_READY)로 돌려준다.
+                        _aiPhotoUrl.value = null
+                        _stage.value = StylingStage.SAVED
+                        Log.d(TAG, " 등록 완료 → SAVED로 전환 (코디 저장소 이동 가능)")
+                    } else {
+                        Log.d(TAG, " 자동 저장 완료 (UI 유지)")
+                    }
 
                     // (선택) 남아있는 로딩/에러 상태 정리
                     _errorMessage.value = null
-
-                    Log.d(TAG, " 등록 완료 → SAVED로 전환 (코디 저장소 이동 가능)")
-                    navigateToLookStorage()
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e(TAG, " 룩 저장 실패 - 코드: ${response.code()}, 메시지: $errorBody")
@@ -352,6 +363,19 @@ class StylingViewModel : ViewModel() {
             _stage.value = StylingStage.SELECTING
             Log.d(TAG, "📍 단계 변경: SELECTING")
         }
+    }
+
+    fun syncStageWithCurrentState() {
+        val hasPhoto = !_aiPhotoUrl.value.isNullOrBlank()
+        val hasSelection = selectedSlots.values.any { it != null }
+
+        _stage.value = when {
+            hasPhoto -> StylingStage.FITTING_DONE
+            hasSelection -> StylingStage.FITTING_READY
+            else -> StylingStage.SELECTING
+        }
+
+        Log.d(TAG, "📍 단계 동기화: photo=$hasPhoto, selection=$hasSelection, stage=${_stage.value}")
     }
 
     /**

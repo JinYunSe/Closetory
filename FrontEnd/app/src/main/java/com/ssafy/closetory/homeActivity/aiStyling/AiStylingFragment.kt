@@ -91,6 +91,9 @@ class AiStylingFragment :
             Glide.with(requireContext())
                 .load(url)
                 .into(binding.ivAiFittingResult)
+
+            // 자동 저장 (중복 저장은 ViewModel에서 방지)
+            viewModel.saveCurrentLook()
         }
 
         // 성공 메시지
@@ -98,18 +101,6 @@ class AiStylingFragment :
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 viewModel.clearSuccessMessage()
-            }
-        }
-
-        // 코디저장소 이동 트리거
-        viewModel.navigateToLookStorage.observe(viewLifecycleOwner) { shouldNavigate ->
-            if (shouldNavigate == true) {
-                try {
-                    findNavController().navigate(R.id.codyRepositoryFragment)
-                    viewModel.onNavigatedToLookStorage()
-                } catch (e: Exception) {
-                    Log.e("AiStyling", "코디저장소 이동 실패", e)
-                }
             }
         }
 
@@ -251,7 +242,12 @@ class AiStylingFragment :
             }
 
             AiStylingStage.FITTING_DONE -> {
-                viewModel.saveCurrentLook()
+                // 가상피팅 완료 상태에서는 다시 추천 단계로
+                binding.layoutAiFitting.visibility = View.GONE
+                viewModel.resetAll()
+                val isPersonalized = binding.switchStyleMode.isChecked
+                val onlyMine = binding.switchSwitchOwnedOnly.isChecked
+                viewModel.requestAiRecommendation(isPersonalized, onlyMine)
             }
         }
     }
@@ -296,7 +292,7 @@ class AiStylingFragment :
         when (stage) {
             AiStylingStage.RECOMMEND -> {
                 if (isLoading) {
-                    binding.btnRegister.text = "AI 코디 추천 중"
+                    binding.btnRegister.text = "코디 추천 중"
                     binding.btnRegister.isEnabled = false
                 } else {
                     binding.btnRegister.text = "AI 코디추천"
@@ -306,7 +302,7 @@ class AiStylingFragment :
 
             AiStylingStage.FITTING_READY -> {
                 if (isLoading) {
-                    binding.btnRegister.text = "AI 가상피팅 생성 중"
+                    binding.btnRegister.text = "가상 피팅 중"
                     binding.btnRegister.isEnabled = false
                 } else {
                     binding.btnRegister.text = "AI 가상피팅"
@@ -316,10 +312,10 @@ class AiStylingFragment :
 
             AiStylingStage.FITTING_DONE -> {
                 if (isLoading) {
-                    binding.btnRegister.text = "저장 중"
+                    binding.btnRegister.text = "코디 추천 중"
                     binding.btnRegister.isEnabled = false
                 } else {
-                    binding.btnRegister.text = "등록"
+                    binding.btnRegister.text = "AI 코디추천"
                     binding.btnRegister.isEnabled = true
                 }
             }
@@ -427,11 +423,7 @@ class AiStylingFragment :
         super.onPause()
         binding.vvAiLoading.stopPlayback()
 
-        // 가상피팅 완료 후 다른 곳으로 이동 시 초기화
-        val stage = viewModel.stage.value ?: AiStylingStage.RECOMMEND
-        if (stage == AiStylingStage.FITTING_DONE) {
-            viewModel.resetAll()
-        }
+        // 화면 전환 시에도 가상피팅 결과 유지
     }
 }
 
