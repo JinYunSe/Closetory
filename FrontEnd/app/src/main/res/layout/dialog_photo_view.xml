@@ -15,8 +15,7 @@
         android:layout_gravity="center"
         android:layout_margin="24dp"
         android:clickable="true"
-        android:focusable="true"
-        android:background="@android:color/transparent">
+        android:focusable="true">
 
         <io.getstream.photoview.PhotoView
             android:id="@+id/photoView"

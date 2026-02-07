@@ -10,12 +10,11 @@
         android:id="@+id/ivItem"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg_login_input"
-        android:backgroundTint="@color/gray_300"
         android:contentDescription="옷요소 이미지"
-        android:scaleType="fitCenter"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayClosetoryMediumRounded"/>
-
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayClosetoryMediumRounded"
+        app:strokeColor="@color/gray_300"
+        app:strokeWidth="1dp"/>
     <!-- 우상단 저장 버튼 -->
     <ImageView
         android:id="@+id/ivSave"

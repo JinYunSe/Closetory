@@ -110,7 +110,7 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="악세" />
+            android:text="소품류" />
 
     </com.google.android.material.tabs.TabLayout>
 

@@ -21,4 +21,9 @@
         <item name="fontFamily">@font/font_pretendard</item>
 
     </style>
+
+    <style name="Theme.FrontEnd.Splash" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 </resources>

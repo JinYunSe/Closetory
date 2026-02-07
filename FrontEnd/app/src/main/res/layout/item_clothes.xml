@@ -33,7 +33,6 @@
             android:layout_height="22dp"
             android:layout_gravity="top|end"
             android:layout_margin="6dp"
-            android:background="@android:color/transparent"
             android:scaleType="centerInside"
             />
 

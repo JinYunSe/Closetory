@@ -34,7 +34,8 @@
 
         <activity
             android:name=".authActivity.AuthActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.FrontEnd.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
