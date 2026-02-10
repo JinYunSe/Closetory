@@ -153,22 +153,16 @@ class StylingFragment :
     private fun setupOwnedOnlySwitch() {
         suppressSwitchListener = true
         binding.switchSwitchOwnedOnly.isChecked = checkedOnlyMyCloth
-        updateSwitchText(checkedOnlyMyCloth)
         suppressSwitchListener = false
 
         binding.switchSwitchOwnedOnly.setOnCheckedChangeListener { _, isChecked ->
             if (suppressSwitchListener) return@setOnCheckedChangeListener
 
             checkedOnlyMyCloth = isChecked
-            updateSwitchText(isChecked)
 
             // ✅ 내 옷만/전체 옷 로드
             viewModel.loadClothItems(onlyMine = isChecked)
         }
-    }
-
-    private fun updateSwitchText(isChecked: Boolean) {
-        binding.tvSwitchOwnedOnly.text = if (isChecked) "내 옷만" else "모든 옷"
     }
 
     private fun setupBackPressHandler() {
