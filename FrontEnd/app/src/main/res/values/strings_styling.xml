@@ -1,0 +1,7 @@
+﻿<resources>
+    <string name="styling_owned_only">내 옷만</string>
+    <string name="styling_ai_fitting_desc">AI 가상 피팅 결과</string>
+    <string name="styling_close">닫기</string>
+    <string name="styling_ai_button">AI 코디추천</string>
+    <string name="styling_reset">초기화</string>
+</resources>

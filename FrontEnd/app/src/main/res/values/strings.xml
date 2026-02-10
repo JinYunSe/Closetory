@@ -1,14 +1,11 @@
-<resources>
+﻿<resources>
     <string name="app_name">Closetory</string>
     <string name="title_home">홈</string>
     <string name="title_closet">옷장</string>
     <string name="title_styling">코디</string>
     <string name="title_my_page">내 정보</string>
-    <string name="title_registration_clothes">옷 추가</string>
-    <string name="title_add_cloth">옷 추가</string>
-    <string name="title_clothes_detail">옷 상세 조회</string>
-    <!-- 달력 -->
-    <string name="title_day">DAY</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_registration_clothes">의상 등록</string>
+    <string name="title_add_cloth">의상 추가</string>
+    <string name="title_clothes_detail">의상 상세 조회</string>
+    <string name="title_day">날짜</string>
 </resources>

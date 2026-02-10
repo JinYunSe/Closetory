@@ -94,7 +94,7 @@ class ClothesPickerDialogFragment : DialogFragment() {
     private fun initRecyclerViews() {
         setupPickListener()
 
-        binding.glCloset.apply {
+        binding.closetList.glCloset.apply {
             adapter = clothAdapter
             layoutManager = GridLayoutManager(requireContext(), 3)
             setHasFixedSize(true)
@@ -159,7 +159,7 @@ class ClothesPickerDialogFragment : DialogFragment() {
 
     // 탭 선택에 맞게 화면에 보여줄 리스트 갱신
     private fun selectedTab() {
-        binding.tabCloset.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+        binding.closetList.tabCloset.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 applyTabItems(viewModel.closetData.value)
             }
@@ -172,7 +172,7 @@ class ClothesPickerDialogFragment : DialogFragment() {
     private fun applyTabItems(data: ClosetResponse?) {
         if (data == null) return
 
-        val position = binding.tabCloset.selectedTabPosition
+        val position = binding.closetList.tabCloset.selectedTabPosition
         val list = when (position) {
             0 -> data.topClothes ?: emptyList()
             1 -> data.bottomClothes ?: emptyList()

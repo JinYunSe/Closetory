@@ -22,25 +22,23 @@ import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
 import kotlinx.coroutines.launch
 
-private const val TAG = "ClosetFragment_싸피"
+private const val TAG = "ClosetFragment"
 
-class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding::bind, R.layout.fragment_closet) {
+class ClosetFragment : BaseFragment<FragmentClosetBinding>(
+    FragmentClosetBinding::bind,
+    R.layout.fragment_closet
+) {
 
     private val viewModel: ClosetViewModel by viewModels()
     private lateinit var homeActivity: HomeActivity
     private lateinit var colorAdapter: ColorOptions.ColorAdapter
 
-    /**
-     * null  = 필터 미적용(전체)
-     * list  = 선택된 필터 적용
-     */
     private var currentTags: List<Int>? = null
     private var currentSeasons: List<Int>? = null
     private var currentColor: String? = null
     private var checkedOnlyMyCloth: Boolean = false
 
     private val clothAdapter = ClothesAdapter()
-
     private var suppressSwitchListener = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,13 +65,10 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
                 bundleOf("clothesId" to item.clothesId)
             )
         }
-
-        // 북마크 클릭이 필요하면 여기 연결
         // clothAdapter.onBookmarkClick = { item -> ... }
     }
 
-    // 검색 다이얼로그
-    fun searchDialog() {
+    private fun searchDialog() {
         binding.ibtnSearchFilter.setOnClickListener {
             val dialogView = LayoutInflater.from(homeActivity)
                 .inflate(R.layout.dialog_search_filter, null, false)
@@ -83,12 +78,10 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
             val colorSection = dialogView.findViewById<View>(R.id.section_color)
             val btnApply = dialogView.findViewById<View>(R.id.btn_search_filter)
 
-            // 렌더
             TagOptions.render(tagsSection, homeActivity)
             SeasonOptions.render(seasonSection, homeActivity)
             colorAdapter = ColorOptions.setup(colorSection)
 
-            // 기존 선택값 복원 (null이면 전체라서 복원할 게 없음)
             currentTags?.let { TagOptions.setSelectedTag(tagsSection, it) }
             currentSeasons?.let { SeasonOptions.setSelectedSeason(seasonSection, it) }
             currentColor?.let { colorAdapter.setSelectedColor(it) }
@@ -104,7 +97,6 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
                 val selectedSeasons = SeasonOptions.getSelectedSeason(seasonSection)
                 val selectedColor = colorAdapter.getSelectedColor()
 
-                // "아무것도 선택 안 함"은 전체로 처리(null)
                 currentTags = selectedTags.takeIf { it.isNotEmpty() }
                 currentSeasons = selectedSeasons.takeIf { it.isNotEmpty() }
                 currentColor = selectedColor
@@ -116,8 +108,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         }
     }
 
-    // 스위치 체크 여부 확인
-    fun checkSwitch() {
+    private fun checkSwitch() {
         suppressSwitchListener = true
         binding.swOnlyMyCloth.isChecked = checkedOnlyMyCloth
         suppressSwitchListener = false
@@ -130,8 +121,7 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         }
     }
 
-    // 검색 실행
-    fun runSearch() {
+    private fun runSearch() {
         Log.d(
             TAG,
             "runSearch tags=$currentTags seasons=$currentSeasons color=$currentColor onlyMy=$checkedOnlyMyCloth"
@@ -146,16 +136,15 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         )
     }
 
-    // 리스트 초기화
-    fun initRecyclerViews() {
-        binding.glCloset.apply {
+    private fun initRecyclerViews() {
+        binding.closetList.glCloset.apply {
             adapter = clothAdapter
             layoutManager = GridLayoutManager(homeActivity, 3)
             setHasFixedSize(true)
         }
     }
 
-    fun registerObserve() {
+    private fun registerObserve() {
         viewModel.closetData.observe(viewLifecycleOwner) { data: ClosetResponse? ->
             if (data == null) return@observe
             Log.d(TAG, "registerObserve Data : $data")
@@ -170,8 +159,8 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         }
     }
 
-    fun selectedTab() {
-        binding.tabCloset.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+    private fun selectedTab() {
+        binding.closetList.tabCloset.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 applyTabItems(viewModel.closetData.value)
             }
@@ -180,10 +169,10 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         })
     }
 
-    fun applyTabItems(data: ClosetResponse?) {
+    private fun applyTabItems(data: ClosetResponse?) {
         if (data == null) return
 
-        val position = binding.tabCloset.selectedTabPosition
+        val position = binding.closetList.tabCloset.selectedTabPosition
         val list = when (position) {
             0 -> data.topClothes ?: emptyList()
             1 -> data.bottomClothes ?: emptyList()
@@ -196,8 +185,8 @@ class ClosetFragment : BaseFragment<FragmentClosetBinding>(FragmentClosetBinding
         clothAdapter.submitList(list)
 
         binding.tvTotalCount.text = list.size.toString()
-        binding.glCloset.visibility = View.VISIBLE
-        binding.tvEmptyCloset.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+        binding.closetList.glCloset.visibility = View.VISIBLE
+        binding.closetList.tvEmptyCloset.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun observeRefreshSignal() {

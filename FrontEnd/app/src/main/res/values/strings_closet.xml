@@ -1,0 +1,9 @@
+﻿<resources>
+    <string name="closet_tab_top">상의</string>
+    <string name="closet_tab_bottom">하의</string>
+    <string name="closet_tab_outer">아우터</string>
+    <string name="closet_tab_shoes">신발</string>
+    <string name="closet_tab_bags">가방</string>
+    <string name="closet_tab_accessories">소모품</string>
+    <string name="closet_empty_message">조건에 맞는 옷이 없어요. 필터를 변경하거나 옷을 추가해 주세요.</string>
+</resources>
