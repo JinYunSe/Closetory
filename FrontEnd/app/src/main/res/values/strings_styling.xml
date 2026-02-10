@@ -1,0 +1,7 @@
+﻿<resources>
+    <string name="styling_owned_only">Owned only</string>
+    <string name="styling_ai_fitting_desc">AI fitting result</string>
+    <string name="styling_close">Close</string>
+    <string name="styling_ai_button">AI styling</string>
+    <string name="styling_reset">Reset</string>
+</resources>

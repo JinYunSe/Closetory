@@ -68,7 +68,7 @@ class StylingFragment :
     // Closet 리스트(Grid) + 탭
     // ---------------------------------------------------------
     private fun setupClosetRecyclerView() {
-        binding.glCloset.apply {
+        binding.closetList.glCloset.apply {
             adapter = clothAdapter
             layoutManager = GridLayoutManager(requireContext(), 3)
             setHasFixedSize(true)
@@ -76,7 +76,7 @@ class StylingFragment :
 
         // ✅ 클릭 시: "상세 이동"이 아니라 "슬롯에 추가"
         clothAdapter.onItemClick = { item ->
-            when (binding.tabCloset.selectedTabPosition) {
+            when (binding.closetList.tabCloset.selectedTabPosition) {
                 0 -> addItemToSlot("TOP", item, binding.ivSlotTop, binding.btnRemoveTop)
                 1 -> addItemToSlot("BOTTOM", item, binding.ivSlotBottom, binding.btnRemoveBottom)
                 2 -> addItemToSlot("OUTER", item, binding.ivSlotOuter, binding.btnRemoveOuter)
@@ -89,7 +89,7 @@ class StylingFragment :
     }
 
     private fun setupTabs() {
-        binding.tabCloset.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+        binding.closetList.tabCloset.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 applyTabItems()
             }
@@ -99,11 +99,11 @@ class StylingFragment :
         })
 
         // 첫 탭 선택
-        binding.tabCloset.getTabAt(0)?.select()
+        binding.closetList.tabCloset.getTabAt(0)?.select()
     }
 
     private fun applyTabItems() {
-        val position = binding.tabCloset.selectedTabPosition
+        val position = binding.closetList.tabCloset.selectedTabPosition
         val list = when (position) {
             0 -> cachedTop
             1 -> cachedBottom
@@ -117,8 +117,8 @@ class StylingFragment :
         clothAdapter.submitList(list)
 
         val isEmpty = list.isEmpty()
-        binding.glCloset.visibility = if (isEmpty) View.GONE else View.VISIBLE
-        binding.tvEmptyCloset.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.closetList.glCloset.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        binding.closetList.tvEmptyCloset.visibility = if (isEmpty) View.VISIBLE else View.GONE
     }
 
     // ---------------------------------------------------------
