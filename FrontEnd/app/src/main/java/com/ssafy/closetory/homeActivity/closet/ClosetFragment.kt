@@ -22,12 +22,13 @@ import com.ssafy.closetory.util.SeasonOptions
 import com.ssafy.closetory.util.TagOptions
 import kotlinx.coroutines.launch
 
-private const val TAG = "ClosetFragment"
+private const val TAG = "ClosetFragment_싸피"
 
-class ClosetFragment : BaseFragment<FragmentClosetBinding>(
-    FragmentClosetBinding::bind,
-    R.layout.fragment_closet
-) {
+class ClosetFragment :
+    BaseFragment<FragmentClosetBinding>(
+        FragmentClosetBinding::bind,
+        R.layout.fragment_closet
+    ) {
 
     private val viewModel: ClosetViewModel by viewModels()
     private lateinit var homeActivity: HomeActivity

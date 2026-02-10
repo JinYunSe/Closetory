@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- 상단: 수정 / 삭제 바 -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_action_bar"
         android:layout_width="0dp"
@@ -64,7 +63,6 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 내용 -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll"
         android:layout_width="0dp"
@@ -164,6 +162,8 @@
                             android:src="@drawable/clothes" />
 
                         <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:text="카테고리"
                             android:textColor="#666666"/>
@@ -197,6 +197,8 @@
                             android:src="@drawable/seasons" />
 
                         <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:text="계절"
                             android:textColor="#666666"/>
@@ -230,6 +232,8 @@
                             android:src="@drawable/color" />
 
                         <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:text="색상"
                             android:textColor="#666666"/>
@@ -252,7 +256,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="18dp"
-                android:text="함께 입기 좋은 옷"
+                android:text="추천 비슷한 옷"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
