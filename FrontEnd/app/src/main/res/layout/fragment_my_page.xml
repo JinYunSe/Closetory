@@ -27,7 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="마이페이지"
+                android:text="내 정보"
                 android:textColor="#0A0F18"
                 android:textSize="16sp"
                 android:textStyle="bold"
