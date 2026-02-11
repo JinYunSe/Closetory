@@ -256,7 +256,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="18dp"
-                android:text="추천 비슷한 옷"
+                android:text="함께 입기 좋은 옷"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
