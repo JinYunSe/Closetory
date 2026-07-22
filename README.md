@@ -5,6 +5,11 @@
 - **서비스명**: Closetory
 - **개발 기간**: 2026.01.06 ~ 2026.02.10
 - **개발 인원**: 6명 (FE 3, BE 3)
+- **수상**: SSAFY 공통 프로젝트 1등
+
+<div align="center">
+  <img src="img/award-common-project-excellence.png" width="380" alt="SSAFY 공통 프로젝트 1등 상장"/>
+</div>
 
 ![alt text](/assets/thumb.png)
 
